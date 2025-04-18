@@ -24,7 +24,12 @@ class KanbanWebComponent extends HTMLElement {
         const sheet = new CSSStyleSheet();
         await sheet.replace(cssText);
 
-        shadowRoot.adoptedStyleSheets = [sheet];
+        const pretendardResponse = await fetch("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
+        const pretendardText = await pretendardResponse.text();
+        const pretendardSheet = new CSSStyleSheet();
+        await pretendardSheet.replace(pretendardText); 
+
+        shadowRoot.adoptedStyleSheets = [sheet, pretendardSheet];
       } catch (error) {
         console.error("Failed to load stylesheet:", error);
       }
