@@ -5,10 +5,11 @@ import AvatarGroup from "../avatar/avatar-group";
 
 const Card: React.FC<{
   task: Task;
-}> = ({ task }) => {
+  sectionName: string;
+}> = ({ task, sectionName }) => {
   return (
     <div className="kanban-card">
-      <div className="card-current-section">{task.sectionId}</div>
+      <div className="card-current-section">{sectionName}</div>
       <div className="card-title">{task.taskName}</div>
       <div className="card-due-date">아 {formatKoreanDateSimple(task.start)} - {formatKoreanDateSimple(task.end)}</div>
       <div className="card-meta">
