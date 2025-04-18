@@ -1,4 +1,4 @@
-import { statusSelect } from "../../mocks/select-option.-mock";
+import { statusSelect } from "../../mocks/select-option-mock";
 import { Section, Task } from "../../types/type";
 import Card from "./card";
 

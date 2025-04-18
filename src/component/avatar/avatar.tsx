@@ -19,7 +19,7 @@ const AvatarItem: React.FC<AvatarItemProps> = ({
   const topRightGradientId = `avatarTopRightGradient-${Math.random().toString(36).substring(2, 9)}`;
 
   const centerX = size / 2;
-  const centerY = size / 2;
+  const centerY = size / 2 - 1;
   const baseGradientAngle = 11.47;
   const defaultFontSize = size * 0.5;
   const radialGradientRadius = '75%';

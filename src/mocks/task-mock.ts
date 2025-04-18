@@ -1,5 +1,5 @@
 import { Section, Task } from "../types/type";
-import { priorityHigh, priorityLow, priorityMedium, priorityUrgent, statusCompleted, statusInProgress, statusWaiting } from "./select-option.-mock";
+import { priorityHigh, priorityLow, priorityMedium, priorityUrgent, statusCompleted, statusInProgress, statusWaiting } from "./select-option-mock";
 import { emails, exampleAttachments, urls } from "./task-detail-mock";
 import { user1, user2, user3, user4, user5, user6, user7, user8 } from "./user-mock";
 
