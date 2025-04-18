@@ -3,7 +3,8 @@ declare global {
     interface IntrinsicElements {
       "kanban-board": React.DetailedHTMLProps<
         React.HTMLAttributes<HTMLElement> & {
-          test: string;
+          tasks: string;
+          sections: string;
         },
         HTMLElement
       >;
