@@ -1,18 +1,19 @@
 import { useState } from "react";
 import SectionComponent from "../component/kanban/section";
-import { Section, Task } from "../types/type";
+import { Section, SelectOption, Task } from "../types/type";
 
 const Kanban: React.FC<{
   tasks: Task[];
   sections: Section[];
-}> = ({ tasks, sections }) => {
+  statusList: SelectOption[];
+}> = ({ tasks, sections, statusList }) => {
   const [isStatusView, setIsStatusView] = useState<boolean>(true);
 
   return (
     <>
       <div className='kanban'>
         <div onClick={() => setIsStatusView(prev => !prev)}>{isStatusView ? '섹션별로 보기' : '상태별로 보기'} </div>
-        <SectionComponent tasks={tasks} isStatusView={isStatusView} sections={sections}/>
+        <SectionComponent tasks={tasks} isStatusView={isStatusView} sections={sections} statusList={statusList}/>
       </div>
     </>
   );
