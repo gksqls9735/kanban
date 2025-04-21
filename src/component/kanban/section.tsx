@@ -9,7 +9,7 @@ const DroppableColumn: React.FC<{
   items: Task[];
   getSectionName: (sectionId: string) => string;
 }> = ({ id, title, items, getSectionName }) => {
-  const { setNodeRef, isOver } = useDroppable({ id });
+  const { setNodeRef } = useDroppable({ id });
 
   const style = {
     minHeight: '100px',

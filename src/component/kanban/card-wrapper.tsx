@@ -1,7 +1,4 @@
 import { Task } from "../../types/type";
-import { lightenColor } from "../../utils/color-function";
-import { formatKoreanDateSimple } from "../../utils/date-function";
-import AvatarGroup from "../avatar/avatar-group";
 import { CSS } from '@dnd-kit/utilities';
 import { useSortable } from "@dnd-kit/sortable";
 import React from "react";
