@@ -1,6 +1,6 @@
 import { useDroppable } from "@dnd-kit/core";
 import { Section, SelectOption, Task } from "../../types/type";
-import Card from "./card";
+import Card from "./card-wrapper";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 
 const DroppableColumn: React.FC<{

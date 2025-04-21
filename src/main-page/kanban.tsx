@@ -3,7 +3,7 @@ import SectionComponent from "../component/kanban/section";
 import { Section, SelectOption, Task } from "../types/type";
 import { closestCenter, DndContext, DragEndEvent, DragOverlay, DragStartEvent, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
-import Card from "../component/kanban/card";
+import Card from "../component/kanban/card-wrapper";
 
 const Kanban: React.FC<{
   tasks: Task[];
