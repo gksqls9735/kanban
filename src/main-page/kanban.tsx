@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import SectionComponent from "../component/kanban/section";
 import { Section, SelectOption, Task } from "../types/type";
-import { closestCenter, DndContext, DragEndEvent, DragOverlay, DragStartEvent, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
+import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, KeyboardSensor, PointerSensor, rectIntersection, useSensor, useSensors } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 import Card from "../component/kanban/card-wrapper";
 
@@ -51,7 +51,6 @@ const Kanban: React.FC<{
   const handleDragEnd = (e: DragEndEvent) => {
     setActiveTask(null);
     const { active, over } = e;
-
     if (!over || active.id === over.id) return
 
     const activeTaskId = active.id as string;
@@ -71,7 +70,7 @@ const Kanban: React.FC<{
       let newTasks = [...prevTasks];
 
       if (isOverAColumn) {
-        // 다른 컬럼의 빈 공간 또는 컬럼 자체 위로 드롭롭
+        // 다른 컬럼의 빈 공간 또는 컬럼 자체 위로 드롭
         const targetColumnId = overId;
         if (activeColumnId !== targetColumnId) {
           const updatedTask = { ...originalActiveTaskData };
@@ -100,7 +99,7 @@ const Kanban: React.FC<{
           newTasks.push(updatedTask);
         }
       } else {
-        // 다른 테스크 위로 드롭롭
+        // 다른 테스크 위로 드롭
         const overTaskId = overId;
         const overTaskIndex = newTasks.findIndex(t => t.taskId === overTaskId);
         if (overTaskIndex === -1) return prevTasks;
@@ -108,7 +107,7 @@ const Kanban: React.FC<{
         const overTask = newTasks[overTaskIndex];
         const overColumnId = getColumnId(overTask);
 
-        // 같은 컬럼럼
+        // 같은 컬럼
         if (activeColumnId === overColumnId) {
           const tasksInColumn = newTasks
             .filter(t => getColumnId(t) === activeColumnId)
@@ -177,7 +176,7 @@ const Kanban: React.FC<{
   return (
     <DndContext
       sensors={sensors}
-      collisionDetection={closestCenter}
+      collisionDetection={rectIntersection}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
       onDragCancel={handleDragCancel}
@@ -186,16 +185,16 @@ const Kanban: React.FC<{
         <div onClick={() => setIsStatusView(prev => !prev)} style={{ cursor: 'pointer', marginBottom: '1rem', padding: '8px', border: '1px solid #ccc', display: 'inline-block' }}>
           {isStatusView ? '섹션별로 보기' : '상태별로 보기'}
         </div>
-        <SectionComponent 
-          tasks={tasks} 
-          isStatusView={isStatusView} 
-          sections={sections} 
-          statusList={statusList} 
-          getSectionName={getSectionName} 
+        <SectionComponent
+          tasks={tasks}
+          isStatusView={isStatusView}
+          sections={sections}
+          statusList={statusList}
+          getSectionName={getSectionName}
         />
         <DragOverlay>
           {activeTask ? (
-            <Card task={activeTask} sectionName={getSectionName(activeTask.sectionId)}/>
+            <Card task={activeTask} sectionName={getSectionName(activeTask.sectionId)} />
           ) : null}
         </DragOverlay>
       </div>
