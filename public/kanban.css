@@ -15,14 +15,14 @@
   gap: 16px;
 }
 
-.kanban .kanban-content .kanban-section {
+.kanban .kanban-section {
   display: flex;
   flex-direction: column;
   width: 320px;
   gap: 16px;
 }
 
-.kanban .kanban-content .section-header {
+.kanban .section-header {
   border: 1px solid rgba(228, 232, 238, 1);
   border-radius: 16px;
   border-width: 1px;
@@ -32,7 +32,7 @@
   font-size: 16px;
 }
 
-.kanban .kanban-content .section-content {
+.kanban .section-content {
   border: 1px solid rgba(228, 232, 238, 1);
   border-radius: 16px;
   border-width: 1px;
@@ -43,7 +43,7 @@
   flex-direction: column;
 }
 
-.kanban .kanban-content .kanban-card {
+.kanban .kanban-card {
   display: flex;
   flex-direction: column;
   border: 1px solid rgba(228, 232, 238, 1);
@@ -57,7 +57,7 @@
   box-shadow: 2px 2px 6px 0px rgba(0, 0, 0, 0.04);
 }
 
-.kanban .kanban-content .card-current-section {
+.kanban .card-current-section {
   width: fit-content;
   border: 1px solid rgba(205, 211, 221, 1);
   border-radius: 50px;
@@ -72,7 +72,7 @@
   align-items: center;
 }
 
-.kanban .kanban-content .card-title {
+.kanban .card-title {
   font-weight: 500;
   font-size: 16px;
   line-height: 130%;
@@ -80,7 +80,7 @@
   color: rgba(15, 27, 42, 1);
 }
 
-.kanban .kanban-content .card-due-date {
+.kanban .card-due-date {
   font-weight: 400;
   font-size: 13px;
   line-height: 100%;
@@ -88,17 +88,17 @@
   color: rgba(125, 137, 152, 1);
 }
 
-.kanban .kanban-content .card-meta {
+.kanban .card-meta {
   display: flex;
   justify-content: space-between;
 }
 
-.kanban .kanban-content .card-meta .card-priority-status {
+.kanban .card-meta .card-priority-status {
   display: flex;
   gap: 8px;
 }
 
-.kanban .kanban-content .card-meta .card-priority-status div {
+.kanban .card-meta .card-priority-status div {
   font-size: 12px;
   padding: 4px 6px;
   border-radius: 4px;
@@ -106,13 +106,13 @@
   letter-spacing: 0.2px;
 }
 
-.kanban .kanban-content .seperation-line {
+.kanban .seperation-line {
   height: 0;
   border: none;
   border-top: 1px solid rgba(238, 241, 246, 1);
 }
 
-.kanban .kanban-content .card-todolist .card-todotoggle {
+.kanban .card-todolist .card-todotoggle {
   display: flex;
   gap: 4px;
   font-weight: 500;
@@ -122,7 +122,7 @@
   color: rgba(125, 137, 152, 1);
 }
 
-.kanban .kanban-content .avatar-group {
+.kanban .avatar-group {
   display: flex;
   align-items: center;
   padding-left: 8px;
