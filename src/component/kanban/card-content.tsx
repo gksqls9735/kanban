@@ -8,8 +8,6 @@ const CardContent: React.FC<{
   task: Task;
   sectionName: string;
 }> = ({ task, sectionName }) => {
-  console.log(task.taskName)
-
   return (
     <>
       <div className="card-current-section">{sectionName}</div>
@@ -47,8 +45,6 @@ const CardContent: React.FC<{
 const areEqual = (prevProps: Readonly<{ task: Task; sectionName: string; }>, nextProps: Readonly<{ task: Task; sectionName: string; }>): boolean => {
   const prevTask = prevProps.task;
   const nextTask = nextProps.task;
-  const taskIdentifier = `Task ID: ${prevTask?.taskId || 'N/A'}, Name: ${prevTask?.taskName || 'N/A'}`; // 디버깅 메시지에 사용할 태스크 식별자
-
 
   if (prevProps.sectionName !== nextProps.sectionName) {
     console.groupEnd();
