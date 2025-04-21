@@ -3,14 +3,17 @@ import { Task } from "../../types/type";
 import { lightenColor } from "../../utils/color-function";
 import { formatKoreanDateSimple } from "../../utils/date-function";
 import AvatarGroup from "../avatar/avatar-group";
+import useViewModeStore from "../../store/viewmode-store";
+import { ViewModes } from "../../constants";
 
 const CardContent: React.FC<{
   task: Task;
-  sectionName: string;
+  sectionName?: string;
 }> = ({ task, sectionName }) => {
+  const viewMode = useViewModeStore(state => state.viewMode);
   return (
     <>
-      <div className="card-current-section">{sectionName}</div>
+      {viewMode === ViewModes.STATUS && (<div className="card-current-section">{sectionName}</div>)}
       <div className="card-title">{task.taskName}</div>
       <div className="card-due-date">아 {formatKoreanDateSimple(task.start)} - {formatKoreanDateSimple(task.end)}</div>
       <div className="card-meta">
@@ -28,16 +31,20 @@ const CardContent: React.FC<{
           <AvatarGroup list={task.participants || []} maxVisible={2} />
         </div>
       </div>
-      <div className="seperation-line" />
-      <div className="card-todolist">
-        <div className="card-todotoggle">
-          <span>할 일</span>
-          <span>▼</span>
-        </div>
-        {/* <div className="todolist-content">
-        <div className="todo-item"></div>
-      </div> */}
-      </div>
+      {task.todoList.length > 0 && (
+        <>
+          <div className="seperation-line" />
+          <div className="card-todolist">
+            <div className="card-todotoggle">
+              <span>할 일</span>
+              <span>▼</span>
+            </div>
+            {/* <div className="todolist-content">
+                  <div className="todo-item"></div>
+                </div> */}
+          </div>
+        </>
+      )}
     </>
   );
 };

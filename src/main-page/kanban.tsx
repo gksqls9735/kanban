@@ -4,13 +4,15 @@ import { Section, SelectOption, Task } from "../types/type";
 import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, KeyboardSensor, PointerSensor, rectIntersection, useSensor, useSensors } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 import Card from "../component/kanban/card-wrapper";
+import useViewModeStore from "../store/viewmode-store";
+import { ViewModes } from "../constants";
 
 const Kanban: React.FC<{
   tasks: Task[];
   sections: Section[];
   statusList: SelectOption[];
 }> = ({ tasks: initialTasks, sections, statusList }) => {
-  const [isStatusView, setIsStatusView] = useState<boolean>(true);
+  const { viewMode, setViewMode } = useViewModeStore();
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [activeTask, setActiveTask] = useState<Task | null>(null);
 
@@ -32,7 +34,7 @@ const Kanban: React.FC<{
   );
 
   const getColumnId = (task: Task) => {
-    return isStatusView ? task.status.code : task.sectionId
+    return viewMode ? task.status.code : task.sectionId
   };
 
   const getSectionName = (sectionId: string): string => {
@@ -63,7 +65,7 @@ const Kanban: React.FC<{
       const originalActiveTaskData = prevTasks[activeTaskIndex];
       const activeColumnId = getColumnId(originalActiveTaskData);
 
-      const isOverAColumn = isStatusView
+      const isOverAColumn = viewMode
         ? statusList.some(s => s.code === overId)
         : sections.some(s => s.sectionId === overId);
 
@@ -74,7 +76,7 @@ const Kanban: React.FC<{
         const targetColumnId = overId;
         if (activeColumnId !== targetColumnId) {
           const updatedTask = { ...originalActiveTaskData };
-          if (isStatusView) {
+          if (viewMode) {
             const newStatus = statusList.find(s => s.code === targetColumnId);
             if (newStatus) updatedTask.status = newStatus; else return prevTasks;
           } else {
@@ -132,7 +134,7 @@ const Kanban: React.FC<{
           const targetColumnId = overColumnId;
           const updatedTask = { ...originalActiveTaskData };
 
-          if (isStatusView) {
+          if (viewMode) {
             const newStatus = statusList.find(s => s.code === targetColumnId);
             if (newStatus) updatedTask.status = newStatus; else return prevTasks;
           } else {
@@ -173,6 +175,10 @@ const Kanban: React.FC<{
 
   };
 
+  const toggleViewMode = () => {
+    setViewMode(viewMode === ViewModes.STATUS ? ViewModes.SECTION : ViewModes.STATUS);
+  };
+
   return (
     <DndContext
       sensors={sensors}
@@ -182,12 +188,11 @@ const Kanban: React.FC<{
       onDragCancel={handleDragCancel}
     >
       <div className='kanban'>
-        <div onClick={() => setIsStatusView(prev => !prev)} style={{ cursor: 'pointer', marginBottom: '1rem', padding: '8px', border: '1px solid #ccc', display: 'inline-block' }}>
-          {isStatusView ? '섹션별로 보기' : '상태별로 보기'}
+        <div onClick={toggleViewMode} style={{ cursor: 'pointer', marginBottom: '1rem', padding: '8px', border: '1px solid #ccc', display: 'inline-block' }}>
+          {viewMode ? '섹션별로 보기' : '상태별로 보기'}
         </div>
         <SectionComponent
           tasks={tasks}
-          isStatusView={isStatusView}
           sections={sections}
           statusList={statusList}
           getSectionName={getSectionName}

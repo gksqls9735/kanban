@@ -43,6 +43,17 @@
   flex-direction: column;
 }
 
+.kanban .kanban-section .task-add {
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: rgba(125, 137, 152, 1);
+  cursor: pointer;
+}
+
+
 .kanban .kanban-card {
   display: flex;
   flex-direction: column;

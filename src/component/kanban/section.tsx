@@ -1,7 +1,10 @@
 import { useDroppable } from "@dnd-kit/core";
 import { Section, SelectOption, Task } from "../../types/type";
-import Card from "./card-wrapper";
+import CardWrapper from "./card-wrapper";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import useViewModeStore from "../../store/viewmode-store";
 
 const DroppableColumn: React.FC<{
   id: string;
@@ -24,8 +27,12 @@ const DroppableColumn: React.FC<{
       <SortableContext items={itemIds} strategy={verticalListSortingStrategy} id={id}>
         <div className="section-content">
           {items.map(t => (
-            <Card key={t.taskId} task={t} sectionName={getSectionName(t.sectionId)} />
+            <CardWrapper key={t.taskId} task={t} sectionName={getSectionName(t.sectionId)} />
           ))}
+          <div className="task-add">
+            <FontAwesomeIcon icon={faPlus} style={{width: 13, height: 13}}/>
+            <div>작업 추가</div>
+          </div>
         </div>
       </SortableContext>
     </div>
@@ -34,21 +41,21 @@ const DroppableColumn: React.FC<{
 
 const SectionComponent: React.FC<{
   tasks: Task[];
-  isStatusView: boolean;
   sections: Section[];
   statusList: SelectOption[];
   getSectionName: (sectionId: string) => string;
-}> = ({ tasks, isStatusView, sections, statusList, getSectionName }) => {
+}> = ({ tasks, sections, statusList, getSectionName }) => {
+  const viewMode = useViewModeStore(state => state.viewMode);
 
   const getTasksForColumn = (columnId: string): Task[] => {
     return tasks
-      .filter(t => (isStatusView ? t.status.code : t.sectionId) === columnId)
+      .filter(t => (viewMode ? t.status.code : t.sectionId) === columnId)
       .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
   };
 
   return (
     <div className="kanban-content">
-      {isStatusView ? (
+      {viewMode ? (
         <>
           {statusList.map(status => {
             const columnTasks = getTasksForColumn(status.code);
@@ -62,7 +69,7 @@ const SectionComponent: React.FC<{
           {sections.map(sec => {
             const columnTasks = getTasksForColumn(sec.sectionId);
             return (
-              <DroppableColumn key={sec.sectionId} id={sec.sectionId} title={sec.sectionName} items={columnTasks} getSectionName={getSectionName}/>
+              <DroppableColumn key={sec.sectionId} id={sec.sectionId} title={sec.sectionName} items={columnTasks} getSectionName={getSectionName} />
             )
           })}
         </>
