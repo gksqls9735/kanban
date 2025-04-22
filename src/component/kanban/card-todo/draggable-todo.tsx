@@ -1,10 +1,10 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from '@dnd-kit/utilities';
-import { Todo } from "../../types/type";
+import { Todo } from "../../../types/type";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 
-const DraggableCard: React.FC<{
+const DraggableTodo: React.FC<{
   todo: Todo;
   onCompleteChange: (todoId: string) => void;
   onDelete: (todoId: string) => void;
@@ -63,4 +63,4 @@ const DraggableCard: React.FC<{
   );
 };
 
-export default DraggableCard;
+export default DraggableTodo;

@@ -1,61 +1,17 @@
-import React, { useState } from "react";
+import React from "react";
 import { Task } from "../../types/type";
 import { lightenColor } from "../../utils/color-function";
 import AvatarGroup from "../avatar/avatar-group";
 import useViewModeStore from "../../store/viewmode-store";
 import { ViewModes } from "../../constants";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCaretDown } from "@fortawesome/free-solid-svg-icons";
 import { formatDateToYyyyMmDd } from "../../utils/date-function";
-import { closestCenter, DndContext, DragEndEvent, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
-import DraggableCard from "./draggable-card";
-import { arrayMove, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { restrictToFirstScrollableAncestor, restrictToVerticalAxis } from "@dnd-kit/modifiers";
-import useTaskStore from "../../store/task-store";
+import TodoList from "./card-todo/todolist";
 
 const CardContent: React.FC<{
   task: Task;
   sectionName?: string;
 }> = ({ task, sectionName }) => {
   const viewMode = useViewModeStore(state => state.viewMode);
-  const updateTask = useTaskStore(state => state.updateTask);
-  const [showTodo, setShowTodo] = useState<boolean>(false);
-
-  const handleDragEnd = (e: DragEndEvent) => {
-    const { active, over } = e;
-    if (!active || !over || active.id === over.id) return;
-    const activeIndex = task.todoList.findIndex(todo => todo.todoId === active.id);
-    const overIndex = task.todoList.findIndex(todo => todo.todoId === over.id);
-    if (activeIndex === -1 || overIndex === -1) return;
-
-    const newTodoList = arrayMove(task.todoList, activeIndex, overIndex).map((todo, index) => ({
-      ...todo, order: index,
-    }));
-
-    updateTask(task.taskId, { 'todoList': newTodoList });
-  };
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 8,
-      },
-    }),
-    useSensor(KeyboardSensor)
-  );
-
-  const handleTodoCompleteChange = (todoId: string) => {
-    const updatedTodoList = task.todoList.map(items => {
-      if (items.todoId === todoId) return { ...items, isCompleted: !items.isCompleted };
-      return items;
-    });
-    updateTask(task.taskId, { 'todoList': updatedTodoList });
-  };
-
-  const handleDeleteTodo = (todoId: string) => {
-    const updatedTodoList = task.todoList.filter(todo => todo.todoId !== todoId);
-    updateTask(task.taskId, { 'todoList': updatedTodoList });
-  };
 
   return (
     <>
@@ -81,31 +37,10 @@ const CardContent: React.FC<{
           <AvatarGroup list={task.participants || []} maxVisible={3} />
         </div>
       </div>
+      <div className="seperation-line" />
       {task.todoList.length > 0 && (
         <>
-          <div className="seperation-line" />
-          <div className="card-todolist">
-            <div className="card-todotoggle" onClick={() => setShowTodo(prev => !prev)}>
-              <span>할 일</span>
-              <span className={`card-todotoggle arrow ${showTodo ? 'arrow--open' : ''}`}>
-                <FontAwesomeIcon icon={faCaretDown} style={{ width: 16, height: 16 }} />
-              </span>
-            </div>
-            <DndContext
-              sensors={sensors}
-              collisionDetection={closestCenter}
-              onDragEnd={handleDragEnd}
-              modifiers={[restrictToVerticalAxis, restrictToFirstScrollableAncestor]}
-            >
-              <SortableContext items={task.todoList.map(todo => todo.todoId)} strategy={verticalListSortingStrategy}>
-                <div className={`todo-list ${showTodo ? 'todo-list--open' : ''}`}>
-                  {task.todoList.map(todo => (
-                    <DraggableCard key={todo.todoId} todo={todo} onCompleteChange={handleTodoCompleteChange} onDelete={handleDeleteTodo}/>
-                  ))}
-                </div>
-              </SortableContext>
-            </DndContext>
-          </div>
+          <TodoList taskId={task.taskId} todoList={task.todoList}/>
         </>
       )}
     </>
