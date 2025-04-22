@@ -16,3 +16,22 @@ export const formatKoreanDateSimple = (date: Date): string => {
 
   return dateStr;
 };
+
+export const formatDateToYyyyMmDd = (dateInput: Date) => {
+  if (!dateInput) return '';
+  const date = new Date(dateInput);
+
+  if (isNaN(date.getTime())) {
+    console.error("Invalid date input:", dateInput);
+    return '유효하지 않은 날짜';
+  }
+
+  const year = date.getFullYear();
+  const month = date.getMonth();
+  const day = date.getDate();
+
+  const formattedMonth = String(month).padStart(2, "0");
+  const formattedDay = String(day).padStart(2, "0");
+
+  return `${year}.${formattedMonth}.${formattedDay}`;
+};

@@ -1,21 +1,29 @@
-import React from "react";
+import React, { useState } from "react";
 import { Task } from "../../types/type";
 import { lightenColor } from "../../utils/color-function";
-import { formatKoreanDateSimple } from "../../utils/date-function";
 import AvatarGroup from "../avatar/avatar-group";
 import useViewModeStore from "../../store/viewmode-store";
 import { ViewModes } from "../../constants";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCaretDown, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { formatDateToYyyyMmDd } from "../../utils/date-function";
 
 const CardContent: React.FC<{
   task: Task;
   sectionName?: string;
 }> = ({ task, sectionName }) => {
   const viewMode = useViewModeStore(state => state.viewMode);
+  const [showTodo, setShowTodo] = useState<boolean>(false);
+
   return (
     <>
       {viewMode === ViewModes.STATUS && (<div className="card-current-section">{sectionName}</div>)}
       <div className="card-title">{task.taskName}</div>
-      <div className="card-due-date">아 {formatKoreanDateSimple(task.start)} - {formatKoreanDateSimple(task.end)}</div>
+      <div className="card-due-date">
+        <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="#7d8998">
+          <path d="M360-300q-42 0-71-29t-29-71q0-42 29-71t71-29q42 0 71 29t29 71q0 42-29 71t-71 29ZM200-80q-33 0-56.5-23.5T120-160v-560q0-33 23.5-56.5T200-800h40v-80h80v80h320v-80h80v80h40q33 0 56.5 23.5T840-720v560q0 33-23.5 56.5T760-80H200Zm0-80h560v-400H200v400Zm0-480h560v-80H200v80Zm0 0v-80 80Z" />
+        </svg>
+        {formatDateToYyyyMmDd(task.start)} - {formatDateToYyyyMmDd(task.end)}</div>
       <div className="card-meta">
         <div className="card-priority-status">
           <div className="card-priority"
@@ -28,20 +36,48 @@ const CardContent: React.FC<{
             {task.status.name}</div>
         </div>
         <div className="card-participant">
-          <AvatarGroup list={task.participants || []} maxVisible={2} />
+          <AvatarGroup list={task.participants || []} maxVisible={3} />
         </div>
       </div>
       {task.todoList.length > 0 && (
         <>
           <div className="seperation-line" />
           <div className="card-todolist">
-            <div className="card-todotoggle">
+            <div className="card-todotoggle" onClick={() => setShowTodo(prev => !prev)}>
               <span>할 일</span>
-              <span>▼</span>
+              <span className={`card-todotoggle arrow ${showTodo ? 'arrow--open' : ''}`}>
+                <FontAwesomeIcon icon={faCaretDown} style={{ width: 16, height: 16 }} />
+              </span>
             </div>
-            {/* <div className="todolist-content">
-                  <div className="todo-item"></div>
-                </div> */}
+            <div className={`todo-list ${showTodo ? 'todo-list--open' : ''}`}>
+              {task.todoList.map(todo => (
+                <div key={todo.todoId} className="todo-item">
+                  <div className="todo-item__main">
+                    <div className="todo-item__checkbox-area">
+                      <input
+                        type="checkbox"
+                        checked={todo.isCompleted}
+                        className="todo-item__checkbox--native"
+                        id={`todo-${todo.todoId}`}
+                        onChange={() => { }}
+                      />
+                      <label htmlFor={`todo-${todo.todoId}`} className="todo-item__checkbox--visual"></label>
+                    </div>
+                    <div className={`todo-item__text ${todo.isCompleted ? 'line-through' : ''}`}>
+                      {todo.todoTxt}
+                    </div>
+                  </div>
+                  <div className="todo-item__actions">
+                    <div className="todo-item__action todo-item__action--delete">
+                      <FontAwesomeIcon icon={faTimes} style={{ width: 12, height: 12, color: "rgba(125, 137, 152, 1)" }} />
+                    </div>
+                    <div className="todo-item__action todo-item__action--drag-handle">
+                      ⠿
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </>
       )}

@@ -9,6 +9,15 @@
   white-space: nowrap;
 }
 
+.kanban .underline {
+  text-decoration: underline;
+  text-decoration-color: black;
+}
+
+.kanban .line-through {
+  text-decoration-line: line-through;
+  color: rgb(156 163 175);
+}
 
 .kanban .kanban-content {
   display: flex;
@@ -19,6 +28,7 @@
   display: flex;
   flex-direction: column;
   width: 320px;
+  min-width: 320px;
   gap: 16px;
 }
 
@@ -97,6 +107,9 @@
   line-height: 100%;
   letter-spacing: 0%;
   color: rgba(125, 137, 152, 1);
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .kanban .card-meta {
@@ -131,6 +144,137 @@
   line-height: 100%;
   letter-spacing: 0%;
   color: rgba(125, 137, 152, 1);
+  cursor: pointer;
+  align-items: center;
+  width: fit-content;
+}
+
+.kanban .card-todolist .card-todotoggle .arrow {
+  display: inline-block;
+  transition: transform 0.2s ease-in-out;
+}
+
+.arrow--open {
+  transform: rotate(180deg);
+}
+
+.kanban .todo-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  visibility: hidden;
+  margin-top: 0;
+  transition:
+    max-height 0.4s ease-out,
+    opacity 0.3s ease-in,
+    margin-top 0.4s ease-out,
+    visibility 0s linear 0.4s;
+}
+
+.kanban .todo-list.todo-list--open {
+  max-height: 1000px;
+  opacity: 1;
+  visibility: visible;
+  margin-top: 12px;
+  transition:
+    max-height 0.4s ease-in,
+    opacity 0.3s ease-out,
+    margin-top 0.4s ease-in,
+    visibility 0s linear 0s;
+}
+
+.kanban .todo-item {
+  display: flex;
+}
+
+.kanban .todo-item__main {
+  display: flex;
+  flex-grow: 1;
+  align-items: center;
+}
+
+.kanban .todo-item__checkbox--native {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  cursor: pointer;
+}
+
+/* 2. 가짜 체크박스 모양 만들기 */
+.kanban .todo-item__checkbox--visual {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 9999px;
+  margin-right: 8px;
+  position: relative;
+  transition: background-color 0.2s, border-color 0.2s;
+  vertical-align: middle;
+}
+
+/* 3. 실제 체크박스가 체크됐을 때 가짜 체크박스 스타일 변경 */
+.kanban .todo-item__checkbox--native:checked+.todo-item__checkbox--visual {
+  background-color: rgb(51, 189, 120);
+  border-color: rgb(51, 189, 120);
+}
+
+/* 4. 가상 요소로 체크 표시 만들기 (흰색) */
+.kanban .todo-item__checkbox--visual::after {
+  content: "";
+  /* 가상 요소 필수 속성 */
+  position: absolute;
+  display: none;
+
+  left: 5px;
+  top: 2px;
+  width: 4px;
+  height: 8px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* 실제 체크박스가 체크됐을 때 체크 표시 보여주기 */
+.kanban .todo-item__checkbox--native:checked+.todo-item__checkbox--visual::after {
+  display: block;
+}
+
+/* (선택) 포커스 스타일 - 접근성 향상 */
+.kanban .todo-item__checkbox--native:focus+.todo-item__checkbox--visual {
+  box-shadow: 0 0 0 2px rgba(51, 189, 120, 0.5);
+}
+
+.kanban .todo-item__text {
+  font-weight: 400;
+  font-size: 14px;
+  letter-spacing: 0%;
+}
+
+.kanban .todo-item__actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.kanban .todo-item__action.todo-item__action--delete {
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background-color: rgba(238, 241, 246, 1);
+}
+
+.kanban .todo-item__action.todo-item__action--drag-handle {
+  color: rgba(217, 217, 217, 1);
 }
 
 .kanban .avatar-group {
