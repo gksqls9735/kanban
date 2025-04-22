@@ -277,6 +277,10 @@
   color: rgba(217, 217, 217, 1);
 }
 
+.kanban .todo-item__action.todo-item__action--drag-handle:hover {
+  color: rgb(131, 131, 131);
+}
+
 .kanban .avatar-group {
   display: flex;
   align-items: center;

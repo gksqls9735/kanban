@@ -15,7 +15,6 @@ const useTaskStore = create<TaskState>((set, get) => ({
       const newTasks = state.allTasks.map(t => (
         t.taskId === taskId ? { ...t, ...updated } : t
       ));
-
       return {
         allTasks: newTasks
       };

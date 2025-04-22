@@ -5,15 +5,44 @@ import AvatarGroup from "../avatar/avatar-group";
 import useViewModeStore from "../../store/viewmode-store";
 import { ViewModes } from "../../constants";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCaretDown, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { faCaretDown } from "@fortawesome/free-solid-svg-icons";
 import { formatDateToYyyyMmDd } from "../../utils/date-function";
+import { closestCenter, DndContext, DragEndEvent, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
+import DraggableCard from "./draggable-card";
+import { arrayMove, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { restrictToFirstScrollableAncestor, restrictToVerticalAxis } from "@dnd-kit/modifiers";
+import useTaskStore from "../../store/task-store";
 
 const CardContent: React.FC<{
   task: Task;
   sectionName?: string;
 }> = ({ task, sectionName }) => {
   const viewMode = useViewModeStore(state => state.viewMode);
+  const updateTasks = useTaskStore(state => state.updateTask);
   const [showTodo, setShowTodo] = useState<boolean>(false);
+
+  const handleDragEnd = (e: DragEndEvent) => {
+    const { active, over } = e;
+    if (!active || !over || active.id === over.id) return;
+    const activeIndex = task.todoList.findIndex(todo => todo.todoId === active.id);
+    const overIndex = task.todoList.findIndex(todo => todo.todoId === over.id);
+    if (activeIndex === -1 || overIndex === -1) return;
+
+    const newTodoList = arrayMove(task.todoList, activeIndex, overIndex).map((todo, index) => ({
+      ...todo, order: index,
+    }));
+
+    updateTasks(task.taskId, { 'todoList': newTodoList });
+  };
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor)
+  );
 
   return (
     <>
@@ -49,35 +78,20 @@ const CardContent: React.FC<{
                 <FontAwesomeIcon icon={faCaretDown} style={{ width: 16, height: 16 }} />
               </span>
             </div>
-            <div className={`todo-list ${showTodo ? 'todo-list--open' : ''}`}>
-              {task.todoList.map(todo => (
-                <div key={todo.todoId} className="todo-item">
-                  <div className="todo-item__main">
-                    <div className="todo-item__checkbox-area">
-                      <input
-                        type="checkbox"
-                        checked={todo.isCompleted}
-                        className="todo-item__checkbox--native"
-                        id={`todo-${todo.todoId}`}
-                        onChange={() => { }}
-                      />
-                      <label htmlFor={`todo-${todo.todoId}`} className="todo-item__checkbox--visual"></label>
-                    </div>
-                    <div className={`todo-item__text ${todo.isCompleted ? 'line-through' : ''}`}>
-                      {todo.todoTxt}
-                    </div>
-                  </div>
-                  <div className="todo-item__actions">
-                    <div className="todo-item__action todo-item__action--delete">
-                      <FontAwesomeIcon icon={faTimes} style={{ width: 12, height: 12, color: "rgba(125, 137, 152, 1)" }} />
-                    </div>
-                    <div className="todo-item__action todo-item__action--drag-handle">
-                      ⠿
-                    </div>
-                  </div>
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+              modifiers={[restrictToVerticalAxis, restrictToFirstScrollableAncestor]}
+            >
+              <SortableContext items={task.todoList.map(todo => todo.todoId)} strategy={verticalListSortingStrategy}>
+                <div className={`todo-list ${showTodo ? 'todo-list--open' : ''}`}>
+                  {task.todoList.map(todo => (
+                    <DraggableCard key={todo.todoId} todo={todo} />
+                  ))}
                 </div>
-              ))}
-            </div>
+              </SortableContext>
+            </DndContext>
           </div>
         </>
       )}
@@ -120,7 +134,6 @@ const areEqual = (prevProps: Readonly<{ task: Task; sectionName: string; }>, nex
   const prevParticipants = prevTask.participants || [];
   const nextParticipants = nextTask.participants || [];
 
-  // 6-1. 참여자 수 비교
   if (prevParticipants.length !== nextParticipants.length) {
     console.groupEnd();
     return false;
@@ -131,6 +144,22 @@ const areEqual = (prevProps: Readonly<{ task: Task; sectionName: string; }>, nex
       console.groupEnd();
       return false;
     }
+  }
+
+  const prevTodoList = prevTask.todoList || [];
+  const nextTodoList = nextTask.todoList || [];
+
+  if (prevTodoList.length !== nextTodoList.length) return false;
+
+  for (let i = 0; i < prevTodoList.length; i++) {
+    const prevTodo = prevTodoList[i];
+    const nextTodo = nextTodoList[i];
+
+    if (
+      prevTodo.order !== nextTodo.order ||
+      prevTodo.todoTxt !== nextTodo.todoTxt ||
+      prevTodo.isCompleted !== nextTodo.isCompleted
+    ) { return false; }
   }
 
   console.groupEnd();
