@@ -28,9 +28,7 @@ const Kanban: React.FC<{
 
 
   const toggleViewMode = () => {
-    console.log("기존: ", viewMode);
     setViewMode(viewMode === ViewModes.STATUS ? ViewModes.SECTION : ViewModes.STATUS);
-    console.log("변경: ", viewMode === ViewModes.STATUS ? ViewModes.SECTION : ViewModes.STATUS)
   };
 
   return (

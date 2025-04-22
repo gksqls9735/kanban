@@ -284,9 +284,69 @@
   padding-left: 8px;
 }
 
+.kanban .add-section-button {
+  width: 36px;
+  height: 36px;
+  max-width: 36px;
+  max-height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  border: 1px solid rgba(228, 232, 238, 1);
+  border-radius: 8px;
+  color: 1.33px solid rgba(125, 137, 152, 1);
 
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
-/* CardWrapper의 기본 커서는 grab */
+  cursor: pointer;
+}
+
+.kanban .new-section {
+  width: 320px;
+  height: 36px;
+  min-width: 320px;
+  border: 1px solid rgba(228, 232, 238, 1);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0px 4px;
+  background-color: rgba(248, 249, 251, 1);
+}
+
+.kanban .new-section input {
+  font-weight: 500;
+  font-size: 16px;
+  text-transform: uppercase;
+  color: rgba(141, 153, 168, 1);
+  background-color: #f7f8fa;
+
+  border: none;
+  outline: none;
+  box-sizing: border-box;
+  flex-grow: 1;
+
+}
+
+.kanban .new-section input:focus {
+  outline: none;
+  border: none;
+}
+
+.kanban .new-section .create-confirm-button {
+  padding: 0px 12px;
+  border-radius: 50px;
+  background: rgba(22, 179, 100, 1);
+  color: rgba(255, 255, 255, 1);
+  font-weight: 400;
+  font-size: 13px;
+  height: 28px;
+  line-height: 28px;
+  text-align: center;
+}
+
+/* 작업 카드 커서 */
 .kanban-card {
   cursor: grab;
 }
