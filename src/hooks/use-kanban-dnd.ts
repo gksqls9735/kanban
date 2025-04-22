@@ -4,6 +4,7 @@ import useViewModeStore from "../store/viewmode-store";
 import { Section, SelectOption, Task } from "../types/type";
 import { DragEndEvent, DragStartEvent, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
+import { ViewModes } from "../constants";
 
 const sortTasks = (tasksToSort: Task[]): Task[] => {
   return [...tasksToSort].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
@@ -21,7 +22,7 @@ export const useKanbanDnd = (sections: Section[], statusList: SelectOption[]) =>
     useSensor(KeyboardSensor)
   );
 
-  const getColumnId = (task: Task) => { return viewMode ? task.status.code : task.sectionId };
+  const getColumnId = (task: Task) => { return viewMode === ViewModes.STATUS ? task.status.code : task.sectionId };
 
   const handleDragStart = (e: DragStartEvent) => {
     const { active } = e;
@@ -53,7 +54,7 @@ export const useKanbanDnd = (sections: Section[], statusList: SelectOption[]) =>
     const originalActiveTaskData = currentTasks[activeTaskIndex];
     const activeColumnId = getColumnId(originalActiveTaskData);
 
-    const isOverAColumn = viewMode
+    const isOverAColumn = viewMode === ViewModes.STATUS
       ? statusList.some(s => s.code === overId)
       : sections.some(s => s.sectionId === overId);
 
@@ -64,7 +65,7 @@ export const useKanbanDnd = (sections: Section[], statusList: SelectOption[]) =>
       const targetColumnId = overId;
       if (activeColumnId !== targetColumnId) {
         const updatedTask = { ...originalActiveTaskData };
-        if (viewMode) {
+        if (viewMode === ViewModes.STATUS) {
           const newStatus = statusList.find(s => s.code === targetColumnId);
           if (!newStatus) return;
           updatedTask.status = newStatus;
@@ -125,7 +126,7 @@ export const useKanbanDnd = (sections: Section[], statusList: SelectOption[]) =>
         const targetColumnId = overColumnId;
         const updatedTask = { ...originalActiveTaskData };
 
-        if (viewMode) {
+        if (viewMode === ViewModes.STATUS) {
           const newStatus = statusList.find(s => s.code === targetColumnId);
           if (!newStatus) return;
           updatedTask.status = newStatus;

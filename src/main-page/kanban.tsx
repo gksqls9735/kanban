@@ -22,14 +22,15 @@ const Kanban: React.FC<{
     setTasks(initialTasks);
   }, [initialTasks]);
 
-
   const getSectionName = (sectionId: string): string => {
     return sections.find(sec => sec.sectionId === sectionId)?.sectionName || '';
   };
 
 
   const toggleViewMode = () => {
+    console.log("기존: ", viewMode);
     setViewMode(viewMode === ViewModes.STATUS ? ViewModes.SECTION : ViewModes.STATUS);
+    console.log("변경: ", viewMode === ViewModes.STATUS ? ViewModes.SECTION : ViewModes.STATUS)
   };
 
   return (
@@ -42,7 +43,7 @@ const Kanban: React.FC<{
     >
       <div className='kanban'>
         <div onClick={toggleViewMode} style={{ cursor: 'pointer', marginBottom: '1rem', padding: '8px', border: '1px solid #ccc', display: 'inline-block' }}>
-          {viewMode ? '섹션별로 보기' : '상태별로 보기'}
+          {viewMode === ViewModes.STATUS? '섹션별로 보기' : '상태별로 보기'}
         </div>
         <SectionComponent
           sections={sections}

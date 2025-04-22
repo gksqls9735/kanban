@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import useViewModeStore from "../../store/viewmode-store";
 import useTaskStore from "../../store/task-store";
+import { ViewModes } from "../../constants";
 
 const DroppableColumn: React.FC<{
   tasks: Task[];
@@ -31,7 +32,7 @@ const DroppableColumn: React.FC<{
             <CardWrapper key={t.taskId} task={t} sectionName={getSectionName(t.sectionId)} />
           ))}
           <div className="task-add">
-            <FontAwesomeIcon icon={faPlus} style={{width: 13, height: 13}}/>
+            <FontAwesomeIcon icon={faPlus} style={{ width: 13, height: 13 }} />
             <div>작업 추가</div>
           </div>
         </div>
@@ -50,13 +51,13 @@ const SectionComponent: React.FC<{
 
   const getTasksForColumn = (columnId: string): Task[] => {
     return tasks
-      .filter(t => (viewMode ? t.status.code : t.sectionId) === columnId)
+      .filter(t => (viewMode === ViewModes.STATUS ? t.status.code : t.sectionId) === columnId)
       .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
   };
 
   return (
     <div className="kanban-content">
-      {viewMode ? (
+      {viewMode === ViewModes.STATUS ? (
         <>
           {statusList.map(status => {
             const columnTasks = getTasksForColumn(status.code);

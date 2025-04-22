@@ -34,12 +34,13 @@
 
 .kanban .section-header {
   border: 1px solid rgba(228, 232, 238, 1);
-  border-radius: 16px;
+  border-radius: 50px;
   border-width: 1px;
-  background-color: rgba(248, 249, 251, 1);
+  background-color: rgba(238, 241, 246, 1);
   text-align: center;
-  padding: 4px 0px;
+  padding: 6px 16px;
   font-size: 16px;
+  text-transform: uppercase;
 }
 
 .kanban .section-content {
