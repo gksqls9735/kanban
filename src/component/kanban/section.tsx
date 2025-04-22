@@ -7,6 +7,7 @@ import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import useViewModeStore from "../../store/viewmode-store";
 import useTaskStore from "../../store/task-store";
 import { ViewModes } from "../../constants";
+import { useState } from "react";
 
 const DroppableColumn: React.FC<{
   tasks: Task[];
@@ -48,6 +49,7 @@ const SectionComponent: React.FC<{
 }> = ({ sections, statusList, getSectionName }) => {
   const viewMode = useViewModeStore(state => state.viewMode);
   const tasks = useTaskStore(state => state.allTasks);
+  const [newSectionCount, setNewSectionCount] = useState<number>(0);
 
   const getTasksForColumn = (columnId: string): Task[] => {
     return tasks
@@ -76,11 +78,15 @@ const SectionComponent: React.FC<{
           })}
         </>
       )}
-      <div className="new-section">
-        <input type="text" placeholder="섹션명"/>
-        <div className="create-confirm-button">확인</div>
+      <div style={{display: 'flex', flexDirection: 'column', gap: 20}}>
+        {Array.from({ length: newSectionCount }).map((_, index) => (
+          <div className="new-section">
+            <input type="text" placeholder="섹션명" />
+            <div className="create-confirm-button">확인</div>
+          </div>
+        ))}
       </div>
-      <div className="add-section-button">
+      <div className="add-section-button" onClick={() => setNewSectionCount(prev => prev + 1)}>
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#7d8998" className="bi bi-plus-lg" viewBox="0 0 16 16">
           <path fillRule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2" />
         </svg>
