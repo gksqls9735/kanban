@@ -8,13 +8,16 @@ import useViewModeStore from "../../store/viewmode-store";
 import useTaskStore from "../../store/task-store";
 import { ViewModes } from "../../constants";
 import { useState } from "react";
+import { lightenColor } from "../../utils/color-function";
 
 const DroppableColumn: React.FC<{
   tasks: Task[];
   id: string;
   title: string;
   getSectionName: (sectionId: string) => string;
-}> = ({ id, title, tasks, getSectionName }) => {
+  colorMain?: string;
+  colorSub?: string;
+}> = ({ id, title, tasks, getSectionName, colorMain, colorSub }) => {
   const { setNodeRef } = useDroppable({ id });
 
   const style = {
@@ -24,9 +27,16 @@ const DroppableColumn: React.FC<{
 
   const itemIds = tasks.map(item => item.taskId);
 
+  const headerStyle: React.CSSProperties = {};
+  if (colorMain && colorSub) {
+    headerStyle.color = colorMain;
+    headerStyle.border = `1px solid ${colorMain}`;
+    headerStyle.backgroundColor = colorSub;
+  }
+
   return (
     <div ref={setNodeRef} className="kanban-section" style={style}>
-      <div className="section-header">{title}</div>
+      <div className="section-header" style={headerStyle}>{title}</div>
       <SortableContext items={itemIds} strategy={verticalListSortingStrategy} id={id}>
         <div className="section-content">
           {tasks.map(t => (
@@ -64,7 +74,8 @@ const SectionComponent: React.FC<{
           {statusList.map(status => {
             const columnTasks = getTasksForColumn(status.code);
             return (
-              <DroppableColumn key={status.code} id={status.code} title={status.name} tasks={columnTasks} getSectionName={(getSectionName)} />
+              <DroppableColumn key={status.code} id={status.code} title={status.name} tasks={columnTasks} 
+                getSectionName={(getSectionName)} colorMain={status.colorMain} colorSub={status.colorSub || lightenColor(status.colorMain, 0.85)}/>
             );
           })}
         </>
@@ -78,9 +89,9 @@ const SectionComponent: React.FC<{
           })}
         </>
       )}
-      <div style={{display: 'flex', flexDirection: 'column', gap: 20}}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
         {Array.from({ length: newSectionCount }).map((_, index) => (
-          <div className="new-section">
+          <div key={index} className="new-section">
             <input type="text" placeholder="섹션명" />
             <div className="create-confirm-button">확인</div>
           </div>
