@@ -5,13 +5,14 @@ import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import useViewModeStore from "../../store/viewmode-store";
+import useTaskStore from "../../store/task-store";
 
 const DroppableColumn: React.FC<{
+  tasks: Task[];
   id: string;
   title: string;
-  items: Task[];
   getSectionName: (sectionId: string) => string;
-}> = ({ id, title, items, getSectionName }) => {
+}> = ({ id, title, tasks, getSectionName }) => {
   const { setNodeRef } = useDroppable({ id });
 
   const style = {
@@ -19,14 +20,14 @@ const DroppableColumn: React.FC<{
     paddingBottom: '10px',
   };
 
-  const itemIds = items.map(item => item.taskId);
+  const itemIds = tasks.map(item => item.taskId);
 
   return (
     <div ref={setNodeRef} className="kanban-section" style={style}>
       <div className="section-header">{title}</div>
       <SortableContext items={itemIds} strategy={verticalListSortingStrategy} id={id}>
         <div className="section-content">
-          {items.map(t => (
+          {tasks.map(t => (
             <CardWrapper key={t.taskId} task={t} sectionName={getSectionName(t.sectionId)} />
           ))}
           <div className="task-add">
@@ -40,12 +41,12 @@ const DroppableColumn: React.FC<{
 };
 
 const SectionComponent: React.FC<{
-  tasks: Task[];
   sections: Section[];
   statusList: SelectOption[];
   getSectionName: (sectionId: string) => string;
-}> = ({ tasks, sections, statusList, getSectionName }) => {
+}> = ({ sections, statusList, getSectionName }) => {
   const viewMode = useViewModeStore(state => state.viewMode);
+  const tasks = useTaskStore(state => state.allTasks);
 
   const getTasksForColumn = (columnId: string): Task[] => {
     return tasks
@@ -60,7 +61,7 @@ const SectionComponent: React.FC<{
           {statusList.map(status => {
             const columnTasks = getTasksForColumn(status.code);
             return (
-              <DroppableColumn key={status.code} id={status.code} title={status.name} items={columnTasks} getSectionName={(getSectionName)} />
+              <DroppableColumn key={status.code} id={status.code} title={status.name} tasks={columnTasks} getSectionName={(getSectionName)} />
             );
           })}
         </>
@@ -69,7 +70,7 @@ const SectionComponent: React.FC<{
           {sections.map(sec => {
             const columnTasks = getTasksForColumn(sec.sectionId);
             return (
-              <DroppableColumn key={sec.sectionId} id={sec.sectionId} title={sec.sectionName} items={columnTasks} getSectionName={getSectionName} />
+              <DroppableColumn key={sec.sectionId} id={sec.sectionId} title={sec.sectionName} tasks={columnTasks} getSectionName={getSectionName} />
             )
           })}
         </>
