@@ -10,7 +10,7 @@ const sortTasks = (tasksToSort: Task[]): Task[] => {
   return [...tasksToSort].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 };
 
-export const useKanbanDnd = (sections: Section[], statusList: SelectOption[]) => {
+export const useTaskDnd = (sections: Section[], statusList: SelectOption[]) => {
   const { viewMode } = useViewModeStore();
   const setTasks = useTaskStore(state => state.setTasks);
   const [activeTask, setActiveTask] = useState<Task | null>(null);

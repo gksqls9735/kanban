@@ -6,7 +6,7 @@ import Card from "../component/kanban/card-wrapper";
 import useViewModeStore from "../store/viewmode-store";
 import { ViewModes } from "../constants";
 import useTaskStore from "../store/task-store";
-import { useKanbanDnd } from "../hooks/use-kanban-dnd";
+import { useTaskDnd } from "../hooks/use-task-dnd";
 
 const Kanban: React.FC<{
   tasks: Task[];
@@ -16,7 +16,7 @@ const Kanban: React.FC<{
   const { viewMode, setViewMode } = useViewModeStore();
   const setTasks = useTaskStore(state => state.setTasks);
 
-  const { sensors, activeTask, handleDragStart, handleDragEnd, handleDragCancel } = useKanbanDnd(sections, statusList);
+  const { sensors, activeTask, handleDragStart, handleDragEnd, handleDragCancel } = useTaskDnd(sections, statusList);
 
   useEffect(() => {
     setTasks(initialTasks);
