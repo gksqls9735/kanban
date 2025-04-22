@@ -60,7 +60,6 @@
   gap: 8px;
   font-size: 13px;
   color: rgba(125, 137, 152, 1);
-  cursor: pointer;
 }
 
 
@@ -144,7 +143,6 @@
   line-height: 100%;
   letter-spacing: 0%;
   color: rgba(125, 137, 152, 1);
-  cursor: pointer;
   align-items: center;
   width: fit-content;
 }
@@ -194,6 +192,10 @@
   display: flex;
   flex-grow: 1;
   align-items: center;
+  overflow: hidden;
+  /* 이 요소 자체도 넘칠 수 있으므로 추가하는 것이 좋음 */
+  min-width: 0;
+  /* ⭐ 중요: 이 줄을 추가하세요! */
 }
 
 .kanban .todo-item__checkbox--native {
@@ -201,7 +203,6 @@
   opacity: 0;
   width: 0;
   height: 0;
-  cursor: pointer;
 }
 
 /* 2. 가짜 체크박스 모양 만들기 */
@@ -245,11 +246,6 @@
   display: block;
 }
 
-/* (선택) 포커스 스타일 - 접근성 향상 */
-.kanban .todo-item__checkbox--native:focus+.todo-item__checkbox--visual {
-  box-shadow: 0 0 0 2px rgba(51, 189, 120, 0.5);
-}
-
 .kanban .todo-item__text {
   font-weight: 400;
   font-size: 14px;
@@ -260,6 +256,7 @@
   display: flex;
   align-items: center;
   gap: 4px;
+  flex-shrink: 0;
 }
 
 .kanban .todo-item__action.todo-item__action--delete {
@@ -269,7 +266,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
   background-color: rgba(238, 241, 246, 1);
 }
 
@@ -285,4 +281,49 @@
   display: flex;
   align-items: center;
   padding-left: 8px;
+}
+
+
+
+/* CardWrapper의 기본 커서는 grab */
+.kanban-card {
+  cursor: grab;
+}
+
+
+.kanban-card .card-title,
+.kanban-card .card-due-date,
+.kanban-card .card-current-section,
+.kanban-card .card-priority,
+.kanban-card .card-status,
+.kanban-card .card-participant,
+.kanban-card .todo-item {
+  cursor: default;
+}
+
+.kanban-card .todo-item__checkbox-area label,
+.kanban-card .todo-item__checkbox--native,
+.kanban-card .todo-item__text {
+  cursor: pointer;
+}
+
+
+/* 삭제 버튼 */
+.kanban-card .todo-item__action--delete {
+  cursor: pointer;
+}
+
+/* ⭐ 내부 투두 아이템의 드래그 핸들 ⭐ */
+.kanban-card .todo-item__action--drag-handle {
+  cursor: grab;
+}
+
+/* 할 일 토글 버튼 */
+.kanban-card .card-todotoggle {
+  cursor: pointer;
+}
+
+/* 작업 추가 버튼 */
+.kanban .task-add {
+  cursor: pointer;
 }

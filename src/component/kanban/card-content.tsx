@@ -18,7 +18,7 @@ const CardContent: React.FC<{
   sectionName?: string;
 }> = ({ task, sectionName }) => {
   const viewMode = useViewModeStore(state => state.viewMode);
-  const updateTasks = useTaskStore(state => state.updateTask);
+  const updateTask = useTaskStore(state => state.updateTask);
   const [showTodo, setShowTodo] = useState<boolean>(false);
 
   const handleDragEnd = (e: DragEndEvent) => {
@@ -32,7 +32,7 @@ const CardContent: React.FC<{
       ...todo, order: index,
     }));
 
-    updateTasks(task.taskId, { 'todoList': newTodoList });
+    updateTask(task.taskId, { 'todoList': newTodoList });
   };
 
   const sensors = useSensors(
@@ -43,6 +43,19 @@ const CardContent: React.FC<{
     }),
     useSensor(KeyboardSensor)
   );
+
+  const handleTodoCompleteChange = (todoId: string) => {
+    const updatedTodoList = task.todoList.map(items => {
+      if (items.todoId === todoId) return { ...items, isCompleted: !items.isCompleted };
+      return items;
+    });
+    updateTask(task.taskId, { 'todoList': updatedTodoList });
+  };
+
+  const handleDeleteTodo = (todoId: string) => {
+    const updatedTodoList = task.todoList.filter(todo => todo.todoId !== todoId);
+    updateTask(task.taskId, { 'todoList': updatedTodoList });
+  };
 
   return (
     <>
@@ -87,7 +100,7 @@ const CardContent: React.FC<{
               <SortableContext items={task.todoList.map(todo => todo.todoId)} strategy={verticalListSortingStrategy}>
                 <div className={`todo-list ${showTodo ? 'todo-list--open' : ''}`}>
                   {task.todoList.map(todo => (
-                    <DraggableCard key={todo.todoId} todo={todo} />
+                    <DraggableCard key={todo.todoId} todo={todo} onCompleteChange={handleTodoCompleteChange} onDelete={handleDeleteTodo}/>
                   ))}
                 </div>
               </SortableContext>

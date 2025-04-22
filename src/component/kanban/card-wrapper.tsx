@@ -19,7 +19,6 @@ const CardWrapper: React.FC<{
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.8 : 1,
-    cursor: 'grab',
     marginBottom: '8px',
     position: 'relative',
     backgroundColor: 'white',

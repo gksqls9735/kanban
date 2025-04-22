@@ -6,7 +6,9 @@ import { faTimes } from "@fortawesome/free-solid-svg-icons";
 
 const DraggableCard: React.FC<{
   todo: Todo;
-}> = ({ todo }) => {
+  onCompleteChange: (todoId: string) => void;
+  onDelete: (todoId: string) => void;
+}> = ({ todo, onCompleteChange, onDelete }) => {
   const {
     attributes,
     listeners,
@@ -40,14 +42,14 @@ const DraggableCard: React.FC<{
             id={`todo-${todo.todoId}`}
             onChange={() => { }}
           />
-          <label htmlFor={`todo-${todo.todoId}`} className="todo-item__checkbox--visual"></label>
+          <label onClick={() => onCompleteChange(todo.todoId)} htmlFor={`todo-${todo.todoId}`} className="todo-item__checkbox--visual"></label>
         </div>
-        <div className={`todo-item__text ${todo.isCompleted ? 'line-through' : ''}`}>
+        <div className={`todo-item__text truncate ${todo.isCompleted ? 'line-through' : ''}`} onClick={() => onCompleteChange(todo.todoId)}>
           {todo.todoTxt}
         </div>
       </div>
       <div className="todo-item__actions">
-        <div className="todo-item__action todo-item__action--delete">
+        <div className="todo-item__action todo-item__action--delete" onClick={() => onDelete(todo.todoId)}>
           <FontAwesomeIcon icon={faTimes} style={{ width: 12, height: 12, color: "rgba(125, 137, 152, 1)" }} />
         </div>
         <div
