@@ -1,56 +1,11 @@
-import { useDroppable } from "@dnd-kit/core";
 import { Section, SelectOption, Task } from "../../types/type";
-import CardWrapper from "./card-wrapper";
-import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import useViewModeStore from "../../store/viewmode-store";
 import useTaskStore from "../../store/task-store";
 import { ViewModes } from "../../constants";
 import { useState } from "react";
 import { lightenColor } from "../../utils/color-function";
+import DroppableColumn from "./droppable-column";
 
-const DroppableColumn: React.FC<{
-  tasks: Task[];
-  id: string;
-  title: string;
-  getSectionName: (sectionId: string) => string;
-  colorMain?: string;
-  colorSub?: string;
-}> = ({ id, title, tasks, getSectionName, colorMain, colorSub }) => {
-  const { setNodeRef } = useDroppable({ id });
-
-  const style = {
-    minHeight: '100px',
-    paddingBottom: '10px',
-  };
-
-  const itemIds = tasks.map(item => item.taskId);
-
-  const headerStyle: React.CSSProperties = {};
-  if (colorMain && colorSub) {
-    headerStyle.color = colorMain;
-    headerStyle.border = `1px solid ${colorMain}`;
-    headerStyle.backgroundColor = colorSub;
-  }
-
-  return (
-    <div ref={setNodeRef} className="kanban-section" style={style}>
-      <div className="section-header" style={headerStyle}>{title}</div>
-      <SortableContext items={itemIds} strategy={verticalListSortingStrategy} id={id}>
-        <div className="section-content">
-          {tasks.map(t => (
-            <CardWrapper key={t.taskId} task={t} sectionName={getSectionName(t.sectionId)} />
-          ))}
-          <div className="task-add">
-            <FontAwesomeIcon icon={faPlus} style={{ width: 13, height: 13 }} />
-            <div>작업 추가</div>
-          </div>
-        </div>
-      </SortableContext>
-    </div>
-  );
-};
 
 const SectionComponent: React.FC<{
   sections: Section[];
