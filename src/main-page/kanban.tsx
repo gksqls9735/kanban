@@ -62,7 +62,7 @@ const Kanban: React.FC<{
         />
         <DragOverlay>
           {activeTask ? (
-            <Card task={activeTask} sectionName={getSectionName(activeTask.sectionId)} />
+            <Card task={activeTask} sectionName={getSectionName(activeTask.sectionId)}/>
           ) : null}
         </DragOverlay>
       </div>

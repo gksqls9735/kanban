@@ -44,21 +44,25 @@ export const useKanbanDnd = (
   const handleDragStart = (e: DragStartEvent) => {
     const { active } = e;
     const type = active.data.current?.type;
+    document.body.style.cursor = 'grabbing';
 
     if (type === 'Task') {
       const taskId = active.id as string;
       const task = allTasks.find(t => t.taskId === taskId);
-      if (task) setActiveTask(task);
-    } 
+      if (task) {
+        setActiveTask(task);
+      }
+    }
   };
 
-  const handleDragCancel = () => { setActiveTask(null); };
+  const handleDragCancel = () => { setActiveTask(null); document.body.style.cursor = ''; };
 
   const handleDragEnd = (e: DragEndEvent) => {
     const { active, over } = e;
     const type = active.data.current?.type;
 
     setActiveTask(null);
+    document.body.style.cursor = '';
 
     if (!over) return;
 

@@ -12,8 +12,7 @@ const DroppableColumn: React.FC<{
   getSectionName: (sectionId: string) => string;
   colorMain?: string;
   colorSub?: string;
-  isOverlay?: boolean;
-}> = ({ id, title, tasks, getSectionName, colorMain, colorSub, isOverlay }) => {
+}> = ({ id, title, tasks, getSectionName, colorMain, colorSub }) => {
 
   const { 
     attributes, listeners, setNodeRef, transform, transition, isDragging
@@ -32,8 +31,7 @@ const DroppableColumn: React.FC<{
     transform: CSS.Translate.toString(transform),
     transition,
     opacity: isDragging ? 0.6 : 1,
-    boxShadow: isOverlay ? '0 0 10px rgba(0,0,0,0.2)' : undefined,
-    cursor: isDragging ? 'grabbing' : 'grab',
+    cursor: 'grab',
     flexShrink: 0,
   };
 
