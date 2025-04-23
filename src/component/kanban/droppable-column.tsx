@@ -1,8 +1,9 @@
-import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import CardWrapper from "./card-wrapper";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { Task } from "../../types/type";
+import { CSS } from '@dnd-kit/utilities';
 
 const DroppableColumn: React.FC<{
   tasks: Task[];
@@ -11,11 +12,14 @@ const DroppableColumn: React.FC<{
   getSectionName: (sectionId: string) => string;
   colorMain?: string;
   colorSub?: string;
-}> = ({ id, title, tasks, getSectionName, colorMain, colorSub }) => {
+  isOverlay?: boolean;
+}> = ({ id, title, tasks, getSectionName, colorMain, colorSub, isOverlay }) => {
 
+  const { 
+    attributes, listeners, setNodeRef, transform, transition, isDragging
+  } = useSortable({ id: id, data: { type: 'Column', columnId: id } });
 
-
-  const itemIds = tasks.map(item => item.taskId);
+  const tasksId = tasks.map(item => item.taskId);
 
   const headerStyle: React.CSSProperties = {};
   if (colorMain && colorSub) {
@@ -24,10 +28,19 @@ const DroppableColumn: React.FC<{
     headerStyle.backgroundColor = colorSub;
   }
 
+  const columnStyle: React.CSSProperties = {
+    transform: CSS.Translate.toString(transform),
+    transition,
+    opacity: isDragging ? 0.6 : 1,
+    boxShadow: isOverlay ? '0 0 10px rgba(0,0,0,0.2)' : undefined,
+    cursor: isDragging ? 'grabbing' : 'grab',
+    flexShrink: 0,
+  };
+
   return (
-    <div className="kanban-section">
-      <div className="section-header" style={headerStyle}>{title}</div>
-      <SortableContext items={itemIds} strategy={verticalListSortingStrategy} id={id}>
+    <div ref={setNodeRef} style={columnStyle} {...attributes} className="kanban-section">
+      <div className="section-header" style={headerStyle} {...listeners}>{title}</div>
+      <SortableContext items={tasksId} strategy={verticalListSortingStrategy} id={id}>
         <div className="section-content">
           {tasks.map(t => (
             <CardWrapper key={t.taskId} task={t} sectionName={getSectionName(t.sectionId)} />

@@ -22,6 +22,7 @@ const CardWrapper: React.FC<{
     marginBottom: '8px',
     position: 'relative',
     backgroundColor: 'white',
+    cursor: 'grab'
   };
 
   return (

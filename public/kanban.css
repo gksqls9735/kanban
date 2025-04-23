@@ -346,12 +346,6 @@
   text-align: center;
 }
 
-/* 작업 카드 커서 */
-.kanban-card {
-  cursor: grab;
-}
-
-
 .kanban-card .card-title,
 .kanban-card .card-due-date,
 .kanban-card .card-current-section,
