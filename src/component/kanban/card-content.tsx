@@ -2,7 +2,6 @@ import React from "react";
 import { Task } from "../../types/type";
 import { lightenColor } from "../../utils/color-function";
 import AvatarGroup from "../avatar/avatar-group";
-import useViewModeStore from "../../store/viewmode-store";
 import { formatDateToYyyyMmDd } from "../../utils/date-function";
 import TodoList from "./card-todo/todolist";
 

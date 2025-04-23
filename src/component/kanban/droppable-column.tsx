@@ -4,6 +4,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { Task } from "../../types/type";
 import { CSS } from '@dnd-kit/utilities';
+import { useState } from "react";
+import NewTaskCard from "./new-task-card";
 
 const DroppableColumn: React.FC<{
   tasks: Task[];
@@ -14,8 +16,9 @@ const DroppableColumn: React.FC<{
   colorSub?: string;
   isOverlay?: boolean;
 }> = ({ tasks, id, title, getSectionName, colorMain, colorSub, isOverlay }) => {
-  
-  const { 
+  const [isAddingTask, setIsAddingTask] = useState<boolean>(false);
+
+  const {
     attributes, listeners, setNodeRef, transform, transition, isDragging
   } = useSortable({ id: id, data: { type: 'Column', columnId: id } });
 
@@ -39,17 +42,18 @@ const DroppableColumn: React.FC<{
   return (
     <div ref={setNodeRef} style={columnStyle} {...attributes} className="kanban-section">
       <div className="section-header" style={headerStyle} {...listeners}>{title}</div>
-      <SortableContext items={tasksId} strategy={verticalListSortingStrategy}>
-        <div className="section-content">
+      <div className="section-content">
+        <SortableContext items={tasksId} strategy={verticalListSortingStrategy}>
           {tasks.map(t => (
             <CardWrapper key={t.taskId} task={t} sectionName={getSectionName(t.sectionId)} />
           ))}
-          <div className="task-add">
-            <FontAwesomeIcon icon={faPlus} style={{ width: 13, height: 13 }} />
-            <div>작업 추가</div>
-          </div>
+        </SortableContext>
+        {isAddingTask && (<NewTaskCard columnId={id}/>)}
+        <div className="task-add" onClick={() => setIsAddingTask(true)}>
+          <FontAwesomeIcon icon={faPlus} style={{ width: 13, height: 13 }} />
+          <div>작업 추가</div>
         </div>
-      </SortableContext>
+      </div>
     </div>
   );
 };

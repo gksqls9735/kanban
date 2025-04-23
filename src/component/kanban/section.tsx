@@ -1,4 +1,4 @@
-import { Section, SelectOption, Task } from "../../types/type";
+import { Task } from "../../types/type";
 import useViewModeStore from "../../store/viewmode-store";
 import useTaskStore from "../../store/task-store";
 import { ViewModes } from "../../constants";
@@ -6,16 +6,18 @@ import { useState } from "react";
 import { lightenColor } from "../../utils/color-function";
 import DroppableColumn from "./droppable-column";
 import { horizontalListSortingStrategy, SortableContext } from "@dnd-kit/sortable";
+import useSectionsStore from "../../store/sections-store";
+import useStatusesStore from "../../store/statuses-store";
 
 
 const SectionComponent: React.FC<{
-  sections: Section[];
-  statusList: SelectOption[];
   getSectionName: (sectionId: string) => string;
-}> = ({ sections, statusList, getSectionName }) => {
+}> = ({  getSectionName }) => {
   const viewMode = useViewModeStore(state => state.viewMode);
   const tasks = useTaskStore(state => state.allTasks);
   const [newSectionCount, setNewSectionCount] = useState<number>(0);
+  const statusList = useStatusesStore(state => state.statusList);
+  const sections = useSectionsStore(state => state.sections);
 
   const getTasksForColumn = (columnId: string): Task[] => {
     return tasks

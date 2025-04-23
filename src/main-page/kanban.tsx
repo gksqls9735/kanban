@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import SectionComponent from "../component/kanban/section";
 import { Section, SelectOption, Task } from "../types/type";
 import { DndContext, DragOverlay, rectIntersection } from "@dnd-kit/core";
