@@ -7,7 +7,8 @@ import CardContent from "./card-content";
 const CardWrapper: React.FC<{
   task: Task;
   sectionName: string;
-}> = ({ task, sectionName }) => {
+  isOverlay?: boolean;
+}> = ({ task, sectionName, isOverlay }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: task.taskId,
     data: {
@@ -18,10 +19,11 @@ const CardWrapper: React.FC<{
   const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0.8 : 1,
+    opacity: isDragging ? 0 : 1,
     marginBottom: '8px',
     position: 'relative',
     backgroundColor: 'white',
+    cursor: isOverlay ? 'grabbing' : 'grab',
   };
 
   return (
@@ -32,7 +34,7 @@ const CardWrapper: React.FC<{
       {...attributes}
       className="kanban-card"
     >
-      <CardContent task={task} sectionName={sectionName}/>
+      <CardContent task={task} sectionName={sectionName} />
     </div>
   );
 };

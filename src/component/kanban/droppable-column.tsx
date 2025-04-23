@@ -12,8 +12,9 @@ const DroppableColumn: React.FC<{
   getSectionName: (sectionId: string) => string;
   colorMain?: string;
   colorSub?: string;
-}> = ({ id, title, tasks, getSectionName, colorMain, colorSub }) => {
-
+  isOverlay?: boolean;
+}> = ({ tasks, id, title, getSectionName, colorMain, colorSub, isOverlay }) => {
+  
   const { 
     attributes, listeners, setNodeRef, transform, transition, isDragging
   } = useSortable({ id: id, data: { type: 'Column', columnId: id } });
@@ -25,20 +26,20 @@ const DroppableColumn: React.FC<{
     headerStyle.color = colorMain;
     headerStyle.border = `1px solid ${colorMain}`;
     headerStyle.backgroundColor = colorSub;
+    headerStyle.cursor = isOverlay ? 'grabbing' : 'grab';
   }
 
   const columnStyle: React.CSSProperties = {
     transform: CSS.Translate.toString(transform),
     transition,
-    opacity: isDragging ? 0.6 : 1,
-    cursor: 'grab',
+    opacity: isDragging ? 0 : 1,
     flexShrink: 0,
   };
 
   return (
     <div ref={setNodeRef} style={columnStyle} {...attributes} className="kanban-section">
       <div className="section-header" style={headerStyle} {...listeners}>{title}</div>
-      <SortableContext items={tasksId} strategy={verticalListSortingStrategy} id={id}>
+      <SortableContext items={tasksId} strategy={verticalListSortingStrategy}>
         <div className="section-content">
           {tasks.map(t => (
             <CardWrapper key={t.taskId} task={t} sectionName={getSectionName(t.sectionId)} />

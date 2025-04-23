@@ -2,11 +2,12 @@ import { useEffect, useState } from "react";
 import SectionComponent from "../component/kanban/section";
 import { Section, SelectOption, Task } from "../types/type";
 import { DndContext, DragOverlay, rectIntersection } from "@dnd-kit/core";
-import Card from "../component/kanban/card-wrapper";
+import CardWrapper from "../component/kanban/card-wrapper";
 import useViewModeStore from "../store/viewmode-store";
 import { ViewModes } from "../constants";
 import useTaskStore from "../store/task-store";
 import { useKanbanDnd } from "../hooks/use-task-dnd";
+import DroppableColumn from "../component/kanban/droppable-column";
 
 const Kanban: React.FC<{
   tasks: Task[];
@@ -20,7 +21,7 @@ const Kanban: React.FC<{
   const [orderedStatusList, setOrderedStatusList] = useState<SelectOption[]>(initialStatusList);
 
   const {
-    sensors, activeTask, handleDragStart, handleDragEnd, handleDragCancel
+    sensors, activeTask, activeColumn, handleDragStart, handleDragEnd, handleDragCancel
   } = useKanbanDnd(orderedSections, setOrderedSections, orderedStatusList, setOrderedStatusList);
 
   useEffect(() => {
@@ -62,8 +63,18 @@ const Kanban: React.FC<{
         />
         <DragOverlay>
           {activeTask ? (
-            <Card task={activeTask} sectionName={getSectionName(activeTask.sectionId)}/>
-          ) : null}
+            <CardWrapper task={activeTask} sectionName={getSectionName(activeTask.sectionId)} isOverlay={true}/>
+          ) : activeColumn ? (
+            <DroppableColumn
+              id={activeColumn.id}
+              title={activeColumn.title}
+              tasks={activeColumn.tasks}
+              getSectionName={activeColumn.getSectionName}
+              colorMain={activeColumn.colorMain}
+              colorSub={activeColumn.colorSub}
+              isOverlay={true}
+            />
+          ) : null }
         </DragOverlay>
       </div>
     </DndContext>
