@@ -1,11 +1,13 @@
 import { useState } from "react";
 import useTaskStore from "../store/task-store";
 import useViewModeStore from "../store/viewmode-store";
-import { Section, SelectOption, Task } from "../types/type";
+import { Task } from "../types/type";
 import { DragEndEvent, DragStartEvent, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 import { ViewModes } from "../constants";
 import { lightenColor } from "../utils/color-function";
+import useSectionsStore from "../store/sections-store";
+import useStatusesStore from "../store/statuses-store";
 
 export interface ActiveColumnData {
   id: string;
@@ -21,15 +23,13 @@ const sortTasks = (tasksToSort: Task[]): Task[] => {
   return [...tasksToSort].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 };
 
-export const useKanbanDnd = (
-  orderedSections: Section[], // 정렬된 섹션 상태
-  setOrderedSections: React.Dispatch<React.SetStateAction<Section[]>>, // 섹션 순서 변경 함수
-  orderedStatusList: SelectOption[], // 정렬된 상태 목록 상태
-  setOrderedStatusList: React.Dispatch<React.SetStateAction<SelectOption[]>>, // 상태 순서 변경 함
-) => {
+export const useKanbanDnd = () => {
   const { viewMode } = useViewModeStore();
   const setTasks = useTaskStore(state => state.setTasks);
   const allTasks = useTaskStore(state => state.allTasks);
+
+  const { sections, setSections } = useSectionsStore();
+  const { statusList, setStatusList } = useStatusesStore();
 
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [activeColumn, setActiveColumn] = useState<ActiveColumnData | null>(null);
@@ -50,7 +50,7 @@ export const useKanbanDnd = (
   };
 
   const getSectionName = (sectionId: string) => {
-    return orderedSections.find(sec => sec.sectionId === sectionId)?.sectionName || '';
+    return sections.find(sec => sec.sectionId === sectionId)?.sectionName || '';
   };
 
   const handleDragStart = (e: DragStartEvent) => {
@@ -67,7 +67,7 @@ export const useKanbanDnd = (
       let columnData: ActiveColumnData | null = null;
 
       if (viewMode === ViewModes.STATUS) {
-        const status = orderedStatusList.find(s => s.code === columnId);
+        const status = statusList.find(s => s.code === columnId);
         if (status) {
           columnData = {
             id: status.code,
@@ -80,7 +80,7 @@ export const useKanbanDnd = (
           };
         }
       } else {
-        const section = orderedSections.find(s => s.sectionId === columnId);
+        const section = sections.find(s => s.sectionId === columnId);
         if (section) {
           columnData = {
             id: section.sectionId,
@@ -96,7 +96,7 @@ export const useKanbanDnd = (
     }
   };
 
-  const handleDragCancel = () => { 
+  const handleDragCancel = () => {
     setActiveTask(null);
     setActiveColumn(null);
 
@@ -104,22 +104,22 @@ export const useKanbanDnd = (
 
   const handleDragEnd = (e: DragEndEvent) => {
     const { active, over } = e;
-    const type = active.data.current?.type;
 
     setActiveTask(null);
     setActiveColumn(null);
 
     if (!over) return;
 
+    const type = active.data.current?.type;
+    const activeId = active.id as string;
+    const overId = over.id as string;
+
+    if (activeId === overId && type !== 'Column') return;
+
     // 작업 드래그
     if (type === 'Task') {
-      if (active.id === over.id) return;
-
-      const activeTaskId = active.id as string;
-      const overId = over.id as string;
-
-      const currentTasks = useTaskStore.getState().allTasks;
-      const activeTaskIndex = currentTasks.findIndex(t => t.taskId === activeTaskId);
+      const currentTasks = allTasks;
+      const activeTaskIndex = currentTasks.findIndex(t => t.taskId === activeId);
 
       if (activeTaskIndex === -1) {
         console.error("Active task not found in current tasks");
@@ -131,38 +131,34 @@ export const useKanbanDnd = (
 
       const isOverAColumn = over.data.current?.type === 'Column' || (
         viewMode === ViewModes.STATUS
-          ? orderedStatusList.some(s => s.code === overId)
-          : orderedSections.some(s => s.sectionId === overId)
+          ? statusList.some(s => s.code === overId)
+          : sections.some(s => s.sectionId === overId)
       );
 
       let newTasks = [...currentTasks];
 
       if (isOverAColumn) {
         // 컬럼 위로 드롭 (Task를 빈 컬럼 또는 컬럼의 빈 공간으로 이동)
-        //const targetColumnId = overId;
+        const targetColumnId = overId;
 
-        const finalTargetColumnId = over.data.current?.type === 'Column'
-          ? overId
-          : getColumnId(currentTasks.find(t => t.taskId === overId)!) ?? overId;
-
-        if (activeColumnId !== finalTargetColumnId) {
+        if (activeColumnId !== targetColumnId) {
           const updatedTask = { ...originalActiveTaskData };
           if (viewMode === ViewModes.STATUS) {
-            const newStatus = orderedStatusList.find(s => s.code === finalTargetColumnId);
+            const newStatus = statusList.find(s => s.code === targetColumnId);
             if (!newStatus) return;
             updatedTask.status = newStatus;
           } else {
-            const newSection = orderedSections.find(s => s.sectionId === finalTargetColumnId);
+            const newSection = sections.find(s => s.sectionId === targetColumnId);
             if (!newSection) return;
-            updatedTask.sectionId = finalTargetColumnId;
+            updatedTask.sectionId = targetColumnId;
           }
 
           const tasksInTargetColumn = newTasks
-            .filter(t => getColumnId(t) === finalTargetColumnId && t.taskId !== activeTaskId)
+            .filter(t => getColumnId(t) === targetColumnId && t.taskId !== activeId)
             .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
           updatedTask.order = tasksInTargetColumn.length;
 
-          newTasks = newTasks.filter(t => t.taskId !== activeTaskId);
+          newTasks = newTasks.filter(t => t.taskId !== activeId);
           newTasks = newTasks.map(t => {
             if (getColumnId(t) === activeColumnId && (t.order ?? 0) > (originalActiveTaskData.order ?? 0)) {
               return { ...t, order: (t.order ?? 0) - 1 };
@@ -170,6 +166,26 @@ export const useKanbanDnd = (
             return t;
           });
           newTasks.push(updatedTask);
+        } else {
+          const tasksInColumn = newTasks
+            .filter(t => getColumnId(t) === activeColumnId)
+            .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+          const oldIndex = tasksInColumn.findIndex(t => t.taskId === activeId);
+          const newIndex = tasksInColumn.length - 1;
+
+          if (oldIndex !== -1 && oldIndex !== newIndex) {
+            const reorderedTaskIds = arrayMove(tasksInColumn.map(t => t.taskId), oldIndex, newIndex);
+            const columnUpdates = new Map<string, number>();
+            reorderedTaskIds.forEach((taskId, index) => { columnUpdates.set(taskId, index) });
+
+            newTasks = newTasks.map(t => {
+              if (getColumnId(t) === activeColumnId && columnUpdates.has(t.taskId)) {
+                return { ...t, order: columnUpdates.get(t.taskId)! };
+              }
+              return t;
+            });
+          }
+
         }
       } else {
         // 다른 Task 위로 드롭
@@ -187,7 +203,7 @@ export const useKanbanDnd = (
           const tasksInColumn = newTasks
             .filter(t => getColumnId(t) === activeColumnId)
             .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-          const oldIndex = tasksInColumn.findIndex(t => t.taskId === activeTaskId);
+          const oldIndex = tasksInColumn.findIndex(t => t.taskId === activeId);
           const newIndex = tasksInColumn.findIndex(t => t.taskId === overTaskId);
 
           if (oldIndex !== -1 && newIndex !== -1) {
@@ -208,11 +224,11 @@ export const useKanbanDnd = (
           const updatedTask = { ...originalActiveTaskData };
 
           if (viewMode === ViewModes.STATUS) {
-            const newStatus = orderedStatusList.find(s => s.code === targetColumnId);
+            const newStatus = statusList.find(s => s.code === targetColumnId);
             if (!newStatus) return;
             updatedTask.status = newStatus;
           } else {
-            const newSection = orderedSections.find(s => s.sectionId === targetColumnId);
+            const newSection = sections.find(s => s.sectionId === targetColumnId);
             if (!newSection) return;
             updatedTask.sectionId = targetColumnId;
           }
@@ -220,7 +236,7 @@ export const useKanbanDnd = (
           const overTaskOrder = overTask.order ?? 0;
           updatedTask.order = overTaskOrder;
 
-          const tasksWithoutActive = newTasks.filter(t => t.taskId !== activeTaskId);
+          const tasksWithoutActive = newTasks.filter(t => t.taskId !== activeId);
           const targetColumnUpdates = new Map<string, number>();
           const sourceColumnUpdates = new Map<string, number>();
 
@@ -228,8 +244,8 @@ export const useKanbanDnd = (
             const colId = getColumnId(t);
             const currentOrder = t.order ?? 0;
 
-            // 대상 컬럼: 드롭된 위치 이후 작업들의 순서를 1씩 증가
             if (colId === targetColumnId && currentOrder >= overTaskOrder) {
+              // 대상 컬럼: 드롭된 위치 이후 작업들의 순서를 1씩 증가
               targetColumnUpdates.set(t.taskId, currentOrder + 1);
             } else if (colId === activeColumnId && currentOrder > (originalActiveTaskData.order ?? 0)) {
               // 원본 컬럼: 드래그된 작업 이후 작업들의 순서를 1씩 감소
@@ -245,23 +261,24 @@ export const useKanbanDnd = (
         }
       }
       setTasks(sortTasks(newTasks));
+
     } else if (type === 'Column') {
-      // 컬럼 드래그 종료 처리
-      const activeColumnId = active.id as string;
-      const overColumnId = over.id as string;
-
-      if (activeColumnId === overColumnId) return;
-
+      if (activeId === overId) return;
       if (viewMode === ViewModes.STATUS) {
-        const oldIndex = orderedStatusList.findIndex(s => s.code === activeColumnId);
-        const newIndex = orderedStatusList.findIndex(s => s.code === overColumnId);
-        if (oldIndex !== -1 && newIndex !== -1)
-          setOrderedStatusList(prev => arrayMove(prev, oldIndex, newIndex));
+        // useCallback 사용 시 getState로 최신 참조 보장
+        const currentList = statusList;
+        const oldIndex = currentList.findIndex(s => s.code === activeId);
+        const newIndex = currentList.findIndex(s => s.code === overId);
+        if (oldIndex !== -1 && newIndex !== -1) {
+          setStatusList(arrayMove(currentList, oldIndex, newIndex));
+        }
       } else {
-        const oldIndex = orderedSections.findIndex(s => s.sectionId === activeColumnId);
-        const newIndex = orderedSections.findIndex(s => s.sectionId === overColumnId);
-        if (oldIndex !== -1 && newIndex !== -1)
-          setOrderedSections(prev => arrayMove(prev, oldIndex, newIndex));
+        const currentList = sections;
+        const oldIndex = currentList.findIndex(s => s.sectionId === activeId);
+        const newIndex = currentList.findIndex(s => s.sectionId === overId);
+        if (oldIndex !== -1 && newIndex !== -1) {
+          setSections(arrayMove(currentList, oldIndex, newIndex));
+        }
       }
     }
 

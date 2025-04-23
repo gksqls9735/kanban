@@ -8,6 +8,8 @@ import { ViewModes } from "../constants";
 import useTaskStore from "../store/task-store";
 import { useKanbanDnd } from "../hooks/use-task-dnd";
 import DroppableColumn from "../component/kanban/droppable-column";
+import useStatusesStore from "../store/statuses-store";
+import useSectionsStore from "../store/sections-store";
 
 const Kanban: React.FC<{
   tasks: Task[];
@@ -17,27 +19,34 @@ const Kanban: React.FC<{
   const { viewMode, setViewMode } = useViewModeStore();
   const setTasks = useTaskStore(state => state.setTasks);
 
-  const [orderedSections, setOrderedSections] = useState<Section[]>(initialSections);
-  const [orderedStatusList, setOrderedStatusList] = useState<SelectOption[]>(initialStatusList);
+  const sections = useSectionsStore(state => state.sections);
+  const setSections = useSectionsStore(state => state.setSections);
+  const setStatusList = useStatusesStore(state => state.setStatusList);
+  const sectionsLoaded = useSectionsStore(state => state.sections.length > 0);
+  const statusesLoaded = useStatusesStore(state => state.statusList.length > 0);
 
   const {
     sensors, activeTask, activeColumn, handleDragStart, handleDragEnd, handleDragCancel
-  } = useKanbanDnd(orderedSections, setOrderedSections, orderedStatusList, setOrderedStatusList);
+  } = useKanbanDnd();
 
   useEffect(() => {
     setTasks(initialTasks);
   }, [initialTasks, setTasks]);
 
   useEffect(() => {
-    setOrderedSections(initialSections);
-  }, [initialSections]);
+    if (!sectionsLoaded) {
+        setSections(initialSections);
+    }
+  }, [initialSections, setSections, sectionsLoaded]);
 
   useEffect(() => {
-    setOrderedStatusList(initialStatusList);
-  }, [initialStatusList]);
+     if (!statusesLoaded) {
+        setStatusList(initialStatusList);
+     }
+  }, [initialStatusList, setStatusList, statusesLoaded]);
 
   const getSectionName = (sectionId: string): string => {
-    return orderedSections.find(sec => sec.sectionId === sectionId)?.sectionName || '';
+    return sections.find(sec => sec.sectionId === sectionId)?.sectionName || '';
   };
 
   const toggleViewMode = () => {
@@ -57,13 +66,12 @@ const Kanban: React.FC<{
           {viewMode === ViewModes.STATUS ? '섹션별로 보기' : '상태별로 보기'}
         </div>
         <SectionComponent
-          sections={orderedSections}
-          statusList={orderedStatusList}
+
           getSectionName={getSectionName}
         />
         <DragOverlay>
           {activeTask ? (
-            <CardWrapper task={activeTask} sectionName={getSectionName(activeTask.sectionId)} isOverlay={true}/>
+            <CardWrapper task={activeTask} sectionName={getSectionName(activeTask.sectionId)} isOverlay={true} />
           ) : activeColumn ? (
             <DroppableColumn
               id={activeColumn.id}
@@ -74,7 +82,7 @@ const Kanban: React.FC<{
               colorSub={activeColumn.colorSub}
               isOverlay={true}
             />
-          ) : null }
+          ) : null}
         </DragOverlay>
       </div>
     </DndContext>
