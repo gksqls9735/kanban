@@ -5,7 +5,6 @@ import { Section, SelectOption, Task } from "../types/type";
 import { DragEndEvent, DragStartEvent, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 import { ViewModes } from "../constants";
-import { lightenColor } from "../utils/color-function";
 
 export interface ActiveColumnData {
   id: string;
@@ -32,7 +31,6 @@ export const useKanbanDnd = (
   const allTasks = useTaskStore(state => state.allTasks);
 
   const [activeTask, setActiveTask] = useState<Task | null>(null);
-  const [activeColumn, setActiveColumn] = useState<ActiveColumnData | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -43,16 +41,6 @@ export const useKanbanDnd = (
 
   const getColumnId = (task: Task) => { return viewMode === ViewModes.STATUS ? task.status.code : task.sectionId };
 
-  const getTasksForColumn = (columnId: string) => {
-    return allTasks
-      .filter(t => (viewMode === ViewModes.STATUS ? t.status.code : t.sectionId) === columnId)
-      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-  };
-
-  const getSectionName = (sectionId: string) => {
-    return orderedSections.find(sec => sec.sectionId === sectionId)?.sectionName || '';
-  };
-
   const handleDragStart = (e: DragStartEvent) => {
     const { active } = e;
     const type = active.data.current?.type;
@@ -61,49 +49,16 @@ export const useKanbanDnd = (
       const taskId = active.id as string;
       const task = allTasks.find(t => t.taskId === taskId);
       if (task) setActiveTask(task);
-      setActiveColumn(null);
-    } else if (type === 'Column') {
-      const columnId = active.id as string;
-      let columnData: ActiveColumnData | null = null;
-
-      if (viewMode === ViewModes.STATUS) {
-        const status = orderedStatusList.find(s => s.code === columnId);
-        if (status) {
-          columnData = {
-            id: status.code,
-            title: status.name,
-            type: 'Column',
-            tasks: getTasksForColumn(status.code),
-            colorMain: status.colorMain,
-            colorSub: status.colorSub || lightenColor(status.colorMain, 0.85),
-            getSectionName,
-          }
-        }
-      } else {
-        const section = orderedSections.find(s => s.sectionId === columnId);
-        if (section) {
-          columnData = {
-            id: section.sectionId,
-            title: section.sectionName,
-            type: 'Column',
-            tasks: getTasksForColumn(section.sectionId),
-            getSectionName,
-          };
-        }
-      }
-      setActiveColumn(columnData);
-      setActiveTask(null);
-    }
+    } 
   };
 
-  const handleDragCancel = () => { setActiveTask(null); setActiveColumn(null); };
+  const handleDragCancel = () => { setActiveTask(null); };
 
   const handleDragEnd = (e: DragEndEvent) => {
     const { active, over } = e;
     const type = active.data.current?.type;
 
     setActiveTask(null);
-    setActiveColumn(null);
 
     if (!over) return;
 
@@ -135,7 +90,7 @@ export const useKanbanDnd = (
 
       if (isOverAColumn) {
         // 컬럼 위로 드롭 (Task를 빈 컬럼 또는 컬럼의 빈 공간으로 이동)
-        const targetColumnId = overId;
+        //const targetColumnId = overId;
 
         const finalTargetColumnId = over.data.current?.type === 'Column'
           ? overId
@@ -265,7 +220,6 @@ export const useKanbanDnd = (
   return {
     sensors,
     activeTask,
-    activeColumn,
     handleDragStart,
     handleDragEnd,
     handleDragCancel,

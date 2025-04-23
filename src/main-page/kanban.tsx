@@ -20,7 +20,7 @@ const Kanban: React.FC<{
   const [orderedStatusList, setOrderedStatusList] = useState<SelectOption[]>(initialStatusList);
 
   const {
-    sensors, activeTask, activeColumn, handleDragStart, handleDragEnd, handleDragCancel
+    sensors, activeTask, handleDragStart, handleDragEnd, handleDragCancel
   } = useKanbanDnd(orderedSections, setOrderedSections, orderedStatusList, setOrderedStatusList);
 
   useEffect(() => {
