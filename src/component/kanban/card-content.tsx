@@ -3,7 +3,6 @@ import { Task } from "../../types/type";
 import { lightenColor } from "../../utils/color-function";
 import AvatarGroup from "../avatar/avatar-group";
 import useViewModeStore from "../../store/viewmode-store";
-import { ViewModes } from "../../constants";
 import { formatDateToYyyyMmDd } from "../../utils/date-function";
 import TodoList from "./card-todo/todolist";
 
@@ -11,11 +10,10 @@ const CardContent: React.FC<{
   task: Task;
   sectionName?: string;
 }> = ({ task, sectionName }) => {
-  const viewMode = useViewModeStore(state => state.viewMode);
 
   return (
     <>
-      {viewMode === ViewModes.STATUS && (<div className="card-current-section">{sectionName}</div>)}
+      <div className="card-current-section">{sectionName}</div>
       <div className="card-title">{task.taskName}</div>
       <div className="card-due-date">
         <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="#7d8998">
@@ -37,10 +35,10 @@ const CardContent: React.FC<{
           <AvatarGroup list={task.participants || []} maxVisible={3} />
         </div>
       </div>
-      <div className="seperation-line" />
       {task.todoList.length > 0 && (
         <>
-          <TodoList taskId={task.taskId} todoList={task.todoList}/>
+          <div className="seperation-line" />
+          <TodoList taskId={task.taskId} todoList={task.todoList} />
         </>
       )}
     </>
