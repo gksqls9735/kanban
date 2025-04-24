@@ -346,6 +346,8 @@
   text-align: center;
 }
 
+
+/* 커서 */
 .kanban-card .card-title,
 .kanban-card .card-due-date,
 .kanban-card .card-current-section,
