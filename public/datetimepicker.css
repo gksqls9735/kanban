@@ -4,9 +4,9 @@
   flex-direction: column;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
-  padding: 16px;
+  padding: 20px 24px;
   background-color: #fff;
-  min-width: 280px;
+  width: 296px;
   box-shadow: 0px 0px 16px 0px #00000014;
 }
 
@@ -24,17 +24,21 @@
   gap: 8px;
 }
 
+.kanban .datetime-picker-container .date-time-row.separate {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+}
+
 .kanban .datetime-picker-container .date-time-row .date-input {
   padding: 8px 12px;
-  border: 1px solid #ccc;
+  border: 1px solid rgba(228, 232, 238, 1);
   border-radius: 4px;
   font-size: 13px;
   cursor: pointer;
-  background-color: #f8f9fa;
-  color: #888;
+  background-color: white;
+  color: rgba(141, 153, 168, 1);
   flex-grow: 1;
   min-width: 90px;
-  text-align: center;
 }
 
 .kanban .datetime-picker-container .date-time-row .date-input.select {
@@ -46,11 +50,10 @@
 .kanban .datetime-picker-container .date-time-row .time-placeholder {
   padding: 8px 12px;
   font-size: 13px;
-  color: #aaa;
-  border: 1px solid transparent;
+  color: rgba(141, 153, 168, 1);
+  border: 1px solid rgba(228, 232, 238, 1);
   border-radius: 4px;
   min-width: 90px;
-  text-align: center;
 }
 
 .kanban .datetime-picker-container .date-time-row .time-select-container {
@@ -161,21 +164,21 @@
 
 .kanban .datetime-picker-container .calendar-body .calendar-cell.start-date,
 .calendar-cell.end-date {
-  background-color: #4CAF50;
+  background-color: #16B364;
   color: white;
   font-weight: bold;
 }
 
 .kanban .datetime-picker-container .calendar-body .calendar-cell.single-date {
-  background-color: #4CAF50;
+  background-color: #16B364;
   color: white;
 }
 
 /* 선택한 날짜 표시시 */
 /* 기간 내 */
 .kanban .datetime-picker-container .calendar-body .calendar-cell.in-range {
-  background-color: #e8f5e9;
-  color: #333;
+  background-color: #D1FADF;
+  color: #16B364;
   border-radius: 50%;
 }
 
@@ -242,7 +245,7 @@
 }
 
 .kanban .datetime-picker-container .toggle-section input:checked + .slider.green {
-  background-color: #4CAF50;
+  background-color: #16B364;
 }
 
 .kanban .datetime-picker-container .toggle-section input:focus + .slider {

@@ -194,7 +194,13 @@ const NewTaskCard: React.FC<{
                   zIndex: 10,
                 }}
               >
-                <DateTimePicker onChange={handleDateSelect} />
+                <DateTimePicker 
+                  initialStartDate={startDate}
+                  initialEndDate={endDate}
+                  initialShowDeadline={!!endDate}
+                  initialIncludeTime={startDate ? startDate.getHours() !== 0 || startDate.getMinutes() !== 0 : false}
+                  onChange={handleDateSelect} 
+                />
               </div>
             )}
           </div>

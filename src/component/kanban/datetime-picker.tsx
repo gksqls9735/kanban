@@ -256,31 +256,81 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
       <div className="datetime-picker-container">
         {/** 상단 날짜/시간 표시 및 선택 */}
         <div className="selected-info">
-          <div className="date-time-row">
-            <input
-              type="text"
-              readOnly
-              value={startDate ? format(startDate, 'yyyy.MM.dd', { locale: ko }) : '시작일'}
-              placeholder="시작일"
-              className={`date-input ${startDate ? 'selected' : ''}`}
-              onClick={() => { }}
-            />
-            {includeTime && startDate && renderTimeSelect('start')}
-            {!includeTime && <div className="time-placeholder">시작 시간</div>}
-          </div>
-          {showDeadline && (
-            <div className="date-time-row">
-              <input
-                type="text"
-                readOnly
-                value={endDate ? format(endDate, 'yyyy.MM.dd', { locale: ko }) : '마감일'}
-                placeholder="마감일"
-                className={`date-input ${endDate ? 'selected' : ''}`}
-                onClick={() => { }}
-              />
-              {includeTime && endDate && renderTimeSelect('end')}
-              {!includeTime && <div className="time-placeholder">마감 시간</div>}
-            </div>
+          {!includeTime && (
+            showDeadline ? (
+              <div className={`date-time-row separate`}>
+                <input
+                  type="text"
+                  readOnly
+                  value={startDate ? format(startDate, 'yyyy.MM.dd', { locale: ko }) : '시작일'}
+                  placeholder="시작일"
+                  className={`date-input ${startDate ? 'selected' : ''}`}
+                />
+                <input
+                  type="text"
+                  readOnly
+                  value={endDate ? format(endDate, 'yyyy.MM.dd', { locale: ko }) : '마감일'}
+                  placeholder="마감일"
+                  className={`date-input ${endDate ? 'selected' : ''}`}
+                />
+              </div>
+            ) : (
+              <div className="date-time-row">
+                <input
+                  type="text"
+                  readOnly
+                  value={startDate ? format(startDate, 'yyyy.MM.dd', { locale: ko }) : '시작일'}
+                  placeholder="시작일"
+                  className={`date-input ${startDate ? 'selected' : ''}`}
+                />
+              </div>
+            )
+          )}
+
+          {includeTime && (
+            showDeadline ? (
+              <>
+                <div className="date-time-row separate">
+                  <input
+                    type="text"
+                    readOnly
+                    value={startDate ? format(startDate, 'yyyy.MM.dd', { locale: ko }) : '시작일'}
+                    placeholder="시작일"
+                    className={`date-input ${startDate ? 'selected' : ''}`}
+                  />
+                  {startDate
+                    ? renderTimeSelect('start') : <div className="time-placeholder">시작 시간</div>
+                  }
+                </div>
+                <div className="date-time-row separate">
+                  <input
+                    type="text"
+                    readOnly
+                    value={endDate ? format(endDate, 'yyyy.MM.dd', { locale: ko }) : '마감일'}
+                    placeholder="마감일"
+                    className={`date-input ${endDate ? 'selected' : ''}`}
+                  />
+                  {endDate
+                    ? renderTimeSelect('end') : <div className="time-placeholder">마감 시간</div>
+                  }
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="date-time-row separate">
+                  <input
+                    type="text"
+                    readOnly
+                    value={startDate ? format(startDate, 'yyyy.MM.dd', { locale: ko }) : '시작일'}
+                    placeholder="시작일"
+                    className={`date-input ${startDate ? 'selected' : ''}`}
+                  />
+                  {startDate
+                    ? renderTimeSelect('start') : <div className="time-placeholder">시작 시간</div>
+                  }
+                </div>
+              </>
+            )
           )}
         </div>
 
