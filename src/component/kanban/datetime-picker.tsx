@@ -8,6 +8,7 @@ import {
 } from "date-fns";
 import { ko } from "date-fns/locale";
 import { useEffect, useState } from "react";
+import DateInput from "./date-input";
 
 interface DateTimePickerProps {
   initialStartDate?: Date | null;
@@ -257,79 +258,66 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
         {/** 상단 날짜/시간 표시 및 선택 */}
         <div className="selected-info">
           {!includeTime && (
-            showDeadline ? (
-              <div className={`date-time-row separate`}>
-                <input
-                  type="text"
-                  readOnly
-                  value={startDate ? format(startDate, 'yyyy.MM.dd', { locale: ko }) : '시작일'}
-                  placeholder="시작일"
-                  className={`date-input ${startDate ? 'selected' : ''}`}
+            <div className={`date-time-row ${showDeadline ? 'separate' : ''}`}>
+              <DateInput
+                date={startDate}
+                setDate={setStartDate}
+                label="시작일"
+                locale={ko}
+              />
+              {showDeadline && (
+                <DateInput
+                  date={endDate}
+                  setDate={setEndDate}
+                  label="마감일"
+                  locale={ko}
                 />
-                <input
-                  type="text"
-                  readOnly
-                  value={endDate ? format(endDate, 'yyyy.MM.dd', { locale: ko }) : '마감일'}
-                  placeholder="마감일"
-                  className={`date-input ${endDate ? 'selected' : ''}`}
-                />
-              </div>
-            ) : (
-              <div className="date-time-row">
-                <input
-                  type="text"
-                  readOnly
-                  value={startDate ? format(startDate, 'yyyy.MM.dd', { locale: ko }) : '시작일'}
-                  placeholder="시작일"
-                  className={`date-input ${startDate ? 'selected' : ''}`}
-                />
-              </div>
-            )
+              )}
+            </div>
           )}
 
           {includeTime && (
             showDeadline ? (
               <>
                 <div className="date-time-row separate">
-                  <input
-                    type="text"
-                    readOnly
-                    value={startDate ? format(startDate, 'yyyy.MM.dd', { locale: ko }) : '시작일'}
-                    placeholder="시작일"
-                    className={`date-input ${startDate ? 'selected' : ''}`}
+                  <DateInput
+                    date={startDate}
+                    setDate={setStartDate}
+                    label="시작일"
+                    locale={ko}
                   />
                   {startDate
-                    ? renderTimeSelect('start') : <div className="time-placeholder">시작 시간</div>
+                    ? renderTimeSelect('start')
+                    : <div className="time-placeholder">시작 시간</div>
                   }
                 </div>
                 <div className="date-time-row separate">
-                  <input
-                    type="text"
-                    readOnly
-                    value={endDate ? format(endDate, 'yyyy.MM.dd', { locale: ko }) : '마감일'}
-                    placeholder="마감일"
-                    className={`date-input ${endDate ? 'selected' : ''}`}
+                  <DateInput
+                    date={endDate}
+                    setDate={setEndDate}
+                    label="마감일"
+                    locale={ko}
                   />
                   {endDate
-                    ? renderTimeSelect('end') : <div className="time-placeholder">마감 시간</div>
+                    ? renderTimeSelect('end')
+                    : <div className="time-placeholder">마감 시간</div>
                   }
                 </div>
               </>
             ) : (
-              <>
-                <div className="date-time-row separate">
-                  <input
-                    type="text"
-                    readOnly
-                    value={startDate ? format(startDate, 'yyyy.MM.dd', { locale: ko }) : '시작일'}
-                    placeholder="시작일"
-                    className={`date-input ${startDate ? 'selected' : ''}`}
-                  />
-                  {startDate
-                    ? renderTimeSelect('start') : <div className="time-placeholder">시작 시간</div>
-                  }
-                </div>
-              </>
+              // Case: includeTime=true, showDeadline=false (Only start date/time)
+              <div className="date-time-row separate"> {/* Assuming 'separate' is still desired */}
+                <DateInput
+                  date={startDate}
+                  setDate={setStartDate}
+                  label="시작일"
+                  locale={ko}
+                />
+                {startDate
+                  ? renderTimeSelect('start')
+                  : <div className="time-placeholder">시작 시간</div>
+                }
+              </div>
             )
           )}
         </div>

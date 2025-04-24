@@ -22,29 +22,37 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  width: 100%;
 }
 
 .kanban .datetime-picker-container .date-time-row.separate {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.kanban .datetime-picker-container .date-time-row > div:has(.date-input),
+.kanban .datetime-picker-container .date-time-row > .time-placeholder,
+.kanban .datetime-picker-container .date-time-row > .time-select-container {
+  width: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-width: 0;
 }
 
 .kanban .datetime-picker-container .date-time-row .date-input {
   padding: 8px 12px;
+  padding-right: 30px;
   border: 1px solid rgba(228, 232, 238, 1);
   border-radius: 4px;
   font-size: 13px;
   cursor: pointer;
   background-color: white;
   color: rgba(141, 153, 168, 1);
-  flex-grow: 1;
-  min-width: 90px;
-}
-
-.kanban .datetime-picker-container .date-time-row .date-input.select {
-  background-color: #fff;
-  color: #333;
-  border-color: #a0a0a0;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .kanban .datetime-picker-container .date-time-row .time-placeholder {
@@ -53,15 +61,32 @@
   color: rgba(141, 153, 168, 1);
   border: 1px solid rgba(228, 232, 238, 1);
   border-radius: 4px;
-  min-width: 90px;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  min-height: 38px;
+  min-width: 0;
+}
+
+.kanban .datetime-picker-container .date-time-row .date-input.select {
+  background-color: #fff;
+  color: #333;
+  border-color: #a0a0a0;
 }
 
 .kanban .datetime-picker-container .date-time-row .time-select-container {
   display: flex;
-  gap: 4px
+  gap: 4px;
+  box-sizing: border-box;
+  padding: 0;
+  border: none;
+  min-height: 38px;
+  align-items: center;
 }
 
 .kanban .datetime-picker-container .date-time-row .time-select {
+  flex-grow: 1;
   padding: 7px 8px;
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -71,12 +96,13 @@
   -moz-appearance: none;
   appearance: none;
   background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007bff%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E');
-  /* 간단한 화살표 아이콘 */
   background-repeat: no-repeat;
   background-position: right 8px top 50%;
   background-size: .65rem auto;
   padding-right: 25px;
   cursor: pointer;
+  box-sizing: border-box;
+  min-width: 0;
 }
 
 /* 달력 컨테이너 */
@@ -240,19 +266,19 @@
   transition: .4s;
 }
 
-.kanban .datetime-picker-container .toggle-section input:checked + .slider {
+.kanban .datetime-picker-container .toggle-section input:checked+.slider {
   border-color: #bdbdbd;
 }
 
-.kanban .datetime-picker-container .toggle-section input:checked + .slider.green {
+.kanban .datetime-picker-container .toggle-section input:checked+.slider.green {
   background-color: #16B364;
 }
 
-.kanban .datetime-picker-container .toggle-section input:focus + .slider {
+.kanban .datetime-picker-container .toggle-section input:focus+.slider {
   box-shadow: 0 0 1px #2196F3;
 }
 
-.kanban .datetime-picker-container .toggle-section input:checked + .slider:before {
+.kanban .datetime-picker-container .toggle-section input:checked+.slider:before {
   -webkit-transform: translate(20px);
   -ms-transform: translate(20px);
   transform: translateX(20px);

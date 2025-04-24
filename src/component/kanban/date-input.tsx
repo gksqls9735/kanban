@@ -1,0 +1,66 @@
+import React from 'react';
+import { format } from 'date-fns';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTimes } from '@fortawesome/free-solid-svg-icons'; 
+
+interface DateInputProps {
+  date: Date | null;
+  setDate: (date: Date | null) => void;
+  label: string;
+  locale: any;
+  dateFormat?: string;
+}
+
+const DateInput: React.FC<DateInputProps> = ({
+  date,
+  setDate,
+  label,
+  locale,
+  dateFormat = 'yyyy.MM.dd',
+}) => {
+  const displayValue = date ? format(date, dateFormat, { locale }) : label;
+  const inputClassName = `date-input ${date ? 'selected' : ''}`;
+
+  const handleClear = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setDate(null);
+  };
+
+  return (
+    <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+      <input
+        type="text"
+        readOnly
+        value={displayValue}
+        placeholder={label}
+        className={inputClassName}
+      />
+      {date && (
+        <div
+          onClick={handleClear}
+          className="clear-date-button"
+          style={{
+            position: 'absolute',
+            right: '8px',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '16px',
+            height: '16px',
+            backgroundColor: '#d3d8e0',
+            borderRadius: '50%',
+            zIndex: 1 
+          }}
+          title={`Clear ${label}`}
+        >
+          <FontAwesomeIcon icon={faTimes} style={{ width: 10, height: 10, color: 'white' }} />
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default DateInput;
