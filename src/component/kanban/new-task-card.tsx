@@ -4,9 +4,10 @@ import { priorityMedium, prioritySelect } from "../../mocks/select-option-mock";
 import { lightenColor } from "../../utils/color-function";
 import useStatusesStore from "../../store/statuses-store";
 import useSectionsStore from "../../store/sections-store";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import useViewModeStore from "../../store/viewmode-store";
 import { ViewModes } from "../../constants";
+import { SelectOption } from "../../types/type";
 
 const NewTaskCard: React.FC<{
   columnId: string;
@@ -14,33 +15,78 @@ const NewTaskCard: React.FC<{
   const inputRef = useRef<HTMLInputElement>(null);
   const statusList = useStatusesStore(state => state.statusList);
   const sections = useSectionsStore(state => state.sections);
-  const viewMode = useViewModeStore(state => state.viewMode)
+  const viewMode = useViewModeStore(state => state.viewMode);
+
+  const [openDropdown, setOpenDropdown] = useState<'priority' | 'status' | null>(null);
+  const [selectedPriority, setSelectedPriority] = useState<SelectOption>(priorityMedium);
+  const [selectedStatus, setSelectedStatus] = useState(() => {
+    if (viewMode === ViewModes.STATUS) {
+      return statusList.find(sec => sec.code === columnId) || statusList[0];
+    } else {
+      return statusList.find(status => status.name === '대기') || statusList[0];
+    }
+  });
+
+  const priorityRef = useRef<HTMLDivElement>(null);
+  const statusRef = useRef<HTMLDivElement>(null);
+  const priorityDropdownRef = useRef<HTMLDivElement>(null);
+  const statusDropdownRef = useRef<HTMLDivElement>(null);
 
   const getSectionName = () => {
     if (viewMode === ViewModes.STATUS) {
-      return sections[0].sectionName;
+      return sections[0].sectionName || 'Unknown Section';
     } else {
-      return sections.find(sec => sec.sectionId === columnId)?.sectionName;
+      return sections.find(sec => sec.sectionId === columnId)?.sectionName || 'Unknown Section';
     }
   };
-
-  const getStatus = () => {
-    if (viewMode === ViewModes.STATUS) {
-      return statusList.find(sec => sec.code === columnId)!;
-    } else {
-      return statusList.filter(status => status.name === '대기')[0];
-    }
-  };
-
-  const newStatus = getStatus();
 
   useEffect(() => {
     inputRef.current?.focus();
   }, [inputRef.current]);
 
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const path = e.composedPath();
+      if (openDropdown === 'priority') {
+        const isClickInsidePriority =
+          (priorityRef.current && path.includes(priorityRef.current)) ||
+          (priorityDropdownRef.current && path.includes(priorityDropdownRef.current));
+          if (!isClickInsidePriority) setOpenDropdown(null);
+      } else if (openDropdown === 'status') {
+        const isClickInsideStatus = 
+          (statusRef.current && path.includes(statusRef.current)) ||
+          (statusDropdownRef.current && path.includes(statusDropdownRef.current));
+          if (!isClickInsideStatus) setOpenDropdown(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [openDropdown]);
+
+  const handlePriorityClick = () => {
+    setOpenDropdown(openDropdown === 'priority' ? null : 'priority');
+  };
+
+  const handleStatusClick = () => {
+    setOpenDropdown(openDropdown === 'status' ? null : 'status');
+  };
+
+  const handlePrioritySelect = (priority: SelectOption) => {
+    setSelectedPriority(priority);
+    setOpenDropdown(null);
+  };
+
+  const handleStatusSelect = (status: SelectOption) => {
+    setSelectedStatus(status);
+    setOpenDropdown(null);
+  };
+
   return (
     <>
-      <div className="kanban-card">
+      <div className="kanban-card" style={{ position: 'relative' }}>
         <div className="card-current-section">
           {getSectionName()}
           <FontAwesomeIcon icon={faCaretDown} style={{ width: 12, height: 12 }} />
@@ -53,36 +99,74 @@ const NewTaskCard: React.FC<{
           <path d="M360-300q-42 0-71-29t-29-71q0-42 29-71t71-29q42 0 71 29t29 71q0 42-29 71t-71 29ZM200-80q-33 0-56.5-23.5T120-160v-560q0-33 23.5-56.5T200-800h40v-80h80v80h320v-80h80v80h40q33 0 56.5 23.5T840-720v560q0 33-23.5 56.5T760-80H200Zm0-80h560v-400H200v400Zm0-480h560v-80H200v80Zm0 0v-80 80Z" />
         </svg>
         <div className="card-meta">
-          <div className="card-priority-status">
-            <div className="card-priority"
-              style={{ color: priorityMedium.colorMain, backgroundColor: priorityMedium.colorSub || lightenColor(priorityMedium.colorMain, 0.85) }}
-            >
-              {priorityMedium.name}
-              <FontAwesomeIcon icon={faCaretDown} style={{ width: 12, height: 12, marginLeft: 2 }} />
+          <div className="card-priority-status" style={{ display: 'flex', gap: '8px', position: 'relative' }}>
+            <div style={{ position: 'relative' }}>
+              <div
+                ref={priorityRef}
+                className="card-priority"
+                style={{ color: selectedPriority.colorMain, backgroundColor: selectedPriority.colorSub || lightenColor(selectedPriority.colorMain, 0.85), cursor: 'pointer' }}
+                onClick={handlePriorityClick}
+              >
+                {selectedPriority.name}
+                <FontAwesomeIcon icon={faCaretDown} style={{ width: 12, height: 12, marginLeft: 2 }} />
+              </div>
+              {openDropdown === 'priority' && (
+                <div
+                  ref={priorityDropdownRef}
+                  style={{
+                    position: 'absolute', top: 'calc(100%)', left: 4,
+                    width: 80, padding: '8px 0px', display: 'flex', flexDirection: 'column', border: '1px solid #E4E8EE', borderRadius: 4,
+                    boxShadow: '0px 0px 16px 0px #00000014', zIndex: 10,
+                  }}>
+                  {prioritySelect.map(p => (
+                    <div
+                      key={p.code}
+                      style={{
+                        color: p.colorMain, fontSize: 13, height: 36, lineHeight: '36px', padding: '0px 12px', cursor: 'pointer',
+                        backgroundColor: selectedPriority.code === p.code ? (p.colorSub || lightenColor(p.colorMain, 0.85)) : '#fff',
+                      }}
+                      onClick={() => handlePrioritySelect(p)}
+                    >
+                      {p.name}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-            <div className="card-status"
-              style={{ color: newStatus.colorMain, backgroundColor: newStatus.colorSub || lightenColor(newStatus.colorMain, 0.85) }}
-            >
-              {newStatus.name}
-              <FontAwesomeIcon icon={faCaretDown} style={{ width: 12, height: 12, marginLeft: 2 }} />
+            <div style={{ position: 'relative' }}>
+              <div
+                ref={statusRef}
+                className="card-status"
+                style={{ color: selectedStatus.colorMain, backgroundColor: selectedStatus.colorSub || lightenColor(selectedStatus.colorMain, 0.85), cursor: 'pointer' }}
+                onClick={handleStatusClick}
+              >
+                {selectedStatus.name}
+                <FontAwesomeIcon icon={faCaretDown} style={{ width: 12, height: 12, marginLeft: 2 }} />
+              </div>
+              {openDropdown === 'status' && (
+                <div
+                  ref={statusDropdownRef}
+                  style={{
+                    position: 'absolute', top: 'calc(100%)', left: 4,
+                    width: 80, padding: '8px 0px', display: 'flex', flexDirection: 'column', border: '1px solid #E4E8EE', borderRadius: 4,
+                    boxShadow: '0px 0px 16px 0px #00000014', zIndex: 10,
+                  }}>
+                  {statusList.map(s => (
+                    <div
+                      key={s.code}
+                      style={{
+                        color: s.colorMain, fontSize: 13, height: 36, lineHeight: '36px', padding: '0px 12px', cursor: 'pointer',
+                        backgroundColor: selectedStatus.code === s.code ? (s.colorSub || lightenColor(s.colorMain, 0.85)) : '#fff',
+                      }}
+                      onClick={() => handleStatusSelect(s)}
+                    >
+                      {s.name}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
-        </div>
-        <div style={{
-          width: 80, padding: '8px 0px', display: 'flex', flexDirection: 'column', border: '1px solid #E4E8EE', borderRadius: 4,
-          boxShadow: '0px 0px 16px 0px #00000014'
-        }}>
-          {prioritySelect.map(p => (
-            <div key={p.code} style={{ color: p.colorMain, fontSize: 13, height: 36, lineHeight: '36px', padding: '0px 12px' }}>{p.name}</div>
-          ))}
-        </div>
-        <div style={{
-          width: 80, padding: '8px 0px', display: 'flex', flexDirection: 'column', border: '1px solid #E4E8EE', borderRadius: 4,
-          boxShadow: '0px 0px 16px 0px #00000014'
-        }}>
-          {statusList.map(s => (
-            <div key={s.code} style={{ color: s.colorMain, fontSize: 13, height: 36, lineHeight: '36px', padding: '0px 12px' }}>{s.name}</div>
-          ))}
         </div>
       </div>
     </>
