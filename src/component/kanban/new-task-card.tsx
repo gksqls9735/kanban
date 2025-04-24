@@ -7,7 +7,7 @@ import useSectionsStore from "../../store/sections-store";
 import { useEffect, useRef, useState } from "react";
 import useViewModeStore from "../../store/viewmode-store";
 import { ViewModes } from "../../constants";
-import { SelectOption } from "../../types/type";
+import { Section, SelectOption } from "../../types/type";
 
 const NewTaskCard: React.FC<{
   columnId: string;
@@ -17,7 +17,14 @@ const NewTaskCard: React.FC<{
   const sections = useSectionsStore(state => state.sections);
   const viewMode = useViewModeStore(state => state.viewMode);
 
-  const [openDropdown, setOpenDropdown] = useState<'priority' | 'status' | null>(null);
+  const [openDropdown, setOpenDropdown] = useState<'priority' | 'status' | 'section' | null>(null);
+  const [selectedSection, setSelectedSection] = useState<Section>(() => {
+    if (viewMode === ViewModes.STATUS) {
+      return sections[0];
+    } else {
+      return sections.find(sec => sec.sectionId === columnId) || sections[0];
+    }
+  });
   const [selectedPriority, setSelectedPriority] = useState<SelectOption>(priorityMedium);
   const [selectedStatus, setSelectedStatus] = useState(() => {
     if (viewMode === ViewModes.STATUS) {
@@ -27,18 +34,12 @@ const NewTaskCard: React.FC<{
     }
   });
 
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const sectionDropdownRef = useRef<HTMLDivElement>(null);
   const priorityRef = useRef<HTMLDivElement>(null);
   const statusRef = useRef<HTMLDivElement>(null);
   const priorityDropdownRef = useRef<HTMLDivElement>(null);
   const statusDropdownRef = useRef<HTMLDivElement>(null);
-
-  const getSectionName = () => {
-    if (viewMode === ViewModes.STATUS) {
-      return sections[0].sectionName || 'Unknown Section';
-    } else {
-      return sections.find(sec => sec.sectionId === columnId)?.sectionName || 'Unknown Section';
-    }
-  };
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -47,16 +48,21 @@ const NewTaskCard: React.FC<{
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       const path = e.composedPath();
-      if (openDropdown === 'priority') {
+      if (openDropdown === 'section') {
+        const isClickInsideSection =
+          (sectionRef.current && path.includes(sectionRef.current)) ||
+          (sectionDropdownRef.current && path.includes(sectionDropdownRef.current));
+        if (!isClickInsideSection) setOpenDropdown(null);
+      } else if (openDropdown === 'priority') {
         const isClickInsidePriority =
           (priorityRef.current && path.includes(priorityRef.current)) ||
           (priorityDropdownRef.current && path.includes(priorityDropdownRef.current));
-          if (!isClickInsidePriority) setOpenDropdown(null);
+        if (!isClickInsidePriority) setOpenDropdown(null);
       } else if (openDropdown === 'status') {
-        const isClickInsideStatus = 
+        const isClickInsideStatus =
           (statusRef.current && path.includes(statusRef.current)) ||
           (statusDropdownRef.current && path.includes(statusDropdownRef.current));
-          if (!isClickInsideStatus) setOpenDropdown(null);
+        if (!isClickInsideStatus) setOpenDropdown(null);
       }
     };
 
@@ -66,12 +72,21 @@ const NewTaskCard: React.FC<{
     };
   }, [openDropdown]);
 
+  const handleSectionClick = () => {
+    setOpenDropdown(openDropdown === 'section' ? null : 'section');
+  };
+
   const handlePriorityClick = () => {
     setOpenDropdown(openDropdown === 'priority' ? null : 'priority');
   };
 
   const handleStatusClick = () => {
     setOpenDropdown(openDropdown === 'status' ? null : 'status');
+  };
+
+  const handleSectionSelect = (section: Section) => {
+    setSelectedSection(section);
+    setOpenDropdown(null);
   };
 
   const handlePrioritySelect = (priority: SelectOption) => {
@@ -87,9 +102,36 @@ const NewTaskCard: React.FC<{
   return (
     <>
       <div className="kanban-card" style={{ position: 'relative' }}>
-        <div className="card-current-section">
-          {getSectionName()}
-          <FontAwesomeIcon icon={faCaretDown} style={{ width: 12, height: 12 }} />
+        <div style={{ position: 'relative' }}>
+          <div
+            ref={sectionRef}
+            className="card-current-section"
+            style={{ cursor: 'pointer' }}
+            onClick={handleSectionClick}
+          >
+            {selectedSection.sectionName}
+            <FontAwesomeIcon icon={faCaretDown} style={{ width: 12, height: 12 }} />
+          </div>
+          {openDropdown === 'section' && (
+            <div
+              ref={sectionDropdownRef}
+              style={{
+                position: 'absolute', top: `calc(100%)`, left: 4,
+                width: 120, padding: '8px 0px', display: 'flex', flexDirection: 'column', border: '1px solid #E4E8EE', borderRadius: 4,
+                backgroundColor: '#fff', boxShadow: '0px 0px 16px 0px #00000014', zIndex: 10
+              }}
+            >
+              {sections.map(sec => (
+                <div
+                  key={sec.sectionId}
+                  style={{ color: '#0F1B2A', fontSize: 13, height: 36, lineHeight: '36px', padding: '0px 12px', cursor: 'pointer' }}
+                  onClick={() => handleSectionSelect(sec)}
+                >
+                  {sec.sectionName}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
         <input type="text"
           ref={inputRef}
