@@ -20,8 +20,6 @@
 }
 
 .kanban .datetime-picker-container .date-time-row {
-  display: flex;
-  align-items: center;
   gap: 8px;
   width: 100%;
 }
@@ -35,17 +33,19 @@
 .kanban .datetime-picker-container .date-time-row>div:has(.date-input),
 .kanban .datetime-picker-container .date-time-row>.time-placeholder,
 .kanban .datetime-picker-container .date-time-row>.time-select-container {
-  width: 100%;
   position: relative;
   display: flex;
   align-items: center;
   min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .kanban .datetime-picker-container .date-time-row .date-input-wrapper {
   position: relative;
   display: flex;
   align-items: center;
+  width: 100%;
 }
 
 .kanban .datetime-picker-container .date-time-row .date-input {
@@ -61,6 +61,12 @@
   min-width: 0;
   box-sizing: border-box;
   font-weight: 400;
+}
+
+.kanban .datetime-picker-container .date-time-row .date-input:focus {
+  outline: none;
+  border: none;
+  border: 1px solid rgba(228, 232, 238, 1);
 }
 
 .kanban .datetime-picker-container .date-time-row .clear-date-button {
@@ -86,11 +92,13 @@
   border: 1px solid rgba(228, 232, 238, 1);
   border-radius: 4px;
   width: 100%;
+  height: 36px;
   box-sizing: border-box;
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  min-height: 38px;
   min-width: 0;
+  background-color: white;
 }
 
 .kanban .datetime-picker-container .date-time-row .date-input.select {
@@ -99,37 +107,36 @@
   border-color: #a0a0a0;
 }
 
-.kanban .datetime-picker-container .date-time-row .time-select-container {
-  display: flex;
-  gap: 4px;
-  box-sizing: border-box;
-  padding: 0;
-  border: none;
-  min-height: 38px;
-  align-items: center;
-}
-
-.kanban .datetime-picker-container .date-time-row .time-select {
+.kanban .datetime-picker-container .date-time-row .time-select-combined {
   flex-grow: 1;
-  padding: 7px 8px;
-  border: 1px solid #ccc;
+  padding: 0 8px;
+  border: 1px solid rgba(228, 232, 238, 1);
   border-radius: 4px;
   font-size: 13px;
   background-color: #fff;
+  height: 36px;
+  box-sizing: border-box;
+  min-width: 0;
+  width: 100%;
+  cursor: pointer;
+  color: #0F1B2A;
+  ;
+
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
-  background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007bff%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E');
+
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2210%22%20height%3D%226%22%20viewBox%3D%220%200%2010%206%22%3E%3Cpolyline%20points%3D%221%2C1%205%2C5%209%2C1%22%20stroke%3D%22%23666666%22%20stroke-width%3D%221.5%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E");
   background-repeat: no-repeat;
-  background-position: right 8px top 50%;
-  background-size: .65rem auto;
-  padding-right: 25px;
-  cursor: pointer;
-  box-sizing: border-box;
-  min-width: 0;
+  background-position: right 12px top 50%;
+  background-size: .5rem auto;
 }
 
-
+.kanban .datetime-picker-container .date-time-row .time-select-combined {
+  outline: none;
+  border: none;
+  border: 1px solid rgba(228, 232, 238, 1);
+}
 
 /* 달력 헤더 */
 .kanban .datetime-picker-container .calendar-header {

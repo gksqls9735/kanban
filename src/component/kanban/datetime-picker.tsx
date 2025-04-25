@@ -1,9 +1,9 @@
-import { faChevronLeft, faChevronRight } from "@fortawesome/free-solid-svg-icons";
+import { faChevronDown, faChevronLeft, faChevronRight } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   addMonths,
   eachDayOfInterval, endOfMonth, endOfWeek, format, getHours, getMinutes, isAfter,
-  isBefore, isSameDay, isSameMonth, setHours, setMinutes, startOfDay, startOfMonth, startOfWeek,
+  isBefore, isSameDay, isSameMonth, isValid, setHours, setMinutes, startOfDay, startOfMonth, startOfWeek,
   subMonths
 } from "date-fns";
 import { ko } from "date-fns/locale";
@@ -35,42 +35,6 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
   useEffect(() => {
     onChange?.(startDate, showDeadline ? endDate : null);
   }, [startDate, endDate, showDeadline, onChange]);
-
-  const handleTimeChange = (
-    type: 'start' | 'end',
-    part: 'hour' | 'minute',
-    value: string
-  ) => {
-    const targetDate = type === 'start' ? startDate : endDate;
-    if (!targetDate) return;
-
-    const numericValue = parseInt(value, 10);
-    let newDate = targetDate;
-
-    if (part === 'hour') {
-      newDate = setHours(targetDate, numericValue);
-    } else if (part === 'minute') {
-      newDate = setMinutes(targetDate, numericValue);
-    }
-
-    if (type === 'start') {
-      // 시작 시간이 종료 시간보다 늦을 수 없음
-      if (endDate && isAfter(newDate, endDate)) {
-        console.warn("시작 시간은 종료 시간보다 늦을 수 없습니다.");
-        setEndDate(newDate);  // 종료 시간을 시작 시간에 맞춤
-      } else {
-        setStartDate(newDate);
-      }
-    } else {
-      // 종료 시간이이 시작 시간보다 빠를 수 없음
-      if (startDate && isBefore(newDate, startDate)) {
-        console.warn("종료 시간은 시작 시간보다 빠를 수 없습니다.");
-        setStartDate(newDate);  // 시작 시간을 종료 시간에 맞춤
-      } else {
-        setEndDate(newDate);
-      }
-    }
-  };
 
   // 달력 생성 
   // 달 토글
@@ -133,7 +97,7 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
         cellClass += ' start-date end-date single-date';
       } else if (dayIsStartDate && hasBothDatesAndDifferent) {
         // 시작일이고, 종료일도 선택된 상태 (다른 날짜)
-        cellClass += ' start-date-in-range'; 
+        cellClass += ' start-date-in-range';
       } else if (dayIsEndDate) {
         // 종료일인 경우 (시작일과 같거나, 시작일이 없거나, 시작일과 다른 경우 모두 포함)
         cellClass += ' end-date';
@@ -230,42 +194,58 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
   const handleTimeToggle = () => {
     const newState = !includeTime;
     setIncludeTime(newState);
-    //  기존 날짜의 시간을 자정으로 리셋 여부
-    // if (!newState) {
-    //   if (startDate) setStartDate(startOfDay(startDate));
-    //   if (endDate) setEndDate(startOfDay(endDate));
-    // }
   };
 
-  const renderTimeSelect = (type: 'start' | 'end') => {
+  const generateTimeOptions = (intervalMinutes = 10) => {
+    const options = [];
+    for (let h = 0; h < 24; h++) {
+      for (let m = 0; m < 60; m += intervalMinutes) {
+        const hourStr = h.toString().padStart(2, '0');
+        const minuteStr = m.toString().padStart(2, '0');
+        const timeValue = `${hourStr}:${minuteStr}`;
+        const ampm = h < 12 ? '오전' : '오후';
+        options.push({ value: timeValue, label: `${ampm} ${hourStr}:${minuteStr}` });
+      }
+    }
+    return options;
+  };
+
+  const renderSingleTimeSelect = (type: 'start' | 'end') => {
     if (!includeTime) return null;
     const targetDate = type === 'start' ? startDate : endDate;
-    if (!targetDate || (type === 'end' && !showDeadline)) return null;
+    if (!targetDate || !isValid(targetDate) || (type === 'end' && !showDeadline)) return null;
 
-    const currentHour = getHours(targetDate);
-    const currentMinute = getMinutes(targetDate);
+    const currentTimeValue = format(targetDate, 'HH:mm');
+    const timeOptions = generateTimeOptions(10);
 
+    const handleSingleTimeChange = (timeValue: string) => {
+      if (!targetDate || !isValid(targetDate)) return;
+
+      const [hour, minute] = timeValue.split(':').map(Number);
+      let newDate = setMinutes(setHours(targetDate, hour), minute);
+
+      if (type === 'start') {
+        setStartDate(newDate);
+        if (showDeadline && endDate && isValid(endDate) && newDate > endDate) setEndDate(newDate);
+      } else {
+        if (startDate && isValid(startDate) && newDate < startDate) {
+          console.warn("마감 시간은 시작 시간보다 이전일 수 없습니다.");
+          // setEndDate(startDate); // 시작 시간으로 강제 설정
+          return;
+        }
+        setEndDate(newDate);
+      }
+    };
     return (
-      <div className="time-select-container">
-        <select
-          value={currentHour.toString().padStart(2, '0')}
-          onChange={e => { handleTimeChange(type, 'hour', e.target.value) }}
-          className="time-select"
-        >
-          {Array.from({ length: 24 }, (_, i) => (
-            <option key={`h-${i}`} value={i}>{i.toString().padStart(2, '0')}시</option>
-          ))}
-        </select>
-        <select
-          value={currentMinute === 0 ? '00' : currentMinute.toString()}
-          onChange={e => handleTimeChange(type, 'minute', e.target.value)}
-          className="time-select"
-        >
-          {Array.from({ length: 6 }, (_, i) => i * 10).map(min => (
-            <option key={`m-${min}`} value={min}>{min.toString().padStart(2, '0')}</option>
-          ))}
-        </select>
-      </div>
+      <select
+        value={currentTimeValue}
+        onChange={e => handleSingleTimeChange(e.target.value)}
+        className="time-select-combined"
+      >
+        {timeOptions.map(option => (
+          <option key={`${type}-${option.value}`} value={option.value}>{option.label}</option>
+        ))}
+      </select>
     );
   };
 
@@ -303,9 +283,12 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
                     label="시작일"
                     locale={ko}
                   />
-                  {startDate
-                    ? renderTimeSelect('start')
-                    : <div className="time-placeholder">시작 시간</div>
+                  {startDate && isValid(startDate)
+                    ? renderSingleTimeSelect('start')
+                    : <div className="time-placeholder">
+                      <span>시작 시간</span>
+                      <FontAwesomeIcon icon={faChevronDown} style={{ width: 9, height: 9, color: '#0F1B2A' }} />
+                    </div>
                   }
                 </div>
                 <div className="date-time-row separate">
@@ -315,24 +298,29 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
                     label="마감일"
                     locale={ko}
                   />
-                  {endDate
-                    ? renderTimeSelect('end')
-                    : <div className="time-placeholder">마감 시간</div>
+                  {endDate && isValid(endDate)
+                    ? renderSingleTimeSelect('end')
+                    : <div className="time-placeholder">
+                      <span>마감 시간</span>
+                      <FontAwesomeIcon icon={faChevronDown} style={{ width: 9, height: 9, color: '#0F1B2A' }} />
+                    </div>
                   }
                 </div>
               </>
             ) : (
-              // Case: includeTime=true, showDeadline=false (Only start date/time)
-              <div className="date-time-row separate"> {/* Assuming 'separate' is still desired */}
+              <div className="date-time-row separate">
                 <DateInput
                   date={startDate}
                   setDate={setStartDate}
                   label="시작일"
                   locale={ko}
                 />
-                {startDate
-                  ? renderTimeSelect('start')
-                  : <div className="time-placeholder">시작 시간</div>
+                {startDate && isValid(startDate)
+                  ? renderSingleTimeSelect('start')
+                  : <div className="time-placeholder">
+                    <span>시작 시간</span>
+                    <FontAwesomeIcon icon={faChevronDown} style={{ width: 9, height: 9, color: '#0F1B2A' }} />
+                  </div>
                 }
               </div>
             )
@@ -357,7 +345,7 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
                 checked={showDeadline}
                 onChange={handleDeadlineToggle}
               />
-              <span className="slider round green"/>
+              <span className="slider round green" />
             </label>
           </div>
           <div className="toggle-item">
@@ -369,7 +357,7 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
                 checked={includeTime}
                 onChange={handleTimeToggle}
               />
-              <span className="slider round green"/>
+              <span className="slider round green" />
             </label>
           </div>
         </div>
