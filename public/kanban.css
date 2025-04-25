@@ -422,6 +422,10 @@
   width: 120px;
 }
 
+.kanban .section-dropdown-item:hover {
+  background-color: #ececec;
+}
+
 .kanban .select-dropdown-item {
   font-size: 13px;
   height: 36px;

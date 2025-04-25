@@ -24,7 +24,7 @@ const SectionSelector: React.FC<{
       {isOpen && (
         <div ref={dropdownRef} className="select-dropdown-panel section-dropdown-panel">
           {sections.map(sec => (
-            <div key={sec.sectionId} className="select-dropdown-item" onClick={() => handleSelect(sec)}>
+            <div key={sec.sectionId} className="select-dropdown-item section-dropdown-item" onClick={() => handleSelect(sec)}>
               {sec.sectionName}
             </div>
           ))}
