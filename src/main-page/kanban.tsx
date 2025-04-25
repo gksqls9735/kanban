@@ -30,19 +30,23 @@ const Kanban: React.FC<{
   } = useKanbanDnd();
 
   useEffect(() => {
-    setTasks(initialTasks);
+    if (initialTasks.length > 0) {
+      const sortedTasks = initialTasks.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+      setTasks(sortedTasks);
+    }
   }, [initialTasks, setTasks]);
 
   useEffect(() => {
     if (!sectionsLoaded) {
-        setSections(initialSections);
+      const sortedSections = initialSections.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+      setSections(sortedSections);
     }
   }, [initialSections, setSections, sectionsLoaded]);
 
   useEffect(() => {
-     if (!statusesLoaded) {
-        setStatusList(initialStatusList);
-     }
+    if (!statusesLoaded) {
+      setStatusList(initialStatusList);
+    }
   }, [initialStatusList, setStatusList, statusesLoaded]);
 
   const getSectionName = (sectionId: string): string => {

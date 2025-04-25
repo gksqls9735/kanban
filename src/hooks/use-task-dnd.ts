@@ -277,7 +277,11 @@ export const useKanbanDnd = () => {
         const oldIndex = currentList.findIndex(s => s.sectionId === activeId);
         const newIndex = currentList.findIndex(s => s.sectionId === overId);
         if (oldIndex !== -1 && newIndex !== -1) {
-          setSections(arrayMove(currentList, oldIndex, newIndex));
+          const movedList = arrayMove(currentList, oldIndex, newIndex);
+          const orderList = movedList.map((sec, index) => ({
+            ...sec, order: index,
+          }))
+          setSections(orderList);
         }
       }
     }
