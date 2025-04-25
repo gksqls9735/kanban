@@ -34,6 +34,7 @@ const DateInput: React.FC<DateInputProps> = ({
         value={displayValue}
         placeholder={label}
         className={inputClassName}
+        style={{color: `${date ? '#0F1B2A' : '#8D99A8'}`}}
       />
       {date && (
         <div

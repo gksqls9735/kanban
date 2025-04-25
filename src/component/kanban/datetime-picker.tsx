@@ -78,11 +78,11 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
     return (
       <div className="calendar-header">
         <button onClick={prevMonth} className="nav-button">
-          <FontAwesomeIcon icon={faChevronLeft} style={{ width: 16, height: 16, color: '#9E9FA3' }} />
+          <FontAwesomeIcon icon={faChevronLeft} style={{ width: 6.43, height: 10, color: '#9E9FA3' }} />
         </button>
         <span>{format(currentMonth, 'yyyy.MM')}</span>
         <button onClick={nextMonth} className="nav-button">
-          <FontAwesomeIcon icon={faChevronRight} style={{ width: 16, height: 16, color: '#9E9FA3' }} />
+          <FontAwesomeIcon icon={faChevronRight} style={{ width: 6.43, height: 10, color: '#9E9FA3' }} />
         </button>
       </div>
     )
@@ -116,17 +116,34 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
 
     daysInCalendar.forEach((day, i) => {
       const isCurrentMonthDay = isSameMonth(day, monthStart);
-      const isStartDate = startDate && isSameDay(day, startDate);
-      const isEndDate = showDeadline && endDate && isSameDay(day, endDate);
+      const dayIsStartDate = startDate && isSameDay(day, startDate);
+      const dayIsEndDate = showDeadline && endDate && isSameDay(day, endDate);
+
+      const hasBothDatesAndDifferent = startDate && endDate && !isSameDay(startDate, endDate);
+
       const isInRange =
-        showDeadline && startDate && endDate && isAfter(day, startOfDay(startDate)) && isBefore(day, startOfDay(endDate));
+        showDeadline && startDate && endDate &&
+        isAfter(day, startOfDay(startDate)) &&
+        isBefore(day, startOfDay(endDate));
 
       let cellClass = 'calendar-cell';
       if (!isCurrentMonthDay) cellClass += ' disabled';
-      if (isStartDate) cellClass += ' start-date';
-      if (isEndDate) cellClass += ' end-date';
-      if (isInRange) cellClass += ' in-range';
-      if (isStartDate && isEndDate) cellClass += ' single-date';
+      if (dayIsStartDate && dayIsEndDate) {
+        // 시작일과 종료일이 같은 경우 (하루 선택)
+        cellClass += ' start-date end-date single-date';
+      } else if (dayIsStartDate && hasBothDatesAndDifferent) {
+        // 시작일이고, 종료일도 선택된 상태 (다른 날짜)
+        cellClass += ' start-date-in-range'; 
+      } else if (dayIsEndDate) {
+        // 종료일인 경우 (시작일과 같거나, 시작일이 없거나, 시작일과 다른 경우 모두 포함)
+        cellClass += ' end-date';
+      } else if (dayIsStartDate) {
+        // 시작일만 선택된 경우 (종료일 없음)
+        cellClass += ' start-date';
+      } else if (isInRange) {
+        // 시작일과 종료일 사이의 날짜인 경우
+        cellClass += ' in-range';
+      }
 
       cells.push(
         <div
@@ -340,7 +357,7 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
                 checked={showDeadline}
                 onChange={handleDeadlineToggle}
               />
-              <span className="slider round green"></span>
+              <span className="slider round green"/>
             </label>
           </div>
           <div className="toggle-item">
@@ -352,7 +369,7 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
                 checked={includeTime}
                 onChange={handleTimeToggle}
               />
-              <span className="slider round green"></span>
+              <span className="slider round green"/>
             </label>
           </div>
         </div>

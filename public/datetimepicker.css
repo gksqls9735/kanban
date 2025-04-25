@@ -8,6 +8,7 @@
   background-color: #fff;
   width: 296px;
   box-shadow: 0px 0px 16px 0px #00000014;
+  box-sizing: border-box;
 }
 
 /* 상단 선택 정보 */
@@ -31,9 +32,9 @@
   gap: 8px;
 }
 
-.kanban .datetime-picker-container .date-time-row > div:has(.date-input),
-.kanban .datetime-picker-container .date-time-row > .time-placeholder,
-.kanban .datetime-picker-container .date-time-row > .time-select-container {
+.kanban .datetime-picker-container .date-time-row>div:has(.date-input),
+.kanban .datetime-picker-container .date-time-row>.time-placeholder,
+.kanban .datetime-picker-container .date-time-row>.time-select-container {
   width: 100%;
   position: relative;
   display: flex;
@@ -49,10 +50,11 @@
   font-size: 13px;
   cursor: pointer;
   background-color: white;
-  color: rgba(141, 153, 168, 1);
   width: 100%;
+  height: 36px;
   min-width: 0;
   box-sizing: border-box;
+  font-weight: 400;
 }
 
 .kanban .datetime-picker-container .date-time-row .time-placeholder {
@@ -105,26 +107,23 @@
   min-width: 0;
 }
 
-/* 달력 컨테이너 */
-.kanban .datetime-picker-container .calendar-container {
-  margin-bottom: 16px;
-}
+
 
 /* 달력 헤더 */
 .kanban .datetime-picker-container .calendar-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
-  font-weight: bold;
-  font-size: 16px;
+  margin-bottom: 20px;
+  font-weight: 600;
+  font-size: 18px;
+  color: #36363D;
 }
 
 .kanban .datetime-picker-container .calendar-header .nav-button {
   background: none;
   border: none;
   cursor: pointer;
-  padding: 4px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -146,7 +145,9 @@
 }
 
 .kanban .datetime-picker-container .calendar-days-header .day-label {
-  padding: 4px 0;
+  font-size: 14px;
+  font-weight: 400;
+  text-align: center;
 }
 
 /* 날짜 셀 그리드 */
@@ -164,14 +165,17 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 36px;
+  height: 32px;
+  width: 32px;
   text-align: center;
   cursor: pointer;
   border-radius: 50%;
-  font-size: 13px;
+  font-size: 14px;
+  font-weight: 400;
   position: relative;
   transition: background-color 0.2s ease, color 0.2s ease;
   margin: 1px;
+  box-sizing: border-box;
 }
 
 .kanban .datetime-picker-container .calendar-body .calendar-cell span {
@@ -192,7 +196,7 @@
 .calendar-cell.end-date {
   background-color: #16B364;
   color: white;
-  font-weight: bold;
+  font-weight: 400;
 }
 
 .kanban .datetime-picker-container .calendar-body .calendar-cell.single-date {
@@ -200,7 +204,13 @@
   color: white;
 }
 
-/* 선택한 날짜 표시시 */
+.kanban .datetime-picker-container .calendar-body .calendar-cell.start-date-in-range {
+  color: #16B364;
+  border: 1px solid #16B364;
+  font-weight: 400;
+}
+
+/* 선택한 날짜 표시 */
 /* 기간 내 */
 .kanban .datetime-picker-container .calendar-body .calendar-cell.in-range {
   background-color: #D1FADF;
@@ -212,10 +222,10 @@
 .kanban .datetime-picker-container .toggle-section {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   margin-top: 16px;
   padding-top: 16px;
-  border-top: 1px solid #eee;
+  border-top: 1px solid #E4E8EE;
 }
 
 .kanban .datetime-picker-container .toggle-section .toggle-item {
@@ -226,14 +236,16 @@
 }
 
 .kanban .datetime-picker-container .toggle-section .toggle-item label:first-child {
-  color: #555;
+  font-weight: 400;
+  font-size: 13px;
+  color: #36363D;
 }
 
 .kanban .datetime-picker-container .toggle-section .switch {
   position: relative;
   display: inline-block;
-  width: 40px;
-  height: 20px;
+  width: 42px;
+  height: 24px;
 }
 
 .kanban .datetime-picker-container .toggle-section .switch input {
@@ -249,7 +261,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #ccc;
+  background-color: #E4E8EE;
   -webkit-transition: .4s;
   transition: .4s;
 }
@@ -257,13 +269,14 @@
 .kanban .datetime-picker-container .toggle-section .slider:before {
   position: absolute;
   content: "";
-  height: 14px;
-  width: 14px;
+  height: 18px;
+  width: 18px;
+  top: 3px;
   left: 3px;
-  bottom: 3px;
   background-color: white;
   -webkit-transition: .4s;
   transition: .4s;
+  box-shadow: 0px 0px 4px 0px #00000029;
 }
 
 .kanban .datetime-picker-container .toggle-section input:checked+.slider {
@@ -274,20 +287,17 @@
   background-color: #16B364;
 }
 
-.kanban .datetime-picker-container .toggle-section input:focus+.slider {
-  box-shadow: 0 0 1px #2196F3;
-}
-
 .kanban .datetime-picker-container .toggle-section input:checked+.slider:before {
-  -webkit-transform: translate(20px);
-  -ms-transform: translate(20px);
-  transform: translateX(20px);
+  -webkit-transform: translate(19px);
+  -ms-transform: translate(19px);
+  transform: translateX(19px);
 }
 
 .kanban .datetime-picker-container .toggle-section .slider.round {
-  border-radius: 20px;
+  border-radius: 12px;
 }
 
 .kanban .datetime-picker-container .toggle-section .slider.round:before {
-  border-radius: 50%;
+  border-radius: 12px;
+  box-shadow: 0px 0px 4px 0px #00000029;
 }
