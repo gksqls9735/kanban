@@ -42,6 +42,12 @@
   min-width: 0;
 }
 
+.kanban .datetime-picker-container .date-time-row .date-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
 .kanban .datetime-picker-container .date-time-row .date-input {
   padding: 8px 12px;
   padding-right: 30px;
@@ -55,6 +61,22 @@
   min-width: 0;
   box-sizing: border-box;
   font-weight: 400;
+}
+
+.kanban .datetime-picker-container .date-time-row .clear-date-button {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  background-color: #d3d8e0;
+  border-radius: 50%;
+  z-index: 1;
 }
 
 .kanban .datetime-picker-container .date-time-row .time-placeholder {

@@ -102,8 +102,6 @@ const NewTaskCard: React.FC<{
   };
 
   const handleDateSelect = (start: Date | null, end: Date | null) => {
-    console.log("Start Date: ", start);
-    console.log("End Date: ", end);
     setStartDate(start);
     setEndDate(end);
   };
@@ -124,18 +122,17 @@ const NewTaskCard: React.FC<{
   };
 
   const formatDateDisplay = (date: Date | null): string => {
-    if (!date) return '날짜 선택';
+    if (!date) return '';
     return format(date, 'yyyy.MM.dd', { locale: ko }); // 예: 03.15
   };
 
   return (
     <>
-      <div className="kanban-card" style={{ position: 'relative' }}>
-        <div style={{ position: 'relative' }}>
+      <div className="kanban-card relative">
+        <div className="relative">
           <div
             ref={sectionRef}
             className="card-current-section"
-            style={{ cursor: 'pointer' }}
             onClick={handleSectionClick}
           >
             {selectedSection.sectionName}
@@ -144,16 +141,12 @@ const NewTaskCard: React.FC<{
           {openDropdown === 'section' && (
             <div
               ref={sectionDropdownRef}
-              style={{
-                position: 'absolute', top: `calc(100%)`, left: 4,
-                width: 120, padding: '8px 0px', display: 'flex', flexDirection: 'column', border: '1px solid #E4E8EE', borderRadius: 4,
-                backgroundColor: '#fff', boxShadow: '0px 0px 16px 0px #00000014', zIndex: 10
-              }}
+              className="select-dropdown-panel section-dropdown-panel"
             >
               {sections.map(sec => (
                 <div
                   key={sec.sectionId}
-                  style={{ color: '#0F1B2A', fontSize: 13, height: 36, lineHeight: '36px', padding: '0px 12px', cursor: 'pointer' }}
+                  className="select-dropdown-item"
                   onClick={() => handleSectionSelect(sec)}
                 >
                   {sec.sectionName}
@@ -164,51 +157,45 @@ const NewTaskCard: React.FC<{
         </div>
         <input type="text"
           ref={inputRef}
-          style={{ color: '#8D99A8', fontSize: 16, fontWeight: 500, lineHeight: '130%', border: 'none', outline: 'none' }}
+          className="new-task-name-input"
           placeholder="작업명 입력" />
-        <div>
-          <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <div
-              ref={pickerRef}
-              onClick={handlePickerClick}
-              style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', border: '1px solid #E4E8EE', borderRadius: 4, padding: '4px' }}>
-                <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="#7d8998">
-                  <path d="M360-300q-42 0-71-29t-29-71q0-42 29-71t71-29q42 0 71 29t29 71q0 42-29 71t-71 29ZM200-80q-33 0-56.5-23.5T120-160v-560q0-33 23.5-56.5T200-800h40v-80h80v80h320v-80h80v80h40q33 0 56.5 23.5T840-720v560q0 33-23.5 56.5T760-80H200Zm0-80h560v-400H200v400Zm0-480h560v-80H200v80Zm0 0v-80 80Z" />
-                </svg>
-              </div>
-              <span style={{fontSize: 13, color: startDate ? '#333' : '#7d8998'}}>
-                {startDate && endDate && startDate.getTime() !== endDate.getTime()
-                  ? `${formatDateDisplay(startDate)} - ${formatDateDisplay(endDate)}`
-                  : formatDateDisplay(startDate)}
-              </span>
-            </div>
-            {openDropdown === 'date' && (
-              <div
-                ref={pickerDropdownRef}
-                style={{
-                  position: 'absolute',
-                  top: 'calc(100%)',
-                  left: 4,
-                  zIndex: 10,
-                }}
-              >
-                <DateTimePicker 
-                  initialStartDate={startDate}
-                  initialEndDate={endDate}
-                  initialShowDeadline={!!endDate}
-                  initialIncludeTime={startDate ? startDate.getHours() !== 0 || startDate.getMinutes() !== 0 : false}
-                  onChange={handleDateSelect} 
-                />
-              </div>
-            )}
-          </div>
 
+        <div className="card-datepicker-area">
+          <div
+            ref={pickerRef}
+            onClick={handlePickerClick}
+            className="card-datepicker-trigger"
+          >
+            <div className="card-datepicker-icon-wrapper">
+              <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="#7d8998">
+                <path d="M360-300q-42 0-71-29t-29-71q0-42 29-71t71-29q42 0 71 29t29 71q0 42-29 71t-71 29ZM200-80q-33 0-56.5-23.5T120-160v-560q0-33 23.5-56.5T200-800h40v-80h80v80h320v-80h80v80h40q33 0 56.5 23.5T840-720v560q0 33-23.5 56.5T760-80H200Zm0-80h560v-400H200v400Zm0-480h560v-80H200v80Zm0 0v-80 80Z" />
+              </svg>
+            </div>
+            <span className="card-datepicker-text">
+              {startDate && endDate && startDate.getTime() !== endDate.getTime()
+                ? `${formatDateDisplay(startDate)} - ${formatDateDisplay(endDate)}`
+                : formatDateDisplay(startDate)}
+            </span>
+          </div>
+          {openDropdown === 'date' && (
+            <div
+              ref={pickerDropdownRef}
+              className="datepicker-dropdown-panel"
+            >
+              <DateTimePicker
+                initialStartDate={startDate}
+                initialEndDate={endDate}
+                initialShowDeadline={!!endDate}
+                initialIncludeTime={startDate ? startDate.getHours() !== 0 || startDate.getMinutes() !== 0 : false}
+                onChange={handleDateSelect}
+              />
+            </div>
+          )}
         </div>
+
         <div className="card-meta">
-          <div className="card-priority-status" style={{ display: 'flex', gap: '8px', position: 'relative' }}>
-            <div style={{ position: 'relative', padding: '0px' }}>
+          <div className="card-priority-status">
+            <div className="card-select-wrapper">
               <div
                 ref={priorityRef}
                 className="card-priority"
@@ -221,17 +208,13 @@ const NewTaskCard: React.FC<{
               {openDropdown === 'priority' && (
                 <div
                   ref={priorityDropdownRef}
-                  style={{
-                    position: 'absolute', top: 'calc(100%)', left: 4,
-                    width: 80, padding: '8px 0px', display: 'flex', flexDirection: 'column', border: '1px solid #E4E8EE', borderRadius: 4,
-                    boxShadow: '0px 0px 16px 0px #00000014', zIndex: 10,
-                  }}>
+                  className="select-dropdown-panel">
                   {prioritySelect.map(p => (
                     <div
                       key={p.code}
+                      className="select-dropdown-item"
                       style={{
-                        color: p.colorMain, fontSize: 13, height: 36, lineHeight: '36px', padding: '0px 12px', cursor: 'pointer',
-                        backgroundColor: selectedPriority.code === p.code ? (p.colorSub || lightenColor(p.colorMain, 0.85)) : '#fff',
+                        color: p.colorMain, backgroundColor: selectedPriority.code === p.code ? (p.colorSub || lightenColor(p.colorMain, 0.85)) : '#fff',
                       }}
                       onClick={() => handlePrioritySelect(p)}
                     >
@@ -241,7 +224,7 @@ const NewTaskCard: React.FC<{
                 </div>
               )}
             </div>
-            <div style={{ position: 'relative', padding: '0px' }}>
+            <div className="card-select-wrapper">
               <div
                 ref={statusRef}
                 className="card-status"
@@ -254,16 +237,13 @@ const NewTaskCard: React.FC<{
               {openDropdown === 'status' && (
                 <div
                   ref={statusDropdownRef}
-                  style={{
-                    position: 'absolute', top: 'calc(100%)', left: 4,
-                    width: 80, padding: '8px 0px', display: 'flex', flexDirection: 'column', border: '1px solid #E4E8EE', borderRadius: 4,
-                    boxShadow: '0px 0px 16px 0px #00000014', zIndex: 10,
-                  }}>
+                  className="select-dropdown-panel">
                   {statusList.map(s => (
                     <div
                       key={s.code}
+                      className="select-dropdown-item"
                       style={{
-                        color: s.colorMain, fontSize: 13, height: 36, lineHeight: '36px', padding: '0px 12px', cursor: 'pointer',
+                        color: s.colorMain,
                         backgroundColor: selectedStatus.code === s.code ? (s.colorSub || lightenColor(s.colorMain, 0.85)) : '#fff',
                       }}
                       onClick={() => handleStatusSelect(s)}
@@ -280,13 +260,14 @@ const NewTaskCard: React.FC<{
           <AvatarGroup list={[]} maxVisible={0} />
         </div>
         <div className="seperation-line" />
-        <div style={{ color: '#7D8998', display: 'flex', gap: 6, alignItems: 'center' }}>
+        
+        <div className="card-add-todo">
           <div>
             <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="#7D8998" className="bi bi-plus-lg" viewBox="0 0 16 16">
               <path fillRule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2" />
             </svg>
           </div>
-          <div style={{ fontWeight: 400, fontSize: 13, lineHeight: '16px', letterSpacing: '0%' }}>
+          <div className="card-add-todo__text">
             할 일 추가
           </div>
         </div>

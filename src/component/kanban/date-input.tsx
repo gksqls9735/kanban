@@ -40,21 +40,6 @@ const DateInput: React.FC<DateInputProps> = ({
         <div
           onClick={handleClear}
           className="clear-date-button"
-          style={{
-            position: 'absolute',
-            right: '8px',
-            top: '50%',
-            transform: 'translateY(-50%)',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '16px',
-            height: '16px',
-            backgroundColor: '#d3d8e0',
-            borderRadius: '50%',
-            zIndex: 1 
-          }}
           title={`Clear ${label}`}
         >
           <FontAwesomeIcon icon={faTimes} style={{ width: 10, height: 10, color: 'white' }} />

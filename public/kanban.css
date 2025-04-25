@@ -3,6 +3,49 @@
   line-height: 1.5;
   display: block;
 } */
+
+/* 커서 */
+.kanban-card .card-title,
+.kanban-card .card-due-date,
+.kanban-card .card-priority,
+.kanban-card .card-status,
+.kanban-card .card-participant,
+.kanban-card .todo-item {
+  cursor: default;
+}
+
+.kanban .card-datepicker-trigger,
+.kanban-card .card-current-section,
+.kanban .select-dropdown-item,
+.kanban-card .todo-item__checkbox-area label,
+.kanban-card .todo-item__checkbox--native,
+.kanban-card .todo-item__text {
+  cursor: pointer;
+}
+
+
+/* 삭제 버튼 */
+.kanban-card .todo-item__action--delete {
+  cursor: pointer;
+}
+
+/* ⭐ 내부 투두 아이템의 드래그 핸들 ⭐ */
+.kanban-card .todo-item__action--drag-handle {
+  cursor: grab;
+}
+
+/* 할 일 토글 버튼 */
+.kanban-card .card-todotoggle {
+  cursor: pointer;
+}
+
+/* 작업 추가 버튼 */
+.kanban .task-add {
+  cursor: pointer;
+}
+
+
+/* 공통 css */
 .kanban .truncate {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -19,6 +62,11 @@
   color: rgb(156 163 175);
 }
 
+.kanban .relative {
+  position: relative;
+}
+
+/* 컬럼 */
 .kanban .kanban-content {
   display: flex;
   gap: 16px;
@@ -63,7 +111,7 @@
   color: rgba(125, 137, 152, 1);
 }
 
-
+/* 작업 카드 */
 .kanban .kanban-card {
   display: flex;
   flex-direction: column;
@@ -284,6 +332,8 @@
   padding-left: 8px;
 }
 
+
+/* 섹션 추가 */
 .kanban .add-section-button {
   width: 36px;
   height: 36px;
@@ -302,6 +352,7 @@
   cursor: pointer;
 }
 
+/* 새로운 섹션 입력 */
 .kanban .new-section {
   width: 320px;
   height: 36px;
@@ -346,41 +397,97 @@
   text-align: center;
 }
 
-
-/* 커서 */
-.kanban-card .card-title,
-.kanban-card .card-due-date,
-.kanban-card .card-current-section,
-.kanban-card .card-priority,
-.kanban-card .card-status,
-.kanban-card .card-participant,
-.kanban-card .todo-item {
-  cursor: default;
+/* 새로운 작업 카드 */
+/* 드롭 다운 섹션, 우선 순위, 상태태 */
+.kanban .select-dropdown-panel {
+  position: absolute;
+  top: calc(100% + 2px);
+  left: 4px;
+  width: 80px;
+  padding: 8px 0px !important;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #E4E8EE;
+  border-radius: 4px;
+  box-shadow: 0px 0px 16px 0px #00000014;
+  background-color: #fff;
+  z-index: 10;
+  box-sizing: border-box;
 }
 
-.kanban-card .todo-item__checkbox-area label,
-.kanban-card .todo-item__checkbox--native,
-.kanban-card .todo-item__text {
-  cursor: pointer;
+.kanban .section-dropdown-panel {
+  width: 120px;
 }
 
-
-/* 삭제 버튼 */
-.kanban-card .todo-item__action--delete {
-  cursor: pointer;
+.kanban .select-dropdown-item {
+  font-size: 13px;
+  height: 36px;
+  line-height: 36px;
+  padding: 0px 12px !important;
+  color: '#0F1B2A';
 }
 
-/* ⭐ 내부 투두 아이템의 드래그 핸들 ⭐ */
-.kanban-card .todo-item__action--drag-handle {
-  cursor: grab;
+/* 작업명 입력 input */
+.kanban .new-task-name-input {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: '130%';
+  border: none;
+  outline: none;
+  color: '#8D99A8';
 }
 
-/* 할 일 토글 버튼 */
-.kanban-card .card-todotoggle {
-  cursor: pointer;
+/* 날짜 선택 */
+.kanban .card-datepicker-area {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
-/* 작업 추가 버튼 */
-.kanban .task-add {
-  cursor: pointer;
+.kanban .card-datepicker-trigger {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.kanban .card-datepicker-icon-wrapper {
+  display: flex;
+  align-items: center;
+  border: 1px solid #E4E8EE;
+  border-radius: 4px;
+  padding: 4px;
+}
+
+.kanban .card-datepicker-text {
+  font-size: 13px;
+  color: #7d8998;
+}
+
+.kanban .datepicker-dropdown-panel {
+  position: absolute;
+  top: calc(100% + 2px);
+  left: 4px;
+  z-index: 10;
+}
+
+/* 우선 순위, 상태 */
+.kanban .card-select-wrapper {
+  position: relative;
+  padding: 0px !important;
+}
+
+/* 할 일 추가*/
+.kanban .card-add-todo {
+  color: #7D8998; 
+  display: flex; 
+  gap: 6px;
+  align-items: center;
+}
+
+.kanban .card-add-todo__text {
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 16px;
+  letter-spacing: 0%;
 }
