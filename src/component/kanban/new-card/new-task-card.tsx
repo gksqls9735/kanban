@@ -1,17 +1,17 @@
-import { priorityMedium, prioritySelect } from "../../mocks/select-option-mock";
-import useStatusesStore from "../../store/statuses-store";
-import useSectionsStore from "../../store/sections-store";
+import { priorityMedium, prioritySelect } from "../../../mocks/select-option-mock";
+import useStatusesStore from "../../../store/statuses-store";
+import useSectionsStore from "../../../store/sections-store";
 import { useEffect, useRef, useState } from "react";
-import useViewModeStore from "../../store/viewmode-store";
-import { ViewModes } from "../../constants";
-import { Section, SelectOption, Task, Todo } from "../../types/type";
-import AvatarGroup from "../avatar/avatar-group";
-import { user1 } from "../../mocks/user-mock";
-import useTaskStore from "../../store/task-store";
-import TodoListEditor from "./new-card/todolist-editor";
-import OptionSelector from "./new-card/option-selector";
-import DatePickerTrigger from "./new-card/datepicker-trigger";
-import SectionSelector from "./new-card/section-selector";
+import useViewModeStore from "../../../store/viewmode-store";
+import { ViewModes } from "../../../constants";
+import { Section, SelectOption, Task, Todo } from "../../../types/type";
+import AvatarGroup from "../../avatar/avatar-group";
+import { user1 } from "../../../mocks/user-mock";
+import useTaskStore from "../../../store/task-store";
+import TodoListEditor from "./todolist-editor";
+import OptionSelector from "./option-selector";
+import DatePickerTrigger from "./datepicker-trigger";
+import SectionSelector from "./section-selector";
 
 const NewTaskCard: React.FC<{
   columnId: string;
