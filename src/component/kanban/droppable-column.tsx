@@ -39,6 +39,10 @@ const DroppableColumn: React.FC<{
     flexShrink: 0,
   };
 
+  const handleClose = () => {
+    setIsAddingTask(false);
+  };
+
   return (
     <div ref={setNodeRef} style={columnStyle} {...attributes} className="kanban-section">
       <div className="section-header" style={headerStyle} {...listeners}>{title}</div>
@@ -48,7 +52,7 @@ const DroppableColumn: React.FC<{
             <CardWrapper key={t.taskId} task={t} sectionName={getSectionName(t.sectionId)} />
           ))}
         </SortableContext>
-        {isAddingTask && (<NewTaskCard columnId={id}/>)}
+        {isAddingTask && (<NewTaskCard columnId={id} onClose={handleClose}/>)}
         <div className="task-add" onClick={() => setIsAddingTask(true)}>
           <FontAwesomeIcon icon={faPlus} style={{ width: 13, height: 13 }} />
           <div>작업 추가</div>

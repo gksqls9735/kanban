@@ -14,6 +14,7 @@
   cursor: default;
 }
 
+.kanban .card-add-todo,
 .kanban .card-datepicker-trigger,
 .kanban-card .card-current-section,
 .kanban .select-dropdown-item,
@@ -263,6 +264,7 @@
   border: 1px solid #ccc;
   border-radius: 9999px;
   margin-right: 8px;
+  margin-bottom: 2px;
   position: relative;
   transition: background-color 0.2s, border-color 0.2s;
   vertical-align: middle;
@@ -299,6 +301,7 @@
   font-weight: 400;
   font-size: 14px;
   letter-spacing: 0%;
+  padding-right: 4px;
 }
 
 .kanban .todo-item__actions {
@@ -490,4 +493,18 @@
   font-weight: 400;
   line-height: 16px;
   letter-spacing: 0%;
+}
+
+.kanban .todo-item__input {
+  border: none;
+  outline: none;
+  flex-grow: 1;
+  background-color: 'transparent';
+  font-size: 14px;
+  color: #7D8998;
+  font-weight: 400;
+  height: 24px;
+  line-height: 24px;
+  padding-right: 4px;
+  box-sizing: border-box;
 }

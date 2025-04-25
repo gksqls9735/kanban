@@ -4,12 +4,17 @@ import { Task } from "../types/type";
 interface TaskState {
   allTasks: Task[];
   setTasks: (tasks: Task[]) => void;
+  addTask: (newTask: Task) => void;
   updateTask: (taskId: string, updated: Partial<Task>) => void;
 }
 
 const useTaskStore = create<TaskState>((set, get) => ({
   allTasks: [],
   setTasks: (tasks: Task[]) => set({ allTasks: tasks }),
+  addTask: (newTask: Task) => set((state) => {
+    const newTasks = [...state.allTasks, newTask];
+    return { allTasks: newTasks }
+  }),
   updateTask: (taskId: string, updated: Partial<Task>) =>
     set((state) => {
       const newTasks = state.allTasks.map(t => (
