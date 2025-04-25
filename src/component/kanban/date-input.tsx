@@ -27,7 +27,7 @@ const DateInput: React.FC<DateInputProps> = ({
   };
 
   return (
-    <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+    <div className='date-input-wrapper'>
       <input
         type="text"
         readOnly
