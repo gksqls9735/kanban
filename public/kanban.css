@@ -127,6 +127,7 @@
   gap: 12px;
   background-color: white;
   box-shadow: 2px 2px 6px 0px rgba(0, 0, 0, 0.04);
+  position: relative;
 }
 
 /* 작업 카드 상단 */
@@ -574,6 +575,6 @@
   font-weight: 400;
   height: 24px;
   line-height: 24px;
-  padding-right: 4px;
+  margin-right: 8px;
   box-sizing: border-box;
 }
