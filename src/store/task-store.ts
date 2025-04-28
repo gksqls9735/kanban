@@ -6,6 +6,7 @@ interface TaskState {
   setTasks: (tasks: Task[]) => void;
   addTask: (newTask: Task) => void;
   updateTask: (taskId: string, updated: Partial<Task>) => void;
+  deletTask: (taskId: string) => void;
 }
 
 const useTaskStore = create<TaskState>((set, get) => ({
@@ -17,6 +18,7 @@ const useTaskStore = create<TaskState>((set, get) => ({
   }),
   updateTask: (taskId: string, updated: Partial<Task>) =>
     set((state) => {
+      console.log(updated);
       const newTasks = state.allTasks.map(t => (
         t.taskId === taskId ? { ...t, ...updated } : t
       ));
@@ -24,6 +26,10 @@ const useTaskStore = create<TaskState>((set, get) => ({
         allTasks: newTasks
       };
     }),
+  deletTask: (taskId: string) => set((state) => {
+    const newList = state.allTasks.filter(t => t.taskId !== taskId);
+    return { allTasks: newList };
+  }),
 }));
 
 export default useTaskStore;

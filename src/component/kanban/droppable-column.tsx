@@ -5,7 +5,7 @@ import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { Task } from "../../types/type";
 import { CSS } from '@dnd-kit/utilities';
 import { useState } from "react";
-import NewTaskCard from "./new-task-card";
+import NewTaskCard from "./new-card/new-task-card";
 
 const DroppableColumn: React.FC<{
   tasks: Task[];

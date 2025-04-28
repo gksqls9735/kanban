@@ -1,7 +1,7 @@
 import { Task } from "../../types/type";
 import { CSS } from '@dnd-kit/utilities';
 import { useSortable } from "@dnd-kit/sortable";
-import React from "react";
+import React, { useState } from "react";
 import CardContent from "./card-content";
 
 const CardWrapper: React.FC<{
@@ -9,6 +9,7 @@ const CardWrapper: React.FC<{
   sectionName: string;
   isOverlay?: boolean;
 }> = ({ task, sectionName, isOverlay }) => {
+  const [isHovered, setIsHorvered] = useState<boolean>(false);
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: task.taskId,
     data: {
@@ -33,8 +34,10 @@ const CardWrapper: React.FC<{
       {...listeners}
       {...attributes}
       className="kanban-card"
+      onMouseEnter={() => setIsHorvered(true)}
+      onMouseLeave={() => setIsHorvered(false)}
     >
-      <CardContent task={task} sectionName={sectionName} />
+      <CardContent task={task} sectionName={sectionName} isHovered={isHovered}/>
     </div>
   );
 };
