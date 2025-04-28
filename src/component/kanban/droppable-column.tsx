@@ -1,11 +1,11 @@
 import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import CardWrapper from "./card-wrapper";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { Task } from "../../types/type";
 import { CSS } from '@dnd-kit/utilities';
 import { useState } from "react";
 import NewTaskCard from "./new-card/new-task-card";
+import CardWrapper from "./card/card-wrapper";
 
 const DroppableColumn: React.FC<{
   tasks: Task[];

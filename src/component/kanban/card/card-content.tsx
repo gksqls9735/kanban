@@ -1,11 +1,11 @@
 import React from "react";
-import { Task } from "../../types/type";
-import { lightenColor } from "../../utils/color-function";
-import AvatarGroup from "../avatar/avatar-group";
-import { formatDateToYyyyMmDd } from "../../utils/date-function";
-import TodoList from "./card-todo/todolist";
-import useDropdown from "../../hooks/use-dropdown";
-import useTaskStore from "../../store/task-store";
+import useTaskStore from "../../../store/task-store";
+import { Task } from "../../../types/type";
+import useDropdown from "../../../hooks/use-dropdown";
+import { formatDateToYyyyMmDd } from "../../../utils/date-function";
+import { lightenColor } from "../../../utils/color-function";
+import AvatarGroup from "../../avatar/avatar-group";
+import TodoList from "../card-todo/todolist";
 
 const CardContent: React.FC<{
   task: Task;
