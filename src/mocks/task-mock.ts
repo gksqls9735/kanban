@@ -48,7 +48,7 @@ export const sectionTasks: Task[] = [
     dependencies: [],
     participants: [{ ...user5, isMain: true }, { ...user3, isMain: false }],
     color: '#FFB6C1', // LightPink
-    order: 1,
+    order: 0,
     memo: '주요 경쟁사 3곳 선정하여 심층 분석 필요',
     taskAttachments: [
       exampleAttachments[0],
@@ -79,7 +79,7 @@ export const sectionTasks: Task[] = [
     dependencies: ['SD202504101001000001'],
     participants: [{ ...user5, isMain: true }, { ...user2, isMain: false }, { ...user1, isMain: false }, { ...user8, isMain: false }],
     color: '#FFB6C1', // LightPink
-    order: 2,
+    order: 1,
     taskAttachments: [],
     urls: [],
     emails: emails,
@@ -100,7 +100,7 @@ export const sectionTasks: Task[] = [
     dependencies: ['SD202504101001000002'],
     participants: [{ ...user5, isMain: true }, { ...user1, isMain: false }],
     color: '#FFB6C1', // LightPink
-    order: 3,
+    order: 2,
     memo: '개인정보 처리 방침, 이용 약관 등 검토',
     taskAttachments: [],
     urls: [],
@@ -127,7 +127,7 @@ export const sectionTasks: Task[] = [
     dependencies: ['SD202504101001000001'],
     participants: [{ ...user6, isMain: true }, { ...user7, isMain: false }],
     color: '#98FB98', // PaleGreen
-    order: 1,
+    order: 3,
     taskAttachments: [],
     urls: [],
     emails: emails, 
@@ -152,7 +152,7 @@ export const sectionTasks: Task[] = [
     dependencies: ['SD202504101001000002'],
     participants: [{ ...user6, isMain: true }, { ...user5, isMain: false }, { ...user7, isMain: false }],
     color: '#98FB98', // PaleGreen
-    order: 2,
+    order: 4,
     taskAttachments: [],
     urls: [],
     emails: emails,
@@ -176,7 +176,7 @@ export const sectionTasks: Task[] = [
     dependencies: ['SD202504101005000002'],
     participants: [{ ...user6, isMain: true }, { ...user7, isMain: false }, { ...user8, isMain: false }],
     color: '#98FB98', // PaleGreen
-    order: 3,
+    order: 5,
     memo: 'Figma 활용하여 디자인 및 프로토타입 제작',
     taskAttachments: [],
     urls: [],
@@ -203,7 +203,7 @@ export const sectionTasks: Task[] = [
     dependencies: [],
     participants: [{ ...user7, isMain: true }, { ...user4, isMain: false }],
     color: '#ADD8E6', // LightBlue
-    order: 1,
+    order: 6,
     taskAttachments: [],
     urls: [],
     emails: emails,
@@ -228,7 +228,7 @@ export const sectionTasks: Task[] = [
     dependencies: ['SD202504101010000001'],
     participants: [{ ...user7, isMain: true }, { ...user4, isMain: false }],
     color: '#ADD8E6', // LightBlue
-    order: 2, // 순서 변경
+    order: 7, // 순서 변경
     taskAttachments: [],
     urls: [],
     emails: emails,
@@ -254,7 +254,7 @@ export const sectionTasks: Task[] = [
     dependencies: ['SD202504101005000003', 'SD202504101015000002'],
     participants: [{ ...user7, isMain: true }],
     color: '#ADD8E6', // LightBlue
-    order: 3, // 순서 변경
+    order: 8, // 순서 변경
     memo: '소셜 로그인 기능은 추후 구현 예정',
     taskAttachments: [],
     urls: [],
@@ -276,7 +276,7 @@ export const sectionTasks: Task[] = [
     dependencies: ['SD202504101005000003'],
     participants: [{ ...user4, isMain: true }, { ...user7, isMain: false }],
     color: '#ADD8E6', // LightBlue
-    order: 4, // 순서 변경
+    order: 9, // 순서 변경
     taskAttachments: [],
     urls: [],
     emails: emails,
@@ -303,7 +303,7 @@ export const sectionTasks: Task[] = [
     dependencies: ['SD202504101001000002'],
     participants: [{ ...user8, isMain: true }, { ...user2, isMain: false }, { ...user1, isMain: false }],
     color: '#73D5F6',
-    order: 1,
+    order: 10,
     memo: 'ERD 기반으로 분석 완료. 더미 데이터 1000건 생성.',
     taskAttachments: [],
     urls: [],
@@ -329,7 +329,7 @@ export const sectionTasks: Task[] = [
     dependencies: ['SD202503191553000001'],
     participants: [{ ...user8, isMain: true }],
     color: '#73D5F6',
-    order: 2,
+    order: 11,
     taskAttachments: [],
     urls: [],
     emails: emails,
@@ -354,7 +354,7 @@ export const sectionTasks: Task[] = [
     dependencies: ['SD202504101015000001'],
     participants: [{ ...user8, isMain: true }, { ...user2, isMain: false }],
     color: '#73D5F6',
-    order: 3,
+    order: 12,
     memo: '보안 강화 위해 bcrypt 사용',
     taskAttachments: [],
     urls: [],
@@ -376,7 +376,7 @@ export const sectionTasks: Task[] = [
     dependencies: ['SD202504101015000001'],
     participants: [{ ...user2, isMain: true }, { ...user8, isMain: false }],
     color: '#73D5F6',
-    order: 4,
+    order: 13,
     taskAttachments: [],
     urls: [],
     emails: emails,

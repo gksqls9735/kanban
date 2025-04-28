@@ -13,11 +13,11 @@ const CardContent: React.FC<{
 }> = ({ task, sectionName }) => {
   const { isOpen, setIsOpen, wrapperRef, dropdownRef, toggle } = useDropdown();
   const deleteTask = useTaskStore(state => state.deletTask);
-  const addTask = useTaskStore(state => state.addTask);
+  const copyTask = useTaskStore(state => state.copyTask);
 
   const handleCopy = (e: React.MouseEvent) => {
     e.stopPropagation();
-    addTask({ ...task, taskId: `task-${Date.now()}-${Math.random().toString(36).substring(7)}`, order: task.order });
+    copyTask(task);
     setIsOpen(false);
   };
 
