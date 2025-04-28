@@ -14,14 +14,12 @@ const UpdateCard: React.FC<{
   onClose: () => void;
   currentTask: Task;
 }> = ({ onClose, currentTask }) => {
-  console.log(currentTask)
   const cardRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const updateTask = useTaskStore(state => state.updateTask);
   const statusList = useStatusesStore(state => state.statusList);
   const sections = useSectionsStore(state => state.sections);
 
-  const [taskName, setTaskName] = useState<string>(currentTask.taskName || '');
   const [selectedSection, setSelectedSection] = useState<Section>(() => {
     return sections.find(sec => sec.sectionId === currentTask.sectionId) || sections[0];
   });
@@ -40,9 +38,18 @@ const UpdateCard: React.FC<{
     inputRef.current?.focus();
   }, [inputRef.current]);
 
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.value = currentTask.taskName;
+    }
+
+    inputRef.current?.focus();
+
+  }, [currentTask.taskName]);
+
   const handleUpdateTask = () => {
-    const taskNameCheck = taskName.trim();
-    if (taskNameCheck && startDate && endDate && currentTask) {
+    const taskNameCheck = inputRef.current?.value.trim();
+    if (taskNameCheck && startDate && endDate) {
       updateTask(currentTask.taskId, {
         sectionId: selectedSection.sectionId,
         taskName: taskNameCheck,
@@ -51,12 +58,12 @@ const UpdateCard: React.FC<{
         priority: selectedPriority,
         status: selectedStatus,
         todoList: todos,
-      })
+      });
       onClose();
     } else {
       if (!taskNameCheck) inputRef.current?.focus();
     }
-  }
+  };
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -95,8 +102,6 @@ const UpdateCard: React.FC<{
       <input
         type="text"
         ref={inputRef}
-        value={taskName}
-        onChange={(e) => setTaskName(e.target.value)}
         className="new-task-name-input"
         placeholder="작업명 입력"
         onKeyDown={handleInputSubmit}

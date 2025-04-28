@@ -1,14 +1,16 @@
 import { CSS } from '@dnd-kit/utilities';
 import { useSortable } from "@dnd-kit/sortable";
-import React from "react";
+import React, { useState } from "react";
 import CardContent from "./card-content";
 import { Task } from '../../../types/type';
+import UpdateCard from './update-card';
 
 const CardWrapper: React.FC<{
   task: Task;
   sectionName: string;
   isOverlay?: boolean;
 }> = ({ task, sectionName, isOverlay }) => {
+  const [isEdit, setIsEdit] = useState<boolean>(false);
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: task.taskId,
     data: {
@@ -27,15 +29,26 @@ const CardWrapper: React.FC<{
   };
 
   return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      {...listeners}
-      {...attributes}
-      className="kanban-card"
-    >
-      <CardContent task={task} sectionName={sectionName} />
-    </div>
+    <>
+      {isEdit ? (
+        <div
+          className="kanban-card"
+        >
+          <UpdateCard onClose={() => setIsEdit(false)} currentTask={task} />
+        </div>
+      ) : (
+        <div
+          ref={setNodeRef}
+          style={style}
+          {...listeners}
+          {...attributes}
+          className="kanban-card"
+        >
+          <CardContent task={task} sectionName={sectionName} onClick={() => setIsEdit(true)} />
+        </div>
+      )}
+    </>
+
   );
 };
 
