@@ -300,12 +300,13 @@
 
 .kanban .todo-item {
   display: flex;
+  align-items: flex-start;
 }
 
 .kanban .todo-item__main {
   display: flex;
   flex-grow: 1;
-  align-items: center;
+  align-items: flex-start;
   overflow: hidden;
   /* 이 요소 자체도 넘칠 수 있으므로 추가하는 것이 좋음 */
   min-width: 0;
@@ -328,10 +329,10 @@
   border: 1px solid #ccc;
   border-radius: 9999px;
   margin-right: 8px;
-  margin-bottom: 2px;
   position: relative;
   transition: background-color 0.2s, border-color 0.2s;
   vertical-align: middle;
+  flex-shrink: 0;
 }
 
 /* 3. 실제 체크박스가 체크됐을 때 가짜 체크박스 스타일 변경 */
@@ -365,7 +366,7 @@
   font-weight: 400;
   font-size: 14px;
   letter-spacing: 0%;
-  padding-right: 4px;
+  margin-right: 8px;
 }
 
 .kanban .todo-item__actions {
