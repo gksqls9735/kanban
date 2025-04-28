@@ -14,6 +14,8 @@
   cursor: default;
 }
 
+.kanban .card-header .dropdown-menu,
+.kanban .card-header__actions,
 .kanban .card-add-todo,
 .kanban .card-datepicker-trigger,
 .kanban-card .card-current-section,
@@ -127,6 +129,13 @@
   box-shadow: 2px 2px 6px 0px rgba(0, 0, 0, 0.04);
 }
 
+/* 작업 카드 상단 */
+.kanban .card-header {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+}
+
 .kanban .card-current-section {
   width: fit-content;
   border: 1px solid rgba(205, 211, 221, 1);
@@ -142,6 +151,60 @@
   align-items: center;
 }
 
+.kanban .card-header__actions {
+  display: flex;
+  visibility: hidden;
+  border: 1px solid #E4E8EE;
+  border-radius: 4px;
+}
+
+.kanban .kanban-card:hover .card-header .card-header__actions {
+  visibility: visible;
+}
+
+.kanban .card-header .card-header__actions div {
+  width: 24px;
+  height: 24px;
+}
+
+.kanban .card-header .card-header__actions div:hover {
+  background-color: rgb(241, 241, 241);
+}
+
+.kanban .card-header .card-header__actions div:first-child {
+  border-right: 1px solid #E4E8EE;
+}
+
+.kanban .card-header .dropdown-menu {
+  position: absolute;
+  top: 26px;
+  left: 227px;
+  display: flex;
+  flex-direction: column;
+  width: 120px;
+  border: '1px solid #E4E8EE';
+  border-radius: 4px;
+  padding: 8px 0px;
+  font-size: 13px;
+  background-color: white;
+  box-shadow: 0px 0px 16px 0px #00000014;
+  z-index: 10;
+  box-sizing: border-box;
+}
+
+.kanban .card-header .dropdown-menu .dropdown-item {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 12px;
+  color: #0F1B2A;
+}
+
+.kanban .card-header .dropdown-menu .dropdown-item:hover {
+  background-color: rgb(241, 241, 241);
+}
+
+/* 작업 카드 중단 */
 .kanban .card-title {
   font-weight: 500;
   font-size: 16px;
@@ -179,6 +242,7 @@
   letter-spacing: 0.2px;
 }
 
+/* 작업 카드 하단 */
 .kanban .seperation-line {
   height: 0;
   border: none;
@@ -486,8 +550,8 @@
 
 /* 할 일 추가*/
 .kanban .card-add-todo {
-  color: #7D8998; 
-  display: flex; 
+  color: #7D8998;
+  display: flex;
   gap: 6px;
   align-items: center;
 }
