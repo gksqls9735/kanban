@@ -301,17 +301,16 @@
 
 .kanban .todo-item {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
 }
 
 .kanban .todo-item__main {
   display: flex;
   flex-grow: 1;
-  align-items: flex-start;
+  align-items: center;
   overflow: hidden;
-  /* 이 요소 자체도 넘칠 수 있으므로 추가하는 것이 좋음 */
   min-width: 0;
-  /* ⭐ 중요: 이 줄을 추가하세요! */
+  gap: 6px;
 }
 
 .kanban .todo-item__checkbox--native {
@@ -319,6 +318,14 @@
   opacity: 0;
   width: 0;
   height: 0;
+}
+
+.kanban .todo-item__checkbox-area {
+  display: flex;
+  align-items: flex-start;
+  line-height: 1;
+  padding: 0;
+  margin: 0;
 }
 
 /* 2. 가짜 체크박스 모양 만들기 */
@@ -329,7 +336,7 @@
   background-color: #fff;
   border: 1px solid #ccc;
   border-radius: 9999px;
-  margin-right: 8px;
+  margin-top: 2px;
   position: relative;
   transition: background-color 0.2s, border-color 0.2s;
   vertical-align: middle;
@@ -372,18 +379,22 @@
 
 .kanban .todo-item__actions {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 4px;
   flex-shrink: 0;
 }
 
-.kanban .todo-item__action.todo-item__action--delete {
+.kanban .todo-item__action {
   width: 16px;
   height: 16px;
-  border-radius: 999px;
   display: flex;
-  align-items: center;
+  align-items: center; /* 아이콘 자체는 버튼 내 중앙 정렬 유지 가능 */
   justify-content: center;
+}
+
+
+.kanban .todo-item__action.todo-item__action--delete {
+  border-radius: 999px;
   background-color: rgba(238, 241, 246, 1);
 }
 

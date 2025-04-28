@@ -12,7 +12,6 @@ const CardContent: React.FC<{
   sectionName?: string;
   onClick: () => void;
 }> = ({ task, sectionName, onClick }) => {
-  console.log(task.taskName)
   const { isOpen, setIsOpen, wrapperRef, dropdownRef, toggle } = useDropdown();
   const deleteTask = useTaskStore(state => state.deletTask);
   const copyTask = useTaskStore(state => state.copyTask);
@@ -106,7 +105,6 @@ const areEqual = (prevProps: Readonly<{ task: Task; sectionName: string; onClick
 
 
   if (prevTask.taskId !== nextTask.taskId) {
-    console.log("areEqual comparing:", prevProps.task.taskName, nextProps.task.taskName);
     return false;
   }
 
