@@ -1,16 +1,16 @@
-import { Task } from "../../types/type";
-import useViewModeStore from "../../store/viewmode-store";
-import useTaskStore from "../../store/task-store";
-import { ViewModes } from "../../constants";
+import { Task } from "../../../types/type";
+import useViewModeStore from "../../../store/viewmode-store";
+import useTaskStore from "../../../store/task-store";
+import { ViewModes } from "../../../constants";
 import { useEffect, useRef, useState } from "react";
-import { lightenColor } from "../../utils/color-function";
+import { lightenColor } from "../../../utils/color-function";
 import DroppableColumn from "./droppable-column";
 import { horizontalListSortingStrategy, SortableContext } from "@dnd-kit/sortable";
-import useSectionsStore from "../../store/sections-store";
-import useStatusesStore from "../../store/statuses-store";
+import useSectionsStore from "../../../store/sections-store";
+import useStatusesStore from "../../../store/statuses-store";
 
 
-const SectionComponent: React.FC<{
+const Column: React.FC<{
   getSectionName: (sectionId: string) => string;
 }> = ({ getSectionName }) => {
   const viewMode = useViewModeStore(state => state.viewMode);
@@ -103,4 +103,4 @@ const SectionComponent: React.FC<{
   );
 };
 
-export default SectionComponent;
+export default Column;

@@ -1,12 +1,12 @@
 import { useEffect } from "react";
-import SectionComponent from "../component/kanban/section";
+import SectionComponent from "../component/kanban/column/column";
 import { Section, SelectOption, Task } from "../types/type";
 import { DndContext, DragOverlay, rectIntersection } from "@dnd-kit/core";
 import useViewModeStore from "../store/viewmode-store";
 import { ViewModes } from "../constants";
 import useTaskStore from "../store/task-store";
 import { useKanbanDnd } from "../hooks/use-task-dnd";
-import DroppableColumn from "../component/kanban/droppable-column";
+import DroppableColumn from "../component/kanban/column/droppable-column";
 import useStatusesStore from "../store/statuses-store";
 import useSectionsStore from "../store/sections-store";
 import CardWrapper from "../component/kanban/card/card-wrapper";
