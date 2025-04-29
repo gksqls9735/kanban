@@ -10,6 +10,14 @@ import useSectionsStore from "../../../store/sections-store";
 import useStatusesStore from "../../../store/statuses-store";
 import ColumnCreate from "./column-create";
 
+interface ColumnData {
+  id: string;
+  title: string;
+  tasks: Task[];
+  colorMain?: string;
+  colorSub?: string;
+}
+
 const Column: React.FC<{
   getSectionName: (sectionId: string) => string;
 }> = ({ getSectionName }) => {
@@ -32,11 +40,42 @@ const Column: React.FC<{
       .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
   };
 
-  const columnIds = useMemo(() => (
-    viewMode === ViewModes.STATUS
-      ? statusList.map(status => status.code)
-      : sections.map(sec => sec.sectionId)
-  ), [viewMode, statusList, sections]);
+  const { columnsWithTasks, columnsWithoutTasks } = useMemo(() => {
+    const baesColumns = viewMode === ViewModes.STATUS
+      ? statusList.map(status => ({
+        id: status.code,
+        title: status.name,
+        colorMain: status.colorMain,
+        colorSub: status.colorSub || lightenColor(status.colorMain, 0.85),
+      }))
+      : sections.map(sec => ({
+        id: sec.sectionId,
+        title: sec.sectionName,
+        colorMain: undefined,
+        colorSub: undefined,
+      }));
+
+    const withTasks: ColumnData[] = [];
+    const withoutTasks: ColumnData[] = [];
+
+    baesColumns.forEach(col => {
+      const columnTasks = getTasksForColumn(col.id);
+      const columnData: ColumnData = { ...col, tasks: columnTasks };
+
+      if (columnTasks.length > 0) {
+        withTasks.push(columnData);
+      } else {
+        withoutTasks.push(columnData);
+      }
+    });
+    return { columnsWithTasks: withTasks, columnsWithoutTasks: withoutTasks };
+  }, [viewMode, statusList, sections, tasks]);
+  columnsWithTasks
+
+  const allColumnIds = useMemo(() => [
+    ...columnsWithTasks.map(col => col.id),
+    ...columnsWithoutTasks.map(col => col.id),
+  ], [columnsWithTasks, columnsWithoutTasks]);
 
   const handleAddNewItem = (name: string, color?: string) => {
     if (name) {
@@ -54,31 +93,36 @@ const Column: React.FC<{
   };
 
   return (
-    <SortableContext items={columnIds} strategy={horizontalListSortingStrategy}>
+    <SortableContext items={allColumnIds} strategy={horizontalListSortingStrategy}>
       <div className="kanban-content">
-        {viewMode === ViewModes.STATUS ? (
-          <>
-            {statusList.map(status => {
-              const columnTasks = getTasksForColumn(status.code);
-              return (
-                <DroppableColumn key={status.code} id={status.code} title={status.name} tasks={columnTasks}
-                  getSectionName={(getSectionName)} colorMain={status.colorMain} colorSub={status.colorSub || lightenColor(status.colorMain, 0.85)} />
-              );
-            })}
-          </>
-        ) : (
-          <>
-            {sections.map(sec => {
-              const columnTasks = getTasksForColumn(sec.sectionId);
-              return (
-                <DroppableColumn key={sec.sectionId} id={sec.sectionId} title={sec.sectionName} tasks={columnTasks} getSectionName={getSectionName} />
-              )
-            })}
-          </>
-        )}
+        {columnsWithTasks.map(col => (
+          <DroppableColumn
+            key={col.id}
+            id={col.id}
+            title={col.title}
+            tasks={col.tasks}
+            getSectionName={getSectionName}
+            colorMain={col.colorMain}
+            colorSub={col.colorSub}
+          />
+        ))}
+        <div className="kanban-content__empty-columns-container">
+          {columnsWithoutTasks.map(col => (
+            <DroppableColumn
+              key={col.id}
+              id={col.id}
+              title={col.title}
+              tasks={col.tasks}
+              getSectionName={getSectionName}
+              colorMain={col.colorMain}
+              colorSub={col.colorSub}
+            />
+          ))}
+        </div>
         {isAddingSection && (
           <ColumnCreate viewMode={viewMode} isAdd={isAddingSection} onAdd={handleAddNewItem} toggle={toggle} />
         )}
+
         <div className="add-section-button" onClick={() => setIsAddingSection(prev => !prev)}>
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#7d8998" className="bi bi-plus-lg" viewBox="0 0 16 16">
             <path fillRule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2" />
