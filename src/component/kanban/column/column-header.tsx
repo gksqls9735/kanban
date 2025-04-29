@@ -5,7 +5,7 @@ const ColumnHeader: React.FC<{
   deleteActionLabel: string;
   onDelete: () => void;
 }> = ({ columnTitle, deleteActionLabel, onDelete }) => {
-  const { isOpen, setIsOpen, wrapperRef, dropdownRef, toggle } = useDropdown();
+  const { isOpen, wrapperRef, dropdownRef, toggle } = useDropdown();
   return (
     <>
       <span className="section-header__title">{columnTitle}</span>

@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import SectionComponent from "../component/kanban/column/column";
+import SectionComponent from "../component/kanban/column/column-list";
 import { Section, SelectOption, Task } from "../types/type";
 import { DndContext, DragOverlay, rectIntersection } from "@dnd-kit/core";
 import useViewModeStore from "../store/viewmode-store";

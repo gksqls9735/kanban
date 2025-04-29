@@ -4,7 +4,7 @@ import { SelectOption } from "../types/type";
 interface StatusesState {
   statusList: SelectOption[];
   setStatusList: (list: SelectOption[]) => void;
-  addStatus: (statusName: string) => void;
+  addStatus: (status: Partial<SelectOption>) => void;
   updateStatus: (statusCode: string, updated: Partial<SelectOption>) => void;
   deleteStatus: (statusCode: string) => void;
 }
@@ -12,13 +12,11 @@ interface StatusesState {
 const useStatusesStore = create<StatusesState>((set, get) => ({
   statusList: [],
   setStatusList: (list: SelectOption[]) => set({ statusList: list }),
-  addStatus: (statusName: string) => set((state) => {
+  addStatus: (status: Partial<SelectOption>) => set((state) => {
     const newStatus: SelectOption = {
+      ...status,
       code: `status-${Date.now()}-${Math.random().toString(36).substring(7)}`,
-      colorMain: '#b3b3b3',
-      colorSub: '#edf0f5',
-      name: statusName,
-    }
+    } as SelectOption;
     return { statusList: [...state.statusList, newStatus] };
   }),
   updateStatus: (statusCode: string, updated: Partial<SelectOption>) => set((state) => {
