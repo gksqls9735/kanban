@@ -30,6 +30,8 @@ const DroppableColumn: React.FC<{
   const updateTasksByStatus = useTaskStore(state => state.updateTasksByStatus);
   const deleteStatus = useStatusesStore(state => state.deleteStatus);
   const deleteSection = useSectionsStore(state => state.deleteSection);
+  const updateSection = useSectionsStore(state => state.updateSection);
+  const updateStatus = useStatusesStore(state => state.updateStatus);
 
   const [isAddingTask, setIsAddingTask] = useState<boolean>(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
