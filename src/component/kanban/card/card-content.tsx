@@ -7,10 +7,11 @@ import { lightenColor } from "../../../utils/color-function";
 import AvatarGroup from "../../avatar/avatar-group";
 import TodoList from "../card-todo/todolist";
 import DeleteModal from "../delete-modal";
+import { truncateText } from "../../../utils/text-function";
 
 const CardContent: React.FC<{
   task: Task;
-  sectionName?: string;
+  sectionName: string;
   onClick: () => void;
 }> = ({ task, sectionName, onClick }) => {
   const { isOpen, setIsOpen, wrapperRef, dropdownRef, toggle } = useDropdown();
@@ -32,7 +33,7 @@ const CardContent: React.FC<{
   return (
     <>
       <div className="card-header">
-        <div className="card-current-section">{sectionName}</div>
+        <div className="card-current-section">{truncateText(sectionName, 10)}</div>
         <div className="card-header__actions">
           <div onClick={onClick}>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="#8D99A8" style={{ padding: 5 }}>
@@ -71,14 +72,14 @@ const CardContent: React.FC<{
         {formatDateToYyyyMmDd(task.start)} - {formatDateToYyyyMmDd(task.end)}</div>
       <div className="card-meta">
         <div className="card-priority-status">
-          <div className="card-priority"
+          <div className="card-priority truncate"
             style={{ color: task.priority.colorMain, backgroundColor: task.priority.colorSub || lightenColor(task.priority.colorMain, 0.85) }}
           >
-            {task.priority.name}</div>
-          <div className="card-status"
+            {truncateText(task.priority.name, 2)}</div>
+          <div className="card-status truncate"
             style={{ color: task.status.colorMain, backgroundColor: task.status.colorSub || lightenColor(task.status.colorMain, 0.85) }}
           >
-            {task.status.name}</div>
+            {truncateText(task.status.name, 2)}</div>
         </div>
         <div className="card-participant">
           <AvatarGroup list={task.participants || []} maxVisible={3} />
