@@ -28,7 +28,6 @@ const ColumnEdit: React.FC<{
   useEffect(() => {
     if (inputRef.current) {
       inputRef.current.value = columnTitle;
-      console.log(columnTitle);
     }
     inputRef.current?.focus();
   }, [columnTitle]);

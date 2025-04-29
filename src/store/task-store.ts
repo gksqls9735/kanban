@@ -23,7 +23,6 @@ const useTaskStore = create<TaskState>((set, get) => ({
   }),
   updateTask: (taskId: string, updated: Partial<Task>) =>
     set((state) => {
-      console.log(updated);
       const newTasks = state.allTasks.map(t => (
         t.taskId === taskId ? { ...t, ...updated } : t
       ));
