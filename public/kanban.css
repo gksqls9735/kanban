@@ -14,6 +14,8 @@
   cursor: default;
 }
 
+.kanban .section-header__menu-item,
+.kanban .section-header__action,
 .kanban .kanban-card .delete-modal .delete-modal__button,
 .kanban .card-header .dropdown-menu,
 .kanban .card-header__actions,
@@ -85,6 +87,10 @@
 }
 
 .kanban .section-header {
+  display: flex;
+  align-items: center;
+  position: relative;
+
   border: 1px solid rgba(228, 232, 238, 1);
   border-radius: 50px;
   border-width: 1px;
@@ -93,6 +99,73 @@
   padding: 6px 16px;
   font-size: 16px;
   text-transform: uppercase;
+}
+
+.kanban .section-header__title {
+  width: 100%;
+  text-align: center;
+  font-size: 16px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.kanban .section-header__actions {
+  display: flex;
+  width: fit-content;
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 1px solid #E4E8EE;
+  border-radius: 50px;
+  background-color: white;
+  visibility: hidden;
+}
+
+.kanban .section-header:hover .section-header__actions {
+  visibility: visible;
+}
+
+.kanban .section-header__action {
+  width: 24px;
+  height: 24px;
+  box-sizing: border-box;
+}
+
+.kanban .section-header__action:hover {
+  background-color: #EEF1F6;
+}
+
+.kanban .section-header__actions .kanban .section-header__action:last-child {
+  border-left: 1px solid #E4E8EE;
+}
+
+.kanban .section-header__menu {
+  position: absolute;
+  left: 290px;
+  top: 33px;
+  width: 180px;
+  padding: 8px 0px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 400;
+  color: #0F1B2A;
+  background-color: white;
+  box-shadow: 0px 0px 16px 0px #00000014;
+  z-index: 10;
+}
+
+.kanban .section-header__menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 36px;
+  padding: 0px 12px;
+}
+
+.kanban .section-header__menu-item:hover {
+  background-color: rgb(241, 241, 241);
 }
 
 .kanban .section-content {
@@ -518,6 +591,7 @@
   justify-content: space-between;
   padding: 0px 4px;
   background-color: rgba(248, 249, 251, 1);
+  box-sizing: border-box;
 }
 
 .kanban .new-section input {
