@@ -1,16 +1,11 @@
 import AvatarItem from "./avatar";
 import { Participant } from "../../types/type";
+import { getInitial } from "../../utils/text-function";
 
 const groupStyle: React.CSSProperties = {
   display: 'flex',
   alignItems: 'center',
 };
-
-
-const getInitial = (name: string): string => {
-  return name && name.trim().length > 0 ? name.trim()[0].toUpperCase() : '';
-};
-
 
 const AvatarGroup: React.FC<{
   list: Participant[];

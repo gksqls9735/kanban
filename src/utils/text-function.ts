@@ -12,3 +12,7 @@ export const truncateText = (text: string, maxLength: number): string => {
     return text;
   }
 };
+
+export const getInitial = (name: string): string => {
+  return name && name.trim().length > 0 ? name.trim()[0].toUpperCase() : '';
+};
