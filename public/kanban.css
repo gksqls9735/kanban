@@ -14,6 +14,7 @@
   cursor: default;
 }
 
+.kanban .new-section .create-confirm-button,
 .kanban .section-header__menu-item,
 .kanban .section-header__action,
 .kanban .kanban-card .delete-modal .delete-modal__button,
