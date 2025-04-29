@@ -551,9 +551,7 @@
 .kanban .avatar-group {
   display: flex;
   align-items: center;
-  padding-left: 8px;
 }
-
 
 /* 섹션 추가 */
 .kanban .add-section-button {

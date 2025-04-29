@@ -1,6 +1,4 @@
-import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import AvatarItem from "./avatar";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Participant } from "../../types/type";
 
 const groupStyle: React.CSSProperties = {

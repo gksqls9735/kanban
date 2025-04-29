@@ -2,7 +2,7 @@ import { priorityMedium, prioritySelect } from "../../../mocks/select-option-moc
 import useStatusesStore from "../../../store/statuses-store";
 import useSectionsStore from "../../../store/sections-store";
 import { useEffect, useRef, useState } from "react";
-import { Section, SelectOption, Task, Todo } from "../../../types/type";
+import { Participant, Section, SelectOption, Task, Todo } from "../../../types/type";
 import AvatarGroup from "../../avatar/avatar-group";
 import useTaskStore from "../../../store/task-store";
 import SectionSelector from "../new-card/section-selector";
@@ -31,6 +31,7 @@ const UpdateCard: React.FC<{
   const [startDate, setStartDate] = useState<Date | null>(currentTask.start || null);
   const [endDate, setEndDate] = useState<Date | null>(currentTask.end || null);
   const [todos, setTodos] = useState<Todo[]>(currentTask.todoList || []);
+  const [participants, setParticipants] = useState<Participant[]>(currentTask.participants || []);
 
   const newTaskId = useRef<string>(`task-${Date.now()}-${Math.random().toString(36).substring(7)}`).current;
 
@@ -58,6 +59,7 @@ const UpdateCard: React.FC<{
         priority: selectedPriority,
         status: selectedStatus,
         todoList: todos,
+        participants: participants,
       });
       onClose();
     } else {
@@ -116,7 +118,7 @@ const UpdateCard: React.FC<{
         </div>
       </div>
 
-      <div><AvatarGroup list={[]} maxVisible={0} /></div>
+      <div><AvatarGroup list={participants} maxVisible={3} /></div>
 
       <div className="seperation-line" />
 
