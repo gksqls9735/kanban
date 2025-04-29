@@ -6,6 +6,7 @@ import { formatDateToYyyyMmDd } from "../../../utils/date-function";
 import { lightenColor } from "../../../utils/color-function";
 import AvatarGroup from "../../avatar/avatar-group";
 import TodoList from "../card-todo/todolist";
+import DeleteModal from "../delete-modal";
 
 const CardContent: React.FC<{
   task: Task;
@@ -23,8 +24,7 @@ const CardContent: React.FC<{
     setIsOpen(false);
   };
 
-  const handleDelete = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleDelete = () => {
     deleteTask(task.taskId);
     setIsOpen(false);
   };
@@ -91,21 +91,11 @@ const CardContent: React.FC<{
         </>
       )}
       {isDeleteModalOpen && (
-        <div className="delete-modal">
-          <div className="delete-modal__icon-container">
-            <svg xmlns="http://www.w3.org/2000/svg" height="32px" viewBox="0 -960 960 960" width="32px" fill="#D92D20">
-              <path d="M440-400v-360h80v360h-80Zm0 200v-80h80v80h-80Z" />
-            </svg>
-          </div>
-          <div className="delete-modal__message" >작업을 삭제하시겠습니까?</div>
-          <div className="delete-modal__actions">
-            <button
-              className="delete-modal__button delete-modal__button--cancel" onClick={() => setIsDeleteModalOpen(false)}>
-              취소</button>
-            <button
-              className="delete-modal__button delete-modal__button--confirm" onClick={handleDelete}>확인</button>
-          </div>
-        </div >
+        <DeleteModal
+          message={'작업을 삭제하시겠습니까?'}
+          onCancel={() => setIsDeleteModalOpen(false)}
+          onConfirm={handleDelete}
+        />
       )}
     </>
   );

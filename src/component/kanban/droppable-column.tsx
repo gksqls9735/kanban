@@ -3,10 +3,13 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { Task } from "../../types/type";
 import { CSS } from '@dnd-kit/utilities';
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import NewTaskCard from "./new-card/new-task-card";
 import CardWrapper from "./card/card-wrapper";
 import useDropdown from "../../hooks/use-dropdown";
+import DeleteModal from "./delete-modal";
+import useViewModeStore from "../../store/viewmode-store";
+import { ViewModes } from "../../constants";
 
 const DroppableColumn: React.FC<{
   tasks: Task[];
@@ -18,6 +21,7 @@ const DroppableColumn: React.FC<{
   isOverlay?: boolean;
 }> = ({ tasks, id, title, getSectionName, colorMain, colorSub, isOverlay }) => {
   const { isOpen, setIsOpen, wrapperRef, dropdownRef, toggle } = useDropdown();
+  const viewMode = useViewModeStore(state => state.viewMode);
   const [isAddingTask, setIsAddingTask] = useState<boolean>(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
 
@@ -45,16 +49,31 @@ const DroppableColumn: React.FC<{
     flexShrink: 0,
   };
 
-  const handleDelete = () => {
+  const handleDeleteSection = () => {
     // viewMode로 section인지 status인지 확인 필수 section이면 작업 전부 삭제 status이면 작업들은 대기상태로 전환
     // 작업 전부 삭제
     console.log("section 제거: ", id);
+    setIsDeleteModalOpen(false);
     setIsOpen(false);
   }
+
+  const handleDeleteStatus = () => {
+    console.log("status 제거: ", id);
+    setIsDeleteModalOpen(false);
+    setIsOpen(false);
+  };
 
   const handleClose = () => {
     setIsAddingTask(false);
   };
+
+  const deleteModalTitle = useMemo(() => viewMode === ViewModes.STATUS ? '상태를 삭제 하시겠습니까?' : '섹션을 삭제 하시겠습니까?', [viewMode]);
+  const deleteModalMsg = useMemo(() =>
+    viewMode === ViewModes.STATUS
+      ? "상태에 포함된 작업의 진행상태는 '대기'로 변경 됩니다."
+      : '이 섹션에 포함된 모든 작업 내역이 삭제되며,<br /> 복구할 수 없습니다.'
+    , [viewMode]);
+  const handleDelete = useMemo(() => viewMode === ViewModes.STATUS ? handleDeleteStatus : handleDeleteSection, [viewMode]);
 
   return (
     <>
@@ -111,24 +130,12 @@ const DroppableColumn: React.FC<{
         </div>
       </div>
       {isDeleteModalOpen && (
-        <div className="delete-modal">
-          <div className="delete-modal__icon-container">
-            <svg xmlns="http://www.w3.org/2000/svg" height="32px" viewBox="0 -960 960 960" width="32px" fill="#D92D20">
-              <path d="M440-400v-360h80v360h-80Zm0 200v-80h80v80h-80Z" />
-            </svg>
-          </div>
-          <div className="delete-modal__content" style={{ display: 'flex', flexDirection: 'column', gap: 10, textAlign: 'center' }}>
-            <div className="delete-modal__title" style={{ fontSize: 20, fontWeight: 600 }}>섹션을 삭제하시겠습니까?</div>
-            <div className="delete-modal__message">이 섹션에 포함된 모든 작업 내역이 삭제되며,<br /> 복구할 수 없습니다.</div>
-          </div>
-          <div className="delete-modal__actions">
-            <button
-              className="delete-modal__button delete-modal__button--cancel" onClick={() => setIsDeleteModalOpen(false)}>
-              취소</button>
-            <button
-              className="delete-modal__button delete-modal__button--confirm" onClick={handleDelete}>확인</button>
-          </div>
-        </div >
+        <DeleteModal
+          title={deleteModalTitle}
+          message={deleteModalMsg}
+          onCancel={() => setIsDeleteModalOpen(false)}
+          onConfirm={handleDelete}
+        />
       )}
     </>
   );

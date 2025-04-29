@@ -143,11 +143,22 @@
   background-color: #FEE4E2;
 }
 
-.kanban .delete-modal .delete-modal__message {
+.kanban .delete-modal .delete-modal__content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: center;
+}
+
+.kanban .delete-modal .delete-modal__content .delete-modal__title {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.kanban .delete-modal .delete-modal__content .delete-modal__message {
   font-weight: 400;
   font-size: 15px;
   color: #0F1B2A;
-  text-align: center;
 }
 
 .kanban .delete-modal .delete-modal__actions {
