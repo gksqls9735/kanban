@@ -72,6 +72,44 @@
   position: relative;
 }
 
+/* 헤더 드롭다운 메뉴 */
+.kanban .header-dropdown-menu {
+  position: absolute;
+  border: '1px solid #E4E8EE';
+  padding: 8px 0px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 400;
+  color: #0F1B2A;
+  background-color: white;
+  box-shadow: 0px 0px 16px 0px #00000014;
+  z-index: 10;
+}
+
+.kanban .header-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0px 12px;
+  height: 36px;
+}
+
+.kanban .header-dropdown-item:hover {
+  background-color: rgb(241, 241, 241);
+}
+
+.kanban .section-header__dropdown-menu {
+  left: 290px;
+  top: 33px;
+  width: 180px;
+}
+
+.kanban .card-header__dropdown-menu {
+  top: 26px;
+  left: 227px;
+  width: 120px;
+}
+
 /* 컬럼 */
 .kanban .kanban-content {
   display: flex;
@@ -139,33 +177,6 @@
 
 .kanban .section-header__actions .kanban .section-header__action:last-child {
   border-left: 1px solid #E4E8EE;
-}
-
-.kanban .section-header__menu {
-  position: absolute;
-  left: 290px;
-  top: 33px;
-  width: 180px;
-  padding: 8px 0px;
-  border-radius: 4px;
-  font-size: 13px;
-  font-weight: 400;
-  color: #0F1B2A;
-  background-color: white;
-  box-shadow: 0px 0px 16px 0px #00000014;
-  z-index: 10;
-}
-
-.kanban .section-header__menu-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  height: 36px;
-  padding: 0px 12px;
-}
-
-.kanban .section-header__menu-item:hover {
-  background-color: rgb(241, 241, 241);
 }
 
 .kanban .section-content {
@@ -250,41 +261,12 @@
   border-right: 1px solid #E4E8EE;
 }
 
-.kanban .card-header .dropdown-menu {
-  position: absolute;
-  top: 26px;
-  left: 227px;
-  display: flex;
-  flex-direction: column;
-  width: 120px;
-  border: '1px solid #E4E8EE';
-  border-radius: 4px;
-  padding: 8px 0px;
-  font-size: 13px;
-  background-color: white;
-  box-shadow: 0px 0px 16px 0px #00000014;
-  z-index: 10;
-  box-sizing: border-box;
-}
-
-.kanban .card-header .dropdown-menu .dropdown-item {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  padding: 8px 12px;
-  color: #0F1B2A;
-}
-
-.kanban .card-header .dropdown-menu .dropdown-item:hover {
-  background-color: rgb(241, 241, 241);
-}
-
 /* 작업 삭제 모달 */
 .kanban .kanban-card .delete-modal {
   display: flex;
   flex-direction: column;
   align-items: center;
-  
+
   position: fixed;
   top: 50%;
   left: 50%;
