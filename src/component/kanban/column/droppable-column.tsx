@@ -81,7 +81,11 @@ const DroppableColumn: React.FC<{
   const handleUpdate = (name: string, color?: string) => {
     if (name) {
       if (viewMode === ViewModes.STATUS && color) {
-        updateStatus(id, { name: name, colorMain: color, colorSub: lightenColor(color, 0.85) })
+        if (color === colorMain) {
+          updateStatus(id, { name: name })
+        } else {
+          updateStatus(id, { name: name, colorMain: color, colorSub: lightenColor(color, 0.85) })
+        }
       } else if (viewMode === ViewModes.SECTION) {
         updateSection(id, { sectionName: name })
       }

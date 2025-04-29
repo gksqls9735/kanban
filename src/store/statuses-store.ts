@@ -20,10 +20,8 @@ const useStatusesStore = create<StatusesState>((set, get) => ({
     return { statusList: [...state.statusList, newStatus] };
   }),
   updateStatus: (statusCode: string, updated: Partial<SelectOption>) => set((state) => {
-    console.log(statusCode);
-    console.log(updated);
     const updatedStatuses = state.statusList.map(s =>
-      s.code === statusCode ? { ...s, updated } : s
+      s.code === statusCode ? { ...s, ...updated } : s
     );
     return { statusList: updatedStatuses };
   }),

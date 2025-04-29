@@ -48,31 +48,29 @@ const ColumnCreate: React.FC<{
 
   return (
     <>
-      {isAdd && (
-        <div>
-          <div className="new-section">
-            <input ref={inputRef} type="text" placeholder={placeholderTxt} onKeyDown={handleInputKeyDown} />
-            <div className="create-confirm-button" onClick={handleAddClick}>확인</div>
-          </div>
-          {viewMode === ViewModes.STATUS && (
-            <div className="new-section__color-picker">
-              <span className="new-section__color-picker-title">컬러 선택</span>
-              <div className="new-section__color-swatches">
-                {colors.map(color => (
-                  <div
-                    key={color}
-                    className="new-section__color-swatch"
-                    style={{ backgroundColor: color }}
-                    onClick={() => setSelectedColor(color)}
-                  >
-                    {selectedColor === color && <CheckIcon />}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+      <div>
+        <div className="new-section">
+          <input ref={inputRef} type="text" placeholder={placeholderTxt} onKeyDown={handleInputKeyDown} />
+          <div className="create-confirm-button" onClick={handleAddClick}>확인</div>
         </div>
-      )}
+        {viewMode === ViewModes.STATUS && (
+          <div className="new-section__color-picker">
+            <span className="new-section__color-picker-title">컬러 선택</span>
+            <div className="new-section__color-swatches">
+              {colors.map(color => (
+                <div
+                  key={color}
+                  className="new-section__color-swatch"
+                  style={{ backgroundColor: color }}
+                  onClick={() => setSelectedColor(color)}
+                >
+                  {selectedColor === color && <CheckIcon />}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
     </>
   );
 };

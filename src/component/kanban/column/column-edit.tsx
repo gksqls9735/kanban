@@ -15,7 +15,6 @@ const ColumnEdit: React.FC<{
   colorMain?: string;
   columnTitle: string
 }> = ({ viewMode, isEdting, toggle, onUpdate, colorMain, columnTitle }) => {
-  console.log(colorMain)
   const [selectedColor, setSelectedColor] = useState<string>(colorMain || '');
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -28,7 +27,8 @@ const ColumnEdit: React.FC<{
 
   useEffect(() => {
     if (inputRef.current) {
-      inputRef.current.value === columnTitle;
+      inputRef.current.value = columnTitle;
+      console.log(columnTitle);
     }
     inputRef.current?.focus();
   }, [columnTitle]);
@@ -58,31 +58,29 @@ const ColumnEdit: React.FC<{
 
   return (
     <>
-      {isEdting && (
-        <div>
-          <div className="new-section">
-            <input ref={inputRef} type="text" placeholder={placeholderTxt} onKeyDown={handleInputKeyDown} />
-            <div className="create-confirm-button" onClick={handleUpdateClick}>확인</div>
-          </div>
-          {viewMode === ViewModes.STATUS && (
-            <div className="new-section__color-picker">
-              <span className="new-section__color-picker-title">컬러 선택</span>
-              <div className="new-section__color-swatches">
-                {colors.map(color => (
-                  <div
-                    key={color}
-                    className="new-section__color-swatch"
-                    style={{ backgroundColor: color }}
-                    onClick={() => setSelectedColor(color)}
-                  >
-                    {selectedColor === color && <CheckIcon />}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+      <div>
+        <div className="new-section">
+          <input ref={inputRef} type="text" placeholder={placeholderTxt} onKeyDown={handleInputKeyDown} />
+          <div className="create-confirm-button" onClick={handleUpdateClick}>확인</div>
         </div>
-      )}
+        {viewMode === ViewModes.STATUS && (
+          <div className="new-section__color-picker">
+            <span className="new-section__color-picker-title">컬러 선택</span>
+            <div className="new-section__color-swatches">
+              {colors.map(color => (
+                <div
+                  key={color}
+                  className="new-section__color-swatch"
+                  style={{ backgroundColor: color }}
+                  onClick={() => setSelectedColor(color)}
+                >
+                  {selectedColor.toLowerCase() === color.toLowerCase() && <CheckIcon />}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
     </>
   );
 };
