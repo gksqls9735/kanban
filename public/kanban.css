@@ -110,6 +110,80 @@
   width: 120px;
 }
 
+/* 작업 삭제 모달 */
+.kanban .delete-modal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  box-sizing: border-box;
+  width: 400px;
+  border: 1px solid #E4E8EE;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0px 4px 12px -2px #10182814;
+  padding: 20px;
+  gap: 20px;
+  z-index: 50;
+}
+
+.kanban .delete-modal .delete-modal__icon-container {
+  width: 48px;
+  height: 48px;
+  border-radius: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+  background-color: #FEE4E2;
+}
+
+.kanban .delete-modal .delete-modal__message {
+  font-weight: 400;
+  font-size: 15px;
+  color: #0F1B2A;
+  text-align: center;
+}
+
+.kanban .delete-modal .delete-modal__actions {
+  display: flex;
+  gap: 6px;
+}
+
+.kanban .delete-modal .delete-modal__button {
+  height: 36px;
+  padding: 0px 14px;
+  font-weight: 400;
+  font-size: 14px;
+  border-radius: 4px;
+}
+
+.kanban .delete-modal .delete-modal__button--cancel {
+  color: #0F1B2A;
+  border: 1px solid #CDD3DD;
+  background-color: white;
+}
+
+.kanban .delete-modal .delete-modal__button--cancel:hover {
+  background-color: #f8f9fa;
+}
+
+.kanban .delete-modal .delete-modal__button--confirm {
+  color: white;
+  border: 1px solid #16B364;
+  background-color: #16B364;
+}
+
+.kanban .delete-modal .delete-modal__button--confirm:hover {
+  background-color: #169c59;
+}
+
+
 /* 컬럼 */
 .kanban .kanban-content {
   display: flex;
@@ -259,78 +333,6 @@
 
 .kanban .card-header .card-header__actions div:first-child {
   border-right: 1px solid #E4E8EE;
-}
-
-/* 작업 삭제 모달 */
-.kanban .kanban-card .delete-modal {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-
-  box-sizing: border-box;
-  width: 400px;
-  border: 1px solid #E4E8EE;
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0px 4px 12px -2px #10182814;
-  padding: 20px;
-  gap: 20px;
-  z-index: 50;
-}
-
-.kanban .kanban-card .delete-modal .delete-modal__icon-container {
-  width: 48px;
-  height: 48px;
-  border-radius: 24px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-shrink: 0;
-  background-color: #FEE4E2;
-}
-
-.kanban .kanban-card .delete-modal .delete-modal__message {
-  font-weight: 400;
-  font-size: 15px;
-  color: #0F1B2A;
-}
-
-.kanban .kanban-card .delete-modal .delete-modal__actions {
-  display: flex;
-  gap: 6px;
-}
-
-.kanban .kanban-card .delete-modal .delete-modal__button {
-  height: 36px;
-  padding: 0px 14px;
-  font-weight: 400;
-  font-size: 14px;
-  border-radius: 4px;
-}
-
-.kanban .kanban-card .delete-modal .delete-modal__button--cancel {
-  color: #0F1B2A;
-  border: 1px solid #CDD3DD;
-  background-color: white;
-}
-
-.kanban .kanban-card .delete-modal .delete-modal__button--cancel:hover {
-  background-color: #f8f9fa;
-}
-
-.kanban .kanban-card .delete-modal .delete-modal__button--confirm {
-  color: white;
-  border: 1px solid #16B364;
-  background-color: #16B364;
-}
-
-.kanban .kanban-card .delete-modal .delete-modal__button--confirm:hover {
-  background-color: #169c59;
 }
 
 /* 작업 카드 중단 */
