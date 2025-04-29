@@ -262,8 +262,15 @@
   background-color: #EEF1F6;
 }
 
-.kanban .section-header__actions .kanban .section-header__action:last-child {
+.kanban .section-header__actions .section-header__action:first-child {
+  border-bottom-left-radius: 50px;
+  border-top-left-radius: 50px;
+}
+
+.kanban .section-header__actions .section-header__action:last-child {
   border-left: 1px solid #E4E8EE;
+  border-bottom-right-radius: 50px;
+  border-top-right-radius: 50px;
 }
 
 .kanban .section-content {
