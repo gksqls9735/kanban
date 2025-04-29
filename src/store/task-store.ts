@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { Task } from "../types/type";
+import { statusWaiting } from "../mocks/select-option-mock";
 
 interface TaskState {
   allTasks: Task[];
@@ -8,6 +9,8 @@ interface TaskState {
   updateTask: (taskId: string, updated: Partial<Task>) => void;
   deletTask: (taskId: string) => void;
   copyTask: (originalTask: Task) => void;
+  deleteTasksBySection: (sectionId: string) => void;
+  updateTasksByStatus: (originalStatusCode: string) => void;
 }
 
 const useTaskStore = create<TaskState>((set, get) => ({
@@ -49,6 +52,17 @@ const useTaskStore = create<TaskState>((set, get) => ({
     const newOrder = (originalOrder + nextOrder) / 2;
     const copiedTask = { ...originalTask, taskId: `task-${Date.now()}-${Math.random().toString(36).substring(7)}`, order: newOrder };
     return { allTasks: [...state.allTasks, copiedTask] };
+  }),
+  deleteTasksBySection: (sectionId: string) => set((state) => {
+    const remainingTasks = state.allTasks.filter(t => t.sectionId !== sectionId);
+    return { allTasks: remainingTasks };
+  }),
+  updateTasksByStatus: (originalStatusCode: string) => set((state) => {
+    const updatedTasks = state.allTasks.map(t =>
+      t.status.code === originalStatusCode ? { ...t, status: statusWaiting } : t
+    );
+
+    return { allTasks: updatedTasks };
   }),
 }));
 
