@@ -7,28 +7,37 @@ const CheckIcon = () => (
   </svg>
 );
 
-const ColumnCreate: React.FC<{
+const ColumnEdit: React.FC<{
   viewMode: string;
-  isAdd: boolean,
+  isEdting: boolean;
   toggle: () => void;
-  onAdd: (name: string, color?: string) => void;
-}> = ({ viewMode, isAdd, toggle, onAdd }) => {
-  const [selectedColor, setSelectedColor] = useState<string>(colors[0]);
+  onUpdate: (name: string, color?: string) => void;
+  colorMain?: string;
+  columnTitle: string
+}> = ({ viewMode, isEdting, toggle, onUpdate, colorMain, columnTitle }) => {
+  console.log(colorMain)
+  const [selectedColor, setSelectedColor] = useState<string>(colorMain || '');
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (isAdd && inputRef.current) {
+    if (isEdting && inputRef.current) {
       inputRef.current.focus();
-      if (viewMode === ViewModes.STATUS) setSelectedColor(colors[0]);
     }
-    if (!isAdd && inputRef.current) inputRef.current.value = '';
-  }, [isAdd, viewMode]);
+    if (!isEdting && inputRef.current) inputRef.current.value = '';
+  }, [isEdting, viewMode]);
 
-  const handleAddClick = () => {
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.value === columnTitle;
+    }
+    inputRef.current?.focus();
+  }, [columnTitle]);
+
+  const handleUpdateClick = () => {
     const name = inputRef.current?.value.trim();
     if (name) {
       const colorToAdd = viewMode === ViewModes.STATUS ? selectedColor : undefined;
-      onAdd(name, colorToAdd);
+      onUpdate(name, colorToAdd);
     } else {
       inputRef.current?.focus();
     }
@@ -37,22 +46,23 @@ const ColumnCreate: React.FC<{
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       e.preventDefault();
-      handleAddClick();
+      handleUpdateClick();
     } else if (e.key === "Escape") {
       e.preventDefault();
       toggle();
     }
   };
 
+
   const placeholderTxt = useMemo(() => viewMode === ViewModes.STATUS ? '상태명' : '섹션명', [viewMode]);
 
   return (
     <>
-      {isAdd && (
+      {isEdting && (
         <div>
           <div className="new-section">
             <input ref={inputRef} type="text" placeholder={placeholderTxt} onKeyDown={handleInputKeyDown} />
-            <div className="create-confirm-button" onClick={handleAddClick}>확인</div>
+            <div className="create-confirm-button" onClick={handleUpdateClick}>확인</div>
           </div>
           {viewMode === ViewModes.STATUS && (
             <div className="new-section__color-picker">
@@ -77,4 +87,4 @@ const ColumnCreate: React.FC<{
   );
 };
 
-export default ColumnCreate;
+export default ColumnEdit;

@@ -13,6 +13,8 @@ import useTaskStore from "../../../store/task-store";
 import useStatusesStore from "../../../store/statuses-store";
 import useSectionsStore from "../../../store/sections-store";
 import ColumnHeader from "./column-header";
+import ColumnEdit from "./column-edit";
+import { lightenColor } from "../../../utils/color-function";
 
 const DroppableColumn: React.FC<{
   tasks: Task[];
@@ -23,6 +25,7 @@ const DroppableColumn: React.FC<{
   colorSub?: string;
   isOverlay?: boolean;
 }> = ({ tasks, id, title, getSectionName, colorMain, colorSub, isOverlay }) => {
+  const [isEdting, setIsEditing] = useState<boolean>(false);
 
   const viewMode = useViewModeStore(state => state.viewMode);
   const deleteTasksBySection = useTaskStore(state => state.deleteTasksBySection);
@@ -60,14 +63,12 @@ const DroppableColumn: React.FC<{
   };
 
   const handleDeleteSection = () => {
-    console.log("section 제거: ", id);
     deleteSection(id);
     deleteTasksBySection(id);
     setIsDeleteModalOpen(false);
   }
 
   const handleDeleteStatus = () => {
-    console.log("status 제거: ", id);
     deleteStatus(id);
     updateTasksByStatus(id);
     setIsDeleteModalOpen(false);
@@ -76,6 +77,22 @@ const DroppableColumn: React.FC<{
   const handleClose = () => {
     setIsAddingTask(false);
   };
+
+  const handleUpdate = (name: string, color?: string) => {
+    if (name) {
+      if (viewMode === ViewModes.STATUS && color) {
+        updateStatus(id, { name: name, colorMain: color, colorSub: lightenColor(color, 0.85) })
+      } else if (viewMode === ViewModes.SECTION) {
+        updateSection(id, { sectionName: name })
+      }
+      setIsEditing(false);
+    }
+  };
+
+  const toggle = () => {
+    setIsEditing(prev => !prev);
+  };
+
 
   const deleteActionLabel = useMemo(() => viewMode === ViewModes.STATUS ? '상태 삭제' : '섹션 삭제', [viewMode]);
   const deleteModalTitle = useMemo(() => viewMode === ViewModes.STATUS ? '상태를 삭제 하시겠습니까?' : '섹션을 삭제 하시겠습니까?', [viewMode]);
@@ -90,8 +107,12 @@ const DroppableColumn: React.FC<{
     <>
       <div ref={setNodeRef} style={columnStyle} {...attributes} className="kanban-section">
         <div className="section-header" style={headerStyle} {...listeners}>
-          <ColumnHeader columnTitle={title} deleteActionLabel={deleteActionLabel} onDelete={() => setIsDeleteModalOpen(true)}/>
+          <ColumnHeader columnTitle={title} deleteActionLabel={deleteActionLabel} onDelete={() => setIsDeleteModalOpen(true)} handleEditClick={() => setIsEditing(true)} />
         </div>
+        {isEdting && (
+          <ColumnEdit
+            viewMode={viewMode} isEdting={isEdting} toggle={toggle} onUpdate={handleUpdate} colorMain={colorMain} columnTitle={title} />
+        )}
         <div className="section-content">
           <SortableContext items={tasksId} strategy={verticalListSortingStrategy}>
             {tasks.map(t => (

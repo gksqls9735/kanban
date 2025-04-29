@@ -22,6 +22,8 @@ const useSectionsStore = create<SectionsState>((set, get) => ({
     return { sections: [...state.sections, newSection] };
   }),
   updateSection: (sectionId: string, updated: Partial<Section>) => set((state) => {
+    console.log(sectionId);
+    console.log(updated);
     const updatedSections = state.sections.map(sec =>
       sec.sectionId === sectionId ? { ...sec, updated } : sec
     )
