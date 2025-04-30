@@ -35,8 +35,12 @@ const ColumnEdit: React.FC<{
   const handleUpdateClick = () => {
     const name = inputRef.current?.value.trim();
     if (name) {
-      const colorToAdd = viewMode === ViewModes.STATUS ? selectedColor : undefined;
-      onUpdate(name, colorToAdd);
+      if (viewMode === ViewModes.STATUS && (name === '대기' || name === '진행' || name === '완료')) {
+        inputRef.current?.focus();
+      } else {
+        const colorToAdd = viewMode === ViewModes.STATUS ? selectedColor : undefined;
+        onUpdate(name, colorToAdd);
+      }
     } else {
       inputRef.current?.focus();
     }

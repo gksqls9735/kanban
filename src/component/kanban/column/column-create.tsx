@@ -27,8 +27,12 @@ const ColumnCreate: React.FC<{
   const handleAddClick = () => {
     const name = inputRef.current?.value.trim();
     if (name) {
-      const colorToAdd = viewMode === ViewModes.STATUS ? selectedColor : undefined;
-      onAdd(name, colorToAdd);
+      if (viewMode === ViewModes.STATUS && (name === '대기' || name === '진행' || name === '완료')) {
+        inputRef.current?.focus();
+      } else {
+        const colorToAdd = viewMode === ViewModes.STATUS ? selectedColor : undefined;
+        onAdd(name, colorToAdd);
+      }
     } else {
       inputRef.current?.focus();
     }
