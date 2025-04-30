@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from "react";
 import { colors, ViewModes } from "../../../constants";
+import useColumnInput from "../../../hooks/use-column-input";
 
 const CheckIcon = () => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -15,56 +15,21 @@ const ColumnEdit: React.FC<{
   colorMain?: string;
   columnTitle: string
 }> = ({ viewMode, isEdting, toggle, onUpdate, colorMain, columnTitle }) => {
-  const [selectedColor, setSelectedColor] = useState<string>(colorMain || '');
-  const inputRef = useRef<HTMLInputElement>(null);
+  const {
+    inputRef, selectedColor, placeholderTxt,
+    handleConfirmClick, handleInputKeyDown, handleColorSelect,
+  } = useColumnInput({
+    isActive: isEdting, viewMode: viewMode, initialName: columnTitle, initialColor: colorMain, onSubmit: onUpdate, onToggle: toggle,
+  })
 
-  useEffect(() => {
-    if (isEdting && inputRef.current) {
-      inputRef.current.focus();
-    }
-    if (!isEdting && inputRef.current) inputRef.current.value = '';
-  }, [isEdting, viewMode]);
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.value = columnTitle;
-    }
-    inputRef.current?.focus();
-  }, [columnTitle]);
-
-  const handleUpdateClick = () => {
-    const name = inputRef.current?.value.trim();
-    if (name) {
-      if (viewMode === ViewModes.STATUS && (name === '대기' || name === '진행' || name === '완료')) {
-        inputRef.current?.focus();
-      } else {
-        const colorToAdd = viewMode === ViewModes.STATUS ? selectedColor : undefined;
-        onUpdate(name, colorToAdd);
-      }
-    } else {
-      inputRef.current?.focus();
-    }
-  };
-
-  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      handleUpdateClick();
-    } else if (e.key === "Escape") {
-      e.preventDefault();
-      toggle();
-    }
-  };
-
-
-  const placeholderTxt = useMemo(() => viewMode === ViewModes.STATUS ? '상태명' : '섹션명', [viewMode]);
+  if (!isEdting) return null;
 
   return (
     <>
       <div>
         <div className="new-section">
           <input ref={inputRef} type="text" placeholder={placeholderTxt} onKeyDown={handleInputKeyDown} />
-          <div className="create-confirm-button" onClick={handleUpdateClick}>확인</div>
+          <div className="create-confirm-button" onClick={handleConfirmClick}>확인</div>
         </div>
         {viewMode === ViewModes.STATUS && (
           <div className="new-section__color-picker">
@@ -75,7 +40,7 @@ const ColumnEdit: React.FC<{
                   key={color}
                   className="new-section__color-swatch"
                   style={{ backgroundColor: color }}
-                  onClick={() => setSelectedColor(color)}
+                  onClick={() => handleColorSelect(color)}
                 >
                   {selectedColor.toLowerCase() === color.toLowerCase() && <CheckIcon />}
                 </div>
