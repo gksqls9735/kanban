@@ -3,12 +3,13 @@ import useStatusesStore from "../../../store/statuses-store";
 import useSectionsStore from "../../../store/sections-store";
 import { useEffect, useRef, useState } from "react";
 import { Participant, Section, SelectOption, Task, Todo } from "../../../types/type";
-import AvatarGroup from "../../avatar/avatar-group";
 import useTaskStore from "../../../store/task-store";
 import SectionSelector from "../new-card/section-selector";
 import DatePickerTrigger from "../new-card/datepicker-trigger";
 import OptionSelector from "../new-card/option-selector";
 import TodoListEditor from "../new-card/todolist-editor";
+import AvatarItem from "../../avatar/avatar";
+import { getInitial } from "../../../utils/text-function";
 
 const UpdateCard: React.FC<{
   onClose: () => void;
@@ -118,7 +119,26 @@ const UpdateCard: React.FC<{
         </div>
       </div>
 
-      <div><AvatarGroup list={participants} maxVisible={3} /></div>
+      <div className="update-card__participants">
+        {participants.map(user => (
+          <AvatarItem
+            key={user.id}
+            size={24}
+          >
+            {getInitial(user.username)}
+          </AvatarItem>
+        ))}
+        <AvatarItem
+          key="add"
+          isOverflow={true}
+          size={24}
+          isFirst={false}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#8D99A8" className="bi bi-plus-lg" viewBox="0 0 16 16">
+            <path fillRule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2" />
+          </svg>
+        </AvatarItem>
+      </div>
 
       <div className="seperation-line" />
 

@@ -846,6 +846,11 @@
   color: '#8D99A8';
 }
 
+.kanban .update-card__participants {
+  display: flex;
+  gap: 4px;
+}
+
 /* 날짜 선택 */
 .kanban .card-datepicker-area {
   position: relative;
