@@ -51,6 +51,7 @@ const DroppableColumn: React.FC<{
     headerStyle.backgroundColor = colorSub;
     headerStyle.cursor = isOverlay ? 'grabbing' : 'grab';
   } else {
+    headerStyle.cursor = isOverlay ? 'grabbing' : 'grab';
     headerStyle.color = '#5F6B7A';
     headerStyle.fontWeight = 600;
   }
