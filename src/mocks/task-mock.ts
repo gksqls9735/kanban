@@ -77,7 +77,9 @@ export const sectionTasks: Task[] = [
       { taskId: 'SD202504101001000002', todoId: 'ST202504101003000002', todoOwner: 'test05', isCompleted: false, todoTxt: '비기능적 요구사항 정의', todoDt: new Date('2025-04-24'), participants: [{ ...user5, isMain: true }], order: 2 },
     ],
     dependencies: ['SD202504101001000001'],
-    participants: [{ ...user5, isMain: true }, { ...user2, isMain: false }, { ...user1, isMain: false }, { ...user8, isMain: false }],
+    participants: [{ ...user5, isMain: true }, { ...user1, isMain: false }, { ...user2, isMain: false }, { ...user3, isMain: false },
+      { ...user4, isMain: false }, { ...user6, isMain: false }, { ...user7, isMain: false }, { ...user8, isMain: false }
+    ],
     color: '#FFB6C1', // LightPink
     order: 1,
     taskAttachments: [],

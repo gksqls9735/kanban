@@ -16,7 +16,7 @@ const CardContent: React.FC<{
   onClick: () => void;
 }> = ({ task, sectionName, onClick }) => {
   const { isOpen, setIsOpen, wrapperRef, dropdownRef, toggle } = useDropdown();
-  const { isOpen: isParticipantOpen, setIsOpen: setIsParticipantOpen, wrapperRef: participantRef, dropdownRef: participantDropdownRef, toggle: participantToggle } = useDropdown();
+  const { isOpen: isPopoverOpen, setIsOpen: setIsPopoverOpen, wrapperRef: participantRef, dropdownRef: participantPopoverRef, toggle: participantToggle } = useDropdown();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
   const deleteTask = useTaskStore(state => state.deletTask);
   const copyTask = useTaskStore(state => state.copyTask);
@@ -83,78 +83,34 @@ const CardContent: React.FC<{
           >
             {truncateText(task.status.name, 2)}</div>
         </div>
-        <div ref={participantRef} className="card-participant" style={{ position: 'relative', cursor: 'pointer' }} onClick={participantToggle}>
+        <div ref={participantRef} className="card-participant" onClick={participantToggle}>
           <AvatarGroup list={task.participants || []} maxVisible={3} />
-          {isParticipantOpen && (
-            <div
-              ref={participantDropdownRef}
-              style={{
-                position: 'absolute',
-                top: -20, right: -270,
-                width: 256, height: 306,
-                border: '1px solid #E4E8EE',
-                borderRadius: 8,
-                backgroundColor: 'white',
-                boxShadow: '0px 4px 12px -2px #10182814',
-                zIndex: 10,
-              }}>
-              <div style={{
-                padding: '16px',
-                borderBottom: '1px solid #EEF1F6',
-                display: 'flex',
-                justifyContent: 'space-between'
-              }}>
-                <span style={{ fontWeight: 600, fontSize: 15, lineHeight: '100%', letterSpacing: '0%' }}>담당자</span>
+          {isPopoverOpen && (
+            <div className="participant-popover" ref={participantPopoverRef}>
+              <div className="participant-popover__header">
+                <span className="participant-popover__title">담당자</span>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="-0.5 -0.5 16 16" fill="#5F6B7A" stroke="#000000" strokeLinecap="round" strokeLinejoin="round" className="feather feather-x" id="X--Streamline-Feather" height="16" width="16">
                   <desc>X Streamline Icon: https://streamlinehq.com</desc>
                   <path d="M11.25 3.75 3.75 11.25" strokeWidth="1"></path>
                   <path d="m3.75 3.75 7.5 7.5" strokeWidth="1"></path>
                 </svg>
               </div>
-              <div style={{
-                padding: '8px 0px'
-              }}>
+              <div className="participant-popover__list kanban-scrollbar-y">
                 {task.participants.length > 0 && (
                   task.participants.map((user) => (
-                    <div
-                      key={user.id}
-                      style={{
-                        display: 'flex',
-                        gap: 8,
-                        padding: '8px 16px',
-                      }}>
+                    <div key={user.id} className="participant-popover__item">
                       <AvatarItem
                         key={user.id}
                         size={32}
                       >
                         {getInitial(user.username)}
                       </AvatarItem>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                        <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-                          <span style={{ fontWeight: 600, fontSize: 13, lineHeight: 1, letterSpacing: '0%', color: '#0F1B2A' }}>{user.username}</span>
-                          <div style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            width: 16,
-                            height: 16,
-                            borderRadius: '50%',
-                            backgroundColor: '#0F1B2A',
-                            color: 'white',
-                            boxSizing: 'border-box',
-                            fontSize: 11,
-                            lineHeight: 1,
-                          }}>
-                            주
-                          </div>
+                      <div className="participant-popover__info">
+                        <div className="participant-popover__name-line">
+                          <div className="participant-popover__username">{user.username}</div>
+                          <div className="participant-popover__badge">주</div>
                         </div>
-                        <span style={{
-                          fontWeight: 400,
-                          fontSize: 12,
-                          lineHeight: '100%',
-                          letterSpacing: '0%',
-                          color: '#8D99A8',
-                        }}>UI/UX팀</span>
+                        <span className="participant-popover__team">UI/UX팀</span>
                       </div>
                     </div>
                   ))
