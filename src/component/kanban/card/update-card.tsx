@@ -10,6 +10,7 @@ import OptionSelector from "../new-card/option-selector";
 import TodoListEditor from "../new-card/todolist-editor";
 import AvatarItem from "../../avatar/avatar";
 import { getInitial } from "../../../utils/text-function";
+import AssigneeSelector from "../assignee-selector";
 
 const UpdateCard: React.FC<{
   onClose: () => void;
@@ -20,6 +21,8 @@ const UpdateCard: React.FC<{
   const updateTask = useTaskStore(state => state.updateTask);
   const statusList = useStatusesStore(state => state.statusList);
   const sections = useSectionsStore(state => state.sections);
+
+  const [isOpenAssigneeModal, setIsOpenAssigneeModal] = useState<boolean>(false);
 
   const [selectedSection, setSelectedSection] = useState<Section>(() => {
     return sections.find(sec => sec.sectionId === currentTask.sectionId) || sections[0];
@@ -70,6 +73,7 @@ const UpdateCard: React.FC<{
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
+      if (isOpenAssigneeModal) return;
       const path = e.composedPath();
       if (cardRef.current && !path.includes(cardRef.current)) {
         handleUpdateTask();
@@ -128,21 +132,24 @@ const UpdateCard: React.FC<{
             {getInitial(user.username)}
           </AvatarItem>
         ))}
-        <AvatarItem
-          key="add"
-          isOverflow={true}
-          size={24}
-          isFirst={false}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#8D99A8" className="bi bi-plus-lg" viewBox="0 0 16 16">
-            <path fillRule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2" />
-          </svg>
-        </AvatarItem>
+        <div onClick={() => setIsOpenAssigneeModal(true)}>
+          <AvatarItem
+            key="add"
+            isOverflow={true}
+            size={24}
+            isFirst={false}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#8D99A8" className="bi bi-plus-lg" viewBox="0 0 16 16">
+              <path fillRule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2" />
+            </svg>
+          </AvatarItem>
+        </div>
       </div>
 
       <div className="seperation-line" />
 
       <TodoListEditor initialTodos={todos} onTodosChange={handleTodosChange} newTaskId={newTaskId} />
+      {isOpenAssigneeModal && (<AssigneeSelector participants={currentTask.participants} onClose={() => setIsOpenAssigneeModal(false)} />)}
     </div>
   );
 };

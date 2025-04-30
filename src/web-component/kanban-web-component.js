@@ -30,12 +30,17 @@ class KanbanWebComponent extends HTMLElement {
         const pickerSheet = new CSSStyleSheet();
         await pickerSheet.replace(pickerCssText);
 
+        const selectorResponse = await fetch("/assignee-selector.css");
+        const selectorCssText = await selectorResponse.text();
+        const selectorSheet = new CSSStyleSheet();
+        await selectorSheet.replace(selectorCssText);
+
         const pretendardResponse = await fetch("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
         const pretendardText = await pretendardResponse.text();
         const pretendardSheet = new CSSStyleSheet();
         await pretendardSheet.replace(pretendardText);
 
-        shadowRoot.adoptedStyleSheets = [mainSheet, pickerSheet, pretendardSheet];
+        shadowRoot.adoptedStyleSheets = [mainSheet, pickerSheet, selectorSheet, pretendardSheet];
       } catch (error) {
         console.error("Failed to load stylesheet:", error);
       }

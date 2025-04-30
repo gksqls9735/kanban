@@ -1,0 +1,413 @@
+.kanban .assignee-modal__overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #00000026;
+  z-index: 100;
+}
+
+.kanban .assignee-modal__container {
+  width: 768px;
+  background-color: white;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+/* 상단 */
+.kanban .assignee-modal__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 72px;
+  padding: 0px 30px;
+}
+
+.kanban .assignee-modal__title {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 100%;
+  letter-spacing: 0%;
+  vertical-align: middle;
+  color: #0F1B2A;
+}
+
+.kanban .assignee-modal__close-button-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 28px;
+  height: 28px;
+  background-color: #EEF1F6;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.kanban .assignee-modal__close-button-container:hover {
+  background-color: #dfe4ea;
+  /* 호버 효과 */
+}
+
+/* 중단 */
+.kanban .assignee-modal__body {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 0px 30px;
+}
+
+/* 탭 */
+.kanban .assignee-modal__tabs {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  width: 400px;
+  height: 36px;
+  cursor: pointer;
+}
+
+.kanban .assignee-modal__tab {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid #16B364;
+  box-sizing: border-box;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.kanban .assignee-modal__tab:first-child {
+  border-right: none;
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+
+.kanban .assignee-modal__tab:last-child {
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
+
+.kanban .assignee-modal__tab--active {
+  background-color: #16B364;
+  color: white;
+}
+
+.kanban .assignee-modal__tab:not(.assignee-modal__tab--active) {
+  background-color: white;
+  color: #16B364;
+}
+
+.kanban .assignee-modal__tab-text {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0%;
+}
+
+/* 패널 */
+.kanban .assignee-modal__panels {
+  display: flex;
+  gap: 8px;
+}
+
+/* 왼쪽 패널 */
+.kanban .assignee-modal__user-list-panel {
+  display: flex;
+  flex-direction: column;
+  width: 400px;
+  height: 500px;
+  border: 1px solid #E4E8EE;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+/* 검색 */
+.kanban .assignee-modal__search-container {
+  padding: 12px 12px 6px 12px;
+}
+
+.kanban .assignee-modal__search-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  border: 1px solid #E4E8EE;
+  border-radius: 4px;
+}
+
+.kanban .assignee-modal__search-input {
+  border: none;
+  outline: none;
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0%;
+  flex-grow: 1;
+}
+
+.kanban .assignee-modal__search-input::placeholder {
+  color: #8D99A8;
+}
+
+.kanban .assignee-modal__user-list {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  overflow-y: auto;
+  min-height: 0;
+  padding-left: 12px;
+  padding-right: 6px;
+}
+
+.kanban .assignee-modal__select-all-row{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 32px;
+  color: #0F1B2A;
+  font-size: 12px;
+  font-weight: 400;
+  padding-right: 2px;
+}
+
+/* 체크박스 */
+.kanban .assignee-modal__checkbox-area {
+  display: flex;
+  align-items: flex-start;
+  line-height: 1;
+  padding: 0;
+  margin: 0;
+}
+
+.kanban .assignee-modal__checkbox--native {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* 2. 가짜 체크박스 모양 만들기 */
+.kanban .assignee-modal__checkbox--visual {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  position: relative;
+  transition: background-color 0.2s, border-color 0.2s;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+/* 3. 실제 체크박스가 체크됐을 때 가짜 체크박스 스타일 변경 */
+.kanban .assignee-modal__checkbox--native:checked+.assignee-modal__checkbox--visual {
+  background-color: rgb(51, 189, 120);
+  border-color: rgb(51, 189, 120);
+}
+
+/* 4. 가상 요소로 체크 표시 만들기 (흰색) */
+.kanban .assignee-modal__checkbox--visual::after {
+  content: "";
+  /* 가상 요소 필수 속성 */
+  position: absolute;
+  display: none;
+
+  left: 5px;
+  top: 2px;
+  width: 4px;
+  height: 8px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* 실제 체크박스가 체크됐을 때 체크 표시 보여주기 */
+.kanban .assignee-modal__checkbox--native:checked+.assignee-modal__checkbox--visual::after {
+  display: block;
+}
+
+/* 사용자 목록 */
+.kanban .assignee-modal__user-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 2px;
+}
+
+.kanban .assignee-modal__user-item:hover {
+  background-color: #EEF1F6;
+}
+
+.kanban .assignee-modal__user-item-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.kanban .assignee-modal__user-item-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.kanban .assignee-modal__user-item-name-line {
+  display: flex;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.kanban .assignee-modal__user-item-username {
+  font-weight: 600;
+  color: #0F1B2A;
+}
+
+.kanban .assignee-modal__user-item-team {
+  font-weight: 400;
+  color: #8D99A8;
+}
+
+.kanban .assignee-modal__user-item-description {
+  font-size: 12px;
+  font-weight: 400;
+  color: #7D8998;
+}
+
+/* 오른쪽 패널 */
+/* 헤더 */
+.kanban .assignee-modal__selected-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 300px;
+  height: 500px;
+  border: 1px solid #E4E8EE;
+  border-radius: 4px;
+  background-color: #F8F9FB;
+  padding: 12px 0px 12px 12px;
+  box-sizing: border-box;
+}
+
+.kanban .assignee-modal__selected-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  flex-shrink: 0;
+  padding-right: 12px;
+}
+
+.kanban .assignee-modal__selected-count {
+  font-weight: 600;
+  color: #8D99A8;
+}
+
+.kanban .assignee-modal__remove-all {
+  font-weight: 400;
+  color: #414D5C;
+  cursor: pointer;
+}
+
+/* 참여자 리스트 */
+.kanban .assignee-modal__selected-list {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  overflow-y: auto;
+  min-height: 0;
+  padding-right: 7px;
+}
+
+.kanban .assignee-modal__selected-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 56px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.kanban .assignee-modal__selected-item-info {
+  display: flex;
+  gap: 12px;
+}
+
+.kanban .assignee-modal__selected-item-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.kanban .assignee-modal__selected-item-username {
+  font-size: 13px;
+  font-weight: 600;
+  color: #0F1B2A;
+}
+
+.kanban .assignee-modal__selected-item-team {
+  font-size: 12px;
+  font-weight: 400;
+  color: #8D99A8;
+}
+
+.kanban .assignee-modal__selected-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.kanban .assignee-modal__role-selector {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  position: relative;
+  color: #8D99A8;
+}
+
+.kanban .assignee-modal__role-text {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.kanban .assignee-modal__role-icon {
+  width: 12px;
+  height: 12px;
+  margin-left: 2px;
+}
+
+/* 하단 */
+.kanban .assignee-modal__footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  height: 80px;
+  padding: 10px 30px;
+  box-sizing: border-box;
+}
+
+.kanban .assignee-modal__button {
+  height: 36px;
+  padding: 0px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 400;
+  cursor: pointer;
+}
+
+.kanban .assignee-modal__button--cancel {
+  border: 1px solid #CDD3DD;
+  background-color: white;
+  color: #0F1B2A;
+}
+
+.kanban .assignee-modal__button--cancel:hover {
+  background-color: #f8f9fa;
+}
+
+.kanban .assignee-modal__button--confirm {
+  border: 1px solid #16B364;
+  background-color: #16B364;
+  color: white;
+}
+
+.kanban .assignee-modal__button--confirm:hover {
+  background-color: #139a58;
+  border-color: #139a58;
+}
