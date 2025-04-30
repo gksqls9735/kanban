@@ -44,6 +44,8 @@ export type User = {
   username: string
   /** 프로필 이미지 */
   icon: string | null
+  /** 팀 명 */
+  team: string
 }
 
 /** 담당자 */
