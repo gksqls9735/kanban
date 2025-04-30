@@ -1,71 +1,20 @@
-import React, { useState } from "react";
-import useTaskStore from "../../../store/task-store";
+import React from "react";
 import { Task } from "../../../types/type";
-import useDropdown from "../../../hooks/use-dropdown";
 import { formatDateToYyyyMmDd } from "../../../utils/date-function";
-import { lightenColor } from "../../../utils/color-function";
-import AvatarGroup from "../../avatar/avatar-group";
 import TodoList from "../card-todo/todolist";
-import DeleteModal from "../delete-modal";
-import { getInitial, truncateText } from "../../../utils/text-function";
-import AvatarItem from "../../avatar/avatar";
+import CardHeader from "./component/card-header";
+import CardMeta from "./component/card-meta";
+import CardParticipants from "./component/card-participants";
 
 const CardContent: React.FC<{
   task: Task;
   sectionName: string;
   onClick: () => void;
 }> = ({ task, sectionName, onClick }) => {
-  const { isOpen, setIsOpen, wrapperRef, dropdownRef, toggle } = useDropdown();
-  const { isOpen: isPopoverOpen, setIsOpen: setIsPopoverOpen, wrapperRef: participantRef, dropdownRef: participantPopoverRef, toggle: participantToggle } = useDropdown();
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
-  const deleteTask = useTaskStore(state => state.deletTask);
-  const copyTask = useTaskStore(state => state.copyTask);
-
-  const handleCopy = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    copyTask(task);
-    setIsOpen(false);
-  };
-
-  const handleDelete = () => {
-    deleteTask(task.taskId);
-    setIsOpen(false);
-  };
 
   return (
     <>
-      <div className="card-header">
-        <div className="card-current-section">{truncateText(sectionName, 10)}</div>
-        <div className="card-header__actions">
-          <div onClick={onClick}>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="#8D99A8" style={{ padding: 5 }}>
-              <path d="M200-200h57l391-391-57-57-391 391v57Zm-80 80v-170l528-527q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L290-120H120Zm640-584-56-56 56 56Zm-141 85-28-29 57 57-29-28Z" />
-            </svg>
-          </div>
-          <div ref={wrapperRef} onClick={toggle}>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="#8D99A8" style={{ padding: 5 }}>
-              <path d="M480-160q-33 0-56.5-23.5T400-240q0-33 23.5-56.5T480-320q33 0 56.5 23.5T560-240q0 33-23.5 56.5T480-160Zm0-240q-33 0-56.5-23.5T400-480q0-33 23.5-56.5T480-560q33 0 56.5 23.5T560-480q0 33-23.5 56.5T480-400Zm0-240q-33 0-56.5-23.5T400-720q0-33 23.5-56.5T480-800q33 0 56.5 23.5T560-720q0 33-23.5 56.5T480-640Z" />
-            </svg>
-          </div>
-        </div>
-        {isOpen && (
-          <div ref={dropdownRef} className="header-dropdown-menu card-header__dropdown-menu">
-            <div className="header-dropdown-item" onClick={handleCopy}>
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" className="bi bi-plus-square" viewBox="0 0 16 16">
-                <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z" />
-                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
-              </svg>
-              작업 복사
-            </div>
-            <div className="header-dropdown-item" onClick={() => setIsDeleteModalOpen(true)}>
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" className="bi bi-trash3" viewBox="0 0 16 16">
-                <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47M8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5" />
-              </svg>
-              작업 삭제
-            </div>
-          </div>
-        )}
-      </div>
+      <CardHeader task={task} sectionName={sectionName} onClick={onClick} />
       <div className="card-title">{task.taskName}</div>
       <div className="card-due-date">
         <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="#7d8998">
@@ -73,65 +22,14 @@ const CardContent: React.FC<{
         </svg>
         {formatDateToYyyyMmDd(task.start)} - {formatDateToYyyyMmDd(task.end)}</div>
       <div className="card-meta">
-        <div className="card-priority-status">
-          <div className="card-priority truncate"
-            style={{ color: task.priority.colorMain, backgroundColor: task.priority.colorSub || lightenColor(task.priority.colorMain, 0.85) }}
-          >
-            {truncateText(task.priority.name, 2)}</div>
-          <div className="card-status truncate"
-            style={{ color: task.status.colorMain, backgroundColor: task.status.colorSub || lightenColor(task.status.colorMain, 0.85) }}
-          >
-            {truncateText(task.status.name, 2)}</div>
-        </div>
-        <div ref={participantRef} className="card-participant" onClick={participantToggle}>
-          <AvatarGroup list={task.participants || []} maxVisible={3} />
-          {isPopoverOpen && (
-            <div className="participant-popover" ref={participantPopoverRef}>
-              <div className="participant-popover__header">
-                <span className="participant-popover__title">담당자</span>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="-0.5 -0.5 16 16" fill="#5F6B7A" stroke="#000000" strokeLinecap="round" strokeLinejoin="round" className="feather feather-x" id="X--Streamline-Feather" height="16" width="16">
-                  <desc>X Streamline Icon: https://streamlinehq.com</desc>
-                  <path d="M11.25 3.75 3.75 11.25" strokeWidth="1"></path>
-                  <path d="m3.75 3.75 7.5 7.5" strokeWidth="1"></path>
-                </svg>
-              </div>
-              <div className="participant-popover__list kanban-scrollbar-y">
-                {task.participants.length > 0 && (
-                  task.participants.map((user) => (
-                    <div key={user.id} className="participant-popover__item">
-                      <AvatarItem
-                        key={user.id}
-                        size={32}
-                      >
-                        {getInitial(user.username)}
-                      </AvatarItem>
-                      <div className="participant-popover__info">
-                        <div className="participant-popover__name-line">
-                          <div className="participant-popover__username">{user.username}</div>
-                          <div className="participant-popover__badge">주</div>
-                        </div>
-                        <span className="participant-popover__team">UI/UX팀</span>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-          )}
-        </div>
+        <CardMeta task={task} />
+        <CardParticipants task={task} />
       </div>
       {task.todoList.length > 0 && (
         <>
           <div className="seperation-line" />
           <TodoList taskId={task.taskId} todoList={task.todoList} />
         </>
-      )}
-      {isDeleteModalOpen && (
-        <DeleteModal
-          message={'작업을 삭제하시겠습니까?'}
-          onCancel={() => setIsDeleteModalOpen(false)}
-          onConfirm={handleDelete}
-        />
       )}
     </>
   );
