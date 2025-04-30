@@ -16,8 +16,10 @@ const CardParticipants: React.FC<{
   };
 
   return (
-    <div ref={wrapperRef} className="card-participant" onClick={toggle}>
-      <AvatarGroup list={participants} maxVisible={3} />
+    <div ref={wrapperRef} className="card-participant">
+      <div onClick={toggle}>
+        <AvatarGroup list={participants} maxVisible={3} />
+      </div>
       {isOpen && (
         <div className="participant-popover" ref={dropdownRef}>
           <div className="participant-popover__header">
