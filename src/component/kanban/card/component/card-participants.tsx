@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import useDropdown from "../../../../hooks/use-dropdown";
 import { Task } from "../../../../types/type";
 import { getInitial } from "../../../../utils/text-function";
@@ -8,17 +9,26 @@ const CardParticipants: React.FC<{
   task: Task;
 }> = ({ task }) => {
   const { isOpen, setIsOpen, wrapperRef, dropdownRef, toggle } = useDropdown();
-  const participants = task.participants || [];
 
   const handleClosePopover = (e: React.MouseEvent) => {
     e.stopPropagation();
     setIsOpen(false);
   };
 
+  const sortedParticipants = useMemo(() => {
+    if (!task.participants || task.participants.length === 0) return [];
+
+    return [...task.participants].sort((a,b) => {
+      if (a.isMain && !b.isMain) return -1;
+      if (!a.isMain && b.isMain) return 1;
+      return 0;
+    });
+  }, [task.participants]);
+
   return (
     <div ref={wrapperRef} className="card-participant">
       <div onClick={toggle}>
-        <AvatarGroup list={participants} maxVisible={3} />
+        <AvatarGroup list={sortedParticipants} maxVisible={3} />
       </div>
       {isOpen && (
         <div className="participant-popover" ref={dropdownRef}>
@@ -31,8 +41,8 @@ const CardParticipants: React.FC<{
             </svg>
           </div>
           <div className="participant-popover__list kanban-scrollbar-y">
-            {task.participants.length > 0 && (
-              task.participants.map((user) => (
+            {sortedParticipants.length > 0 && (
+              sortedParticipants.map((user) => (
                 <div key={user.id} className="participant-popover__item">
                   <AvatarItem
                     key={user.id}
