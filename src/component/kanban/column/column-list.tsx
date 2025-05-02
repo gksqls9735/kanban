@@ -9,6 +9,7 @@ import { horizontalListSortingStrategy, SortableContext } from "@dnd-kit/sortabl
 import useSectionsStore from "../../../store/sections-store";
 import useStatusesStore from "../../../store/statuses-store";
 import ColumnCreate from "./column-create";
+import { useToast } from "../../../context/toast-context";
 
 interface ColumnData {
   id: string;
@@ -23,6 +24,7 @@ const Column: React.FC<{
 }> = ({ getSectionName }) => {
   const [isAddingSection, setIsAddingSection] = useState<boolean>(false);
 
+  const { showToast } = useToast();
   const viewMode = useViewModeStore(state => state.viewMode);
   const tasks = useTaskStore(state => state.allTasks);
   const statusList = useStatusesStore(state => state.statusList);
@@ -81,8 +83,10 @@ const Column: React.FC<{
     if (name) {
       if (viewMode === ViewModes.STATUS && color) {
         addStatus({ name: name, colorMain: color, colorSub: lightenColor(color, 0.85) });
+        showToast('상태가 등록 되었습니다.')
       } else if (viewMode === ViewModes.SECTION) {
         addSection(name);
+        showToast('섹션이 추가 되었습니다.')
       }
       setIsAddingSection(false);
     }

@@ -11,6 +11,7 @@ import useStatusesStore from "../store/statuses-store";
 import useSectionsStore from "../store/sections-store";
 import CardWrapper from "../component/kanban/card/card-wrapper";
 import useUserStore from "../store/user-store";
+import { ToastProvider } from "../context/toast-context";
 
 const Kanban: React.FC<{
   tasks: Task[];
@@ -22,8 +23,8 @@ const Kanban: React.FC<{
   tasks: initialTasks,
   sections: initialSections,
   statusList: initialStatusList,
-  currentUser:  initialCurrentUser,
-  userlist:initialUserlist,
+  currentUser: initialCurrentUser,
+  userlist: initialUserlist,
 }) => {
     const { viewMode, setViewMode } = useViewModeStore();
     const setTasks = useTaskStore(state => state.setTasks);
@@ -82,38 +83,40 @@ const Kanban: React.FC<{
     };
 
     return (
-      <DndContext
-        sensors={sensors}
-        collisionDetection={rectIntersection}
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
-        onDragCancel={handleDragCancel}
-      >
-        <div className='kanban'>
-          <div onClick={toggleViewMode} style={{ cursor: 'pointer', marginBottom: '1rem', padding: '8px', border: '1px solid #ccc', display: 'inline-block' }}>
-            {viewMode === ViewModes.STATUS ? '섹션별로 보기' : '상태별로 보기'}
-          </div>
-          <SectionComponent
+      <ToastProvider>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={rectIntersection}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+          onDragCancel={handleDragCancel}
+        >
+          <div className='kanban'>
+            <div onClick={toggleViewMode} style={{ cursor: 'pointer', marginBottom: '1rem', padding: '8px', border: '1px solid #ccc', display: 'inline-block' }}>
+              {viewMode === ViewModes.STATUS ? '섹션별로 보기' : '상태별로 보기'}
+            </div>
+            <SectionComponent
 
-            getSectionName={getSectionName}
-          />
-          <DragOverlay>
-            {activeTask ? (
-              <CardWrapper task={activeTask} sectionName={getSectionName(activeTask.sectionId)} isOverlay={true} />
-            ) : activeColumn ? (
-              <DroppableColumn
-                id={activeColumn.id}
-                title={activeColumn.title}
-                tasks={activeColumn.tasks}
-                getSectionName={activeColumn.getSectionName}
-                colorMain={activeColumn.colorMain}
-                colorSub={activeColumn.colorSub}
-                isOverlay={true}
-              />
-            ) : null}
-          </DragOverlay>
-        </div>
-      </DndContext>
+              getSectionName={getSectionName}
+            />
+            <DragOverlay>
+              {activeTask ? (
+                <CardWrapper task={activeTask} sectionName={getSectionName(activeTask.sectionId)} isOverlay={true} />
+              ) : activeColumn ? (
+                <DroppableColumn
+                  id={activeColumn.id}
+                  title={activeColumn.title}
+                  tasks={activeColumn.tasks}
+                  getSectionName={activeColumn.getSectionName}
+                  colorMain={activeColumn.colorMain}
+                  colorSub={activeColumn.colorSub}
+                  isOverlay={true}
+                />
+              ) : null}
+            </DragOverlay>
+          </div>
+        </DndContext>
+      </ToastProvider>
     );
   };
 
