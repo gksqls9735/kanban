@@ -10,7 +10,7 @@ import OptionSelector from "../new-card/option-selector";
 import TodoListEditor from "../new-card/todolist-editor";
 import AvatarItem from "../../avatar/avatar";
 import { getInitial } from "../../../utils/text-function";
-import AssigneeSelector from "../assignee-selector";
+import AssigneeSelector from "../../assignee-selector/assignee-selector";
 
 const UpdateCard: React.FC<{
   onClose: () => void;
@@ -101,6 +101,10 @@ const UpdateCard: React.FC<{
     }
   };
 
+  const handleParticipants = (participants: Participant[]) => {
+    setParticipants(participants);
+  }
+
   return (
     <div ref={cardRef} className="edit-task-content" style={{ display: 'contents' }}>
 
@@ -149,7 +153,10 @@ const UpdateCard: React.FC<{
       <div className="seperation-line" />
 
       <TodoListEditor initialTodos={todos} onTodosChange={handleTodosChange} newTaskId={newTaskId} />
-      {isOpenAssigneeModal && (<AssigneeSelector participants={currentTask.participants} onClose={() => setIsOpenAssigneeModal(false)} />)}
+      {isOpenAssigneeModal && (
+        <AssigneeSelector
+          initialParticipants={currentTask.participants} onClose={() => setIsOpenAssigneeModal(false)} onConfirm={handleParticipants}
+        />)}
     </div>
   );
 };
