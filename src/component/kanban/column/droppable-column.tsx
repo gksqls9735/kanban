@@ -24,7 +24,9 @@ const DroppableColumn: React.FC<{
   colorMain?: string;
   colorSub?: string;
   isOverlay?: boolean;
-}> = ({ tasks, id, title, getSectionName, colorMain, colorSub, isOverlay }) => {
+  onAddBefore?: (targetSectionId: string) => void;
+  onAddAfter?: (targetSectionId: string) => void;
+}> = ({ tasks, id, title, getSectionName, colorMain, colorSub, isOverlay, onAddBefore, onAddAfter }) => {
   const [isEdting, setIsEditing] = useState<boolean>(false);
 
   const viewMode = useViewModeStore(state => state.viewMode);
@@ -112,7 +114,11 @@ const DroppableColumn: React.FC<{
     <>
       <div ref={setNodeRef} style={columnStyle} {...attributes} className="kanban-section">
         <div className="section-header" style={headerStyle} {...listeners}>
-          <ColumnHeader columnTitle={title} deleteActionLabel={deleteActionLabel} onDelete={() => setIsDeleteModalOpen(true)} handleEditClick={() => setIsEditing(true)} />
+          <ColumnHeader
+            columnId={id} columnTitle={title} deleteActionLabel={deleteActionLabel}
+            onDelete={() => setIsDeleteModalOpen(true)} handleEditClick={() => setIsEditing(true)}
+            onAddBefore={onAddBefore} onAddAfter={onAddAfter}
+          />
         </div>
         {isEdting && (
           <ColumnEdit

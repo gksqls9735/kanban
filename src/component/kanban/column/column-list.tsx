@@ -1,8 +1,8 @@
-import { Task } from "../../../types/type";
+import { SelectOption, Task } from "../../../types/type";
 import useViewModeStore from "../../../store/viewmode-store";
 import useTaskStore from "../../../store/task-store";
-import { ViewModes } from "../../../constants";
-import { useEffect, useMemo, useState } from "react";
+import { colors, ViewModes } from "../../../constants";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { lightenColor } from "../../../utils/color-function";
 import DroppableColumn from "./droppable-column";
 import { horizontalListSortingStrategy, SortableContext } from "@dnd-kit/sortable";
@@ -10,6 +10,7 @@ import useSectionsStore from "../../../store/sections-store";
 import useStatusesStore from "../../../store/statuses-store";
 import ColumnCreate from "./column-create";
 import { useToast } from "../../../context/toast-context";
+import { generateUniqueId } from "../../../utils/text-function";
 
 interface ColumnData {
   id: string;
@@ -27,10 +28,14 @@ const Column: React.FC<{
   const { showToast } = useToast();
   const viewMode = useViewModeStore(state => state.viewMode);
   const tasks = useTaskStore(state => state.allTasks);
+  
   const statusList = useStatusesStore(state => state.statusList);
   const addStatus = useStatusesStore(state => state.addStatus);
+  const insertStatus = useStatusesStore(state => state.insertStatus);
+
   const sections = useSectionsStore(state => state.sections);
   const addSection = useSectionsStore(state => state.addSection);
+  const insertSection = useSectionsStore(state => state.insertSection);
 
   useEffect(() => {
     setIsAddingSection(false);
@@ -42,8 +47,8 @@ const Column: React.FC<{
       .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
   };
 
-  const { columnsWithTasks, columnsWithoutTasks } = useMemo(() => {
-    const baesColumns = viewMode === ViewModes.STATUS
+  const { columnsWithTasks, columnsWithoutTasks, baseColumns } = useMemo(() => {
+    const baseColumns = viewMode === ViewModes.STATUS
       ? statusList.map(status => ({
         id: status.code,
         title: status.name,
@@ -60,7 +65,7 @@ const Column: React.FC<{
     const withTasks: ColumnData[] = [];
     const withoutTasks: ColumnData[] = [];
 
-    baesColumns.forEach(col => {
+    baseColumns.forEach(col => {
       const columnTasks = getTasksForColumn(col.id);
       const columnData: ColumnData = { ...col, tasks: columnTasks };
 
@@ -70,9 +75,8 @@ const Column: React.FC<{
         withoutTasks.push(columnData);
       }
     });
-    return { columnsWithTasks: withTasks, columnsWithoutTasks: withoutTasks };
+    return { columnsWithTasks: withTasks, columnsWithoutTasks: withoutTasks, baseColumns };
   }, [viewMode, statusList, sections, tasks]);
-  columnsWithTasks
 
   const allColumnIds = useMemo(() => [
     ...columnsWithTasks.map(col => col.id),
@@ -96,10 +100,53 @@ const Column: React.FC<{
     setIsAddingSection(prev => !prev);
   };
 
+  const handleAddBefore = useCallback((referenceId: string) => {
+    if (viewMode === ViewModes.SECTION) {
+      insertSection(referenceId, 'before');
+    } else if (viewMode === ViewModes.STATUS) {
+      const newColor = colors[0];
+      const newStatusData: SelectOption = {
+        code: generateUniqueId('status'),
+        name: '제목 없는 상태',
+        colorMain: newColor,
+        colorSub: lightenColor(newColor, 0.85),
+      }
+      insertStatus(referenceId, newStatusData,'before');
+    }
+  }, [viewMode, insertSection]);
+
+  const handleAddAfter = useCallback((referenceId: string) => {
+    if (viewMode === ViewModes.SECTION) {
+      insertSection(referenceId, 'after');
+    } else if (viewMode === ViewModes.STATUS) {
+      const newColor = colors[0];
+      const newStatusData: SelectOption = {
+        code: generateUniqueId('status'),
+        name: '제목 없는 상태',
+        colorMain: newColor,
+        colorSub: lightenColor(newColor, 0.85),
+      }
+      insertStatus(referenceId, newStatusData,'after');
+    }
+  }, [viewMode, insertSection]);
+
   return (
     <SortableContext items={allColumnIds} strategy={horizontalListSortingStrategy}>
       <div className="kanban-content">
-        {columnsWithTasks.map(col => (
+        {baseColumns.map(col => (
+          <DroppableColumn
+            key={col.id}
+            id={col.id}
+            title={col.title}
+            tasks={getTasksForColumn(col.id)}
+            getSectionName={getSectionName}
+            colorMain={col.colorMain}
+            colorSub={col.colorSub}
+            onAddBefore={handleAddBefore}
+            onAddAfter={handleAddAfter}
+          />
+        ))}
+        {/* {columnsWithTasks.map(col => (
           <DroppableColumn
             key={col.id}
             id={col.id}
@@ -108,6 +155,8 @@ const Column: React.FC<{
             getSectionName={getSectionName}
             colorMain={col.colorMain}
             colorSub={col.colorSub}
+            onAddBefore={handleAddBefore}
+            onAddAfter={handleAddAfter}
           />
         ))}
         <div className="kanban-content__empty-columns-container">
@@ -120,9 +169,11 @@ const Column: React.FC<{
               getSectionName={getSectionName}
               colorMain={col.colorMain}
               colorSub={col.colorSub}
+              onAddBefore={handleAddBefore}
+              onAddAfter={handleAddAfter}
             />
           ))}
-        </div>
+        </div> */}
         {isAddingSection && (
           <ColumnCreate viewMode={viewMode} isAdd={isAddingSection} onAdd={handleAddNewItem} toggle={toggle} />
         )}
