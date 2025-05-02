@@ -753,7 +753,6 @@
   font-weight: 500;
   font-size: 16px;
   text-transform: uppercase;
-  color: rgba(141, 153, 168, 1);
   background-color: #f7f8fa;
 
   border: none;
@@ -761,6 +760,10 @@
   box-sizing: border-box;
   flex-grow: 1;
 
+}
+
+.kanban .new-section input::placeholder {
+  color: rgba(141, 153, 168, 1);
 }
 
 .kanban .new-section input:focus {
