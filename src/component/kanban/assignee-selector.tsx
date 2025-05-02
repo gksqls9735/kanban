@@ -91,7 +91,7 @@ const AssigneeSelector: React.FC<{
                     placeholder="이름, 직위로 찾기"
                     type="text"
                   />
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="-0.5 -0.5 16 16" fill="none" stroke="#000000" strokeLinecap="round" strokeLinejoin="round" id="Search--Streamline-Lucide" height="16" width="16">
+                  <svg className="assignee-modal__search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="-0.5 -0.5 16 16" fill="none" stroke="#000000" strokeLinecap="round" strokeLinejoin="round" id="Search--Streamline-Lucide" height="16" width="16">
                     <desc>Search Streamline Icon: https://streamlinehq.com</desc>
                     <path d="M1.875 6.875a5 5 0 1 0 10 0 5 5 0 1 0 -10 0" strokeWidth="1"></path><path d="m13.125 13.125 -2.6875 -2.6875" strokeWidth="1"></path>
                   </svg>
@@ -99,16 +99,16 @@ const AssigneeSelector: React.FC<{
               </div>
               <div className="assignee-modal__user-list kanban-scrollbar-y">
                 <div className="assignee-modal__select-all-row">
-                  <div>모두 선택</div>
+                  <label htmlFor="all-user-check">모두 선택</label>
                   <div className="assignee-modal__checkbox-area">
                     <input
                       type="checkbox"
                       checked={false}
                       className="assignee-modal__checkbox--native"
-                      id={`all-user-check`}
+                      id="all-user-check"
                       onChange={() => { }}
                     />
-                    <label onClick={() => { }} htmlFor={`all-user-check`} className="assignee-modal__checkbox--visual"></label>
+                    <label onClick={() => { }} htmlFor="all-user-check" className="assignee-modal__checkbox--visual"></label>
                   </div>
                 </div>
                 {userlist.map(user => (
@@ -149,19 +149,10 @@ const AssigneeSelector: React.FC<{
                 <span className="assignee-modal__selected-count">회원 n명 선택</span>
                 <span className="assignee-modal__remove-all">모두 삭제</span>
               </div>
-              <div className="assignee-modal__selected-list kanban-scrollbar-y" style={{
-                display: 'flex', flexDirection: 'column',
-                flexGrow: 1,
-                overflowY: 'auto',
-                minHeight: 0, paddingRight: 7
-              }}>
+              <div className="assignee-modal__selected-list kanban-scrollbar-y">
                 {participants.map(p => (
-                  <div key={p.id} className="assignee-modal__selected-item"
-                    style={{
-                      display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: 56,
-                      boxSizing: 'border-box', flexShrink: 0
-                    }}>
-                    <div className="assignee-modal__selected-item-info" style={{ display: 'flex', gap: 12 }}>
+                  <div key={p.id} className="assignee-modal__selected-item">
+                    <div className="assignee-modal__selected-item-info">
                       <AvatarItem
                         key={p.id}
                         size={40}
@@ -181,7 +172,7 @@ const AssigneeSelector: React.FC<{
                         <span className="assignee-modal__role-text">{p.isMain ? '주담당자' : '담당자'}</span>
                         <FontAwesomeIcon icon={faCaretDown} className="assignee-modal__role-icon" />
                       </div>
-                      <div>
+                      <div className="assignee-modal__delete-action">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="-0.5 -0.5 16 16" fill="#7D8998" stroke="#000000" strokeLinecap="round" strokeLinejoin="round" className="feather feather-x" id="X--Streamline-Feather" height="16" width="16">
                           <desc>X Streamline Icon: https://streamlinehq.com</desc>
                           <path d="M11.25 3.75 3.75 11.25" strokeWidth="1"></path>
@@ -196,7 +187,7 @@ const AssigneeSelector: React.FC<{
           </div>
         </div>
         <div className="assignee-modal__footer">
-          <button className="assignee-modal__button assignee-modal__button--cancel">취소</button>
+          <button className="assignee-modal__button assignee-modal__button--cancel" onClick={onClose}>취소</button>
           <button className="assignee-modal__button assignee-modal__button--confirm">추가하기</button>
         </div>
 

@@ -146,17 +146,21 @@
   color: #8D99A8;
 }
 
+.kanban .assignee-modal__search-icon {
+  cursor: pointer;
+}
+
 .kanban .assignee-modal__user-list {
   display: flex;
   flex-direction: column;
   flex-grow: 1;
   overflow-y: auto;
   min-height: 0;
-  padding-left: 12px;
-  padding-right: 6px;
+  /* padding-left: 12px;
+  padding-right: 6px; */
 }
 
-.kanban .assignee-modal__select-all-row{
+.kanban .assignee-modal__select-all-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -164,7 +168,9 @@
   color: #0F1B2A;
   font-size: 12px;
   font-weight: 400;
-  padding-right: 2px;
+  padding-left: 12px;
+  padding-right: 7px;
+  cursor: pointer;
 }
 
 /* 체크박스 */
@@ -229,7 +235,9 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 2px;
+  padding: 8px 7px 8px 12px;
+  cursor: pointer;
+
 }
 
 .kanban .assignee-modal__user-item:hover {
@@ -281,7 +289,7 @@
   border: 1px solid #E4E8EE;
   border-radius: 4px;
   background-color: #F8F9FB;
-  padding: 12px 0px 12px 12px;
+  padding: 12px 0px 12px 0px;
   box-sizing: border-box;
 }
 
@@ -296,6 +304,7 @@
 .kanban .assignee-modal__selected-count {
   font-weight: 600;
   color: #8D99A8;
+  padding-left: 12px;
 }
 
 .kanban .assignee-modal__remove-all {
@@ -311,7 +320,6 @@
   flex-grow: 1;
   overflow-y: auto;
   min-height: 0;
-  padding-right: 7px;
 }
 
 .kanban .assignee-modal__selected-item {
@@ -321,6 +329,13 @@
   height: 56px;
   box-sizing: border-box;
   flex-shrink: 0;
+  padding-left: 12px;
+  padding-right: 7px;
+  cursor: pointer;
+}
+
+.kanban .assignee-modal__selected-item:hover {
+  background-color: #EEF1F6;
 }
 
 .kanban .assignee-modal__selected-item-info {
@@ -350,6 +365,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  cursor: pointer;
 }
 
 .kanban .assignee-modal__role-selector {
@@ -358,17 +374,28 @@
   gap: 2px;
   position: relative;
   color: #8D99A8;
+  height: 16px;
+  box-sizing: border-box;
 }
 
 .kanban .assignee-modal__role-text {
   font-size: 13px;
   font-weight: 500;
+  line-height: 1;
 }
 
 .kanban .assignee-modal__role-icon {
   width: 12px;
   height: 12px;
-  margin-left: 2px;
+}
+
+.kanban .assignee-modal__delete-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  box-sizing: border-box;
 }
 
 /* 하단 */
