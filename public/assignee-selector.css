@@ -173,6 +173,10 @@
   cursor: pointer;
 }
 
+.kanban .assignee-modal__select-all-row label:first-child {
+  cursor: pointer;
+}
+
 /* 체크박스 */
 .kanban .assignee-modal__checkbox-area {
   display: flex;
