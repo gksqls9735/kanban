@@ -1,20 +1,21 @@
-import { Task } from "../../../../types/type";
+import { SelectOption, Task } from "../../../../types/type";
 import { lightenColor } from "../../../../utils/color-function";
 import { truncateText } from "../../../../utils/text-function";
 
 const CardMeta: React.FC<{
-  task: Task;
-}> = ({ task }) => {
+  taskPriority: SelectOption;
+  taskStatus: SelectOption;
+}> = ({ taskPriority, taskStatus }) => {
   return (
     <div className="card-priority-status">
       <div className="card-priority truncate"
-        style={{ color: task.priority.colorMain, backgroundColor: task.priority.colorSub || lightenColor(task.priority.colorMain, 0.85) }}
+        style={{ color: taskPriority.colorMain, backgroundColor: taskPriority.colorSub || lightenColor(taskPriority.colorMain, 0.85) }}
       >
-        {truncateText(task.priority.name, 2)}</div>
+        {truncateText(taskPriority.name, 2)}</div>
       <div className="card-status truncate"
-        style={{ color: task.status.colorMain, backgroundColor: task.status.colorSub || lightenColor(task.status.colorMain, 0.85) }}
+        style={{ color: taskStatus.colorMain, backgroundColor: taskStatus.colorSub || lightenColor(taskStatus.colorMain, 0.85) }}
       >
-        {truncateText(task.status.name, 2)}</div>
+        {truncateText(taskStatus.name, 2)}</div>
     </div>
   );
 };

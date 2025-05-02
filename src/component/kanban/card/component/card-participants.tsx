@@ -1,13 +1,13 @@
 import { useMemo } from "react";
 import useDropdown from "../../../../hooks/use-dropdown";
-import { Task } from "../../../../types/type";
+import { Participant } from "../../../../types/type";
 import { getInitial } from "../../../../utils/text-function";
 import AvatarItem from "../../../avatar/avatar";
 import AvatarGroup from "../../../avatar/avatar-group";
 
 const CardParticipants: React.FC<{
-  task: Task;
-}> = ({ task }) => {
+  taskParticipants: Participant[];
+}> = ({ taskParticipants }) => {
   const { isOpen, setIsOpen, wrapperRef, dropdownRef, toggle } = useDropdown();
 
   const handleClosePopover = (e: React.MouseEvent) => {
@@ -16,14 +16,14 @@ const CardParticipants: React.FC<{
   };
 
   const sortedParticipants = useMemo(() => {
-    if (!task.participants || task.participants.length === 0) return [];
+    if (!taskParticipants || taskParticipants.length === 0) return [];
 
-    return [...task.participants].sort((a,b) => {
+    return [...taskParticipants].sort((a,b) => {
       if (a.isMain && !b.isMain) return -1;
       if (!a.isMain && b.isMain) return 1;
       return 0;
     });
-  }, [task.participants]);
+  }, [taskParticipants]);
 
   return (
     <div ref={wrapperRef} className="card-participant">
@@ -68,8 +68,8 @@ const CardParticipants: React.FC<{
 };
 
 // const areParticipantsPropsEqual = (prevProps: any, nextProps: any) => {
-//   const prevParticipants = prevProps.task.participants || [];
-//   const nextParticipants = nextProps.task.participants || [];
+//   const prevParticipants = prevProps.taskParticipants || [];
+//   const nextParticipants = nextProps.taskParticipants || [];
 
 //   if (prevParticipants.length !== nextParticipants.length) {
 //     return false;

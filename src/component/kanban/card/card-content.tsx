@@ -22,8 +22,8 @@ const CardContent: React.FC<{
         </svg>
         {formatDateToYyyyMmDd(task.start)} - {formatDateToYyyyMmDd(task.end)}</div>
       <div className="card-meta">
-        <CardMeta task={task} />
-        <CardParticipants task={task} />
+        <CardMeta taskPriority={task.priority} taskStatus={task.status} />
+        <CardParticipants taskParticipants={task.participants} />
       </div>
       {task.todoList.length > 0 && (
         <>
