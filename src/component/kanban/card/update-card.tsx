@@ -1,7 +1,7 @@
 import { priorityMedium, prioritySelect } from "../../../mocks/select-option-mock";
 import useStatusesStore from "../../../store/statuses-store";
 import useSectionsStore from "../../../store/sections-store";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Participant, Section, SelectOption, Task, Todo } from "../../../types/type";
 import useTaskStore from "../../../store/task-store";
 import SectionSelector from "../new-card/section-selector";
@@ -36,6 +36,15 @@ const UpdateCard: React.FC<{
   const [endDate, setEndDate] = useState<Date | null>(currentTask.end || null);
   const [todos, setTodos] = useState<Todo[]>(currentTask.todoList || []);
   const [participants, setParticipants] = useState<Participant[]>(currentTask.participants || []);
+
+  const sortedParticipants = useMemo(() => {
+    if (!participants || participants.length === 0) return [];
+    return [...participants].sort((a,b) => {
+      if (a.isMain && !b.isMain) return -1;
+      if (!a.isMain && b.isMain) return 1;
+      return 0;
+    });
+  },[participants]);
 
   const newTaskId = useRef<string>(`task-${Date.now()}-${Math.random().toString(36).substring(7)}`).current;
 
@@ -128,7 +137,7 @@ const UpdateCard: React.FC<{
       </div>
 
       <div className="update-card__participants">
-        {participants.map(user => (
+        {sortedParticipants.map(user => (
           <AvatarItem
             key={user.id}
             size={24}
