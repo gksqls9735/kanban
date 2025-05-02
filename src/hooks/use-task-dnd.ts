@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import useTaskStore from "../store/task-store";
 import useViewModeStore from "../store/viewmode-store";
 import { Task } from "../types/type";
@@ -8,6 +8,7 @@ import { ViewModes } from "../constants";
 import { lightenColor } from "../utils/color-function";
 import useSectionsStore from "../store/sections-store";
 import useStatusesStore from "../store/statuses-store";
+import useUserStore from "../store/user-store";
 
 export interface ActiveColumnData {
   id: string;
@@ -30,6 +31,22 @@ export const useKanbanDnd = () => {
 
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [activeColumn, setActiveColumn] = useState<ActiveColumnData | null>(null);
+
+  const currentUser = useUserStore(state => state.currentUser);
+  
+  const isOnwerOrParticipant = useMemo(() => {
+    const allIds = allTasks.flatMap(t => {
+      const onwerId = t.taskOwner ? [t.taskOwner.id] : [];
+      const participantIds = t.participants ? t.participants.map(p => p.id) : [];
+      return [...onwerId, ...participantIds];
+    });
+
+    const uniqueIds = new Set(allIds);
+    const uniqueIdsArray = Array.from(uniqueIds);
+
+    return uniqueIdsArray.some(uId => uId === currentUser?.id);
+
+  }, [allTasks, currentUser]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -100,6 +117,10 @@ export const useKanbanDnd = () => {
   };
 
   const handleDragEnd = (e: DragEndEvent) => {
+    if (!isOnwerOrParticipant) {
+      handleDragCancel();
+      return;
+    }
     const { active, over } = e;
 
     setActiveTask(null);

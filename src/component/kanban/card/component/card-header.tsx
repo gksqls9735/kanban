@@ -39,28 +39,34 @@ const CardHeader: React.FC<{
     setIsDeleteModalOpen(false);
   }
 
-  const isOwnerOrMainParticipant =
-    task.taskOwner.id === currentUser?.id ||
+  const isTaskOnwer = task.taskOwner.id === currentUser?.id;
+
+  const isOwnerOrMainParticipant = isTaskOnwer ||
     task.participants.some(p => p.id === currentUser?.id && p.isMain);
+
+  const isOwnerOrParticipant = isTaskOnwer ||
+    task.participants.some(p => p.id === currentUser?.id);
 
   return (
     <>
       <div className="card-header">
         <div className="card-current-section">{truncateText(sectionName, 10)}</div>
-        <div className="card-header__actions">
-          {isOwnerOrMainParticipant && (
-            <div onClick={onClick}>
+        {isOwnerOrParticipant && (
+          <div className="card-header__actions">
+            {isOwnerOrMainParticipant && (
+              <div onClick={onClick}>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="#8D99A8" style={{ padding: 5 }}>
+                  <path d="M200-200h57l391-391-57-57-391 391v57Zm-80 80v-170l528-527q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L290-120H120Zm640-584-56-56 56 56Zm-141 85-28-29 57 57-29-28Z" />
+                </svg>
+              </div>
+            )}
+            <div ref={wrapperRef} onClick={toggle}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="#8D99A8" style={{ padding: 5 }}>
-                <path d="M200-200h57l391-391-57-57-391 391v57Zm-80 80v-170l528-527q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L290-120H120Zm640-584-56-56 56 56Zm-141 85-28-29 57 57-29-28Z" />
+                <path d="M480-160q-33 0-56.5-23.5T400-240q0-33 23.5-56.5T480-320q33 0 56.5 23.5T560-240q0 33-23.5 56.5T480-160Zm0-240q-33 0-56.5-23.5T400-480q0-33 23.5-56.5T480-560q33 0 56.5 23.5T560-480q0 33-23.5 56.5T480-400Zm0-240q-33 0-56.5-23.5T400-720q0-33 23.5-56.5T480-800q33 0 56.5 23.5T560-720q0 33-23.5 56.5T480-640Z" />
               </svg>
             </div>
-          )}
-          <div ref={wrapperRef} onClick={toggle}>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="#8D99A8" style={{ padding: 5 }}>
-              <path d="M480-160q-33 0-56.5-23.5T400-240q0-33 23.5-56.5T480-320q33 0 56.5 23.5T560-240q0 33-23.5 56.5T480-160Zm0-240q-33 0-56.5-23.5T400-480q0-33 23.5-56.5T480-560q33 0 56.5 23.5T560-480q0 33-23.5 56.5T480-400Zm0-240q-33 0-56.5-23.5T400-720q0-33 23.5-56.5T480-800q33 0 56.5 23.5T560-720q0 33-23.5 56.5T480-640Z" />
-            </svg>
           </div>
-        </div>
+        )}
         {isOpen && (
           <div ref={dropdownRef} className="header-dropdown-menu card-header__dropdown-menu">
             <div className="header-dropdown-item" onClick={handleCopy}>

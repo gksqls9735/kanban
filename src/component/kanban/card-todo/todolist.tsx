@@ -11,7 +11,8 @@ import DraggableTodo from "./draggable-todo";
 const TodoList: React.FC<{
   taskId: string;
   todoList: Todo[];
-}> = ({ taskId, todoList }) => {
+  isOwnerOrParticipant: boolean;
+}> = ({ taskId, todoList, isOwnerOrParticipant }) => {
   const updateTask = useTaskStore(state => state.updateTask);
   const [showTodo, setShowTodo] = useState<boolean>(false);
 
@@ -39,11 +40,13 @@ const TodoList: React.FC<{
   );
 
   const handleTodoCompleteChange = (todoId: string) => {
-    const updatedTodoList = todoList.map(items => {
-      if (items.todoId === todoId) return { ...items, isCompleted: !items.isCompleted };
-      return items;
-    });
-    updateTask(taskId, { 'todoList': updatedTodoList });
+    if (isOwnerOrParticipant) {
+      const updatedTodoList = todoList.map(items => {
+        if (items.todoId === todoId) return { ...items, isCompleted: !items.isCompleted };
+        return items;
+      });
+      updateTask(taskId, { 'todoList': updatedTodoList });
+    }
   };
 
   const handleDeleteTodo = (todoId: string) => {
@@ -68,7 +71,9 @@ const TodoList: React.FC<{
         <div className={`todo-list ${showTodo ? 'todo-list--open' : ''}`}>
           <SortableContext items={todoList.map(todo => todo.todoId)} strategy={verticalListSortingStrategy}>
             {todoList.map(todo => (
-              <DraggableTodo key={todo.todoId} todo={todo} onCompleteChange={handleTodoCompleteChange} onDelete={handleDeleteTodo} />
+              <DraggableTodo 
+                key={todo.todoId} todo={todo} isOwnerOrParticipant={isOwnerOrParticipant} 
+                onCompleteChange={handleTodoCompleteChange} onDelete={handleDeleteTodo} />
             ))}
           </SortableContext>
         </div>

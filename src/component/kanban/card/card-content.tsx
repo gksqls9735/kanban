@@ -5,12 +5,18 @@ import TodoList from "../card-todo/todolist";
 import CardHeader from "./component/card-header";
 import CardMeta from "./component/card-meta";
 import CardParticipants from "./component/card-participants";
+import useUserStore from "../../../store/user-store";
 
 const CardContent: React.FC<{
   task: Task;
   sectionName: string;
   onClick: () => void;
 }> = ({ task, sectionName, onClick }) => {
+  const currentUser = useUserStore(state => state.currentUser);
+
+  const isOwnerOrParticipant =
+    task.taskOwner.id === currentUser?.id ||
+    task.participants.some(p => p.id === currentUser?.id);
 
   return (
     <>
@@ -28,7 +34,7 @@ const CardContent: React.FC<{
       {task.todoList.length > 0 && (
         <>
           <div className="seperation-line" />
-          <TodoList taskId={task.taskId} todoList={task.todoList} />
+          <TodoList taskId={task.taskId} todoList={task.todoList} isOwnerOrParticipant={isOwnerOrParticipant}/>
         </>
       )}
     </>

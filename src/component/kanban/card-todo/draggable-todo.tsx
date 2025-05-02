@@ -6,9 +6,10 @@ import { faTimes } from "@fortawesome/free-solid-svg-icons";
 
 const DraggableTodo: React.FC<{
   todo: Todo;
+  isOwnerOrParticipant: boolean;
   onCompleteChange: (todoId: string) => void;
   onDelete: (todoId: string) => void;
-}> = ({ todo, onCompleteChange, onDelete }) => {
+}> = ({ todo, isOwnerOrParticipant, onCompleteChange, onDelete }) => {
   const {
     attributes,
     listeners,
@@ -48,17 +49,19 @@ const DraggableTodo: React.FC<{
           {todo.todoTxt}
         </div>
       </div>
-      <div className="todo-item__actions">
-        <div className="todo-item__action todo-item__action--delete" onClick={() => onDelete(todo.todoId)}>
-          <FontAwesomeIcon icon={faTimes} style={{ width: 12, height: 12, color: "rgba(125, 137, 152, 1)" }} />
+      {isOwnerOrParticipant && (
+        <div className="todo-item__actions">
+          <div className="todo-item__action todo-item__action--delete" onClick={() => onDelete(todo.todoId)}>
+            <FontAwesomeIcon icon={faTimes} style={{ width: 12, height: 12, color: "rgba(125, 137, 152, 1)" }} />
+          </div>
+          <div
+            className="todo-item__action todo-item__action--drag-handle"
+            {...listeners}
+          >
+            ⠿
+          </div>
         </div>
-        <div
-          className="todo-item__action todo-item__action--drag-handle"
-          {...listeners}
-        >
-          ⠿
-        </div>
-      </div>
+      )}
     </div>
   );
 };

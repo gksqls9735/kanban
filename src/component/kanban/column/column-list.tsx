@@ -11,6 +11,7 @@ import useStatusesStore from "../../../store/statuses-store";
 import ColumnCreate from "./column-create";
 import { useToast } from "../../../context/toast-context";
 import { generateUniqueId } from "../../../utils/text-function";
+import useUserStore from "../../../store/user-store";
 
 interface ColumnData {
   id: string;
@@ -28,7 +29,7 @@ const Column: React.FC<{
   const { showToast } = useToast();
   const viewMode = useViewModeStore(state => state.viewMode);
   const tasks = useTaskStore(state => state.allTasks);
-  
+
   const statusList = useStatusesStore(state => state.statusList);
   const addStatus = useStatusesStore(state => state.addStatus);
   const insertStatus = useStatusesStore(state => state.insertStatus);
@@ -36,6 +37,23 @@ const Column: React.FC<{
   const sections = useSectionsStore(state => state.sections);
   const addSection = useSectionsStore(state => state.addSection);
   const insertSection = useSectionsStore(state => state.insertSection);
+
+  const currentUser = useUserStore(state => state.currentUser);
+
+  const getAllUniqueUserIds = useCallback(() => {
+    const allIds = tasks.flatMap(t => {
+      const onwerId = t.taskOwner ? [t.taskOwner.id] : [];
+      const participantIds = t.participants ? t.participants.map(p => p.id) : [];
+      return [...onwerId, ...participantIds];
+    });
+
+    const uniqueIds = new Set(allIds);
+
+    return Array.from(uniqueIds);
+  }, [tasks]);
+
+  const uniqueUserIds = useMemo(() => getAllUniqueUserIds(), [getAllUniqueUserIds]);
+  const isOwnerOrParticipant = useMemo(() => uniqueUserIds.some(uId => uId === currentUser!.id), [uniqueUserIds]);
 
   useEffect(() => {
     setIsAddingSection(false);
@@ -111,7 +129,7 @@ const Column: React.FC<{
         colorMain: newColor,
         colorSub: lightenColor(newColor, 0.85),
       }
-      insertStatus(referenceId, newStatusData,'before');
+      insertStatus(referenceId, newStatusData, 'before');
     }
   }, [viewMode, insertSection]);
 
@@ -126,7 +144,7 @@ const Column: React.FC<{
         colorMain: newColor,
         colorSub: lightenColor(newColor, 0.85),
       }
-      insertStatus(referenceId, newStatusData,'after');
+      insertStatus(referenceId, newStatusData, 'after');
     }
   }, [viewMode, insertSection]);
 
@@ -174,15 +192,17 @@ const Column: React.FC<{
             />
           ))}
         </div> */}
-        {isAddingSection && (
+        {isAddingSection && isOwnerOrParticipant && (
           <ColumnCreate viewMode={viewMode} isAdd={isAddingSection} onAdd={handleAddNewItem} toggle={toggle} />
         )}
 
-        <div className="add-section-button" onClick={() => setIsAddingSection(prev => !prev)}>
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#7d8998" className="bi bi-plus-lg" viewBox="0 0 16 16">
-            <path fillRule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2" />
-          </svg>
-        </div>
+        {isOwnerOrParticipant && (
+          <div className="add-section-button" onClick={() => setIsAddingSection(prev => !prev)}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#7d8998" className="bi bi-plus-lg" viewBox="0 0 16 16">
+              <path fillRule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2" />
+            </svg>
+          </div>
+        )}
       </div>
     </SortableContext >
   );
