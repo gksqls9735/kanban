@@ -30,7 +30,7 @@ class KanbanWebComponent extends HTMLElement {
         const pickerSheet = new CSSStyleSheet();
         await pickerSheet.replace(pickerCssText);
 
-        const selectorResponse = await fetch("/assignee-selector.css");
+        const selectorResponse = await fetch("/participant-selector.css");
         const selectorCssText = await selectorResponse.text();
         const selectorSheet = new CSSStyleSheet();
         await selectorSheet.replace(selectorCssText);

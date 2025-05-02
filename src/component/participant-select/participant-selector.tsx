@@ -6,7 +6,7 @@ import SelectedUsersPanel from "./right-panel/selectedusers-panel";
 import UserListPanel from "./left-panel/userlist-panel";
 import useUserStore from "../../store/user-store";
 
-const AssigneeSelector: React.FC<{
+const ParticipantSelector: React.FC<{
   initialParticipants: Participant[];
   onClose: () => void;
   onConfirm: (participant: Participant[]) => void;
@@ -128,11 +128,11 @@ const AssigneeSelector: React.FC<{
   const portalElement = typeof window !== 'undefined' ? document.getElementById('portal-root') : null;
 
   return (
-    <div className="assignee-modal__overlay" onClick={onClose}>
-      <div className="assignee-modal__container" onClick={e => e.stopPropagation()}>
-        <div className="assignee-modal__header">
-          <div className="assignee-modal__title">담당자 지정</div>
-          <div className="assignee-modal__close-button-container" onClick={onClose}>
+    <div className="participant-modal__overlay" onClick={onClose}>
+      <div className="participant-modal__container" onClick={e => e.stopPropagation()}>
+        <div className="participant-modal__header">
+          <div className="participant-modal__title">담당자 지정</div>
+          <div className="participant-modal__close-button-container" onClick={onClose}>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="-0.5 -0.5 16 16" fill="#414D5C" stroke="#000000" strokeLinecap="round" strokeLinejoin="round" className="feather feather-x" id="X--Streamline-Feather" height="16" width="16">
               <desc>X Streamline Icon: https://streamlinehq.com</desc>
               <path d="M11.25 3.75 3.75 11.25" strokeWidth="1"></path>
@@ -140,20 +140,20 @@ const AssigneeSelector: React.FC<{
             </svg>
           </div>
         </div>
-        <div className="assignee-modal__body">
-          <div className="assignee-modal__tabs">
-            <div className={`assignee-modal__tab ${!isOrgChartView ? 'assignee-modal__tab--active' : ''}`}
+        <div className="participant-modal__body">
+          <div className="participant-modal__tabs">
+            <div className={`participant-modal__tab ${!isOrgChartView ? 'participant-modal__tab--active' : ''}`}
               onClick={() => setIsOrgChartView(false)}
             >
-              <span className="assignee-modal__tab-text">사용자</span>
+              <span className="participant-modal__tab-text">사용자</span>
             </div>
-            <div className={`assignee-modal__tab ${isOrgChartView ? 'assignee-modal__tab--active' : ''}`}
+            <div className={`participant-modal__tab ${isOrgChartView ? 'participant-modal__tab--active' : ''}`}
               onClick={() => setIsOrgChartView(true)}
             >
-              <span className="assignee-modal__tab-text">조직도</span>
+              <span className="participant-modal__tab-text">조직도</span>
             </div>
           </div>
-          <div className="assignee-modal__panels">
+          <div className="participant-modal__panels">
             {!isOrgChartView ? (
               <UserListPanel
                 users={userlist}
@@ -163,7 +163,7 @@ const AssigneeSelector: React.FC<{
               />
             ) : (
               <>
-                <div className="assignee-modal__user-list-panel">
+                <div className="participant-modal__user-list-panel">
                   조직도
                 </div>
               </>
@@ -177,9 +177,9 @@ const AssigneeSelector: React.FC<{
             />
           </div>
         </div>
-        <div className="assignee-modal__footer">
-          <button className="assignee-modal__button assignee-modal__button--cancel" onClick={onClose}>취소</button>
-          <button className="assignee-modal__button assignee-modal__button--confirm" onClick={handleConfirm}>추가하기</button>
+        <div className="participant-modal__footer">
+          <button className="participant-modal__button participant-modal__button--cancel" onClick={onClose}>취소</button>
+          <button className="participant-modal__button participant-modal__button--confirm" onClick={handleConfirm}>추가하기</button>
         </div>
 
         {openDropdownId !== null && dropdownPosition && portalElement && (
@@ -196,4 +196,4 @@ const AssigneeSelector: React.FC<{
   );
 };
 
-export default AssigneeSelector;
+export default ParticipantSelector;

@@ -10,10 +10,10 @@ import TodoListEditor from "./todolist-editor";
 import OptionSelector from "./option-selector";
 import DatePickerTrigger from "./datepicker-trigger";
 import SectionSelector from "./section-selector";
-import AssigneeSelector from "../../assignee-selector/assignee-selector";
 import AvatarItem from "../../avatar/avatar";
 import { generateUniqueId, getInitial } from "../../../utils/text-function";
 import useUserStore from "../../../store/user-store";
+import ParticipantSelector from "../../participant-select/participant-selector";
 
 const NewTaskCard: React.FC<{
   columnId: string;
@@ -27,7 +27,7 @@ const NewTaskCard: React.FC<{
   const sections = useSectionsStore(state => state.sections);
   const viewMode = useViewModeStore(state => state.viewMode);
 
-  const [isOpenAssigneeModal, setIsOpenAssigneeModal] = useState<boolean>(false);
+  const [isOpenParticipantModal, setIsOpenParticipantModal] = useState<boolean>(false);
 
   const [selectedSection, setSelectedSection] = useState<Section>(() => {
     if (viewMode === ViewModes.STATUS) {
@@ -136,7 +136,7 @@ const NewTaskCard: React.FC<{
               {getInitial(user.username)}
             </AvatarItem>
           ))}
-          <div onClick={() => setIsOpenAssigneeModal(true)}>
+          <div onClick={() => setIsOpenParticipantModal(true)}>
             <AvatarItem
               key="add"
               isOverflow={true}
@@ -153,9 +153,9 @@ const NewTaskCard: React.FC<{
         <div className="seperation-line" />
 
         <TodoListEditor initialTodos={todos} onTodosChange={handleTodosChange} newTaskId={newTaskId} />
-        {isOpenAssigneeModal && (
-          <AssigneeSelector
-            initialParticipants={participants} onClose={() => setIsOpenAssigneeModal(false)} onConfirm={handleParticipants}
+        {isOpenParticipantModal && (
+          <ParticipantSelector
+            initialParticipants={participants} onClose={() => setIsOpenParticipantModal(false)} onConfirm={handleParticipants}
           />)}
       </div>
     </>

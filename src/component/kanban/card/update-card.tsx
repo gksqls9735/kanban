@@ -10,7 +10,7 @@ import OptionSelector from "../new-card/option-selector";
 import TodoListEditor from "../new-card/todolist-editor";
 import AvatarItem from "../../avatar/avatar";
 import { generateUniqueId, getInitial } from "../../../utils/text-function";
-import AssigneeSelector from "../../assignee-selector/assignee-selector";
+import ParticipantSelector from "../../participant-select/participant-selector";
 
 const UpdateCard: React.FC<{
   onClose: () => void;
@@ -22,7 +22,7 @@ const UpdateCard: React.FC<{
   const statusList = useStatusesStore(state => state.statusList);
   const sections = useSectionsStore(state => state.sections);
 
-  const [isOpenAssigneeModal, setIsOpenAssigneeModal] = useState<boolean>(false);
+  const [isOpenParticipantModal, setIsOpenParticipantModal] = useState<boolean>(false);
 
   const [selectedSection, setSelectedSection] = useState<Section>(() => {
     return sections.find(sec => sec.sectionId === currentTask.sectionId) || sections[0];
@@ -82,7 +82,7 @@ const UpdateCard: React.FC<{
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (isOpenAssigneeModal) return;
+      if (isOpenParticipantModal) return;
       const path = e.composedPath();
       if (cardRef.current && !path.includes(cardRef.current)) {
         handleUpdateTask();
@@ -145,7 +145,7 @@ const UpdateCard: React.FC<{
             {getInitial(user.username)}
           </AvatarItem>
         ))}
-        <div onClick={() => setIsOpenAssigneeModal(true)}>
+        <div onClick={() => setIsOpenParticipantModal(true)}>
           <AvatarItem
             key="add"
             isOverflow={true}
@@ -162,9 +162,9 @@ const UpdateCard: React.FC<{
       <div className="seperation-line" />
 
       <TodoListEditor initialTodos={todos} onTodosChange={handleTodosChange} newTaskId={newTaskId} />
-      {isOpenAssigneeModal && (
-        <AssigneeSelector
-          initialParticipants={participants} onClose={() => setIsOpenAssigneeModal(false)} onConfirm={handleParticipants}
+      {isOpenParticipantModal && (
+        <ParticipantSelector
+          initialParticipants={participants} onClose={() => setIsOpenParticipantModal(false)} onConfirm={handleParticipants}
         />)}
     </div>
   );

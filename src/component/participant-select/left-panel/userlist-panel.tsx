@@ -29,33 +29,33 @@ const UserListPanel: React.FC<{
   };
 
   return (
-    <div className="assignee-modal__user-list-panel">
-      <div className="assignee-modal__search-container">
-        <div className="assignee-modal__search-bar">
+    <div className="participant-modal__user-list-panel">
+      <div className="participant-modal__search-container">
+        <div className="participant-modal__search-bar">
           <input
-            className="assignee-modal__search-input"
+            className="participant-modal__search-input"
             placeholder="이름, 직위로 찾기"
             type="text"
             onChange={e => setSearchTerm(e.target.value)}
           />
-          <svg className="assignee-modal__search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="-0.5 -0.5 16 16" fill="none" stroke="#000000" strokeLinecap="round" strokeLinejoin="round" id="Search--Streamline-Lucide" height="16" width="16">
+          <svg className="participant-modal__search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="-0.5 -0.5 16 16" fill="none" stroke="#000000" strokeLinecap="round" strokeLinejoin="round" id="Search--Streamline-Lucide" height="16" width="16">
             <desc>Search Streamline Icon: https://streamlinehq.com</desc>
             <path d="M1.875 6.875a5 5 0 1 0 10 0 5 5 0 1 0 -10 0" strokeWidth="1"></path><path d="m13.125 13.125 -2.6875 -2.6875" strokeWidth="1"></path>
           </svg>
         </div>
       </div>
-      <div className="assignee-modal__user-list kanban-scrollbar-y">
-        <div className="assignee-modal__select-all-row">
+      <div className="participant-modal__user-list kanban-scrollbar-y">
+        <div className="participant-modal__select-all-row">
           <label htmlFor="all-user-check">모두 선택</label>
-          <div className="assignee-modal__checkbox-area">
+          <div className="participant-modal__checkbox-area">
             <input
               type="checkbox"
               checked={isAllFilteredSelected}
-              className="assignee-modal__checkbox--native"
+              className="participant-modal__checkbox--native"
               id="all-user-check"
               onChange={handleSelectAllChange}
             />
-            <label htmlFor="all-user-check" className="assignee-modal__checkbox--visual"/>
+            <label htmlFor="all-user-check" className="participant-modal__checkbox--visual"/>
           </div>
         </div>
         {filteredUsers.map(u => (
