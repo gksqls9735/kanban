@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { Section } from "../types/type";
+import { generateUniqueId } from "../utils/text-function";
 
 interface SectionsState {
   sections: Section[];
@@ -14,18 +15,17 @@ const useSectionsStore = create<SectionsState>((set, get) => ({
   setSections: (list: Section[]) => set({ sections: list }),
   addSection: (sectionName: string) => set((state) => {
     const newSection: Section = {
-      sectionId: `section-${Date.now()}-${Math.random().toString(36).substring(7)}`,
+      sectionId: generateUniqueId('section'),
       sectionName: sectionName,
       order: state.sections.length + 1,
     }
-
     return { sections: [...state.sections, newSection] };
   }),
   updateSection: (sectionId: string, updated: Partial<Section>) => set((state) => {
     const updatedSections = state.sections.map(sec =>
       sec.sectionId === sectionId ? { ...sec, ...updated } : sec
     )
-    return {sections: updatedSections}
+    return { sections: updatedSections }
   }),
   deleteSection: (sectionId: string) => set((state) => {
     const newSections = state.sections.filter(sec => sec.sectionId !== sectionId);

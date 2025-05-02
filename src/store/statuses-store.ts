@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { SelectOption } from "../types/type";
+import { generateUniqueId } from "../utils/text-function";
 
 interface StatusesState {
   statusList: SelectOption[];
@@ -15,7 +16,7 @@ const useStatusesStore = create<StatusesState>((set, get) => ({
   addStatus: (status: Partial<SelectOption>) => set((state) => {
     const newStatus: SelectOption = {
       ...status,
-      code: `status-${Date.now()}-${Math.random().toString(36).substring(7)}`,
+      code: generateUniqueId('status'),
     } as SelectOption;
     return { statusList: [...state.statusList, newStatus] };
   }),

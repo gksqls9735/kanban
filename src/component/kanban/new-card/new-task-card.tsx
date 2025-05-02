@@ -12,7 +12,7 @@ import DatePickerTrigger from "./datepicker-trigger";
 import SectionSelector from "./section-selector";
 import AssigneeSelector from "../../assignee-selector/assignee-selector";
 import AvatarItem from "../../avatar/avatar";
-import { getInitial } from "../../../utils/text-function";
+import { generateUniqueId, getInitial } from "../../../utils/text-function";
 import useUserStore from "../../../store/user-store";
 
 const NewTaskCard: React.FC<{
@@ -49,7 +49,7 @@ const NewTaskCard: React.FC<{
   const [todos, setTodos] = useState<Todo[]>([]);
   const [participants, setParticipants] = useState<Participant[]>([]);
 
-  const newTaskId = useRef<string>(`task-${Date.now()}-${Math.random().toString(36).substring(7)}`).current;
+  const newTaskId = useRef<string>(generateUniqueId('task')).current;
 
   useEffect(() => {
     inputRef.current?.focus();

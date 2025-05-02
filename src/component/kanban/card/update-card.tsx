@@ -9,7 +9,7 @@ import DatePickerTrigger from "../new-card/datepicker-trigger";
 import OptionSelector from "../new-card/option-selector";
 import TodoListEditor from "../new-card/todolist-editor";
 import AvatarItem from "../../avatar/avatar";
-import { getInitial } from "../../../utils/text-function";
+import { generateUniqueId, getInitial } from "../../../utils/text-function";
 import AssigneeSelector from "../../assignee-selector/assignee-selector";
 
 const UpdateCard: React.FC<{
@@ -46,7 +46,7 @@ const UpdateCard: React.FC<{
     });
   },[participants]);
 
-  const newTaskId = useRef<string>(`task-${Date.now()}-${Math.random().toString(36).substring(7)}`).current;
+  const newTaskId = useRef<string>(generateUniqueId('task')).current;
 
   useEffect(() => {
     inputRef.current?.focus();
