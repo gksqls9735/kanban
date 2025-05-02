@@ -1,4 +1,4 @@
-import { SelectOption, Task } from "../../../../types/type";
+import { SelectOption } from "../../../../types/type";
 import { lightenColor } from "../../../../utils/color-function";
 import { truncateText } from "../../../../utils/text-function";
 
