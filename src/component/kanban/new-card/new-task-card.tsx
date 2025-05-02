@@ -4,14 +4,16 @@ import useSectionsStore from "../../../store/sections-store";
 import { useEffect, useRef, useState } from "react";
 import useViewModeStore from "../../../store/viewmode-store";
 import { ViewModes } from "../../../constants";
-import { Section, SelectOption, Task, Todo } from "../../../types/type";
-import AvatarGroup from "../../avatar/avatar-group";
+import { Participant, Section, SelectOption, Task, Todo } from "../../../types/type";
 import { user1 } from "../../../mocks/user-mock";
 import useTaskStore from "../../../store/task-store";
 import TodoListEditor from "./todolist-editor";
 import OptionSelector from "./option-selector";
 import DatePickerTrigger from "./datepicker-trigger";
 import SectionSelector from "./section-selector";
+import AssigneeSelector from "../../assignee-selector/assignee-selector";
+import AvatarItem from "../../avatar/avatar";
+import { getInitial } from "../../../utils/text-function";
 
 const NewTaskCard: React.FC<{
   columnId: string;
@@ -22,6 +24,8 @@ const NewTaskCard: React.FC<{
   const statusList = useStatusesStore(state => state.statusList);
   const sections = useSectionsStore(state => state.sections);
   const viewMode = useViewModeStore(state => state.viewMode);
+
+  const [isOpenAssigneeModal, setIsOpenAssigneeModal] = useState<boolean>(false);
 
   const [selectedSection, setSelectedSection] = useState<Section>(() => {
     if (viewMode === ViewModes.STATUS) {
@@ -41,6 +45,7 @@ const NewTaskCard: React.FC<{
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [todos, setTodos] = useState<Todo[]>([]);
+  const [participants, setParticipants] = useState<Participant[]>([]);
 
   const newTaskId = useRef<string>(`task-${Date.now()}-${Math.random().toString(36).substring(7)}`).current;
 
@@ -57,6 +62,7 @@ const NewTaskCard: React.FC<{
   const handlePrioritySelect = (priority: SelectOption) => setSelectedPriority(priority);
   const handleStatusSelect = (status: SelectOption) => setSelectedStatus(status);
   const handleTodosChange = (updatedTodos: Todo[]) => setTodos(updatedTodos);
+  const handleParticipants = (participants: Participant[]) => setParticipants(participants);
 
   const handleAddTask = () => {
     const taskNameCheck = inputRef.current?.value.trim();
@@ -74,7 +80,7 @@ const NewTaskCard: React.FC<{
         progress: 0,
         todoList: todos,
         dependencies: [],
-        participants: [],
+        participants: participants,
         color: '',
         order: 9999,
         taskAttachments: [],
@@ -102,7 +108,7 @@ const NewTaskCard: React.FC<{
 
         <SectionSelector sections={sections} selectedSection={selectedSection} onSectionSelect={handleSectionSelect} />
 
-        <input 
+        <input
           type="text"
           ref={inputRef}
           className="new-task-name-input"
@@ -119,11 +125,36 @@ const NewTaskCard: React.FC<{
           </div>
         </div>
 
-        <div><AvatarGroup list={[]} maxVisible={0} /></div>
+        <div className="update-card__participants">
+          {participants.map(user => (
+            <AvatarItem
+              key={user.id}
+              size={24}
+            >
+              {getInitial(user.username)}
+            </AvatarItem>
+          ))}
+          <div onClick={() => setIsOpenAssigneeModal(true)}>
+            <AvatarItem
+              key="add"
+              isOverflow={true}
+              size={24}
+              isFirst={false}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#8D99A8" className="bi bi-plus-lg" viewBox="0 0 16 16">
+                <path fillRule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2" />
+              </svg>
+            </AvatarItem>
+          </div>
+        </div>
 
         <div className="seperation-line" />
 
         <TodoListEditor initialTodos={todos} onTodosChange={handleTodosChange} newTaskId={newTaskId} />
+        {isOpenAssigneeModal && (
+          <AssigneeSelector
+            initialParticipants={participants} onClose={() => setIsOpenAssigneeModal(false)} onConfirm={handleParticipants}
+          />)}
       </div>
     </>
   );
