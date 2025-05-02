@@ -17,6 +17,8 @@ const AssigneeSelector: React.FC<{
   const [openDropdownId, setOpenDropdownId] = useState<string | number | null>(null);
   const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number } | null>(null);
 
+  const [isOrgChartView, setIsOrgChartView] = useState<boolean>(false);
+
   const triggerRefs = useRef<{ [key: string | number]: HTMLDivElement | null }>({});
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -139,16 +141,32 @@ const AssigneeSelector: React.FC<{
         </div>
         <div className="assignee-modal__body">
           <div className="assignee-modal__tabs">
-            <div className="assignee-modal__tab assignee-modal__tab--active"><span className="assignee-modal__tab-text">사용자</span></div>
-            <div className="assignee-modal__tab"><span className="assignee-modal__tab-text">조직도</span></div>
+            <div className={`assignee-modal__tab ${!isOrgChartView ? 'assignee-modal__tab--active' : ''}`}
+              onClick={() => setIsOrgChartView(false)}
+            >
+              <span className="assignee-modal__tab-text">사용자</span>
+            </div>
+            <div className={`assignee-modal__tab ${isOrgChartView ? 'assignee-modal__tab--active' : ''}`}
+              onClick={() => setIsOrgChartView(true)}
+            >
+              <span className="assignee-modal__tab-text">조직도</span>
+            </div>
           </div>
           <div className="assignee-modal__panels">
-            <UserListPanel
-              users={userlist}
-              selectedParticipantIds={selectedParticipantIds}
-              onSelectUser={handleSelectUser}
-              onSelectAll={handleSelectAllUsers}
-            />
+            {!isOrgChartView ? (
+              <UserListPanel
+                users={userlist}
+                selectedParticipantIds={selectedParticipantIds}
+                onSelectUser={handleSelectUser}
+                onSelectAll={handleSelectAllUsers}
+              />
+            ) : (
+              <>
+                <div className="assignee-modal__user-list-panel">
+                  조직도
+                </div>
+              </>
+            )}
             <SelectedUsersPanel
               participants={participants}
               onRemoveParticipant={handleRemoveParticipant}
