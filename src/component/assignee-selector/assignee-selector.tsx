@@ -57,7 +57,7 @@ const AssigneeSelector: React.FC<{
 
   const handleSetRole = (isMain: boolean) => {
     setParticipants(prev =>
-      prev.map(p => (p.id === openDropdownId ? { ...p, isMain } : p))
+      prev.map(p => (p.id === openDropdownId ? { ...p, isMain } : { ...p, isMain: false }))
     );
     handleCloseDropdown();
   };
