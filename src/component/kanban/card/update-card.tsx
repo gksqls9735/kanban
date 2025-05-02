@@ -155,7 +155,7 @@ const UpdateCard: React.FC<{
       <TodoListEditor initialTodos={todos} onTodosChange={handleTodosChange} newTaskId={newTaskId} />
       {isOpenAssigneeModal && (
         <AssigneeSelector
-          initialParticipants={currentTask.participants} onClose={() => setIsOpenAssigneeModal(false)} onConfirm={handleParticipants}
+          initialParticipants={participants} onClose={() => setIsOpenAssigneeModal(false)} onConfirm={handleParticipants}
         />)}
     </div>
   );
