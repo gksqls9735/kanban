@@ -1,16 +1,17 @@
-import { userlist } from "../../mocks/user-mock";
 import { Participant, User } from "../../types/type";
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
 import ReactDOM from "react-dom";
 import RoleDropdown from "./role-dropdown";
 import SelectedUsersPanel from "./right-panel/selectedusers-panel";
 import UserListPanel from "./left-panel/userlist-panel";
+import useUserStore from "../../store/user-store";
 
 const AssigneeSelector: React.FC<{
   initialParticipants: Participant[];
   onClose: () => void;
   onConfirm: (participant: Participant[]) => void;
 }> = ({ initialParticipants, onClose, onConfirm }) => {
+  const userlist = useUserStore(state => state.userlist);
 
   const [participants, setParticipants] = useState<Participant[]>(initialParticipants);
 

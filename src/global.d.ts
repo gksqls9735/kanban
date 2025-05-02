@@ -5,6 +5,9 @@ declare global {
         React.HTMLAttributes<HTMLElement> & {
           tasks: string;
           sections: string;
+          statuslist: string;
+          currentUser: string;
+          userlist: string;
         },
         HTMLElement
       >;

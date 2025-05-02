@@ -5,7 +5,6 @@ import { useEffect, useRef, useState } from "react";
 import useViewModeStore from "../../../store/viewmode-store";
 import { ViewModes } from "../../../constants";
 import { Participant, Section, SelectOption, Task, Todo } from "../../../types/type";
-import { user1 } from "../../../mocks/user-mock";
 import useTaskStore from "../../../store/task-store";
 import TodoListEditor from "./todolist-editor";
 import OptionSelector from "./option-selector";
@@ -14,11 +13,14 @@ import SectionSelector from "./section-selector";
 import AssigneeSelector from "../../assignee-selector/assignee-selector";
 import AvatarItem from "../../avatar/avatar";
 import { getInitial } from "../../../utils/text-function";
+import useUserStore from "../../../store/user-store";
 
 const NewTaskCard: React.FC<{
   columnId: string;
   onClose: () => void;
 }> = ({ columnId, onClose }) => {
+  const currentUser = useUserStore(state => state.currentUser);
+
   const inputRef = useRef<HTMLInputElement>(null);
   const addTask = useTaskStore(state => state.addTask);
   const statusList = useStatusesStore(state => state.statusList);
@@ -66,12 +68,12 @@ const NewTaskCard: React.FC<{
 
   const handleAddTask = () => {
     const taskNameCheck = inputRef.current?.value.trim();
-    if (taskNameCheck && startDate && endDate) {
+    if (taskNameCheck && startDate && endDate && currentUser) {
       const newTask: Task = {
         sectionId: selectedSection.sectionId,
         taskId: newTaskId,
         taskName: taskNameCheck,
-        taskOwner: user1, // 실제 사용자로 변경
+        taskOwner: currentUser, // 실제 사용자로 변경
         start: startDate,
         end: endDate,
         priority: selectedPriority,

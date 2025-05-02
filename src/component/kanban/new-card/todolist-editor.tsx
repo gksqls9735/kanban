@@ -1,22 +1,25 @@
 import { useState } from "react";
 import { Todo } from "../../../types/type";
-import { user1 } from "../../../mocks/user-mock";
 import EditableTodoItem from "../card-todo/editable-todo";
+import useUserStore from "../../../store/user-store";
 
 const TodoListEditor: React.FC<{
   initialTodos: Todo[];
   onTodosChange: (todos: Todo[]) => void;
   newTaskId: string;
 }> = ({ initialTodos, onTodosChange, newTaskId }) => {
+  const currentUser = useUserStore(state => state.currentUser);
+
   const [todos, setTodos] = useState<Todo[]>(initialTodos);
   const [focusedTodoId, setFocusedTodoId] = useState<string | null>(null);
 
   const handleAddTodo = () => {
+    if (!currentUser) return;
     const newTodoId = `todo-${Date.now()}-${Math.random().toString(36).substring(7)}`;
     const newTodo: Todo = {
       taskId: newTaskId,
       todoId: newTodoId,
-      todoOwner: user1.username, // 실제 사용자로 변경하기
+      todoOwner: currentUser.username, // 실제 사용자로 변경하기
       isCompleted: false,
       todoTxt: '',
       todoDt: new Date(),

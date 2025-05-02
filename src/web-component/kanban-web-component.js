@@ -55,6 +55,8 @@ class KanbanWebComponent extends HTMLElement {
     const tasks = JSON.parse(this.getAttribute("tasks") || "[]");
     const sections = JSON.parse(this.getAttribute("sections") || "[]");
     const statusList = JSON.parse(this.getAttribute("statuslist") || "[]");
+    const currentUser = JSON.parse(this.getAttribute("currentUser") || "{}");
+    const userlist = JSON.parse(this.getAttribute("userlist") || "[]");
 
     const sectionTasksWithDates = tasks.map((task) => ({
       ...task,
@@ -73,7 +75,9 @@ class KanbanWebComponent extends HTMLElement {
           React.createElement(Kanban, {
             tasks: sectionTasksWithDates,
             sections,
-            statusList
+            statusList,
+            currentUser,
+            userlist,
           })
         )
       )
