@@ -15,6 +15,7 @@ import useSectionsStore from "../../../store/sections-store";
 import ColumnHeader from "./column-header";
 import ColumnEdit from "./column-edit";
 import { lightenColor } from "../../../utils/color-function";
+import { useToast } from "../../../context/toast-context";
 
 const DroppableColumn: React.FC<{
   tasks: Task[];
@@ -36,6 +37,8 @@ const DroppableColumn: React.FC<{
   const deleteSection = useSectionsStore(state => state.deleteSection);
   const updateSection = useSectionsStore(state => state.updateSection);
   const updateStatus = useStatusesStore(state => state.updateStatus);
+  const { showToast } = useToast();
+
 
   const [isAddingTask, setIsAddingTask] = useState<boolean>(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
@@ -69,12 +72,14 @@ const DroppableColumn: React.FC<{
     deleteSection(id);
     deleteTasksBySection(id);
     setIsDeleteModalOpen(false);
+    showToast(`섹션 ${title}이/가 성공적으로 삭제되었습니다.`)
   }
 
   const handleDeleteStatus = () => {
     deleteStatus(id);
     updateTasksByStatus(id);
     setIsDeleteModalOpen(false);
+    showToast(`상태 ${title}이/가 성공적으로 삭제되었습니다.`)
   };
 
   const handleClose = () => {
@@ -109,6 +114,7 @@ const DroppableColumn: React.FC<{
       : '이 섹션에 포함된 모든 작업 내역이 삭제되며,<br /> 복구할 수 없습니다.'
     , [viewMode]);
   const handleDelete = useMemo(() => viewMode === ViewModes.STATUS ? handleDeleteStatus : handleDeleteSection, [viewMode]);
+
 
   return (
     <>

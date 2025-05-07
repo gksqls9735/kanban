@@ -5,6 +5,7 @@ import { Task } from "../../../../types/type";
 import { truncateText } from "../../../../utils/text-function";
 import DeleteModal from "../../delete-modal";
 import useUserStore from "../../../../store/user-store";
+import { useToast } from "../../../../context/toast-context";
 
 const CardHeader: React.FC<{
   task: Task;
@@ -17,6 +18,7 @@ const CardHeader: React.FC<{
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
   const deleteTask = useTaskStore(state => state.deletTask);
   const copyTask = useTaskStore(state => state.copyTask);
+  const { showToast } = useToast();
 
   const handleCopy = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -27,6 +29,7 @@ const CardHeader: React.FC<{
   const handleDeleteConfirm = () => {
     deleteTask(task.taskId);
     setIsDeleteModalOpen(false);
+    showToast('작업이 성공적으로 삭제되었습니다.');
   };
 
   const openDeleteModal = (e: React.MouseEvent) => {
