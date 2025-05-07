@@ -91,7 +91,7 @@ const Kanban: React.FC<{
           flexDirection: 'column',
           paddingLeft: `${isSideMenuOpen === 'hidden' ? '' : isSideMenuOpen === 'expanded' ? '260px' : '86px'}`,
           paddingTop: 80,
-          width: `${isSideMenuOpen === 'hidden' ? '100vw' : isSideMenuOpen === 'expanded' ? 'calc(100vw-260px)' : 'calc(100vw - 86px)'}`,
+          width: `${isSideMenuOpen === 'hidden' ? '100%' : isSideMenuOpen === 'expanded' ? 'calc(100vw-260px)' : 'calc(100vw - 86px)'}`,
           boxSizing: 'border-box',
           transition: 'padding-left 0.3s ease, width 0.3s ease'
         }}>

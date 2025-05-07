@@ -6,7 +6,7 @@ import { statusSelect } from './mocks/select-option-mock';
 import { user1, userlist } from './mocks/user-mock';
 
 function App() {
-  const [isSideMenuOpen, setIsSideMenuOpen] = useState<"expanded" | "collapsed" | "hidden">("expanded");
+  const [isSideMenuOpen, setIsSideMenuOpen] = useState<"expanded" | "collapsed" | "hidden">("hidden");
   return (
     <>
       <BrowserRouter>
