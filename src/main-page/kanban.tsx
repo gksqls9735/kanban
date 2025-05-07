@@ -19,7 +19,7 @@ const Kanban: React.FC<{
   statusList: SelectOption[];
   currentUser: User | null;
   userlist: User[];
-  isSideMenuOpen: boolean;
+  isSideMenuOpen: "expanded" | "collapsed" | "hidden";
 }> = ({
   tasks: initialTasks,
   sections: initialSections,
@@ -87,13 +87,18 @@ const Kanban: React.FC<{
     return (
       <ToastProvider>
         <div className="kanban-wrapper" style={{
-          paddingLeft: `${isSideMenuOpen ? '260px' : '86px'}`,
+          display: 'flex',
+          margin: '0 auto',
+          flexDirection: 'column',
+          paddingLeft: `${isSideMenuOpen === 'hidden' ? '' : isSideMenuOpen === 'expanded' ? '260px' : '86px'}`,
           paddingTop: 80,
-          width: `${isSideMenuOpen ? 'calc(100vw-260px)' : 'calc(100vw - 86px)'}`,
+          width: `${isSideMenuOpen === 'hidden' ? '100vw' : isSideMenuOpen === 'expanded' ? 'calc(100vw-260px)' : 'calc(100vw - 86px)'}`,
           boxSizing: 'border-box',
           transition: 'padding-left 0.3s ease, width 0.3s ease'
         }}>
-          <div onClick={toggleViewMode} style={{ cursor: 'pointer', marginBottom: '1rem', padding: '8px', border: '1px solid #ccc', display: 'inline-block' }}>
+          <div onClick={toggleViewMode} style={{
+            width: 'fit-content', cursor: 'pointer', marginBottom: '1rem', padding: '8px', border: '1px solid #ccc', display: 'inline-block'
+          }}>
             {viewMode === ViewModes.STATUS ? '섹션별로 보기' : '상태별로 보기'}
           </div>
           <DndContext

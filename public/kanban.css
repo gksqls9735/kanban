@@ -57,6 +57,7 @@
 /* 공통 css */
 .kanban {
   padding: 32px;
+  box-sizing: border-box;
 }
 
 .kanban .truncate {

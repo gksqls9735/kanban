@@ -15,14 +15,14 @@ class KanbanWebComponent extends HTMLElement {
     statusList: SelectOption[];
     currentUser: User | null;
     userlist: User[];
-    isSideMenuOpen: boolean;
+    isSideMenuOpen: "expanded" | "collapsed" | "hidden";
   } = {
       tasks: [],
       sections: [],
       statusList: [],
       currentUser: null,
       userlist: [],
-      isSideMenuOpen: false,
+      isSideMenuOpen: "hidden",
     };
 
 
@@ -96,14 +96,17 @@ class KanbanWebComponent extends HTMLElement {
       this.props.currentUser = null;
     }
 
-
-    const isSideMenuOpenAttr = this.getAttribute("issidemenuopen");
-    this.props.isSideMenuOpen = isSideMenuOpenAttr === "true";
+    const sideMenuAttr = this.getAttribute("issidemenuopen");
+    if (sideMenuAttr === "expanded" || sideMenuAttr === "collapsed" || sideMenuAttr === "hidden") {
+      this.props.isSideMenuOpen = sideMenuAttr;
+    } else {
+      this.props.isSideMenuOpen = "hidden";
+    }
   }
 
   // React 컴포넌트 랜더링 로직
   _render() {
-    // 아직 container나 shadowRoot가 준비되지 않았음음
+    // 아직 container나 shadowRoot가 준비되지 않았음
     if (!this.container || !this.componentShadowRoot) return;
 
     const sectionTasksWithDates = this.props.tasks.map((t: Task) => ({

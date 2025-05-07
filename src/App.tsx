@@ -6,7 +6,7 @@ import { statusSelect } from './mocks/select-option-mock';
 import { user1, userlist } from './mocks/user-mock';
 
 function App() {
-  const [isSideMenuOpen, setIsSideMenuOpen] = useState<boolean>(false);
+  const [isSideMenuOpen, setIsSideMenuOpen] = useState<"expanded" | "collapsed" | "hidden">("expanded");
   return (
     <>
       <BrowserRouter>
@@ -20,19 +20,23 @@ function App() {
           left: 0,
           zIndex: 400
         }}>헤더</div>
-        <div style={{
-          position: 'fixed',
-          top: 80,
-          left: 0,
-          width: `${isSideMenuOpen ? '260px' : '86px'}`,
-          height: '100%',
-          transition: 'padding-left 0.3s ease, width 0.3s ease',
-          borderRight: '1px solid #E4E8EE'
-        }}
-          onClick={() => setIsSideMenuOpen(prev => !prev)}
-        >
-          사이드 메뉴
-        </div>
+        {isSideMenuOpen !== 'hidden' && (
+          <div style={{
+            position: 'fixed',
+            top: 80,
+            left: 0,
+            width: `${isSideMenuOpen === 'expanded' ? '260px' : '86px'}`,
+            height: '100%',
+            transition: 'padding-left 0.3s ease, width 0.3s ease',
+            borderRight: '1px solid #E4E8EE'
+          }}
+            onClick={() => {
+              setIsSideMenuOpen(isSideMenuOpen === 'expanded' ? 'collapsed' : 'expanded')
+            }}
+          >
+            사이드 메뉴
+          </div>
+        )}
         <Routes>
           <Route
             path="/"
