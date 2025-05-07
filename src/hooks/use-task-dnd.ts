@@ -33,7 +33,7 @@ export const useKanbanDnd = () => {
   const [activeColumn, setActiveColumn] = useState<ActiveColumnData | null>(null);
 
   const currentUser = useUserStore(state => state.currentUser);
-  
+
   const isOnwerOrParticipant = useMemo(() => {
     const allIds = allTasks.flatMap(t => {
       const onwerId = t.taskOwner ? [t.taskOwner.id] : [];
@@ -121,6 +121,7 @@ export const useKanbanDnd = () => {
       handleDragCancel();
       return;
     }
+
     const { active, over } = e;
 
     setActiveTask(null);
@@ -129,17 +130,29 @@ export const useKanbanDnd = () => {
     if (!over) return;
 
     const activeId = active.id as string;
-    const overId = over.id as string;
-    const type = active.data.current?.type;
+    let originalOverId = over.id as string;
+    let overId = originalOverId;
 
-    if (type === 'Column') {
+    const activeType = active.data.current?.type;
+    const overType = over.data.current?.type;
+
+    if (activeType === 'Column') {
+      if (overType === 'Task') {
+        const overTask = allTasks.find(t => t.taskId === originalOverId);
+        if (overTask) {
+          overId = getColumnId(overTask);
+        } else {
+          return;
+        }
+      }
+
       if (activeId === overId) return;
 
       if (viewMode === ViewModes.STATUS) {
         const oldIndex = statusList.findIndex(s => s.code === activeId);
         const newIndex = statusList.findIndex(s => s.code === overId);
         if (oldIndex !== -1 && newIndex !== -1) {
-          setStatusList(arrayMove(statusList, oldIndex, newIndex))
+          setStatusList(arrayMove(statusList, oldIndex, newIndex));
         }
       } else {
         const oldIndex = sections.findIndex(sec => sec.sectionId === activeId);
@@ -155,14 +168,11 @@ export const useKanbanDnd = () => {
       return;
     }
 
-    if (type === 'Task') {
+    if (activeType === 'Task') {
       if (activeId === overId) return;
 
       const originalTask = allTasks.find(t => t.taskId === activeId);
-      if (!originalTask) {
-        console.error("Active task not found: ", activeId);
-        return;
-      }
+      if (!originalTask) return;
 
       let targetColumnId: string;
       let overTaskData: Task | undefined | null = null;
@@ -176,10 +186,7 @@ export const useKanbanDnd = () => {
         targetColumnId = overId;
       } else {
         overTaskData = allTasks.find(t => t.taskId === overId);
-        if (!overTaskData) {
-          console.error("Over task not found: ", overId);
-          return;
-        }
+        if (!overTaskData) return;
         targetColumnId = getColumnId(overTaskData);
       }
 
