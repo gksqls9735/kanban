@@ -102,13 +102,26 @@ const Column: React.FC<{
   ], [columnsWithTasks, columnsWithoutTasks]);
 
   const handleAddNewItem = (name: string, color?: string) => {
-    if (name) {
+    const trimmedName = name.trim();
+    if (trimmedName) {
       if (viewMode === ViewModes.STATUS && color) {
-        addStatus({ name: name, colorMain: color, colorSub: lightenColor(color, 0.85) });
-        showToast('상태가 등록 되었습니다.')
+        const isExistStatusName = statusList.some(status => status.name === trimmedName);
+        if (!isExistStatusName) {
+          addStatus({ name: trimmedName, colorMain: color, colorSub: lightenColor(color, 0.85) });
+          showToast('상태가 등록 되었습니다.');
+        } else {
+          showToast('동일한 이름의 상태가 존재합니다.');
+          return;
+        }
       } else if (viewMode === ViewModes.SECTION) {
-        addSection(name);
-        showToast('섹션이 추가 되었습니다.')
+        const isExistSectionName = sections.some(sec => sec.sectionName === trimmedName);
+        if (!isExistSectionName) {
+          addSection(trimmedName);
+          showToast('섹션이 추가 되었습니다.')
+        } else {
+          showToast('동일한 이름의 섹션이 존재합니다.');
+          return;
+        }
       }
       setIsAddingSection(false);
     }
