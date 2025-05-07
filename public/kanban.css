@@ -55,6 +55,10 @@
 
 
 /* 공통 css */
+.kanban {
+  padding: 32px;
+}
+
 .kanban .truncate {
   overflow: hidden;
   text-overflow: ellipsis;

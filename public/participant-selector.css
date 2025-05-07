@@ -5,7 +5,7 @@
   justify-content: center;
   align-items: center;
   background-color: #00000026;
-  z-index: 100;
+  z-index: 9999;
 }
 
 .kanban .participant-modal__container {

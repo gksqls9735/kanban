@@ -10,7 +10,29 @@ function App() {
   return (
     <>
       <BrowserRouter>
-      <div onClick={() => setIsSideMenuOpen(prev => !prev)}>사이드메뉴 클릭</div>
+        <div style={{
+          height: 80,
+          width: '100%',
+          backgroundColor: 'black',
+          color: 'white',
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          zIndex: 400
+        }}>헤더</div>
+        <div style={{
+          position: 'fixed',
+          top: 80,
+          left: 0,
+          width: `${isSideMenuOpen ? '260px' : '86px'}`,
+          height: '100%',
+          transition: 'padding-left 0.3s ease, width 0.3s ease',
+          borderRight: '1px solid #E4E8EE'
+        }}
+          onClick={() => setIsSideMenuOpen(prev => !prev)}
+        >
+          사이드 메뉴
+        </div>
         <Routes>
           <Route
             path="/"
