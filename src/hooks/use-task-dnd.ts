@@ -150,8 +150,12 @@ export const useKanbanDnd = () => {
 
       if (viewMode === ViewModes.STATUS) {
         const oldIndex = statusList.findIndex(s => s.code === activeId);
-        const newIndex = statusList.findIndex(s => s.code === overId);
+        let newIndex = statusList.findIndex(s => s.code === overId);
         if (oldIndex !== -1 && newIndex !== -1) {
+          const isColumnWaiting = statusList[newIndex].name === '대기';
+          if (isColumnWaiting) {
+            newIndex = 1;
+          }
           setStatusList(arrayMove(statusList, oldIndex, newIndex));
         }
       } else {
