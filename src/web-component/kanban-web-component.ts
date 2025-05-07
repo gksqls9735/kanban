@@ -15,12 +15,14 @@ class KanbanWebComponent extends HTMLElement {
     statusList: SelectOption[];
     currentUser: User | null;
     userlist: User[];
+    isSideMenuOpen: boolean;
   } = {
       tasks: [],
       sections: [],
       statusList: [],
       currentUser: null,
       userlist: [],
+      isSideMenuOpen: false,
     };
 
 
@@ -95,6 +97,8 @@ class KanbanWebComponent extends HTMLElement {
     }
 
 
+    const isSideMenuOpenAttr = this.getAttribute("issidemenuopen");
+    this.props.isSideMenuOpen = isSideMenuOpenAttr === "true";
   }
 
   // React 컴포넌트 랜더링 로직
@@ -123,6 +127,7 @@ class KanbanWebComponent extends HTMLElement {
             statusList: this.props.statusList,
             currentUser: this.props.currentUser,
             userlist: this.props.userlist,
+            isSideMenuOpen: this.props.isSideMenuOpen,
           })
         )
       )

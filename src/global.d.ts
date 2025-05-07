@@ -8,10 +8,11 @@ declare global {
           statuslist: string;
           currentUser: string;
           userlist: string;
+          isSideMenuOpen: string;
         },
         HTMLElement
       >;
     }
   }
 }
-export {};
+export { };

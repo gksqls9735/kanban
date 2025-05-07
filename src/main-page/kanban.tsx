@@ -17,14 +17,16 @@ const Kanban: React.FC<{
   tasks: Task[];
   sections: Section[];
   statusList: SelectOption[];
-  currentUser: User;
+  currentUser: User | null;
   userlist: User[];
+  isSideMenuOpen: boolean;
 }> = ({
   tasks: initialTasks,
   sections: initialSections,
   statusList: initialStatusList,
   currentUser: initialCurrentUser,
   userlist: initialUserlist,
+  isSideMenuOpen,
 }) => {
     const { viewMode, setViewMode } = useViewModeStore();
     const setTasks = useTaskStore(state => state.setTasks);
@@ -81,41 +83,49 @@ const Kanban: React.FC<{
     const toggleViewMode = () => {
       setViewMode(viewMode === ViewModes.STATUS ? ViewModes.SECTION : ViewModes.STATUS);
     };
-
+    console.log(isSideMenuOpen);
     return (
       <ToastProvider>
-        <DndContext
-          sensors={sensors}
-          collisionDetection={rectIntersection}
-          onDragStart={handleDragStart}
-          onDragEnd={handleDragEnd}
-          onDragCancel={handleDragCancel}
-        >
-          <div className='kanban'>
-            <div onClick={toggleViewMode} style={{ cursor: 'pointer', marginBottom: '1rem', padding: '8px', border: '1px solid #ccc', display: 'inline-block' }}>
-              {viewMode === ViewModes.STATUS ? '섹션별로 보기' : '상태별로 보기'}
-            </div>
-            <SectionComponent
-
-              getSectionName={getSectionName}
-            />
-            <DragOverlay>
-              {activeTask ? (
-                <CardWrapper task={activeTask} sectionName={getSectionName(activeTask.sectionId)} isOverlay={true} />
-              ) : activeColumn ? (
-                <DroppableColumn
-                  id={activeColumn.id}
-                  title={activeColumn.title}
-                  tasks={activeColumn.tasks}
-                  getSectionName={activeColumn.getSectionName}
-                  colorMain={activeColumn.colorMain}
-                  colorSub={activeColumn.colorSub}
-                  isOverlay={true}
-                />
-              ) : null}
-            </DragOverlay>
+        <div className="kanban-wrapper" style={{
+          paddingLeft: `${isSideMenuOpen ? '260px' : '86px'}`,
+          paddingTop: 80,
+          width: `${isSideMenuOpen ? 'calc(100vw-260px)' : 'calc(100vw - 86px)'}`,
+          boxSizing: 'border-box',
+          transition: 'padding-left 0.3s ease, width 0.3s ease'
+        }}>
+          <div onClick={toggleViewMode} style={{ cursor: 'pointer', marginBottom: '1rem', padding: '8px', border: '1px solid #ccc', display: 'inline-block' }}>
+            {viewMode === ViewModes.STATUS ? '섹션별로 보기' : '상태별로 보기'}
           </div>
-        </DndContext>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={rectIntersection}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+            onDragCancel={handleDragCancel}
+          >
+            <div className='kanban kanban-scrollbar-x' style={{ width: '100%', overflowX: 'auto' }}>
+              <SectionComponent
+
+                getSectionName={getSectionName}
+              />
+              <DragOverlay>
+                {activeTask ? (
+                  <CardWrapper task={activeTask} sectionName={getSectionName(activeTask.sectionId)} isOverlay={true} />
+                ) : activeColumn ? (
+                  <DroppableColumn
+                    id={activeColumn.id}
+                    title={activeColumn.title}
+                    tasks={activeColumn.tasks}
+                    getSectionName={activeColumn.getSectionName}
+                    colorMain={activeColumn.colorMain}
+                    colorSub={activeColumn.colorSub}
+                    isOverlay={true}
+                  />
+                ) : null}
+              </DragOverlay>
+            </div>
+          </DndContext>
+        </div>
       </ToastProvider>
     );
   };

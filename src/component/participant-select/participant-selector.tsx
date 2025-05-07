@@ -121,7 +121,7 @@ const ParticipantSelector: React.FC<{
       }
     };
 
-    if (openDropdownId != null) document.addEventListener('mousedown', handleClickOutside);
+    if (openDropdownId !== null) document.addEventListener('mousedown', handleClickOutside);
     return () => { document.removeEventListener('mousedown', handleClickOutside) };
   }, [openDropdownId, handleCloseDropdown]);
 
