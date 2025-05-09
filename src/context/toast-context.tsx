@@ -1,17 +1,13 @@
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import ReactDOM from 'react-dom';
 
-type ToastProps = {
-  msg: string;
-}
-
 interface ToastContextType {
   showToast: (msg: string, duration?: number) => void;
 }
 
 
-const Toast: React.FC<ToastProps> = ({ msg }) => {
-  const role = msg.includes("상태") ? 'status' : 'section';
+const Toast: React.FC<{ msg: string; }> = ({ msg }) => {
+  const role = msg.includes("상태") ? 'status' : msg.includes("섹션") ? 'section' : 'task';
   return (
     <div style={{
       position: 'fixed',

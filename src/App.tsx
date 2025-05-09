@@ -6,7 +6,7 @@ import { statusSelect } from './mocks/select-option-mock';
 import { user1, userlist } from './mocks/user-mock';
 
 function App() {
-  const [isSideMenuOpen, setIsSideMenuOpen] = useState<"expanded" | "collapsed" | "hidden">("hidden");
+  const [isSideMenuOpen, setIsSideMenuOpen] = useState<"expanded" | "collapsed" | "hidden">("collapsed");
   return (
     <>
       <BrowserRouter>
@@ -46,7 +46,7 @@ function App() {
               statuslist: JSON.stringify(statusSelect),
               currentUser: JSON.stringify(user1),
               userlist: JSON.stringify(userlist),
-              isSideMenuOpen: `${isSideMenuOpen}`,
+              isSideMenuOpen: isSideMenuOpen,
             })}
           />
         </Routes>
