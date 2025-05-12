@@ -1,3 +1,5 @@
+import { format } from "date-fns";
+import { ko } from "date-fns/locale";
 
 export const formatKoreanDateSimple = (date: Date): string => {
   const y = date.getFullYear().toString().slice(-2);
@@ -39,7 +41,7 @@ export const formatDateToYyyyMmDd = (dateInput: Date) => {
   const minutes = date.getMinutes();
 
   const isMidNight = hours === 0 && minutes === 0;
-  
+
   if (isMidNight) {
     return dateStr;
   } else {
@@ -49,3 +51,7 @@ export const formatDateToYyyyMmDd = (dateInput: Date) => {
   }
 
 };
+
+export const formatToKoreanDateTimeString = (date: Date) => {
+  return format(date, 'yyyy.MM.dd, aaaa hh:mm', { locale: ko })
+}

@@ -6,16 +6,19 @@ import { truncateText } from "../../../../utils/text-function";
 import DeleteModal from "../../delete-modal";
 import useUserStore from "../../../../store/user-store";
 import { useToast } from "../../../../context/toast-context";
+import DetailModal from "../../detail-modal";
 
 const CardHeader: React.FC<{
   task: Task;
   sectionName: string;
   onClick: () => void;
-}> = ({ task, sectionName, onClick }) => {
+  onModalStateChange: (isOpen: boolean) => void;
+}> = ({ task, sectionName, onClick, onModalStateChange }) => {
   const currentUser = useUserStore(state => state.currentUser);
 
   const { isOpen, setIsOpen, wrapperRef, dropdownRef, toggle } = useDropdown();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState<boolean>(false);
   const deleteTask = useTaskStore(state => state.deletTask);
   const copyTask = useTaskStore(state => state.copyTask);
   const { showToast } = useToast();
@@ -28,7 +31,7 @@ const CardHeader: React.FC<{
 
   const handleDeleteConfirm = () => {
     deleteTask(task.taskId);
-    setIsDeleteModalOpen(false);
+    closeDeleteModal();
     showToast('작업이 성공적으로 삭제되었습니다.');
   };
 
@@ -36,11 +39,25 @@ const CardHeader: React.FC<{
     e.stopPropagation();
     setIsDeleteModalOpen(true);
     setIsOpen(false);
+    onModalStateChange(true);
   };
 
   const closeDeleteModal = () => {
     setIsDeleteModalOpen(false);
+    if (!isDetailModalOpen) onModalStateChange(false);
   }
+
+  const openDetailModal = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsDetailModalOpen(true);
+    onModalStateChange(true);
+  };
+
+  const closeDetailModal = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsDetailModalOpen(false);
+    onModalStateChange(false);
+  };
 
   const isTaskOnwer = task.taskOwner.id === currentUser?.id;
 
@@ -72,6 +89,13 @@ const CardHeader: React.FC<{
         )}
         {isOpen && (
           <div ref={dropdownRef} className="header-dropdown-menu card-header__dropdown-menu">
+            <div className="header-dropdown-item" onClick={openDetailModal}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" className="bi bi-plus-square" viewBox="0 0 16 16">
+                <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z" />
+                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
+              </svg>
+              상세 보기
+            </div>
             <div className="header-dropdown-item" onClick={handleCopy}>
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" className="bi bi-plus-square" viewBox="0 0 16 16">
                 <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z" />
@@ -95,6 +119,13 @@ const CardHeader: React.FC<{
           message={'작업을 삭제하시겠습니까?'}
           onCancel={closeDeleteModal}
           onConfirm={handleDeleteConfirm}
+        />
+      )}
+      {isDetailModalOpen && (
+        <DetailModal
+          task={task}
+          onClose={closeDetailModal}
+          openDeleteModal={openDeleteModal}
         />
       )}
     </>

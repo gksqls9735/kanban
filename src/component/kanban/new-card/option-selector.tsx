@@ -19,7 +19,7 @@ const OptionSelector: React.FC<{
 
   return (
     <div className="card-select-wrapper">
-      <div ref={wrapperRef} className="card-priority" onClick={toggle}
+      <div ref={wrapperRef} className="card-priority-status-current " onClick={toggle}
         style={{ color: selectedOption.colorMain, backgroundColor: selectedOption.colorSub || lightenColor(selectedOption.colorMain, 0.85), cursor: 'pointer' }}
       >
         {truncateText(selectedOption.name, 2)}

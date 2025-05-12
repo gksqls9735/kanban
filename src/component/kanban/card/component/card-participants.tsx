@@ -53,7 +53,7 @@ const CardParticipants: React.FC<{
                   <div className="participant-popover__info">
                     <div className="participant-popover__name-line">
                       <div className="participant-popover__username">{user.username}</div>
-                      {user.isMain && (<div className="participant-popover__badge">주</div>)}
+                      {user.isMain && (<div className="participant-main-badge">주</div>)}
                     </div>
                     <span className="participant-popover__team">{user.team}</span>
                   </div>

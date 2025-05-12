@@ -117,7 +117,7 @@ const UpdateCard: React.FC<{
   return (
     <div ref={cardRef} className="edit-task-content" style={{ display: 'contents' }}>
 
-      <SectionSelector sections={sections} selectedSection={selectedSection} onSectionSelect={handleSectionSelect} />
+      <SectionSelector selectedSection={selectedSection} onSectionSelect={handleSectionSelect} />
 
       <input
         type="text"

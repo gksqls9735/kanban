@@ -8,11 +8,11 @@ const CardMeta: React.FC<{
 }> = ({ taskPriority, taskStatus }) => {
   return (
     <div className="card-priority-status">
-      <div className="card-priority truncate"
+      <div className="card-priority-status-current truncate"
         style={{ color: taskPriority.colorMain, backgroundColor: taskPriority.colorSub || lightenColor(taskPriority.colorMain, 0.85) }}
       >
         {truncateText(taskPriority.name, 2)}</div>
-      <div className="card-status truncate"
+      <div className="card-priority-status-current truncate"
         style={{ color: taskStatus.colorMain, backgroundColor: taskStatus.colorSub || lightenColor(taskStatus.colorMain, 0.85) }}
       >
         {truncateText(taskStatus.name, 2)}</div>

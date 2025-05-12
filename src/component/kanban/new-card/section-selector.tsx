@@ -3,13 +3,14 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCaretDown } from "@fortawesome/free-solid-svg-icons";
 import useDropdown from "../../../hooks/use-dropdown";
 import { truncateText } from "../../../utils/text-function";
+import useSectionsStore from "../../../store/sections-store";
 
 const SectionSelector: React.FC<{
-  sections: Section[];
   selectedSection: Section;
   onSectionSelect: (section: Section) => void;
-}> = ({ sections, selectedSection, onSectionSelect }) => {
+}> = ({ selectedSection, onSectionSelect }) => {
   const { isOpen, setIsOpen, wrapperRef, dropdownRef, toggle } = useDropdown();
+  const sections = useSectionsStore(state => state.sections);
 
   const handleSelect = (section: Section) => {
     onSectionSelect(section);

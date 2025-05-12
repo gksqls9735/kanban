@@ -11,11 +11,14 @@ const CardWrapper: React.FC<{
   isOverlay?: boolean;
 }> = ({ task, sectionName, isOverlay }) => {
   const [isEdit, setIsEdit] = useState<boolean>(false);
+  const [isAnyModalOpen, setIsAnyModalOpen] = useState<boolean>(false);
+
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: task.taskId,
     data: {
       task: task, type: 'Task',
-    }
+    },
+    disabled: isAnyModalOpen,
   });
 
   const style: React.CSSProperties = {
@@ -25,7 +28,11 @@ const CardWrapper: React.FC<{
     marginBottom: '8px',
     position: 'relative',
     backgroundColor: 'white',
-    cursor: isOverlay ? 'grabbing' : 'grab',
+    cursor: isAnyModalOpen ? 'default' : (isOverlay ? 'grabbing' : 'grab'),
+  };
+
+  const handleModalStateChange = (isOpen: boolean) => {
+    setIsAnyModalOpen(isOpen);
   };
 
   return (
@@ -44,7 +51,7 @@ const CardWrapper: React.FC<{
           {...attributes}
           className="kanban-card"
         >
-          <CardContent task={task} sectionName={sectionName} onClick={() => setIsEdit(true)} />
+          <CardContent task={task} sectionName={sectionName} onClick={() => setIsEdit(true)} onModalStateChange={handleModalStateChange} />
         </div>
       )}
     </>
