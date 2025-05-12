@@ -6,7 +6,7 @@ import { truncateText } from "../../../../utils/text-function";
 import DeleteModal from "../../delete-modal";
 import useUserStore from "../../../../store/user-store";
 import { useToast } from "../../../../context/toast-context";
-import DetailModal from "../../detail-modal";
+import DetailModal from "../../../detail-modal/detail-modal";
 
 const CardHeader: React.FC<{
   task: Task;

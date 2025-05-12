@@ -1,0 +1,260 @@
+.kanban .task-detail__detail-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #0000000A;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+  z-index: 1000;
+  cursor: default;
+}
+
+.kanban .task-detail__detail-modal-content {
+  position: fixed;
+  top: 80px;
+  bottom: 0;
+  right: 0;
+  width: 720px;
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+  box-sizing: border-box;
+  overflow-y: auto;
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+/* 헤더 */
+.kanban .task-detail__detail-modal-header {
+  width: 100%;
+  height: 56px;
+  padding: 0px 30px;
+  border-bottom: 1px solid #EEF1F6;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.kanban .task-detail__detail-modal-close-button {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.kanban .task-detail__detail-modal-delete-button {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 공통 섹션 */
+.kanban .task-detail__detail-modal-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 24px 30px;
+  border-bottom: '1px solid #EEF1F6';
+}
+
+/* 작업 설명(TITLE) */
+.kanban .task-detail__detail-modal-title-info-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: '#0F1B2A';
+}
+
+.kanban .task-detail__detail-modal-title-info-name-description {
+  font-size: 14px;
+  font-weight: 400;
+  color: #5F6B7A;
+}
+
+/* 작업 정보 */
+/* 작업 정보 공통 */
+.kanban .task-detail__detail-modal-info-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.kanban .task-detail__detail-modal-info-label {
+  width: 80px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #0F1B2A;
+  flex-shrink: 0;
+}
+
+/* 보고자 */
+.kanban .task-detail__detail-modal-info-row--reporter {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.kanban .task-detail__detail-modal-info-row--reporter>div:last-child {
+  font-size: 13px;
+  font-weight: 400;
+  color: #0F1B2A;
+}
+
+/* 담당자 */
+.kanban .task-detail__detail-modal-info-value--participants {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.kanban .task-detail__detail-modal-participant-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.kanban .task-detail__detail-modal-participant-name {
+  font-size: 13px;
+  font-weight: 400;
+  color: #0F1B2A;
+}
+
+.kanban .task-detail__detail-modal-participant-delete {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  height: 24px;
+}
+
+.kanban .task-detail__detail-modal-participant-add {
+  cursor: pointer;
+}
+
+/* 시작일, 마감일 */
+.kanban .task-detail__detail-modal-info-row--date {
+  height: 24px;
+}
+
+.kanban .task-detail__detail-modal-info-value--date {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.kanban .task-detail__detail-modal-info-icon {
+  display: flex;
+  align-items: center;
+}
+
+.kanban .task-detail__detail-modal-info-date {
+  font-size: 13px;
+  font-weight: 400;
+  color: #0F1B2A;
+}
+
+/* 우선 순위, 상태 */
+.kanban .task-detail__detail-modal-info-value--select-option {
+  width: 80px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #0F1B2A;
+  flex-shrink: 0;
+}
+
+/* 가중치 */
+.kanban .task-detail__detail-modal-info-row--weight {
+  align-items: flex-start;
+}
+
+.kanban .task-detail__detail-modal-info-label-weight {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.kanban .task-detail__detail-modal-info-label-weight-text {
+  font-size: 13px;
+  position: relative;
+  top: -1px;
+}
+
+.kanban .task-detail__detail-modal-info-label-weight-icon {
+  display: flex;
+  align-items: center;
+  height: 16px;
+}
+
+.kanban .task-detail__detail-modal-info-weight-slider {
+  width: 228px;
+  height: 36px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  padding-top: 7px;
+}
+
+.kanban .task-detail__detail-modal-info-weight-track {
+  position: relative;
+  width: 100%;
+  height: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.kanban .task-detail__detail-modal-info-weight-track-bg {
+  height: 1px;
+  background-color: #E4E8EE;
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  transform: translateY(-50%);
+  z-index: 1;
+}
+
+.kanban .task-detail__detail-modal-info-weight-tick {
+  width: 4px;
+  height: 4px;
+  background-color: #E4E8EE;
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+}
+
+.kanban .task-detail__detail-modal-info-weight-handler {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 3;
+  background-color: #16B364;
+  box-shadow: 0px 0px 0px 3px #AAF0C4;
+  cursor: grab;
+  user-select: none;
+}
+
+.kanban .task-detail__detail-modal-info-weight-labels {
+  position: relative;
+  width: 100%;
+  font-size: 11px;
+  font-weight: 500;
+  text-align: center;
+  vertical-align: middle;
+  color: #7D8998;
+  margin-top: 12px;
+}
+
+.kanban .task-detail__detail-modal-info-weight-label {
+  position: absolute;
+  transform: translateX(-50%);
+}
