@@ -16,12 +16,7 @@ export const useImportanceSlider = ({
   const [isDragging, setIsDragging] = useState<boolean>(false);
 
   const calcPosition = useCallback((clientX: number) => {
-        console.log("계산산")
-        
-        if (!trackRef.current) {
-      console.log("계산실패")
-      return value;
-    }
+    if (!trackRef.current) return value;
 
     const trackRect = trackRef.current.getBoundingClientRect();
     const trackLeft = trackRect.left;
@@ -40,7 +35,6 @@ export const useImportanceSlider = ({
   }, [trackRef, min, max, step, value]);
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
-        console.log("무브브")
     if (!isDragging) return;
 
     const newValue = calcPosition(e.clientX);
@@ -70,7 +64,6 @@ export const useImportanceSlider = ({
   }, [isDragging, handleMouseMove, handleMouseUp]);
 
   const onMouseDownHandler = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    console.log("드래그 시작")
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(true);
