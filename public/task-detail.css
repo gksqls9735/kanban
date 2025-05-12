@@ -12,7 +12,7 @@
   cursor: default;
 }
 
-.kanban .task-detail__detail-modal-content {
+.kanban .task-detail__detail-modal-wrapper {
   position: fixed;
   top: 80px;
   bottom: 0;
@@ -20,10 +20,14 @@
   width: 720px;
   display: flex;
   flex-direction: column;
-  background-color: #ffffff;
-  box-sizing: border-box;
-  overflow-y: auto;
+  background: white;
   box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.kanban .task-detail__detail-modal-content {
+  flex: 1;
+  overflow-y: auto;
 }
 
 /* 헤더 */
@@ -31,7 +35,6 @@
   width: 100%;
   height: 56px;
   padding: 0px 30px;
-  border-bottom: 1px solid #EEF1F6;
   box-sizing: border-box;
   display: flex;
   align-items: center;
@@ -60,7 +63,7 @@
   flex-direction: column;
   gap: 20px;
   padding: 24px 30px;
-  border-bottom: '1px solid #EEF1F6';
+  border-top: 1px solid #EEF1F6;
 }
 
 /* 작업 설명(TITLE) */

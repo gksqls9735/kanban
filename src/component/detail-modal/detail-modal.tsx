@@ -1,5 +1,5 @@
 import { Participant, Section, SelectOption, Task } from "../../types/type";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import useSectionsStore from "../../store/sections-store";
 import SectionSelector from "../kanban/new-card/section-selector";
 import ParticipantSelector from "../participant-select/participant-selector";
@@ -60,43 +60,59 @@ const DetailModal: React.FC<{
     setCurrentImportance(newImportance);
   };
 
+  useEffect(() => {
+    // 모달이 열릴 때 body 스크롤 숨김
+    document.body.style.overflow = 'hidden';
+    // 모달이 닫힐 때 body 스크롤 복원
+    return () => {
+      document.body.style.overflow = 'auto'; // 또는 원래 값으로 (예: 'unset')
+    };
+  }, []);
+
   return (
     <div className="task-detail__detail-modal-overlay" onClick={(e) => { e.stopPropagation(); onClose(e); }} role="dialog" aria-modal="true" aria-labelledby="modal-title">
-      <div className="task-detail__detail-modal-content" onClick={(e) => e.stopPropagation()}>
-        <DetailHeader onClose={onClose} openDeleteModal={openDeleteModal} />
+      <div className="task-detail__detail-modal-wrapper" onClick={(e) => e.stopPropagation()}>
+        <div className="task-detail__detail-modal-content">
+          <DetailHeader onClose={onClose} openDeleteModal={openDeleteModal} />
 
-        {/** 작업 설명(TITLE) */}
-        <div className="task-detail__detail-modal-section">
-          <SectionSelector selectedSection={selectedSection} onSectionSelect={handleSectionSelect} />
-          <div className="task-detail__detail-modal-title-info-name">{task.taskName}</div>
-          <div className="task-detail__detail-modal-title-info-name-description">작업 설명 {task.taskName}</div>
-        </div>
-
-        {/** 작업 정보 */}
-        <div className="task-detail__detail-modal-section">
-          <ReporterField userName={currentUser!.username} />
-
-          <ParticipantsField
-            participants={sortedParticipants}
-            onDeleteParticipant={handleDeleteParticipants}
-            onAddParticipantClick={() => setIsOpenParticipantModal(true)}
-          />
-
-          <DateField label="시작일" date={task.start} />
-          <DateField label="마감일" date={task.end} />
-
-          <div className="task-detail__detail-modal-info-row">
-            <div className="task-detail__detail-modal-info-value--select-option">우선순위</div>
-            <OptionSelector options={prioritySelect} selectedOption={selectedPriority} onSelect={handlePrioritySelect} />
+          {/** 작업 설명(TITLE) */}
+          <div className="task-detail__detail-modal-section">
+            <SectionSelector selectedSection={selectedSection} onSectionSelect={handleSectionSelect} />
+            <div className="task-detail__detail-modal-title-info-name">{task.taskName}</div>
+            <div className="task-detail__detail-modal-title-info-name-description">작업 설명 {task.taskName}</div>
           </div>
 
-          <div className="task-detail__detail-modal-info-row">
-            <div className="task-detail__detail-modal-info-value--select-option">상태</div>
-            <OptionSelector options={statusList} selectedOption={selectedStatus} onSelect={handleStatusSelect} />
+          {/** 작업 정보 */}
+          <div className="task-detail__detail-modal-section">
+            <ReporterField userName={currentUser!.username} />
+
+            <ParticipantsField
+              participants={sortedParticipants}
+              onDeleteParticipant={handleDeleteParticipants}
+              onAddParticipantClick={() => setIsOpenParticipantModal(true)}
+            />
+
+            <DateField label="시작일" date={task.start} />
+            <DateField label="마감일" date={task.end} />
+
+            <div className="task-detail__detail-modal-info-row">
+              <div className="task-detail__detail-modal-info-value--select-option">우선순위</div>
+              <OptionSelector options={prioritySelect} selectedOption={selectedPriority} onSelect={handlePrioritySelect} />
+            </div>
+
+            <div className="task-detail__detail-modal-info-row">
+              <div className="task-detail__detail-modal-info-value--select-option">상태</div>
+              <OptionSelector options={statusList} selectedOption={selectedStatus} onSelect={handleStatusSelect} />
+            </div>
+
+            <ImportanceField initialValue={currentImportance} onChange={handleImportanceChange} />
+
           </div>
 
-          <ImportanceField initialValue={currentImportance} onChange={handleImportanceChange} />
-
+          {/** 작업 필드 */}
+          <div className="task-detail__detail-modal-section" style={{ gap: 16 }}>
+            필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드ㅍ
+          </div>
         </div>
       </div>
       {isOpenParticipantModal && (
