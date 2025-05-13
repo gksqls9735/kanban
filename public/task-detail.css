@@ -261,3 +261,161 @@
   position: absolute;
   transform: translateX(-50%);
 }
+
+/* 작업 필드 */
+.kanban .task-detail__detail-modal-section--field {
+  gap: 16px
+}
+
+.kanban .task-detail__detail-modal-section--field-title {
+  font-size: 15;
+  font-weight: 600;
+  color: #0F1B2A;
+}
+
+.kanban .task-detail__detail-modal-field-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.kanban .task-detail__detail-modal-field-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.kanban .task-detail__detail-modal-field-label {
+  width: 80px;
+  font-size: 13px;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.kanban .task-detail__detail-modal-field-content-list {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.kanban .task-detail__detail-modal-field-content-list--user {
+  gap: 12px
+}
+
+.kanban .task-detail__detail-modal-field-value-item {
+  height: 24px;
+  max-width: 160px;
+  padding: 4px 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid #E4E8EE;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.kanban .task-detail__detail-modal-field-value-item--option {
+  padding: 4px;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 400;
+  color: #0F1B2A;
+}
+
+.kanban .task-detail__detail-modal-field-item--email {
+  font-size: 13px;
+  font-weight: 400;
+  text-decoration: underline;
+  cursor: copy;
+}
+
+.kanban .task-detail__detail-modal-field-item--attachment {
+  padding: 4px 8px 4px 6px;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.kanban .task-detail__detail-modal-field-item--multi-selection {
+  color: #8D99A8;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  cursor: pointer;
+}
+
+.kanban .task-detail__detail-modal-field-item--text {
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 130%;
+  letter-spacing: 0%;
+}
+
+.kanban .task-detail__detail-modal-field-item--numeric {
+  display: flex;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.kanban .task-detail__detail-modal-field-value-item--id {
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.kanban .task-detail__detail-modal-field-value-item--user {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 400;
+}
+
+/* URL 필드 컨텐츠 */
+.kanban .task-detail__detail-modal-field-value-item-url-favicon {
+  width: 16px;
+  padding: 1px 0;
+}
+
+.kanban .task-detail__detail-modal-field-value-item-url-link {
+  display: inline-block;
+  flex: 1;
+  font-size: 13px;
+  font-weight: 400;
+  color: #0F1B2A;
+  text-decoration: underline;
+  text-decoration-skip-ink: auto;
+}
+
+.kanban .task-detail__detail-modal-field-value-item-attachment-name {
+  font-size: 13px;
+  font-weight: 400;
+  color: #0F1B2A;
+}
+
+.kanban .task-detail__detail-modal-field-value-item-attachment-download {
+  width: fit-content;
+  height: fit-content;
+  display: flex;
+  align-items: center;
+}
+
+/* expanded toggle */
+.kanban .task-detail__detail-modal-field-expand-toggle {
+  color: #8D99A8;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  cursor: pointer;
+}
+
+.kanban .task-detail__detail-modal-field-expand-toggle-icon-wrapper {
+  width: fit-content;
+  height: fit-content;
+}
+
+.kanban .task-detail__detail-modal-field-expand-toggle-count {
+  font-size: 12px;
+  font-weight: 500;
+  text-align: center;
+}

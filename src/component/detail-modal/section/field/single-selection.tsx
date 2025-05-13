@@ -3,9 +3,9 @@ import OptionItem from "../../common/option-item";
 
 const SingleSelection: React.FC<{ option: SelectOption }> = ({ option }) => {
   return (
-    <li style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-      <div style={{ width: 80, fontSize: 13, fontWeight: 500, flexShrink: 0 }}>단일선택</div>
-      <ul style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+    <li className="task-detail__detail-modal-field-item">
+      <div className="task-detail__detail-modal-field-label">단일선택</div>
+      <ul className="task-detail__detail-modal-field-content-list">
         <OptionItem option={option} />
       </ul>
     </li>

@@ -4,16 +4,13 @@ import AvatarItem from "../../../avatar/avatar";
 
 const UserField: React.FC<{ users: Participant[] }> = ({ users }) => {
   return (
-    <li style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-      <div style={{ width: 80, fontSize: 13, fontWeight: 500, flexShrink: 0 }}>사용자</div>
-      <ul style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+    <li className="task-detail__detail-modal-field-item">
+      <div className="task-detail__detail-modal-field-label">사용자</div>
+      <ul className="task-detail__detail-modal-field-content-list task-detail__detail-modal-field-content-list--user">
         {users.map(user => (
-          <li key={user.id}
-            style={{
-              display: 'flex', gap: 6, alignItems: 'center',
-            }}>
+          <li key={user.id} className="task-detail__detail-modal-field-value-item--user">
             <AvatarItem size={24}>{getInitial(user.username)}</AvatarItem>
-            <div style={{ fontSize: 13, fontWeight: 400 }}>{user.username}</div>
+            <div>{user.username}</div>
           </li>
         ))}
       </ul>

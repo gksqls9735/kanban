@@ -1,9 +1,9 @@
 const IdField: React.FC<{ prefix: string, taskId: string }> = ({ prefix, taskId }) => {
   return (
-    <li style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-      <div style={{ width: 80, fontSize: 13, fontWeight: 500, flexShrink: 0 }}>ID</div>
-      <ul style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-        <li style={{ fontSize: 13, fontWeight: 400 }}>{`${prefix}-${taskId}`}</li>
+    <li className="task-detail__detail-modal-field-item">
+      <div className="task-detail__detail-modal-field-label">ID</div>
+      <ul className="task-detail__detail-modal-field-content-list">
+        <li className="task-detail__detail-modal-field-value-item--id">{`${prefix}-${taskId}`}</li>
       </ul>
     </li>
   );

@@ -8,17 +8,12 @@ const EmailField: React.FC<{ emails: Email[] }> = ({ emails }) => {
   };
 
   return (
-    <li style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-      <div style={{ width: 80, fontSize: 13, fontWeight: 500, flexShrink: 0 }}>이메일</div>
-      <ul style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+    <li className="task-detail__detail-modal-field-item">
+      <div className="task-detail__detail-modal-field-label">이메일</div>
+      <ul className="task-detail__detail-modal-field-content-list">
         {emails.map(email => (
           <li key={email.id} onClick={() => handleCopyEmail(email.email)}
-            style={{
-              height: 24, maxWidth: 160, padding: '4px 6px',
-              display: 'flex', gap: 4, alignItems: 'center',
-              border: '1px solid #E4E8EE', borderRadius: 4, boxSizing: 'border-box',
-              fontSize: 13, fontWeight: 400, textDecoration: 'underline', cursor: 'copy'
-            }}>
+            className="task-detail__detail-modal-field-value-item task-detail__detail-modal-field-item--email">
             {email.nickname}
           </li>
         ))}

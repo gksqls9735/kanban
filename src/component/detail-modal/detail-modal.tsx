@@ -119,9 +119,9 @@ const DetailModal: React.FC<{
           </div>
 
           {/** 작업 필드 */}
-          <div className="task-detail__detail-modal-section" style={{ gap: 16 }}>
-            <div style={{ fontSize: 15, fontWeight: 600, color: '#0F1B2A' }}>필드</div>
-            <ul style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div className="task-detail__detail-modal-section task-detail__detail-modal-section--field">
+            <div className="task-detail__detail-modal-section--field-title">필드</div>
+            <ul className="task-detail__detail-modal-field-list">
               {task.urls && task.urls.length > 0 && (<UrlField urls={task.urls} />)}
               {task.multiSelection && task.multiSelection.length > 0 && (<MultiSelection options={task.multiSelection} />)}
               {task.taskAttachments && task.taskAttachments.length > 0 && (<AttachmentField attachment={task.taskAttachments} />)}

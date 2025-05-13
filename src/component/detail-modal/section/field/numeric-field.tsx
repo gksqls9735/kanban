@@ -4,12 +4,12 @@ const NumericFieldComponent: React.FC<{ numericField: NumericField }> = ({ numer
   const formattedValue = numericField.value.toFixed(numericField.decimalPlaces);
 
   return (
-    <li style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-      <div style={{ width: 80, fontSize: 13, fontWeight: 500, flexShrink: 0 }}>숫자</div>
-      <ul style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-        <li style={{ display: 'flex', gap: 4 }}>
-          <div style={{ fontSize: 13, fontWeight: 400 }}>{formattedValue}</div>
-          <div style={{ fontSize: 13, fontWeight: 400, textAlign: 'right', verticalAlign: 'middle' }}>{numericField.unit}</div>
+    <li className="task-detail__detail-modal-field-item">
+      <div className="task-detail__detail-modal-field-label">숫자</div>
+      <ul className="task-detail__detail-modal-field-content-list">
+        <li className="task-detail__detail-modal-field-item--numeric">
+          <div>{formattedValue}</div>
+          <div>{numericField.unit}</div>
         </li>
       </ul>
     </li>
