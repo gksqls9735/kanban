@@ -8,6 +8,7 @@ const AttachmentField: React.FC<{ attachment: FileAttachment[] }> = ({ attachmen
 
   const attachmentsToShow = isExpanded ? attachment : attachment.slice(0, 3);
   const hiddenCount = attachment.length - 3;
+
   return (
     <li className="task-detail__detail-modal-field-item">
       <div className="task-detail__detail-modal-field-label">첨부파일</div>
@@ -16,15 +17,23 @@ const AttachmentField: React.FC<{ attachment: FileAttachment[] }> = ({ attachmen
           const { icon } = getFileTypeInfo(file.fileName);
           return (
             <li key={file.fileId} className="task-detail__detail-modal-field-value-item task-detail__detail-modal-field-item--attachment">
-              {icon}
-              <div className="truncate task-detail__detail-modal-field-value-item-attachment-name">{file.fileName}</div>
-              <div className="task-detail__detail-modal-field-value-item-attachment-download">
-                <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="#1f1f1f">
-                  <path d="M160-120v-80h640v80H160Zm320-160L280-480l56-56 104 104v-408h80v408l104-104 56 56-200 200Z" />
-                </svg>
-              </div>
+              <a
+                href={file.fileUrl}
+                download={file.fileName}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="task-detail__detail-modal-field-value-item-attachment-link truncate"
+              >
+                {icon}
+                <div className="truncate task-detail__detail-modal-field-value-item-attachment-name">{file.fileName}</div>
+                <div className="task-detail__detail-modal-field-value-item-attachment-download">
+                  <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="#1f1f1f">
+                    <path d="M160-120v-80h640v80H160Zm320-160L280-480l56-56 104 104v-408h80v408l104-104 56 56-200 200Z" />
+                  </svg>
+                </div>
+              </a>
             </li>
-          )
+          );
         })}
         <ExpandToggle hiddenCount={hiddenCount} toggle={() => setIsExpanded(prev => !prev)} isExpanded={isExpanded} />
       </ul>

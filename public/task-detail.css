@@ -336,6 +336,14 @@
   font-weight: 400;
 }
 
+.kanban .task-detail__detail-modal-field-value-item-attachment-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: inherit;
+}
+
 .kanban .task-detail__detail-modal-field-item--multi-selection {
   color: #8D99A8;
   display: flex;
