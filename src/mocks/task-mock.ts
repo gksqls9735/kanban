@@ -1,7 +1,6 @@
 import { Section, Task } from "../types/type";
-import { numericExamples } from "./numeric-field-mock";
 import { option3, option5, options, priorityHigh, priorityLow, priorityMedium, priorityUrgent, statusCompleted, statusInProgress, statusWaiting } from "./select-option-mock";
-import { emails, exampleAttachments, urls } from "./task-detail-mock";
+import { emails, exampleAttachments, numericExamples, urls } from "./task-detail-mock";
 import { user1, user2, user3, user4, user5, user6, user7, user8 } from "./user-mock";
 
 export const sections: Section[] = [
@@ -61,6 +60,7 @@ export const sectionTasks: Task[] = [
     urls: urls,
     multiSelection: options,
     singleSelection: option5,
+    numericField: numericExamples[0],
     emails: emails,
     prefix: 'IT',
   },
@@ -387,7 +387,6 @@ export const sectionTasks: Task[] = [
     urls: [],
     multiSelection: options,
     singleSelection: option5,
-    numericField: numericExamples[0],
     emails: emails,
     prefix: 'IT',
   },

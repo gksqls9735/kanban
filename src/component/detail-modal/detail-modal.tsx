@@ -12,6 +12,15 @@ import ReporterField from "./section/info-field/reporter-field";
 import ParticipantsField from "./section/info-field/participants-field";
 import DateField from "./section/info-field/date-field";
 import ImportanceField from "./section/info-field/importance-field";
+import UrlField from "./section/field/url-field";
+import MultiSelection from "./section/field/multi-selection-field";
+import AttachmentField from "./section/field/attachment-field";
+import SingleSelection from "./section/field/single-selection";
+import TextField from "./section/field/text-field";
+import NumericFieldComponent from "./section/field/numeric-field";
+import IdField from "./section/field/id-field";
+import EmailField from "./section/field/email-field";
+import UserField from "./section/field/user-field";
 
 const DetailModal: React.FC<{
   task: Task;
@@ -65,7 +74,7 @@ const DetailModal: React.FC<{
     document.body.style.overflow = 'hidden';
     // 모달이 닫힐 때 body 스크롤 복원
     return () => {
-      document.body.style.overflow = 'auto'; // 또는 원래 값으로 (예: 'unset')
+      document.body.style.overflow = 'auto';
     };
   }, []);
 
@@ -79,7 +88,7 @@ const DetailModal: React.FC<{
           <div className="task-detail__detail-modal-section">
             <SectionSelector selectedSection={selectedSection} onSectionSelect={handleSectionSelect} />
             <div className="task-detail__detail-modal-title-info-name">{task.taskName}</div>
-            <div className="task-detail__detail-modal-title-info-name-description">작업 설명 {task.taskName}</div>
+            <div className="task-detail__detail-modal-title-info-name-description">{task.memo}</div>
           </div>
 
           {/** 작업 정보 */}
@@ -111,15 +120,26 @@ const DetailModal: React.FC<{
 
           {/** 작업 필드 */}
           <div className="task-detail__detail-modal-section" style={{ gap: 16 }}>
-            필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드필드ㅍ
+            <div style={{ fontSize: 15, fontWeight: 600, color: '#0F1B2A' }}>필드</div>
+            <ul style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              {task.urls && task.urls.length > 0 && (<UrlField urls={task.urls} />)}
+              {task.multiSelection && task.multiSelection.length > 0 && (<MultiSelection options={task.multiSelection} />)}
+              {task.taskAttachments && task.taskAttachments.length > 0 && (<AttachmentField attachment={task.taskAttachments} />)}
+              {task.singleSelection && (<SingleSelection option={task.singleSelection} />)}
+              {task.memo && (<TextField text={task.memo} />)}
+              {task.numericField && (<NumericFieldComponent numericField={task.numericField} />)}
+              {task.prefix && (<IdField prefix={task.prefix} taskId={task.taskId} />)}
+              {task.emails && task.emails.length > 0 && (<EmailField emails={task.emails} />)}
+              {task.participants && task.participants.length > 0 && (<UserField users={task.participants} />)}
+            </ul>
           </div>
         </div>
-      </div>
+      </div >
       {isOpenParticipantModal && (
         <ParticipantSelector
           initialParticipants={participants} onClose={() => setIsOpenParticipantModal(false)} onConfirm={handleParticipants}
         />)}
-    </div>
+    </div >
   );
 };
 

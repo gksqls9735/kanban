@@ -1,4 +1,4 @@
-import { Chat, Email, FileAttachment, UrlData } from "../types/type";
+import { Chat, Email, FileAttachment, NumericField, UrlData } from "../types/type";
 import { user1, user2, user3, user5, user6, user8 } from "./user-mock";
 
 // 첨부 예시
@@ -104,6 +104,23 @@ export const urls: UrlData[] = [
     order: 5,
   },
 ]
+
+export type MeasurementUnit =
+  | '%' | 'cm' | 'm' | 'mm' | 'inch'
+  | 'kg' | 'g' | 'lb'
+  | '$' | '₩' | '€' | '¥'
+  | 's' | 'min' | 'hr'
+  | '°C' | '°F'
+  | 'ml' | 'l';
+
+export const numericExamples: NumericField[] = [
+  { value: 3.4567, unit: '%', decimalPlaces: 2 },
+  { value: 180.25, unit: 'cm', decimalPlaces: 1 },
+  { value: 75.123, unit: '$', decimalPlaces: 1 },
+  { value: 12999.99, unit: '₩', decimalPlaces: 0 },
+  { value: 36.689, unit: '°C', decimalPlaces: 1 },
+  { value: 1.23456, unit: 'l', decimalPlaces: 3 }
+];
 
 export const emails: Email[] = [
   { id: 'email01', email: "alice.wonder@example.com", nickname: "앨리스", order: 0 },
