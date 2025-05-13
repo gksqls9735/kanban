@@ -53,6 +53,24 @@ const DetailModal: React.FC<{
     });
   }, [participants]);
 
+  const [isExpanded, setIsExpanded] = useState<boolean>(false);
+
+  const visibleFieldComponents = useMemo(() => {
+    const allFields = [
+      task.urls?.length ? <UrlField key="url" urls={task.urls} /> : null,
+      task.multiSelection?.length ? <MultiSelection key="multi" options={task.multiSelection} /> : null,
+      task.taskAttachments?.length ? <AttachmentField key="attach" attachment={task.taskAttachments} /> : null,
+      task.singleSelection ? <SingleSelection key="single" option={task.singleSelection} /> : null,
+      task.memo ? <TextField key="text" text={task.memo} /> : null,
+      task.numericField ? <NumericFieldComponent key="num" numericField={task.numericField} /> : null,
+      task.prefix ? <IdField key="id" prefix={task.prefix} taskId={task.taskId} /> : null,
+      task.emails?.length ? <EmailField key="email" emails={task.emails} /> : null,
+      task.participants?.length ? <UserField key="user" users={task.participants} /> : null,
+    ].filter(Boolean);
+    return isExpanded ? allFields : allFields.slice(0, 3);
+  }, [task, isExpanded]);
+
+
   const handleSectionSelect = (section: Section) => setSelectedSection(section);
   const handleParticipants = (participants: Participant[]) => {
     setParticipants(participants);
@@ -122,15 +140,18 @@ const DetailModal: React.FC<{
           <div className="task-detail__detail-modal-section task-detail__detail-modal-section--field">
             <div className="task-detail__detail-modal-section--field-title">필드</div>
             <ul className="task-detail__detail-modal-field-list">
-              {task.urls && task.urls.length > 0 && (<UrlField urls={task.urls} />)}
-              {task.multiSelection && task.multiSelection.length > 0 && (<MultiSelection options={task.multiSelection} />)}
-              {task.taskAttachments && task.taskAttachments.length > 0 && (<AttachmentField attachment={task.taskAttachments} />)}
-              {task.singleSelection && (<SingleSelection option={task.singleSelection} />)}
-              {task.memo && (<TextField text={task.memo} />)}
-              {task.numericField && (<NumericFieldComponent numericField={task.numericField} />)}
-              {task.prefix && (<IdField prefix={task.prefix} taskId={task.taskId} />)}
-              {task.emails && task.emails.length > 0 && (<EmailField emails={task.emails} />)}
-              {task.participants && task.participants.length > 0 && (<UserField users={task.participants} />)}
+              {visibleFieldComponents.map((field, idx) => (
+                <div key={idx}>{field}</div>
+              ))}
+              <li className="task-detail__detail-modal-field-item">
+                <span onClick={() => setIsExpanded(prev => !prev)} className="task-detail__detail-modal-field-expand-text">
+                  {isExpanded ? (
+                    <>필드 접기</>
+                  ) : (
+                    <>필드 더보기...</>
+                  )}
+                </span>
+              </li>
             </ul>
           </div>
         </div>
