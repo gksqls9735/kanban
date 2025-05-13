@@ -14,6 +14,12 @@ export type UrlData = {
   order: number;
 }
 
+export interface NumericField {
+  value: number;
+  unit: string;
+  decimalPlaces: number;
+}
+
 export type Email = {
   id: string;
   email: string;
@@ -130,17 +136,19 @@ export type Task = {
 
   /** 작업 상세 컴포넌트 필요 */
   /** 작업 자체 첨부파일 목록 (추가) */
-  taskAttachments: FileAttachment[];
+  taskAttachments?: FileAttachment[];
   /** 작업 참고 링크 */
-  urls: UrlData[];
+  urls?: UrlData[];
   /** 다중 선택 옵션 */
-  multiSelection: SelectOption[];
+  multiSelection?: SelectOption[];
   /** 단일 선택 옵션 */
-  singleSelection: SelectOption;
+  singleSelection?: SelectOption;
+  /** 숫자 필드 */
+  numericField?: NumericField;
   /** Email */
-  emails: Email[];
+  emails?: Email[];
   /** ID 접두사 */
-  prefix: string;
+  prefix?: string;
 
   /** 작업 상세 내용 */
   memo?: string
