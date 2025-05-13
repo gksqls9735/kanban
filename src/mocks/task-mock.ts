@@ -1,5 +1,5 @@
 import { Section, Task } from "../types/type";
-import { priorityHigh, priorityLow, priorityMedium, priorityUrgent, statusCompleted, statusInProgress, statusWaiting } from "./select-option-mock";
+import { options, priorityHigh, priorityLow, priorityMedium, priorityUrgent, statusCompleted, statusInProgress, statusWaiting } from "./select-option-mock";
 import { emails, exampleAttachments, urls } from "./task-detail-mock";
 import { user1, user2, user3, user4, user5, user6, user7, user8 } from "./user-mock";
 
@@ -58,6 +58,7 @@ export const sectionTasks: Task[] = [
       exampleAttachments[4],
     ],
     urls: urls,
+    multiSelection: options,
     emails: emails,
     prefix: 'IT',
   },
@@ -78,12 +79,13 @@ export const sectionTasks: Task[] = [
     ],
     dependencies: ['SD202504101001000001'],
     participants: [{ ...user5, isMain: true }, { ...user1, isMain: false }, { ...user2, isMain: false }, { ...user3, isMain: false },
-      { ...user4, isMain: false }, { ...user6, isMain: false }, { ...user7, isMain: false }, { ...user8, isMain: false }
+    { ...user4, isMain: false }, { ...user6, isMain: false }, { ...user7, isMain: false }, { ...user8, isMain: false }
     ],
     color: '#FFB6C1', // LightPink
     order: 1,
     taskAttachments: [],
     urls: [],
+    multiSelection: options,
     emails: emails,
     prefix: 'IT',
   },
@@ -106,7 +108,8 @@ export const sectionTasks: Task[] = [
     memo: '개인정보 처리 방침, 이용 약관 등 검토',
     taskAttachments: [],
     urls: [],
-    emails: emails, 
+    multiSelection: options,
+    emails: emails,
     prefix: 'IT',
   },
 
@@ -132,7 +135,8 @@ export const sectionTasks: Task[] = [
     order: 3,
     taskAttachments: [],
     urls: [],
-    emails: emails, 
+    multiSelection: options,
+    emails: emails,
     prefix: 'IT',
 
   },
@@ -157,6 +161,7 @@ export const sectionTasks: Task[] = [
     order: 4,
     taskAttachments: [],
     urls: [],
+    multiSelection: options,
     emails: emails,
     prefix: 'IT',
   },
@@ -182,6 +187,7 @@ export const sectionTasks: Task[] = [
     memo: 'Figma 활용하여 디자인 및 프로토타입 제작',
     taskAttachments: [],
     urls: [],
+    multiSelection: options,
     emails: emails,
     prefix: 'IT',
   },
@@ -208,6 +214,7 @@ export const sectionTasks: Task[] = [
     order: 6,
     taskAttachments: [],
     urls: [],
+    multiSelection: options,
     emails: emails,
     prefix: 'IT',
   },
@@ -233,6 +240,7 @@ export const sectionTasks: Task[] = [
     order: 7, // 순서 변경
     taskAttachments: [],
     urls: [],
+    multiSelection: options,
     emails: emails,
     prefix: 'IT',
   },
@@ -260,6 +268,7 @@ export const sectionTasks: Task[] = [
     memo: '소셜 로그인 기능은 추후 구현 예정',
     taskAttachments: [],
     urls: [],
+    multiSelection: options,
     emails: emails,
     prefix: 'IT',
   },
@@ -281,6 +290,7 @@ export const sectionTasks: Task[] = [
     order: 9, // 순서 변경
     taskAttachments: [],
     urls: [],
+    multiSelection: options,
     emails: emails,
     prefix: 'IT',
   },
@@ -309,6 +319,7 @@ export const sectionTasks: Task[] = [
     memo: 'ERD 기반으로 분석 완료. 더미 데이터 1000건 생성.',
     taskAttachments: [],
     urls: [],
+    multiSelection: options,
     emails: emails,
     prefix: 'IT',
   },
@@ -334,6 +345,7 @@ export const sectionTasks: Task[] = [
     order: 11,
     taskAttachments: [],
     urls: [],
+    multiSelection: options,
     emails: emails,
     prefix: 'IT',
   },
@@ -360,6 +372,7 @@ export const sectionTasks: Task[] = [
     memo: '보안 강화 위해 bcrypt 사용',
     taskAttachments: [],
     urls: [],
+    multiSelection: options,
     emails: emails,
     prefix: 'IT',
   },
@@ -381,6 +394,7 @@ export const sectionTasks: Task[] = [
     order: 13,
     taskAttachments: [],
     urls: [],
+    multiSelection: options,
     emails: emails,
     prefix: 'IT',
   },

@@ -133,6 +133,8 @@ export type Task = {
   taskAttachments: FileAttachment[];
   /** 작업 참고 링크 */
   urls: UrlData[];
+  /* 다중 선택 옵션 */
+  multiSelection: SelectOption[];
   /** Email */
   emails: Email[];
   /** ID 접두사 */
