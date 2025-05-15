@@ -1,4 +1,4 @@
-import { Participant, Section, SelectOption, Task } from "../../types/type";
+import { Participant, Section, SelectOption, Task, Todo } from "../../types/type";
 import { useEffect, useMemo, useState } from "react";
 import useSectionsStore from "../../store/sections-store";
 import SectionSelector from "../kanban/new-card/section-selector";
@@ -21,6 +21,7 @@ import NumericFieldComponent from "./section/field/numeric-field";
 import IdField from "./section/field/id-field";
 import EmailField from "./section/field/email-field";
 import UserField from "./section/field/user-field";
+import DetailTodoList from "./section/detail-todo/detail-todo-list";
 
 const DetailModal: React.FC<{
   task: Task;
@@ -70,6 +71,7 @@ const DetailModal: React.FC<{
     return isExpanded ? allFields : allFields.slice(0, 3);
   }, [task, isExpanded]);
 
+  const [currentTodoList, setCurrentTodoList] = useState<Todo[]>(task.todoList);
 
   const handleSectionSelect = (section: Section) => setSelectedSection(section);
   const handleParticipants = (participants: Participant[]) => {
@@ -145,15 +147,14 @@ const DetailModal: React.FC<{
               ))}
               <li className="task-detail__detail-modal-field-item">
                 <span onClick={() => setIsExpanded(prev => !prev)} className="task-detail__detail-modal-field-expand-text">
-                  {isExpanded ? (
-                    <>필드 접기</>
-                  ) : (
-                    <>필드 더보기...</>
-                  )}
+                  {isExpanded ? (<>필드 접기</>) : (<>필드 더보기...</>)}
                 </span>
               </li>
             </ul>
           </div>
+
+          {/** 작업 할 일 목록 */}
+          <DetailTodoList initialTodoList={currentTodoList} setInitialTodoList={setCurrentTodoList} taskId={task.taskId}/>
         </div>
       </div >
       {isOpenParticipantModal && (

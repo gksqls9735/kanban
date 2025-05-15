@@ -1,3 +1,8 @@
+.kanban .line-through {
+  text-decoration-line: line-through;
+  color: rgb(156 163 175);
+}
+
 .kanban .task-detail__detail-modal-overlay {
   position: fixed;
   top: 0;
@@ -433,4 +438,153 @@
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
+}
+
+/* 작업 할 일 */
+.kanban .task-detail__detail-modal-todo-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.kanban .task-detail__detail-modal-todo-item {
+  display: flex;
+  gap: 6px;
+}
+
+.kanban .task-detail__detail-modal-todo-add-item {
+  align-items: center;
+  padding-left: 24px;
+  width: fit-content;
+  cursor: pointer;
+}
+
+.kanban .task-detail__detail-modal-todo-add-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+}
+
+.kanban .task-detail__detail-modal-todo-add-text {
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 20px;
+  color: #7D8998;
+}
+
+/* 체크박스 */
+.kanban .task-detail__checkbox-area {
+  display: flex;
+  align-items: flex-start;
+  line-height: 1;
+  padding: 0;
+  margin: 0;
+}
+
+.kanban .task-detail__checkbox--native {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* 2. 가짜 체크박스 모양 만들기 */
+.kanban .task-detail__checkbox--visual {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 9999px;
+  position: relative;
+  transition: background-color 0.2s, border-color 0.2s;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+/* 3. 실제 체크박스가 체크됐을 때 가짜 체크박스 스타일 변경 */
+.kanban .task-detail__checkbox--native:checked+.task-detail__checkbox--visual {
+  background-color: rgb(51, 189, 120);
+  border-color: rgb(51, 189, 120);
+}
+
+/* 4. 가상 요소로 체크 표시 만들기 (흰색) */
+.kanban .task-detail__checkbox--visual::after {
+  content: "";
+  /* 가상 요소 필수 속성 */
+  position: absolute;
+  display: none;
+
+  left: 5px;
+  top: 2px;
+  width: 4px;
+  height: 8px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* 실제 체크박스가 체크됐을 때 체크 표시 보여주기 */
+.kanban .task-detail__checkbox--native:checked+.task-detail__checkbox--visual::after {
+  display: block;
+}
+
+.kanban .task-detail__detail-modal-todo-item-checkbox {
+  display: flex;
+  gap: 8px;
+}
+
+.kanban .task-detail__detail-modal-todo-item-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-weight: 400;
+  flex-grow: 1;
+}
+
+.kanban .task-detail__detail-modal-todo-item-content>div:first-child {
+  font-size: 13px;
+  color: #8D99A8;
+  line-height: 15px;
+}
+
+.kanban .task-detail__detail-modal-todo-item-content>div:last-child {
+  font-size: 12px;
+  color: #7D8998;
+}
+
+.kanban .task-detail__todo-item__action {
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.kanban .task-detail__todo-item__action.task-detail__todo-item__action--delete {
+  border-radius: 999px;
+  background-color: rgba(238, 241, 246, 1);
+}
+
+.kanban .task-detail__todo-item__action.task-detail__todo-item__action--drag-handle {
+  color: rgba(217, 217, 217, 1);
+}
+
+.kanban .task-detail__todo-item__action.task-detail__todo-item__action--drag-handle:hover {
+  color: rgb(131, 131, 131);
+}
+
+.kanban .task-detail__todo-item__input {
+  border: none;
+  outline: none;
+  flex-grow: 1;
+  background-color: 'transparent';
+  font-size: 14px;
+  color: #7D8998;
+  font-weight: 400;
+  height: 24px;
+  line-height: 24px;
+  box-sizing: border-box;
 }

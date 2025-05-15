@@ -108,7 +108,7 @@ const NewTaskCard: React.FC<{
     <>
       <div className="kanban-card relative">
 
-        <SectionSelector sections={sections} selectedSection={selectedSection} onSectionSelect={handleSectionSelect} />
+        <SectionSelector selectedSection={selectedSection} onSectionSelect={handleSectionSelect} />
 
         <input
           type="text"

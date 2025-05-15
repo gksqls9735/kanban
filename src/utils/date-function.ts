@@ -55,3 +55,21 @@ export const formatDateToYyyyMmDd = (dateInput: Date) => {
 export const formatToKoreanDateTimeString = (date: Date) => {
   return format(date, 'yyyy.MM.dd, aaaa hh:mm', { locale: ko })
 }
+
+export const formatDateToKoreanDeadline = (date: Date | string | null | undefined): string => {
+  if (!date) return '기한 없음';
+
+  let dateObject: Date;
+
+  if (typeof date === 'string') dateObject = new Date(date);
+  else if (date instanceof Date) dateObject = date;
+  else { return '기한 없음'; }
+
+  if (isNaN(dateObject.getTime())) return '기한 없음';
+
+  const year = dateObject.getFullYear();
+  const month = String(dateObject.getMonth() + 1).padStart(2, '0');
+  const day = String(dateObject.getDate()).padStart(2, '0');
+
+  return `${year}년 ${month}월 ${day}일까지`;
+}
