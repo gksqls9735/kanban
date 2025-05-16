@@ -81,7 +81,23 @@ const Kanban: React.FC<{
       }
     }, [initialUserlist, setUserlist]);
 
+    useEffect(() => {
+      if (chatlist && chatlist.length > 0) {
+        const chatsByTaskData: Record<string, Chat[]> = {};
+        chatlist.forEach(chat => {
+          if (!chatsByTaskData[chat.taskId]) chatsByTaskData[chat.taskId] = [];
+          chatsByTaskData[chat.taskId].push(chat);
+        });
 
+        for (const taskId in chatsByTaskData) {
+          chatsByTaskData[taskId].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+        }
+
+        setAllTaskChats(chatsByTaskData);
+      } else {
+        setAllTaskChats({});
+      }
+    }, [chatlist, setAllTaskChats]);
 
     const getSectionName = (sectionId: string): string => {
       return sections.find(sec => sec.sectionId === sectionId)?.sectionName || '';

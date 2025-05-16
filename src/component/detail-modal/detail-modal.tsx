@@ -1,4 +1,4 @@
-import { Chat, Participant, Section, SelectOption, Task, Todo } from "../../types/type";
+import { Participant, Section, SelectOption, Task, Todo } from "../../types/type";
 import { useEffect, useMemo, useState } from "react";
 import useSectionsStore from "../../store/sections-store";
 import SectionSelector from "../kanban/new-card/section-selector";
@@ -159,7 +159,7 @@ const DetailModal: React.FC<{
           <DetailTodoList initialTodoList={currentTodoList} setInitialTodoList={setCurrentTodoList} taskId={task.taskId} />
 
           {/** 채팅 */}
-          <ChatList chatlist={task.chatlist || []} currentUser={currentUser!} taskId={task.taskId} />
+          <ChatList currentUser={currentUser!} taskId={task.taskId} />
           <ChatInput currentUser={currentUser!} taskId={task.taskId} />
         </div>
       </div>
