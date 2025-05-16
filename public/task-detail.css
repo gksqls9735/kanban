@@ -668,6 +668,10 @@
   gap: 6px;
 }
 
+.kanban .task-detail__detail-modal-chat-like > svg {
+  cursor: pointer;
+}
+
 .kanban .task-detail__detail-modal-chat-like-count {
   font-size: 13px;
   font-weight: 400;

@@ -11,8 +11,8 @@ const ChatList: React.FC<{
   const chats = useChatStore(s => s.chatsByTask[taskId] || []);
   const updateChat = useChatStore(s => s.updateChat);
 
-  const handleUpdateChat = (chatId: string, update: Partial<Chat>) => {
-    updateChat(taskId, chatId, update);
+  const handleUpdateChat = (chatId: string, update: Partial<Chat>, parentId: string | null) => {
+    updateChat(taskId, parentId, chatId, update);
   };
 
   return (
