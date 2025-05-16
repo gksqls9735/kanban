@@ -5,6 +5,7 @@ interface AvatarItemProps {
   isOverflow?: boolean;
   children: ReactNode;
   isFirst?: boolean;
+  fontSize?: number;
 }
 
 const AvatarItem: React.FC<AvatarItemProps> = ({
@@ -12,6 +13,7 @@ const AvatarItem: React.FC<AvatarItemProps> = ({
   isOverflow = false,
   children,
   isFirst = false,
+  fontSize,
 }) => {
   const clipPathId = `avatarClipPath-${Math.random().toString(36).substring(2, 9)}`;
   const baseGradientId = `avatarBaseGradient-${Math.random().toString(36).substring(2, 9)}`;
@@ -35,7 +37,7 @@ const AvatarItem: React.FC<AvatarItemProps> = ({
 
   const overflowBackgroundColor = 'rgba(228, 232, 238, 1)';
   const overflowTextColor = 'rgba(125, 137, 152, 1)';
-  const overflowFontSize = '12px';
+  const overflowFontSize = fontSize ? fontSize : '12px';
   const overflowFontWeight = '400';
   const borderStroke = 'white';
   const borderStrokeWidth = 1;
@@ -48,7 +50,7 @@ const AvatarItem: React.FC<AvatarItemProps> = ({
       height={size}
       viewBox={`0 0 ${size} ${size}`}
       xmlns="http://www.w3.org/2000/svg"
-      style={{ display: 'block', marginLeft: `${isFirst ? -6 :  0}`  }}
+      style={{ display: 'block', marginLeft: `${isFirst ? -6 : 0}` }}
     >
       <defs>
         <clipPath id={clipPathId}>
