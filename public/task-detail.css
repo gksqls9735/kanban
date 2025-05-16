@@ -588,3 +588,134 @@
   line-height: 24px;
   box-sizing: border-box;
 }
+
+/* 작업 채팅 목록 */
+.kanban .task-detail__detail-modal-chat-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.kanban .task-detail__detail-modal-chat-item {
+  display: flex;
+  gap: 8px;
+}
+
+.kanban .task-detail__detail-modal-chat-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  line-height: 13px;
+  flex-grow: 1;
+}
+
+.kanban .task-detail__detail-modal-chat-header {
+  display: flex;
+  justify-content: space-between;
+}
+
+.kanban .task-detail__detail-modal-chat-user-info {
+  display: flex;
+  gap: 6px;
+  height: 16px;
+}
+
+.kanban .task-detail__detail-modal-chat-user-info>div:first-child {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0F1B2A;
+}
+
+.kanban .task-detail__detail-modal-chat-user-info>div:last-child {
+  font-size: 13px;
+  font-weight: 400;
+  color: #A8B1BD;
+}
+
+.kanban .task-detail__detail-modal-chat-text {
+  font-weight: 400;
+  font-size: 14px;
+}
+
+.kanban .task-detail__detail-modal-chat-reply-button {
+  font-size: 13px;
+  font-weight: 400;
+  color: #A8B1BD;
+  cursor: pointer;
+}
+
+.kanban .task-detail__detail-modal-chat-replies {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.kanban .task-detail__detail-modal-chat-replies>div:first-child {
+  width: 20px;
+  border: 1px solid #CDD3DD;
+}
+
+.kanban .task-detail__detail-modal-chat-replies>div:last-child {
+  font-size: 13px;
+  font-weight: 400;
+  color: #A8B1BD;
+}
+
+.kanban .task-detail__detail-modal-chat-like {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.kanban .task-detail__detail-modal-chat-like-count {
+  font-size: 13px;
+  font-weight: 400;
+  color: #5F6B7A;
+  text-align: center;
+}
+
+/* 작업 채팅 입력 */
+.kanban .task-detail__detail-modal-chat-input-area {
+  display: flex;
+  gap: 6px;
+  border-top: 1px solid #EEF1F6;
+  padding: 20px 30px;
+}
+
+.kanban .task-detail__detail-modal-chat-input-wrapper {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  height: 40px;
+  padding: 4px 4px 4px 20px;
+  border-radius: 24px;
+  background-color: #F8F9FB;
+  box-sizing: border-box;
+}
+
+.kanban .task-detail__detail-modal-chat-input-wrapper>input[type="text"] {
+  font-size: 14px;
+  font-weight: 400;
+  flex-grow: 1;
+  border: none;
+  outline: none;
+  background-color: transparent;
+}
+
+.kanban .task-detail__detail-modal-chat-input-wrapper>input[type="text"]::placeholder {
+  color: #5F6B7A;
+}
+
+.kanban .task-detail__detail-modal-chat-input-wrapper>input[type="file"] {
+  display: none;
+}
+
+.kanban .task-detail__detail-modal-chat-input-attach-icon {
+  width: 32px;
+  height: 32px;
+  padding: 6px;
+  color: #5F6B7A;
+  box-sizing: border-box;
+  cursor: pointer;
+}

@@ -1,4 +1,4 @@
-import { Participant, Section, SelectOption, Task, Todo } from "../../types/type";
+import { Chat, Participant, Section, SelectOption, Task, Todo } from "../../types/type";
 import { useEffect, useMemo, useState } from "react";
 import useSectionsStore from "../../store/sections-store";
 import SectionSelector from "../kanban/new-card/section-selector";
@@ -22,6 +22,8 @@ import IdField from "./section/field/id-field";
 import EmailField from "./section/field/email-field";
 import UserField from "./section/field/user-field";
 import DetailTodoList from "./section/detail-todo/detail-todo-list";
+import ChatList from "./section/chat/chat-list/chat-list";
+import ChatInput from "./section/chat/chat-input";
 
 const DetailModal: React.FC<{
   task: Task;
@@ -154,14 +156,20 @@ const DetailModal: React.FC<{
           </div>
 
           {/** 작업 할 일 목록 */}
-          <DetailTodoList initialTodoList={currentTodoList} setInitialTodoList={setCurrentTodoList} taskId={task.taskId}/>
+          <DetailTodoList initialTodoList={currentTodoList} setInitialTodoList={setCurrentTodoList} taskId={task.taskId} />
+
+          {/** 채팅 */}
+          <ChatList chatlist={task.chatlist || []} currentUser={currentUser!} taskId={task.taskId} />
+          <ChatInput currentUser={currentUser!} taskId={task.taskId} />
         </div>
-      </div >
-      {isOpenParticipantModal && (
-        <ParticipantSelector
-          initialParticipants={participants} onClose={() => setIsOpenParticipantModal(false)} onConfirm={handleParticipants}
-        />)}
-    </div >
+      </div>
+      {
+        isOpenParticipantModal && (
+          <ParticipantSelector
+            initialParticipants={participants} onClose={() => setIsOpenParticipantModal(false)} onConfirm={handleParticipants}
+          />)
+      }
+    </div>
   );
 };
 

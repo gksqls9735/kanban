@@ -189,7 +189,7 @@ export const chatlists: Chat[] = [
   },
   {
     chatId: 'chat-004',
-    taskId: 'SD202504101001000002',
+    taskId: 'SD202504101001000001',
     chatContent: '디자인 시안 작업 중입니다. 내일 오전 중으로 공유드릴게요!',
     chatReplies: [],
     user: user6, // 디자이너B

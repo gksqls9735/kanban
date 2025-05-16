@@ -73,3 +73,18 @@ export const formatDateToKoreanDeadline = (date: Date | string | null | undefine
 
   return `${year}년 ${month}월 ${day}일까지`;
 }
+
+export const formatTimeToHHMM = (date: Date): string => {
+  if (!(date instanceof Date) || isNaN(date.getTime())) {
+    console.warn("Invalid Date object provided to formatTimeToHHMM. Returning '00:00'.");
+    return "00:00";
+  }
+
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+
+  const formattedHours = String(hours).padStart(2, '0');
+  const formattedMinutes = String(minutes).padStart(2, '0');
+
+  return `${formattedHours} : ${formattedMinutes}`;
+}

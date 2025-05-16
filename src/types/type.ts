@@ -149,6 +149,8 @@ export type Task = {
   emails?: Email[];
   /** ID 접두사 */
   prefix?: string;
+  /** 채팅 목록 */
+  chatlist?: Chat[];
 
   /** 작업 상세 내용 */
   memo?: string
