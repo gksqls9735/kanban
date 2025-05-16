@@ -1,5 +1,5 @@
 import { Chat, Email, FileAttachment, NumericField, UrlData } from "../types/type";
-import { user1, user2, user3, user5, user6, user8 } from "./user-mock";
+import { user1, user2, user3, user4, user5, user6, user8 } from "./user-mock";
 
 // 첨부 예시
 export const exampleAttachments: FileAttachment[] = [
@@ -134,67 +134,144 @@ export const emails: Email[] = [
   { id: 'email09', email: "test@test.com", nickname: "테스터", order: 8 }
 ];
 
-// -> Chat 예시 데이터
-export const chatlists: Chat[] = [
-  {
-    chatId: 'chat-001',
-    taskId: 'SD202504101001000001',
-    chatContent: '안녕하세요! 프로젝트 관련해서 첫 미팅 일정을 잡아볼까요?',
-    chatReplies: [
-      {
-        refChatId: 'chat-001',
-        chatId: 'chat-004',
-        taskId: 'SD202504101001000001',
-        chatContent: '백엔드 API 명세서 초안 나왔습니다. 검토 부탁드립니다.',
-        chatReplies: [],
-        user: user8, // 백엔드개발D
-        createdAt: new Date('2023-10-27T11:00:00Z'),
-        likedUserIds: [user1.id],
-        attachments: [
-          exampleAttachments[0],
-        ],
-      },
-    ],
-    user: user1,
-    createdAt: new Date('2023-10-27T10:00:00Z'), // UTC 기준 시간
-    likedUserIds: [user1.id, user2.id, user3.id],
-    attachments: [
-      exampleAttachments[1],
-      exampleAttachments[3],
-    ],
-  },
-  {
-    chatId: 'chat-002',
-    taskId: 'SD202504101001000001',
-    chatContent: '네, 좋습니다. 저는 다음 주 월요일 오후가 괜찮습니다.',
-    chatReplies: [],
-    user: user5, // 기획자A
-    createdAt: new Date('2023-10-27T10:05:15Z'),
-    likedUserIds: [user1.id],
-    attachments: [
-      exampleAttachments[6]
-    ],
-  },
-  {
-    chatId: 'chat-003',
-    taskId: 'SD202504101001000001',
-    chatContent: '디자인 시안 작업 중입니다. 내일 오전 중으로 공유드릴게요!',
-    chatReplies: [],
-    user: user6, // 디자이너B
-    createdAt: new Date('2023-10-27T10:10:30Z'),
-    likedUserIds: [],
-    attachments: [
-      exampleAttachments[5]
-    ],
-  },
-  {
-    chatId: 'chat-004',
-    taskId: 'SD202504101001000001',
-    chatContent: '디자인 시안 작업 중입니다. 내일 오전 중으로 공유드릴게요!',
-    chatReplies: [],
-    user: user6, // 디자이너B
-    createdAt: new Date('2023-10-27T10:10:30Z'),
-    likedUserIds: [],
-    attachments: [],
-  }
+
+
+
+
+// chatTask1_Root1의 답글의 답글
+const chatTask1_Reply1_SubReply1: Chat = {
+  chatId: 'chat-003-task1-reply1-sub1',
+  taskId: 'SD202504101001000001',
+  parentChatId: 'chat-002-task1-reply1', // 부모: chatTask1_Reply1
+  chatContent: '피드백 주셔서 감사합니다. 추가 의견 있으시면 언제든 알려주세요.',
+  user: user1,
+  createdAt: new Date('2024-07-20T09:35:00Z'),
+  likedUserIds: [],
+  // attachments: [], // 첨부파일 없음
+  // replies: [], // 더 이상 답글 없음
+};
+
+// chatTask1_Root1의 첫 번째 답글
+const chatTask1_Reply1: Chat = {
+  chatId: 'chat-002-task1-reply1',
+  taskId: 'SD202504101001000001',
+  parentChatId: 'chat-001-task1', // 부모: chatTask1_Root1
+  chatContent: '네, 기대됩니다! 기획서 잘 봤습니다.',
+  user: user2,
+  createdAt: new Date('2024-07-20T09:30:00Z'),
+  likedUserIds: [user1.id],
+  attachments: [],
+  replies: [chatTask1_Reply1_SubReply1], // 위에서 정의한 답글 포함
+};
+
+// chatTask1_Root1의 두 번째 답글
+const chatTask1_Reply2: Chat = {
+  chatId: 'chat-004-task1-reply2',
+  taskId: 'SD202504101001000001',
+  parentChatId: 'chat-001-task1', // 부모: chatTask1_Root1
+  chatContent: '디자인 시안 작업해서 곧 공유드릴게요!',
+  user: user3,
+  createdAt: new Date('2024-07-20T10:00:00Z'),
+  likedUserIds: [user1.id, user2.id],
+  attachments: [exampleAttachments[1]],
+  // replies: [], // 답글 없음
+};
+
+// Task 1의 첫 번째 최상위 채팅
+export const chatTask1_Root1: Chat = {
+  chatId: 'chat-001-task1',
+  taskId: 'SD202504101001000001',
+  parentChatId: null, // 최상위 채팅
+  chatContent: '새로운 칸반보드 프로젝트 시작합니다! 다들 화이팅입니다. 🚀',
+  user: user1,
+  createdAt: new Date('2024-07-20T09:00:00Z'),
+  likedUserIds: [user2.id, user3.id],
+  attachments: [exampleAttachments[1]],
+  replies: [chatTask1_Reply1, chatTask1_Reply2], // 위에서 정의한 답글들 포함
+};
+
+// Task 1의 두 번째 최상위 채팅 (답글 없음)
+export const chatTask1_Root2: Chat = {
+  chatId: 'chat-005-task1',
+  taskId: 'SD202504101001000001',
+  parentChatId: null, // 최상위 채팅
+  chatContent: '회의록 정리해서 올립니다. 다음 주 월요일 오전 회의 일정 참고해주세요.',
+  user: user4,
+  createdAt: new Date('2024-07-21T14:00:00Z'),
+  likedUserIds: [user1.id],
+  // attachments: [],
+  // replies: [],
+};
+
+
+// Task ID: SD202504101001000002 에 대한 채팅들
+
+// chatTask2_Root1의 첫 번째 답글
+const chatTask2_Reply1: Chat = {
+  chatId: 'chat-007-task2-reply1',
+  taskId: 'SD202504101001000002',
+  parentChatId: 'chat-006-task2', // 부모: chatTask2_Root1
+  chatContent: '좋은 의견입니다. 보안성 측면에서 유리할 것 같아요. 검토해보겠습니다.',
+  user: user1,
+  createdAt: new Date('2024-07-22T11:15:00Z'),
+  likedUserIds: [user2.id],
+  // attachments: [],
+  // replies: [],
+};
+
+// chatTask2_Root1의 두 번째 답글
+const chatTask2_Reply2: Chat = {
+  chatId: 'chat-008-task2-reply2',
+  taskId: 'SD202504101001000002',
+  parentChatId: 'chat-006-task2', // 부모: chatTask2_Root1
+  chatContent: '관련해서 참고 자료 있으면 공유 부탁드립니다!',
+  user: user4,
+  createdAt: new Date('2024-07-22T11:20:00Z'),
+  likedUserIds: [],
+  // attachments: [],
+  // replies: [],
+};
+
+// Task 2의 첫 번째 최상위 채팅
+export const chatTask2_Root1: Chat = {
+  chatId: 'chat-006-task2',
+  taskId: 'SD202504101001000002',
+  parentChatId: null, // 최상위 채팅
+  chatContent: 'API 개발 관련 논의입니다. 인증 방식은 OAuth2.0으로 진행하는게 어떨까요?',
+  user: user2,
+  createdAt: new Date('2024-07-22T11:00:00Z'),
+  likedUserIds: [user1.id, user4.id],
+  attachments: [exampleAttachments[1]],
+  replies: [chatTask2_Reply1, chatTask2_Reply2],
+};
+
+// chatTask2_Root2의 첫 번째 답글
+const chatTask2_Root2_Reply1: Chat = {
+  chatId: 'chat-010-task2-reply1',
+  taskId: 'SD202504101001000002',
+  parentChatId: 'chat-009-task2', // 부모: chatTask2_Root2
+  chatContent: '다음 주 금요일까지입니다. PM님께 최종 확인해보겠습니다.',
+  user: user1,
+  createdAt: new Date('2024-07-23T09:05:00Z'),
+  likedUserIds: [user3.id],
+  // attachments: [],
+  // replies: [],
+};
+
+// Task 2의 두 번째 최상위 채팅
+export const chatTask2_Root2: Chat = {
+  chatId: 'chat-009-task2',
+  taskId: 'SD202504101001000002',
+  parentChatId: null, // 최상위 채팅
+  chatContent: '이 태스크 마감일이 언제인가요? 일정 확인 부탁드립니다.',
+  user: user3,
+  createdAt: new Date('2024-07-23T09:00:00Z'),
+  likedUserIds: [],
+  // attachments: [],
+  replies: [chatTask2_Root2_Reply1],
+};
+
+export const chatlist = [
+  chatTask1_Root1, chatTask1_Root2,
+  chatTask2_Root1, chatTask2_Root2,
 ]

@@ -162,32 +162,17 @@ export type Task = {
 
 /** 채팅 */
 export type Chat = {
-  /** 고유 채팅 ID */
   chatId: string;
-  /** 채팅이 속한 Task의 ID */
   taskId: string;
-  /** 채팅 내용 */
+  parentChatId: string | null; // ✅ 최상위 채팅이면 null
   chatContent: string;
-  /** 답글 정보 (ChatReplies 타입 정의 필요) */
-  chatReplies: ChatReplies[];
-  /** 작성자 정보 */
   user: User;
-  /** 등록 시간 */
   createdAt: Date;
-  /** 좋아요 누른 사용자 ID 목록 */
   likedUserIds: string[];
-  /** 첨부파일 정보 배열 (추가) */
-  attachments: FileAttachment[]; // <--- File[] 대신 이 타입 사용
+  attachments?: FileAttachment[];
+
+  replies?: Chat[]; // ✅ 재귀 구조로 자식들 포함
 };
-
-// User, ChatReplies 타입 정의는 기존대로 가정...
-
-/** 담당자 */
-export type ChatReplies = Chat & {
-  /** 주담당자 여부 */
-  refChatId: string;
-}
-
 
 export interface SectionGroup {
   sectionId: string;
