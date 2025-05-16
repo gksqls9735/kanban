@@ -9,6 +9,7 @@ declare global {
           currentUser: string;
           userlist: string;
           isSideMenuOpen: string;
+          chatlist: string;
         },
         HTMLElement
       >;

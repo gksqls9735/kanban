@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import SectionComponent from "../component/kanban/column/column-list";
-import { Section, SelectOption, Task, User } from "../types/type";
+import { Chat, Section, SelectOption, Task, User } from "../types/type";
 import { DndContext, DragOverlay, rectIntersection } from "@dnd-kit/core";
 import useViewModeStore from "../store/viewmode-store";
 import { ViewModes } from "../constants";
@@ -12,6 +12,7 @@ import useSectionsStore from "../store/sections-store";
 import CardWrapper from "../component/kanban/card/card-wrapper";
 import useUserStore from "../store/user-store";
 import { ToastProvider } from "../context/toast-context";
+import useChatStore from "../store/chat-store";
 
 const Kanban: React.FC<{
   tasks: Task[];
@@ -20,6 +21,7 @@ const Kanban: React.FC<{
   currentUser: User | null;
   userlist: User[];
   isSideMenuOpen: "expanded" | "collapsed" | "hidden";
+  chatlist: Chat[];
 }> = ({
   tasks: initialTasks,
   sections: initialSections,
@@ -27,6 +29,7 @@ const Kanban: React.FC<{
   currentUser: initialCurrentUser,
   userlist: initialUserlist,
   isSideMenuOpen,
+  chatlist,
 }) => {
     const { viewMode, setViewMode } = useViewModeStore();
     const setTasks = useTaskStore(state => state.setTasks);
@@ -39,6 +42,8 @@ const Kanban: React.FC<{
 
     const setCurrentUser = useUserStore(state => state.setCurrentUser);
     const setUserlist = useUserStore(state => state.setUserlist);
+
+    const setAllTaskChats = useChatStore(state => state.setAllTaskChats);
 
     const {
       sensors, activeTask, activeColumn, handleDragStart, handleDragEnd, handleDragCancel
@@ -75,6 +80,8 @@ const Kanban: React.FC<{
         setUserlist(initialUserlist)
       }
     }, [initialUserlist, setUserlist]);
+
+
 
     const getSectionName = (sectionId: string): string => {
       return sections.find(sec => sec.sectionId === sectionId)?.sectionName || '';

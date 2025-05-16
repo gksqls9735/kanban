@@ -4,6 +4,7 @@ import "./web-component/kanban-web-component";
 import { sections, sectionTasks } from './mocks/task-mock';
 import { statusSelect } from './mocks/select-option-mock';
 import { user1, userlist } from './mocks/user-mock';
+import { chatlist } from './mocks/task-detail-mock';
 
 function App() {
   const [isSideMenuOpen, setIsSideMenuOpen] = useState<"expanded" | "collapsed" | "hidden">("collapsed");
@@ -47,6 +48,7 @@ function App() {
               currentUser: JSON.stringify(user1),
               userlist: JSON.stringify(userlist),
               isSideMenuOpen: isSideMenuOpen,
+              chatlist: JSON.stringify(chatlist),
             })}
           />
         </Routes>

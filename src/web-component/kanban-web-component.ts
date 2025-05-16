@@ -1,5 +1,5 @@
 import ReactDOM from "react-dom/client";
-import { Section, SelectOption, Task, User } from "../types/type";
+import { Chat, Section, SelectOption, Task, User } from "../types/type";
 import React from "react";
 import { ShadowRootContext } from "../context/shadowroot-context";
 import { StyleSheetManager } from "styled-components";
@@ -16,6 +16,7 @@ class KanbanWebComponent extends HTMLElement {
     currentUser: User | null;
     userlist: User[];
     isSideMenuOpen: "expanded" | "collapsed" | "hidden";
+    chatlist: Chat[];
   } = {
       tasks: [],
       sections: [],
@@ -23,15 +24,15 @@ class KanbanWebComponent extends HTMLElement {
       currentUser: null,
       userlist: [],
       isSideMenuOpen: "hidden",
+      chatlist: [],
     };
-
 
   constructor() {
     super();
   }
 
   static get observedAttributes() {
-    return ['tasks', 'sections', 'statuslist', 'currentuser', 'userlist', 'issidemenuopen'];
+    return ['tasks', 'sections', 'statuslist', 'currentuser', 'userlist', 'issidemenuopen', 'chatlist'];
   }
 
   async connectedCallback() {
@@ -82,12 +83,13 @@ class KanbanWebComponent extends HTMLElement {
     this._render();
   }
 
-  // props 파싱 및 업데이트 로직직
+  // props 파싱 및 업데이트 로직
   _updateProps() {
     this.props.tasks = JSON.parse(this.getAttribute("tasks") || "[]");
     this.props.sections = JSON.parse(this.getAttribute("sections") || "[]");
     this.props.statusList = JSON.parse(this.getAttribute("statuslist") || "[]");
     this.props.userlist = JSON.parse(this.getAttribute("userlist") || "[]");
+    this.props.chatlist = JSON.parse(this.getAttribute("chatlist") || "[]");
 
     const currentUserAttr = this.getAttribute("currentuser");
     if (currentUserAttr && currentUserAttr !== "{}") {
@@ -120,6 +122,10 @@ class KanbanWebComponent extends HTMLElement {
       end: new Date(t.end),
     }));
 
+    const chatListWithDates = this.props.chatlist.map((chat: Chat) => ({
+      ...chat, createdAt: new Date(chat.createdAt),
+    }));
+
     if (!this.root) this.root = ReactDOM.createRoot(this.container);
 
     this.root.render(
@@ -136,6 +142,7 @@ class KanbanWebComponent extends HTMLElement {
             currentUser: this.props.currentUser,
             userlist: this.props.userlist,
             isSideMenuOpen: this.props.isSideMenuOpen,
+            chatlist: chatListWithDates,
           })
         )
       )
