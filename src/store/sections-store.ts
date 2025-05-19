@@ -11,7 +11,7 @@ interface SectionsState {
   deleteSection: (sectionId: string) => void;
 }
 
-const useSectionsStore = create<SectionsState>((set, get) => ({
+const useSectionsStore = create<SectionsState>((set, _get) => ({
   sections: [],
   
   setSections: (list: Section[]) => set({ sections: list }),

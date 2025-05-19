@@ -1,0 +1,23 @@
+// tsconfig.mocks.json (예시 - 프로젝트 루트에 생성)
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "outDir": "./dist/dist_html_mocks", // 컴파일된 JS 파일이 저장될 폴더
+    "rootDir": "./src",           // src/mocks/... 경로를 따르기 위함
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "declaration": false,         // .d.ts 파일 생성 안 함
+    // "noEmit": false,         // 명시적으로 false로 하거나 생략 (기본값 false)
+    // 주 애플리케이션 설정과 충돌할 수 있는 옵션은 제거하거나 조정
+    // 예를 들어, jsx, isolatedModules 등은 목 파일 컴파일에 불필요할 수 있음
+  },
+  "include": [
+    "src/mocks/**/*.ts"     // src/mocks 폴더의 .ts 파일만 컴파일
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}

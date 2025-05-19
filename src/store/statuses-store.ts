@@ -11,7 +11,7 @@ interface StatusesState {
   deleteStatus: (statusCode: string) => void;
 }
 
-const useStatusesStore = create<StatusesState>((set, get) => ({
+const useStatusesStore = create<StatusesState>((set, _get) => ({
   statusList: [],
 
   setStatusList: (list: SelectOption[]) => set({ statusList: list }),

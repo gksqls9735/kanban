@@ -10,7 +10,7 @@ interface ChatState {
   deleteChat: (taskId: string, chatId: string) => void;
 }
 
-const useChatStore = create<ChatState>((set, get) => ({
+const useChatStore = create<ChatState>((set, _get) => ({
   chatsByTask: {},
   setAllTaskChats: (allChatsData) =>
     set(() => ({ chatsByTask: allChatsData })),

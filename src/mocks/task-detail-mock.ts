@@ -1,5 +1,5 @@
 import { Chat, Email, FileAttachment, NumericField, UrlData } from "../types/type";
-import { user1, user2, user3, user4, user5, user6, user8 } from "./user-mock";
+import { user1, user2, user3, user4 } from "./user-mock";
 
 // 첨부 예시
 export const exampleAttachments: FileAttachment[] = [

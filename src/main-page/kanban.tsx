@@ -106,6 +106,8 @@ const Kanban: React.FC<{
     const toggleViewMode = () => {
       setViewMode(viewMode === ViewModes.STATUS ? ViewModes.SECTION : ViewModes.STATUS);
     };
+
+    console.log(isSideMenuOpen)
     return (
       <ToastProvider>
         <div className="kanban-wrapper" style={{

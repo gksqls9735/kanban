@@ -1,0 +1,965 @@
+/* :host {
+  font-family: "Pretendard", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  line-height: 1.5;
+  display: block;
+} */
+
+/* 커서 */
+.kanban .delete-modal,
+.kanban-card .card-title,
+.kanban-card .card-due-date,
+.kanban-card .card-priority,
+.kanban-card .card-status,
+.kanban-card .todo-item {
+  cursor: default;
+}
+
+.kanban .update-card__participants,
+.kanban-card .card-participant,
+.kanban .new-section__color-swatch,
+.kanban .new-section .create-confirm-button,
+.kanban .section-header__menu-item,
+.kanban .section-header__action,
+.kanban .kanban-card .delete-modal .delete-modal__button,
+.kanban .card-header .dropdown-menu,
+.kanban .card-header__actions,
+.kanban .card-add-todo,
+.kanban .card-datepicker-trigger,
+.kanban-card .card-current-section,
+.kanban .select-dropdown-item,
+.kanban-card .todo-item__checkbox-area label,
+.kanban-card .todo-item__checkbox--native,
+.kanban-card .todo-item__text {
+  cursor: pointer;
+}
+
+
+/* 삭제 버튼 */
+.kanban-card .todo-item__action--delete {
+  cursor: pointer;
+}
+
+/* ⭐ 내부 투두 아이템의 드래그 핸들 ⭐ */
+.kanban-card .todo-item__action--drag-handle {
+  cursor: grab;
+}
+
+/* 할 일 토글 버튼 */
+.kanban-card .card-todotoggle {
+  cursor: pointer;
+}
+
+/* 작업 추가 버튼 */
+.kanban .task-add {
+  cursor: pointer;
+}
+
+
+/* 공통 css */
+.kanban {
+  padding: 32px;
+  box-sizing: border-box;
+}
+
+.kanban ul {
+  list-style-type: none;
+  padding: 0px;
+  margin: 0px;
+}
+
+.kanban .truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kanban .underline {
+  text-decoration: underline;
+  text-decoration-color: black;
+}
+
+.kanban .line-through {
+  text-decoration-line: line-through;
+  color: rgb(156 163 175);
+}
+
+.kanban .relative {
+  position: relative;
+}
+
+.kanban .kanban-scrollbar-y {
+  &::-webkit-scrollbar {
+    width: 5px;
+    height: 0px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+
+  &::-webkit-scrollbar-track {
+    background-color: #f1f1f1;
+    border-radius: 10px;
+  }
+
+  &::-webkit-scrollbar-button {
+    display: none;
+  }
+}
+
+.kanban .kanban-scrollbar-x {
+  &::-webkit-scrollbar {
+    width: 0;
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: #888;
+    border-radius: 10px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: #555;
+  }
+
+  &::-webkit-scrollbar-track {
+    background-color: #f1f1f1;
+    border-radius: 10px;
+  }
+
+  &::-webkit-scrollbar-button {
+    display: none;
+  }
+}
+
+.kanban .flex-shrink-0 {
+  flex-shrink: 0;
+}
+
+.kanban .participant-main-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: #0F1B2A;
+  color: white;
+  box-sizing: border-box;
+  font-size: 11px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.kanban .card-priority-status-current {
+  font-size: 12px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+}
+
+/* 헤더 드롭다운 메뉴 */
+.kanban .header-dropdown-menu {
+  position: absolute;
+  border: 1px solid #E4E8EE;
+  padding: 8px 0px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 400;
+  color: #0F1B2A;
+  background-color: white;
+  box-shadow: 0px 0px 16px 0px #00000014;
+  z-index: 10;
+}
+
+.kanban .header-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0px 12px;
+  height: 36px;
+}
+
+.kanban .header-dropdown-item:hover {
+  background-color: rgb(241, 241, 241);
+}
+
+.kanban .section-header__dropdown-menu {
+  left: 290px;
+  top: 33px;
+  width: 180px;
+}
+
+.kanban .card-header__dropdown-menu {
+  top: 26px;
+  left: 227px;
+  width: 120px;
+}
+
+/* 작업 삭제 모달 */
+.kanban .delete-modal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  box-sizing: border-box;
+  width: 400px;
+  border: 1px solid #E4E8EE;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0px 4px 12px -2px #10182814;
+  padding: 20px;
+  gap: 20px;
+  z-index: 5000;
+}
+
+.kanban .delete-modal .delete-modal__icon-container {
+  width: 48px;
+  height: 48px;
+  border-radius: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+  background-color: #FEE4E2;
+}
+
+.kanban .delete-modal .delete-modal__content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: center;
+}
+
+.kanban .delete-modal .delete-modal__content .delete-modal__title {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.kanban .delete-modal .delete-modal__content .delete-modal__message {
+  font-weight: 400;
+  font-size: 15px;
+  color: #0F1B2A;
+}
+
+.kanban .delete-modal .delete-modal__actions {
+  display: flex;
+  gap: 6px;
+}
+
+.kanban .delete-modal .delete-modal__button {
+  height: 36px;
+  padding: 0px 14px;
+  font-weight: 400;
+  font-size: 14px;
+  border-radius: 4px;
+}
+
+.kanban .delete-modal .delete-modal__button--cancel {
+  color: #0F1B2A;
+  border: 1px solid #CDD3DD;
+  background-color: white;
+}
+
+.kanban .delete-modal .delete-modal__button--cancel:hover {
+  background-color: #f8f9fa;
+}
+
+.kanban .delete-modal .delete-modal__button--confirm {
+  color: white;
+  border: 1px solid #16B364;
+  background-color: #16B364;
+}
+
+.kanban .delete-modal .delete-modal__button--confirm:hover {
+  background-color: #169c59;
+}
+
+
+/* 컬럼 */
+.kanban .kanban-content {
+  display: flex;
+  gap: 16px;
+}
+
+.kanban .kanban-content__empty-columns-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.kanban .kanban-section {
+  display: flex;
+  flex-direction: column;
+  width: 320px;
+  min-width: 320px;
+  gap: 16px;
+}
+
+.kanban .section-header {
+  display: flex;
+  align-items: center;
+  position: relative;
+
+  border: 1px solid rgba(228, 232, 238, 1);
+  border-radius: 50px;
+  border-width: 1px;
+  background-color: rgba(238, 241, 246, 1);
+  text-align: center;
+  padding: 6px 16px;
+  font-size: 16px;
+  text-transform: uppercase;
+}
+
+.kanban .section-header__title {
+  width: 100%;
+  text-align: center;
+  font-size: 16px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.kanban .section-header__actions {
+  display: flex;
+  width: fit-content;
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 1px solid #E4E8EE;
+  border-radius: 50px;
+  background-color: white;
+  visibility: hidden;
+}
+
+.kanban .section-header:hover .section-header__actions {
+  visibility: visible;
+}
+
+.kanban .section-header__action {
+  width: 24px;
+  height: 24px;
+  box-sizing: border-box;
+}
+
+.kanban .section-header__action:hover {
+  background-color: #EEF1F6;
+}
+
+.kanban .section-header__actions .section-header__action:first-child {
+  border-bottom-left-radius: 50px;
+  border-top-left-radius: 50px;
+}
+
+.kanban .section-header__actions .section-header__action:last-child {
+  border-left: 1px solid #E4E8EE;
+  border-bottom-right-radius: 50px;
+  border-top-right-radius: 50px;
+}
+
+.kanban .section-content {
+  border: 1px solid rgba(228, 232, 238, 1);
+  border-radius: 16px;
+  border-width: 1px;
+  padding: 16px;
+  gap: 16px;
+  background-color: rgba(248, 249, 251, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+.kanban .kanban-section .task-add {
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: rgba(125, 137, 152, 1);
+}
+
+/* 작업 카드 */
+.kanban .kanban-card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(228, 232, 238, 1);
+  /*Spacing/md*/
+  border-radius: 12px;
+  border-width: 1px;
+  /*Spacing/lg*/
+  padding: 16px;
+  gap: 12px;
+  background-color: white;
+  box-shadow: 2px 2px 6px 0px rgba(0, 0, 0, 0.04);
+  position: relative;
+}
+
+/* 작업 카드 상단 */
+.kanban .card-header {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+}
+
+.kanban .card-current-section {
+  width: fit-content;
+  border: 1px solid rgba(205, 211, 221, 1);
+  border-radius: 50px;
+  gap: 2px;
+  padding: 6px;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 100%;
+  letter-spacing: 0.2px;
+  color: rgba(95, 107, 122, 1);
+  display: flex;
+  align-items: center;
+}
+
+.kanban .card-header__actions {
+  display: flex;
+  visibility: hidden;
+  border: 1px solid #E4E8EE;
+  border-radius: 4px;
+}
+
+.kanban .kanban-card:hover .card-header .card-header__actions {
+  visibility: visible;
+}
+
+.kanban .card-header .card-header__actions div {
+  width: 24px;
+  height: 24px;
+}
+
+.kanban .card-header .card-header__actions div:hover {
+  background-color: rgb(241, 241, 241);
+}
+
+.kanban .card-header .card-header__actions div:first-child {
+  border-right: 1px solid #E4E8EE;
+}
+
+/* 작업 카드 중단 */
+.kanban .card-title {
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 130%;
+  letter-spacing: 0%;
+  color: rgba(15, 27, 42, 1);
+}
+
+.kanban .card-due-date {
+  font-weight: 400;
+  font-size: 13px;
+  line-height: 100%;
+  letter-spacing: 0%;
+  color: rgba(125, 137, 152, 1);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.kanban .card-meta {
+  display: flex;
+  justify-content: space-between;
+}
+
+.kanban .card-meta .card-priority-status {
+  display: flex;
+  gap: 8px;
+}
+
+.kanban .card-participant {
+  position: relative;
+}
+
+.kanban .participant-popover {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  position: absolute;
+  top: -20px;
+  right: -270;
+  width: 256px;
+  height: 306px;
+  border: 1px solid #E4E8EE;
+  border-radius: 8px;
+  background-color: white;
+  box-shadow: 0px 4px 12px -2px #10182814;
+  z-index: 10;
+}
+
+.kanban .participant-popover__header {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px;
+  border-bottom: 1px solid #EEF1F6;
+  flex-shrink: 0;
+}
+
+.kanban .participant-popover__title {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 100%;
+  letter-spacing: 0%;
+}
+
+.kanban .participant-popover__list {
+  padding: 8px 0px;
+  overflow-y: auto;
+  flex-grow: 1;
+}
+
+.kanban .participant-popover__item {
+  display: flex;
+  gap: 8px;
+  padding: 8px 16px;
+  align-items: center;
+}
+
+.kanban .participant-popover__info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.kanban .participant-popover__name-line {
+  display: flex;
+  gap: 4px;
+  align-items: baseline;
+}
+
+.kanban .participant-popover__username {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0%;
+  color: #0F1B2A;
+}
+
+.kanban .participant-popover__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: #0F1B2A;
+  color: white;
+  box-sizing: border-box;
+  font-size: 11px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.kanban .participant-popover__team {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 100%;
+  letter-spacing: 0%;
+  color: #8D99A8;
+}
+
+/* 작업 카드 하단 */
+.kanban .seperation-line {
+  height: 0;
+  border: none;
+  border-top: 1px solid rgba(238, 241, 246, 1);
+}
+
+.kanban .card-todolist .card-todotoggle {
+  display: flex;
+  gap: 4px;
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 100%;
+  letter-spacing: 0%;
+  color: rgba(125, 137, 152, 1);
+  align-items: center;
+  width: fit-content;
+}
+
+.kanban .card-todolist .card-todotoggle .arrow {
+  display: inline-block;
+  transition: transform 0.2s ease-in-out;
+}
+
+.arrow--open {
+  transform: rotate(180deg);
+}
+
+.kanban .todo-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  visibility: hidden;
+  margin-top: 0;
+  transition:
+    max-height 0.4s ease-out,
+    opacity 0.3s ease-in,
+    margin-top 0.4s ease-out,
+    visibility 0s linear 0.4s;
+}
+
+.kanban .todo-list.todo-list--open {
+  max-height: 1000px;
+  opacity: 1;
+  visibility: visible;
+  margin-top: 12px;
+  transition:
+    max-height 0.4s ease-in,
+    opacity 0.3s ease-out,
+    margin-top 0.4s ease-in,
+    visibility 0s linear 0s;
+}
+
+.kanban .todo-item {
+  display: flex;
+  align-items: center;
+}
+
+.kanban .todo-item__main {
+  display: flex;
+  flex-grow: 1;
+  align-items: center;
+  overflow: hidden;
+  min-width: 0;
+  gap: 6px;
+}
+
+.kanban .todo-item__checkbox--native {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.kanban .todo-item__checkbox-area {
+  display: flex;
+  align-items: flex-start;
+  line-height: 1;
+  padding: 0;
+  margin: 0;
+}
+
+/* 2. 가짜 체크박스 모양 만들기 */
+.kanban .todo-item__checkbox--visual {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 9999px;
+  margin-top: 2px;
+  position: relative;
+  transition: background-color 0.2s, border-color 0.2s;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+/* 3. 실제 체크박스가 체크됐을 때 가짜 체크박스 스타일 변경 */
+.kanban .todo-item__checkbox--native:checked+.todo-item__checkbox--visual {
+  background-color: rgb(51, 189, 120);
+  border-color: rgb(51, 189, 120);
+}
+
+/* 4. 가상 요소로 체크 표시 만들기 (흰색) */
+.kanban .todo-item__checkbox--visual::after {
+  content: "";
+  /* 가상 요소 필수 속성 */
+  position: absolute;
+  display: none;
+
+  left: 5px;
+  top: 2px;
+  width: 4px;
+  height: 8px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* 실제 체크박스가 체크됐을 때 체크 표시 보여주기 */
+.kanban .todo-item__checkbox--native:checked+.todo-item__checkbox--visual::after {
+  display: block;
+}
+
+.kanban .todo-item__text {
+  font-weight: 400;
+  font-size: 14px;
+  letter-spacing: 0%;
+  margin-right: 8px;
+}
+
+.kanban .todo-item__actions {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.kanban .todo-item__action {
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  /* 아이콘 자체는 버튼 내 중앙 정렬 유지 가능 */
+  justify-content: center;
+}
+
+
+.kanban .todo-item__action.todo-item__action--delete {
+  border-radius: 999px;
+  background-color: rgba(238, 241, 246, 1);
+}
+
+.kanban .todo-item__action.todo-item__action--drag-handle {
+  color: rgba(217, 217, 217, 1);
+}
+
+.kanban .todo-item__action.todo-item__action--drag-handle:hover {
+  color: rgb(131, 131, 131);
+}
+
+.kanban .avatar-group {
+  display: flex;
+  align-items: center;
+}
+
+/* 섹션 추가 */
+.kanban .add-section-button {
+  width: 36px;
+  height: 36px;
+  max-width: 36px;
+  max-height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  border: 1px solid rgba(228, 232, 238, 1);
+  border-radius: 8px;
+  color: 1.33px solid rgba(125, 137, 152, 1);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  cursor: pointer;
+}
+
+/* 새로운 섹션 입력 */
+.kanban .new-section {
+  width: 320px;
+  height: 36px;
+  min-width: 320px;
+  border: 1px solid rgba(228, 232, 238, 1);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0px 4px;
+  background-color: rgba(248, 249, 251, 1);
+  box-sizing: border-box;
+}
+
+.kanban .new-section input {
+  font-weight: 500;
+  font-size: 16px;
+  text-transform: uppercase;
+  background-color: #f7f8fa;
+
+  border: none;
+  outline: none;
+  box-sizing: border-box;
+  flex-grow: 1;
+
+}
+
+.kanban .new-section input::placeholder {
+  color: rgba(141, 153, 168, 1);
+}
+
+.kanban .new-section input:focus {
+  outline: none;
+  border: none;
+}
+
+.kanban .new-section .create-confirm-button {
+  padding: 0px 12px;
+  border-radius: 50px;
+  background: rgba(22, 179, 100, 1);
+  color: rgba(255, 255, 255, 1);
+  font-weight: 400;
+  font-size: 13px;
+  height: 28px;
+  line-height: 28px;
+  text-align: center;
+}
+
+.kanban .new-section__color-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 4px;
+  width: 320px;
+  border: 0.92px solid #E4E8EE;
+  background-color: white;
+  border-radius: 7.4px;
+  padding: 12px;
+  box-sizing: border-box;
+}
+
+.kanban .new-section__color-picker-title {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 100%;
+  letter-spacing: 0%;
+  vertical-align: middle;
+}
+
+.kanban .new-section__color-swatches {
+  display: flex;
+  justify-content: space-between;
+}
+
+.kanban .new-section__color-swatch {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+}
+
+/* 새로운 작업 카드 */
+/* 드롭 다운 섹션, 우선 순위, 상태태 */
+.kanban .select-dropdown-panel {
+  position: absolute;
+  top: calc(100% + 2px);
+  left: 4px;
+  width: 80px;
+  padding: 8px 0px !important;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #E4E8EE;
+  border-radius: 4px;
+  box-shadow: 0px 0px 16px 0px #00000014;
+  background-color: #fff;
+  z-index: 10;
+  box-sizing: border-box;
+}
+
+.kanban .section-dropdown-panel {
+  width: 120px;
+}
+
+.kanban .section-dropdown-item:hover {
+  background-color: #ececec;
+}
+
+.kanban .select-dropdown-item {
+  font-size: 13px;
+  height: 36px;
+  line-height: 36px;
+  padding: 0px 12px !important;
+  color: '#0F1B2A';
+}
+
+/* 작업명 입력 input */
+.kanban .new-task-name-input {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: '130%';
+  border: none;
+  outline: none;
+  color: '#8D99A8';
+}
+
+.kanban .update-card__participants {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+/* 날짜 선택 */
+.kanban .card-datepicker-area {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.kanban .card-datepicker-trigger {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.kanban .card-datepicker-icon-wrapper {
+  display: flex;
+  align-items: center;
+  border: 1px solid #E4E8EE;
+  border-radius: 4px;
+  padding: 4px;
+}
+
+.kanban .card-datepicker-text {
+  font-size: 13px;
+  color: #7d8998;
+}
+
+.kanban .datepicker-dropdown-panel {
+  position: absolute;
+  top: calc(100% + 2px);
+  left: 4px;
+  z-index: 10;
+}
+
+/* 우선 순위, 상태 */
+.kanban .card-select-wrapper {
+  position: relative;
+  padding: 0px !important;
+}
+
+/* 할 일 추가*/
+.kanban .card-add-todo {
+  color: #7D8998;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.kanban .card-add-todo__text {
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 16px;
+  letter-spacing: 0%;
+}
+
+.kanban .todo-item__input {
+  border: none;
+  outline: none;
+  flex-grow: 1;
+  background-color: 'transparent';
+  font-size: 14px;
+  color: #7D8998;
+  font-weight: 400;
+  height: 24px;
+  line-height: 24px;
+  margin-right: 8px;
+  box-sizing: border-box;
+}

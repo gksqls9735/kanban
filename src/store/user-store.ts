@@ -8,7 +8,7 @@ interface UserState {
   setUserlist: (userlist: User[]) => void;
 }
 
-const useUserStore = create<UserState>((set, get) => ({
+const useUserStore = create<UserState>((set, _get) => ({
   currentUser: undefined,
   userlist: [],
   setCurrentUser: (user: User) => set({ currentUser: user }),

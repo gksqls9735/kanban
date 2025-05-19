@@ -13,7 +13,7 @@ interface TaskState {
   updateTasksByStatus: (originalStatusCode: string) => void;
 }
 
-const useTaskStore = create<TaskState>((set, get) => ({
+const useTaskStore = create<TaskState>((set, _get) => ({
   allTasks: [],
   setTasks: (tasks: Task[]) => set({ allTasks: tasks }),
   addTask: (newTask: Task) => set((state) => {

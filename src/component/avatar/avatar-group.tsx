@@ -11,8 +11,7 @@ const AvatarGroup: React.FC<{
   list: Participant[];
   maxVisible: number;
   size?: number;
-  fontSize?: number;
-}> = ({ list, maxVisible, size = 24, fontSize }) => {
+}> = ({ list, maxVisible, size = 24, }) => {
   const visibleCount = Math.min(list.length, maxVisible);
   const overflowCount = list.length - visibleCount;
 

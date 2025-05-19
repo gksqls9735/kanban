@@ -7,7 +7,7 @@ import { user1, userlist } from './mocks/user-mock';
 import { chatlist } from './mocks/task-detail-mock';
 
 function App() {
-  const [isSideMenuOpen, setIsSideMenuOpen] = useState<"expanded" | "collapsed" | "hidden">("collapsed");
+  const [isSideMenuOpen, setIsSideMenuOpen] = useState<"expanded" | "collapsed" | "hidden">("hidden");
   return (
     <>
       <BrowserRouter>
@@ -47,7 +47,7 @@ function App() {
               statuslist: JSON.stringify(statusSelect),
               currentUser: JSON.stringify(user1),
               userlist: JSON.stringify(userlist),
-              isSideMenuOpen: isSideMenuOpen,
+              isSideMenuOpen: 'hidden',
               chatlist: JSON.stringify(chatlist),
             })}
           />
