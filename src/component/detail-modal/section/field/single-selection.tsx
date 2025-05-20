@@ -1,21 +1,43 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { SelectOption } from "../../../../types/type";
 import OptionItem from "../../common/option-item";
 import FieldLabel from "./field-label";
+import useClickOutside from "../../../../hooks/use-click-outside";
 
 const SingleSelection: React.FC<{ option: SelectOption }> = ({ option }) => {
 
   const [isInEditMode, setIsInEditMode] = useState<boolean>(false);
   const [isOpenEdit, setIsOpenEdit] = useState<boolean>(false);
 
+  // edit-container를 참조하기 위한 ref 생성
+  const editContainerRef = useRef<HTMLDivElement>(null);
+
+  // 취소 및 창 닫기 로직
+  const handleCancel = () => {
+    setIsInEditMode(false);
+    setIsOpenEdit(false);
+  };
+
+  // FieldLabel 클릭 핸들러 (편집 모드 토글 및 초기 상태 설정)
+  const handleToggleEditMode = () => {
+    if (isInEditMode) {
+      handleCancel(); // 이미 편집 모드면 닫기
+    } else {
+      setIsInEditMode(true);
+      setIsOpenEdit(false); // 편집 모드 진입 시, 기본적으로는 목록 뷰(isOpenEdit: false)로 시작
+    }
+  };
+
+  useClickOutside(editContainerRef, handleCancel, isInEditMode);
+
   return (
     <li className="task-detail__detail-modal-field-item">
-      <FieldLabel fieldName="단일선택" onClick={() => setIsInEditMode(prev => !prev)} />
+      <FieldLabel fieldName="단일선택" onClick={handleToggleEditMode} />
       <ul className="task-detail__detail-modal-field-content-list">
         <OptionItem option={option} />
       </ul>
       {isInEditMode && (
-        <div className="task-detail__detail-modal-field-edit-container">
+        <div ref={editContainerRef} className="task-detail__detail-modal-field-edit-container">
           <div className="task-detail__detail-modal-field-edit-list-wrapper">
             <ul className="kanban-scrollbar-y task-detail__detail-modal-field-edit-url-list">
               <li className="task-detail__detail-modal-field-edit-url-item">

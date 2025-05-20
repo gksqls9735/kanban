@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Participant } from "../../../../types/type";
 import { getInitial } from "../../../../utils/text-function";
 import AvatarItem from "../../../avatar/avatar";
@@ -6,16 +6,36 @@ import FieldLabel from "./field-label";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import ParticipantSelector from "../../../participant-select/participant-selector";
+import useClickOutside from "../../../../hooks/use-click-outside";
 
 const UserField: React.FC<{ users: Participant[] }> = ({ users }) => {
 
   const [isInEditMode, setIsInEditMode] = useState<boolean>(false);
   const [isOpenEdit, setIsOpenEdit] = useState<boolean>(false);
 
+  // edit-container를 참조하기 위한 ref 생성
+  const editContainerRef = useRef<HTMLDivElement>(null);
+
+  // 취소 및 창 닫기 로직
+  const handleCancel = () => {
+    setIsInEditMode(false);
+  };
+
+  // FieldLabel 클릭 핸들러 (편집 모드 토글 및 초기 상태 설정)
+  const handleToggleEditMode = () => {
+    if (isInEditMode) {
+      handleCancel(); // 이미 편집 모드면 닫기
+    } else {
+      setIsInEditMode(true);
+    }
+  };
+
+  useClickOutside(editContainerRef, handleCancel, isInEditMode);
+
   return (
     <>
       <li className="task-detail__detail-modal-field-item">
-        <FieldLabel fieldName="사용자" onClick={() => setIsInEditMode(prev => !prev)} />
+        <FieldLabel fieldName="사용자" onClick={handleToggleEditMode} />
         <ul className="task-detail__detail-modal-field-content-list task-detail__detail-modal-field-content-list--user">
           {users.map(user => (
             <li key={user.id} className="task-detail__detail-modal-field-value-item--user">
@@ -25,7 +45,7 @@ const UserField: React.FC<{ users: Participant[] }> = ({ users }) => {
           ))}
         </ul>
         {isInEditMode && (
-          <div className="task-detail__detail-modal-field-edit-container">
+          <div ref={editContainerRef} className="task-detail__detail-modal-field-edit-container">
             <div className="task-detail__detail-modal-field-edit-list-wrapper">
               <ul
                 className="kanban-scrollbar-y task-detail__detail-modal-field-edit-url-list">
@@ -54,7 +74,7 @@ const UserField: React.FC<{ users: Participant[] }> = ({ users }) => {
       </li>
       {isOpenEdit && (
         <ParticipantSelector
-          initialParticipants={users} onClose={() => setIsOpenEdit(false)} onConfirm={() => {}}
+          initialParticipants={users} onClose={() => setIsOpenEdit(false)} onConfirm={() => { }}
         />
       )}
     </>

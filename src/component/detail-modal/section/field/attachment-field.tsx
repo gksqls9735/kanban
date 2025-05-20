@@ -5,6 +5,7 @@ import ExpandToggle from "../../common/expand-toggle";
 import FieldLabel from "./field-label";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import useClickOutside from "../../../../hooks/use-click-outside";
 
 const AttachmentField: React.FC<{ attachment: FileAttachment[] }> = ({ attachment }) => {
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
@@ -19,9 +20,28 @@ const AttachmentField: React.FC<{ attachment: FileAttachment[] }> = ({ attachmen
     fileInputRef.current?.click();
   };
 
+  // edit-container를 참조하기 위한 ref 생성
+  const editContainerRef = useRef<HTMLDivElement>(null);
+
+  // 취소 및 창 닫기 로직
+  const handleCancel = () => {
+    setIsInEditMode(false);
+  };
+
+  // FieldLabel 클릭 핸들러 (편집 모드 토글 및 초기 상태 설정)
+  const handleToggleEditMode = () => {
+    if (isInEditMode) {
+      handleCancel(); // 이미 편집 모드면 닫기
+    } else {
+      setIsInEditMode(true);
+    }
+  };
+
+  useClickOutside(editContainerRef, handleCancel, isInEditMode);
+
   return (
     <li className="task-detail__detail-modal-field-item">
-      <FieldLabel fieldName="첨부파일" onClick={() => setIsInEditMode(prev => !prev)} />
+      <FieldLabel fieldName="첨부파일" onClick={handleToggleEditMode} />
       <ul className="task-detail__detail-modal-field-content-list">
         {attachmentsToShow.map(file => {
           const { icon } = getFileTypeInfo(file.fileName);
@@ -48,7 +68,7 @@ const AttachmentField: React.FC<{ attachment: FileAttachment[] }> = ({ attachmen
         <ExpandToggle hiddenCount={hiddenCount} toggle={() => setIsExpanded(prev => !prev)} isExpanded={isExpanded} />
       </ul>
       {isInEditMode && (
-        <div className="task-detail__detail-modal-field-edit-container">
+        <div ref={editContainerRef} className="task-detail__detail-modal-field-edit-container">
           <div className="task-detail__detail-modal-field-edit-list-wrapper">
             <ul
               className="kanban-scrollbar-y task-detail__detail-modal-field-edit-url-list">
@@ -85,7 +105,7 @@ const AttachmentField: React.FC<{ attachment: FileAttachment[] }> = ({ attachmen
               type="file"
               ref={fileInputRef}
               multiple
-              style={{display: 'none'}}
+              style={{ display: 'none' }}
             />
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#414D5C" className="bi bi-plus-lg" viewBox="0 0 16 16">
               <path fillRule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2" />

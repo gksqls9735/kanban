@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { NumericField } from "../../../../types/type";
 import FieldLabel from "./field-label";
 import NumericDropdown from "./numeric-dropdown";
+import useClickOutside from "../../../../hooks/use-click-outside";
 
 const NumericFieldComponent: React.FC<{ numericField: NumericField }> = ({ numericField }) => {
   const formattedValue = numericField.value.toFixed(numericField.decimalPlaces);
@@ -17,14 +18,31 @@ const NumericFieldComponent: React.FC<{ numericField: NumericField }> = ({ numer
     0, 1, 2, 3, 4, 5, 6
   ]
 
+
+  // edit-container를 참조하기 위한 ref 생성
+  const editContainerRef = useRef<HTMLDivElement>(null);
+
+  // 취소 및 창 닫기 로직
   const handleCancel = () => {
     setIsInEditMode(false);
     setIsOpenEdit(false);
-  }
+  };
+
+  // FieldLabel 클릭 핸들러 (편집 모드 토글 및 초기 상태 설정)
+  const handleToggleEditMode = () => {
+    if (isInEditMode) {
+      handleCancel(); // 이미 편집 모드면 닫기
+    } else {
+      setIsInEditMode(true);
+      setIsOpenEdit(false); // 편집 모드 진입 시, 기본적으로는 목록 뷰(isOpenEdit: false)로 시작
+    }
+  };
+
+  useClickOutside(editContainerRef, handleCancel, isInEditMode);
 
   return (
     <li className="task-detail__detail-modal-field-item">
-      <FieldLabel fieldName="숫자" onClick={() => setIsInEditMode(prev => !prev)} />
+      <FieldLabel fieldName="숫자" onClick={handleToggleEditMode} />
       <ul className="task-detail__detail-modal-field-content-list">
         <li className="task-detail__detail-modal-field-item--numeric">
           <div>{formattedValue}</div>
@@ -32,7 +50,7 @@ const NumericFieldComponent: React.FC<{ numericField: NumericField }> = ({ numer
         </li>
       </ul>
       {isInEditMode && (
-        <div className="task-detail__detail-modal-field-edit-container">
+        <div ref={editContainerRef} className="task-detail__detail-modal-field-edit-container">
           {isOpenEdit ? (
             <>
               <div className="task-detail__detail-modal-field-edit-list-wrapper">

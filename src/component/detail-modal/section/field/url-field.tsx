@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { UrlData } from "../../../../types/type";
 import ExpandToggle from "../../common/expand-toggle";
 import FieldLabel from "./field-label";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
+import useClickOutside from "../../../../hooks/use-click-outside";
 
 const UrlField: React.FC<{
   urls: UrlData[];
@@ -16,15 +17,31 @@ const UrlField: React.FC<{
   const [isInEditMode, setIsInEditMode] = useState<boolean>(false);
   const [isOpenEdit, setIsOpenEdit] = useState<boolean>(false);
 
+  // edit-container를 참조하기 위한 ref 생성
+  const editContainerRef = useRef<HTMLDivElement>(null);
+
+  // 취소 및 창 닫기 로직
   const handleCancel = () => {
     setIsInEditMode(false);
     setIsOpenEdit(false);
-  }
+  };
+
+  // FieldLabel 클릭 핸들러 (편집 모드 토글 및 초기 상태 설정)
+  const handleToggleEditMode = () => {
+    if (isInEditMode) {
+      handleCancel(); // 이미 편집 모드면 닫기
+    } else {
+      setIsInEditMode(true);
+      setIsOpenEdit(false); // 편집 모드 진입 시, 기본적으로는 목록 뷰(isOpenEdit: false)로 시작
+    }
+  };
+
+  useClickOutside(editContainerRef, handleCancel, isInEditMode);
 
   return (
     <>
       <li className="task-detail__detail-modal-field-item">
-        <FieldLabel fieldName="url" onClick={() => setIsInEditMode(prev => !prev)} />
+        <FieldLabel fieldName="url" onClick={handleToggleEditMode} />
         <ul className="task-detail__detail-modal-field-content-list">
           {linksToShow.map(url => {
             return (
@@ -38,7 +55,7 @@ const UrlField: React.FC<{
           <ExpandToggle hiddenCount={hiddenCount} toggle={() => setIsExpanded(prev => !prev)} isExpanded={isExpanded} />
         </ul>
         {isInEditMode && (
-          <div className="task-detail__detail-modal-field-edit-container">
+          <div ref={editContainerRef} className="task-detail__detail-modal-field-edit-container">
             {isOpenEdit ? (
               <>
                 <div className="task-detail__detail-modal-field-edit-list-wrapper">

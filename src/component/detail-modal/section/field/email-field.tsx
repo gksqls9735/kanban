@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { Email } from "../../../../types/type";
 import FieldLabel from "./field-label";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
+import useClickOutside from "../../../../hooks/use-click-outside";
 
 const EmailField: React.FC<{ emails: Email[] }> = ({ emails }) => {
   const handleCopyEmail = (emailAddress: string) => {
@@ -32,17 +33,8 @@ const EmailField: React.FC<{ emails: Email[] }> = ({ emails }) => {
     }
   };
 
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      const path = e.composedPath();
-      if (isInEditMode &&
-        editContainerRef.current && !path.includes(editContainerRef.current)
-      ) handleCancel();
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isInEditMode]);
-  
+  useClickOutside(editContainerRef, handleCancel, isInEditMode);
+
   return (
     <li className="task-detail__detail-modal-field-item">
       {/* FieldLabel 클릭 시 handleToggleEditMode 호출 */}
