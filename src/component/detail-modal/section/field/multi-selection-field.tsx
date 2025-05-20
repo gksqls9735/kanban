@@ -2,6 +2,7 @@ import { useState } from "react";
 import { SelectOption } from "../../../../types/type";
 import OptionItem from "../../common/option-item";
 import ExpandToggle from "../../common/expand-toggle";
+import FieldLabel from "./field-label";
 
 const MultiSelection: React.FC<{
   options: SelectOption[];
@@ -13,7 +14,7 @@ const MultiSelection: React.FC<{
 
   return (
     <li className="task-detail__detail-modal-field-item">
-      <div className="task-detail__detail-modal-field-label">다중선택</div>
+      <FieldLabel fieldName="다중선택" />
       <ul className="task-detail__detail-modal-field-content-list">
         {optionsToShow.map(option => (
           <OptionItem key={option.code} option={option} />

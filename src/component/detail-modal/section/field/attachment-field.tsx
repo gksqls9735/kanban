@@ -2,6 +2,7 @@ import { useState } from "react";
 import { FileAttachment } from "../../../../types/type";
 import { getFileTypeInfo } from "../../common/file-icon";
 import ExpandToggle from "../../common/expand-toggle";
+import FieldLabel from "./field-label";
 
 const AttachmentField: React.FC<{ attachment: FileAttachment[] }> = ({ attachment }) => {
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
@@ -11,7 +12,7 @@ const AttachmentField: React.FC<{ attachment: FileAttachment[] }> = ({ attachmen
 
   return (
     <li className="task-detail__detail-modal-field-item">
-      <div className="task-detail__detail-modal-field-label">첨부파일</div>
+      <FieldLabel fieldName="첨부파일"/>
       <ul className="task-detail__detail-modal-field-content-list">
         {attachmentsToShow.map(file => {
           const { icon } = getFileTypeInfo(file.fileName);

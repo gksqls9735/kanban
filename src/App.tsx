@@ -5,6 +5,10 @@ import { sections, sectionTasks } from './mocks/task-mock';
 import { statusSelect } from './mocks/select-option-mock';
 import { user1, userlist } from './mocks/user-mock';
 import { chatlist } from './mocks/task-detail-mock';
+import './styles/datetimepicker.css';
+import './styles/task-detail.css';
+import './styles/participant-selector.css';
+import './styles/kanban.css';
 
 function App() {
   const [isSideMenuOpen, setIsSideMenuOpen] = useState<"expanded" | "collapsed" | "hidden">("hidden");

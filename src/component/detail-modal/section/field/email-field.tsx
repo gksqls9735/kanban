@@ -1,4 +1,5 @@
 import { Email } from "../../../../types/type";
+import FieldLabel from "./field-label";
 
 const EmailField: React.FC<{ emails: Email[] }> = ({ emails }) => {
 
@@ -9,7 +10,7 @@ const EmailField: React.FC<{ emails: Email[] }> = ({ emails }) => {
 
   return (
     <li className="task-detail__detail-modal-field-item">
-      <div className="task-detail__detail-modal-field-label">이메일</div>
+      <FieldLabel fieldName="이메일"/>
       <ul className="task-detail__detail-modal-field-content-list">
         {emails.map(email => (
           <li key={email.id} onClick={() => handleCopyEmail(email.email)}

@@ -295,6 +295,24 @@
   font-size: 13px;
   font-weight: 500;
   flex-shrink: 0;
+  display: flex;
+  justify-content: space-between;
+}
+
+.kanban .task-detail__detail-modal-field-label-edit-icon {
+  display: none;
+}
+
+.kanban .task-detail__detail-modal-field-label:hover .task-detail__detail-modal-field-label-edit-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 20px;
+  height: 20px;
+  box-sizing: border-box;
+  border: 1px solid #E4E8EE;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
 .kanban .task-detail__detail-modal-field-content-list {

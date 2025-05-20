@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { UrlData } from "../../../../types/type";
 import ExpandToggle from "../../common/expand-toggle";
+import FieldLabel from "./field-label";
 
 const UrlField: React.FC<{
   urls: UrlData[];
@@ -12,7 +13,7 @@ const UrlField: React.FC<{
   return (
     <>
       <li className="task-detail__detail-modal-field-item">
-        <div className="task-detail__detail-modal-field-label">url</div>
+        <FieldLabel fieldName="url"/>
         <ul className="task-detail__detail-modal-field-content-list">
           {linksToShow.map(url => {
             return (
