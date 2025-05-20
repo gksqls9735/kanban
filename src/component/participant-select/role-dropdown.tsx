@@ -4,7 +4,7 @@ const RoleDropdown = forwardRef<HTMLDivElement, { position: { top: number; left:
   ({ position, onClick }, ref) => {
     const [isHoveredPrimary, setIsHoveredPrimary] = useState(false);
     const [isHoveredSecondary, setIsHoveredSecondary] = useState(false);
-    
+    console.log("롤드롭다운")
     return (
       <div
         ref={ref}
@@ -20,7 +20,7 @@ const RoleDropdown = forwardRef<HTMLDivElement, { position: { top: number; left:
           color: '#0F1B2A',
           backgroundColor: 'white',
           boxShadow: '0px 0px 16px 0px #00000014',
-          zIndex: 1110,
+          zIndex: 10000,
           width: 120,
         }}
         onClick={e => e.stopPropagation()}
