@@ -1,21 +1,26 @@
 import React from 'react';
 
-const FileTypeIcon: React.FC<{ extension: string; color: string }> = ({ extension, color }) => {
-  const iconSize = '16px';
+const FileTypeIcon: React.FC<{ extension: string; color: string; size?: number }> = ({ extension, color, size }) => {
+  const iconSize = size ? `${size}px` : '16px';
 
   const textLength = extension.length;
 
-  let dynamicFontSize: string;
-
+  let dynamicFontSize: number;
+  
   if (textLength === 1) {
-    dynamicFontSize = '0.65rem';
+    dynamicFontSize = 0.65;
   } else if (textLength === 2) {
-    dynamicFontSize = '0.55rem';
+    dynamicFontSize = 0.55;
   } else if (textLength === 3) {
-    dynamicFontSize = '0.45rem';
+    dynamicFontSize = 0.45;
   } else {
-    dynamicFontSize = '0.45rem';
+    dynamicFontSize = 0.45;
   }
+  
+  if (size) {
+    dynamicFontSize = dynamicFontSize * 1.3;
+  }
+
 
   const iconStyle: React.CSSProperties = {
     backgroundColor: color,
@@ -23,7 +28,7 @@ const FileTypeIcon: React.FC<{ extension: string; color: string }> = ({ extensio
     width: iconSize,
     height: iconSize,
     borderRadius: '1px',
-    fontSize: dynamicFontSize,
+    fontSize: `${dynamicFontSize}rem`,
     fontWeight: '700',
     display: 'flex',
     justifyContent: 'center',
@@ -46,7 +51,7 @@ const FileTypeIcon: React.FC<{ extension: string; color: string }> = ({ extensio
 
 
 
-export const getFileTypeInfo = (fileName: string): { icon: React.ReactNode; } => {
+export const getFileTypeInfo = (fileName: string, size?: number): { icon: React.ReactNode; } => {
   const safeFileName = fileName || '';
   const extension = safeFileName.split('.').pop()?.toLocaleLowerCase() || '';
 
@@ -127,7 +132,7 @@ export const getFileTypeInfo = (fileName: string): { icon: React.ReactNode; } =>
       break;
   }
 
-  const icon = <FileTypeIcon extension={iconText} color={color} />;
+  const icon = <FileTypeIcon extension={iconText} color={color} size={size} />;
 
   return {
     icon: icon,
