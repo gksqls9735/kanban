@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import ParticipantSelector from "../../../participant-select/participant-selector";
 import useClickOutside from "../../../../hooks/use-click-outside";
+import FieldFooter from "./field-common/field-footer";
 
 const UserField: React.FC<{ users: Participant[] }> = ({ users }) => {
 
@@ -48,27 +49,22 @@ const UserField: React.FC<{ users: Participant[] }> = ({ users }) => {
           <div ref={editContainerRef} className="task-detail__detail-modal-field-edit-container">
             <div className="task-detail__detail-modal-field-edit-list-wrapper">
               <ul
-                className="kanban-scrollbar-y task-detail__detail-modal-field-edit-url-list">
+                className="kanban-scrollbar-y task-detail__detail-modal-field-edit-list">
                 {users.map(u => (
-                  <li key={u.id} className="task-detail__detail-modal-field-edit-url-item" style={{ justifyContent: 'space-between', }}>
-                    <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                  <li key={u.id} className="task-detail__detail-modal-field-edit-item task-detail__detail-modal-field-edit-item--user">
+                    <div className="task-detail__detail-modal-field-edit-user-info">
                       <AvatarItem size={24}>{getInitial(u.username)}</AvatarItem>
-                      <div style={{ fontWeight: 600, fontSize: 13, color: '#0F1B2A' }}>{u.username}</div>
+                      <div className="task-detail__detail-modal-field-edit-user-name">{u.username}</div>
                     </div>
                     <div className="todo-item__action todo-item__action--delete">
-                      <FontAwesomeIcon icon={faTimes} style={{ width: 12, height: 12, color: "rgba(125, 137, 152, 1)" }} />
+                      <FontAwesomeIcon icon={faTimes} className="task-detail__detail-modal-field-edit-item--delete" />
                     </div>
                   </li>
                 ))}
               </ul>
               <div className="task-detail__detail-modal-field-edit-separator" />
             </div>
-            <div className="task-detail__detail-modal-field-edit-footer" onClick={() => setIsOpenEdit(prev => !prev)}>
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#414D5C" className="bi bi-plus-lg" viewBox="0 0 16 16">
-                <path fillRule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2" />
-              </svg>
-              <span className="task-detail__detail-modal-field-edit-footer-text">사용자 추가</span>
-            </div>
+            <FieldFooter title="사용자 수정" isPlusIcon={true} onClick={() => setIsOpenEdit(prev => !prev)} />
           </div>
         )}
       </li>

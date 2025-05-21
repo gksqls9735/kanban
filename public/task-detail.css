@@ -3,6 +3,10 @@
   color: rgb(156 163 175);
 }
 
+.kanban .justify-between {
+  justify-content: space-between;
+}
+
 .kanban .task-detail__detail-modal-overlay {
   position: fixed;
   top: 0;
@@ -479,39 +483,33 @@
   z-index: 10;
 }
 
-/* url */
-.kanban .task-detail__detail-modal-field-edit-list-wrapper {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.kanban .task-detail__detail-modal-field-edit-url-list {
-  max-height: 200px;
-  overflow-y: auto;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.kanban .task-detail__detail-modal-field-edit-url-item {
-  height: 40px;
-  box-sizing: border-box;
-  padding: 0px 12px;
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.kanban .task-detail__detail-modal-field-edit-url-item>img {
-  width: 16px;
-  height: 16px;
-}
-
 .kanban .task-detail__detail-modal-field-edit-separator {
   width: 564px;
   box-sizing: border-box;
   border-top: 1px solid #E4E8EE;
+}
+
+/* 필드 편집 영역 공통 */
+.kanban .task-detail__detail-modal-field-edit-footer {
+  height: 29px;
+  box-sizing: border-box;
+  padding: 6px 12px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.kanban .task-detail__detail-modal-field-edit-footer-text {
+  font-weight: 400;
+  font-size: 12px;
+  color: #414D5C;
+}
+
+.kanban .task-detail__detail-modal-field-footer-action-left {
+  width: fit-content;
+  display: flex;
+  gap: 10px;
+  align-items: center;
 }
 
 .kanban .task-detail__detail-modal-field-edit-footer {
@@ -527,6 +525,318 @@
   font-weight: 400;
   font-size: 12px;
   color: #414D5C;
+}
+
+.kanban .task-detail__detail-modal-field-footer-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.kanban .task-detail__detail-modal-field-footer-actions>div {
+  width: 40px;
+  height: 28px;
+  font-weight: 500;
+  font-size: 13px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.kanban .task-detail__detail-modal-field-footer-actions>div:first-child {
+  color: #8D99A8;
+}
+
+.kanban .task-detail__detail-modal-field-footer-actions>div:last-child {
+  color: #16B364
+}
+
+.kanban .task-detail__detail-modal-field-edit-list-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.kanban .task-detail__detail-modal-field-edit-list {
+  max-height: 200px;
+  overflow-y: auto;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.kanban .task-detail__detail-modal-field-edit-item {
+  height: 40px;
+  box-sizing: border-box;
+  padding: 0px 12px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.kanban .task-detail__detail-modal-field-edit-item--delete {
+  width: 12px;
+  height: 12px;
+  color: rgba(125, 137, 152, 1);
+  cursor: pointer;
+}
+
+/* url email 공통 */
+.kanban .task-detail__detail-modal-field-edit-item--url-email {
+  gap: 12px;
+}
+
+.kanban .task-detail__detail-modal-field-edit-item-drag-handle {
+  width: 16px;
+  height: 16px;
+  color: #D9D9D9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: grab;
+  flex-shrink: 0;
+}
+
+.kanban .task-detail__detail-modal-field-edit-item-inputs {
+  display: flex;
+  gap: 8px;
+}
+
+.kanban .task-detail__detail-modal-field-edit-input {
+  height: 32px;
+  border: 1px solid #E4E8EE;
+  border-radius: 4px;
+  padding: 0px 10px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.kanban .task-detail__detail-modal-field-edit-input::placeholder {
+  color: #8D99A8;
+}
+
+.kanban .task-detail__detail-modal-field-edit-input--first {
+  width: 128px;
+}
+
+.kanban .task-detail__detail-modal-field-edit-input--second {
+  width: 348px;
+}
+
+/* email */
+.kanban .task-detail__detail-modal-field-edit-item--email {
+  gap: 12px;
+}
+
+.kanban .task-detail__detail-modal-field-edit-item--email--nickname {
+  font-weight: 600;
+  font-size: 13px;
+  color: #0F1B2A;
+}
+
+.kanban .task-detail__detail-modal-field-edit-item-email--email {
+  font-weight: 400;
+  font-size: 13px;
+  color: #5F6B7A;
+}
+
+/* 아이디 */
+.kanban .task-detail__detail-modal-field-edit-id-input-row {
+  height: 40px;
+  display: flex;
+  gap: 8px;
+  padding: 0px 12px;
+  box-sizing: border-box;
+  align-items: center;
+}
+
+.kanban .task-detail__detail-modal-field-edit-id-label {
+  width: 96px;
+  padding: 4px 0px;
+  box-sizing: border-box;
+  font-size: 13px;
+  font-weight: 400;
+  color: #0F1B2A;
+}
+
+.kanban .task-detail__detail-modal-field-edit-input--prefix {
+  height: 32px;
+  box-sizing: border-box;
+  flex-grow: 1;
+  border: 1px solid #E4E8EE;
+  border-radius: 4px;
+  padding: 0px 10px;
+  outline: none;
+  font-size: 13px;
+  font-weight: 400;
+  color: #8D99A8;
+}
+
+.kanban .task-detail__detail-modal-field-edit-id-preview-row {
+  justify-content: space-between;
+}
+
+.kanban .task-detail__detail-modal-field-edit-id-preview {
+  text-align: right;
+  font-weight: 400;
+  font-size: 13px;
+  color: #0F1B2A;
+}
+
+.kanban .task-detail__detail-modal-field-edit-id-view-input-wrapper {
+  padding: 0px 10px;
+}
+
+.kanban .task-detail__detail-modal-field-edit-input--id-view {
+  width: 100%;
+  height: 36px;
+  border: 1px solid #E4E8EE;
+  border-radius: 4px;
+  color: #CDD3DD;
+  font-size: 14px;
+  outline: none;
+}
+
+/* selection 공통 */
+.kanban .task-detail__detail-modal-field-edit-item--option {
+  gap: 12px;
+}
+
+.kanban .task-detail__detail-modal-field-edit-option-display {
+  display: flex;
+  align-items: center;
+  height: 24px;
+  border-radius: 4px;
+  gap: 4px;
+  flex-grow: 1;
+}
+
+.kanban .task-detail__detail-modal-field-edit-option-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.kanban .task-detail__detail-modal-field-edit-option-name {
+  font-weight: 400;
+  font-size: 13px;
+}
+
+.kanban .task-detail__detail-modal-field-edit-option-input-wrapper {
+  font-size: 13px;
+  font-weight: 400;
+  flex-grow: 1;
+}
+
+.kanban .task-detail__detail-modal-field-edit-option-input-wrapper>input {
+  width: 100%;
+  border: none;
+  outline: none;
+}
+
+.kanban .task-detail__detail-modal-field-edit-option-input-wrapper>input::placeholder {
+  color: #8D99A8;
+}
+
+.kanban .task-detail__detail-modal-field-edit-item--selection-view {
+  gap: 10px;
+}
+
+/* numeric */
+.kanban .task-detail__detail-modal-field-edit-numeric-options {
+  padding: 0px 12px;
+}
+
+.kanban .task-detail__detail-modal-field-edit-numeric-row {
+  height: 40px;
+  display: flex;
+  gap: 8px;
+  padding: 0px 12px;
+  box-sizing: border-box;
+  align-items: center;
+}
+
+.kanban .task-detail__detail-modal-field-edit-numeric-preview-row {
+  justify-content: space-between;
+}
+
+.kanban .task-detail__detail-modal-field-edit-numeric-label {
+  width: 96px;
+  padding: 4px 0px;
+  box-sizing: border-box;
+  font-size: 13px;
+  font-weight: 400;
+  color: #0F1B2A;
+}
+
+.kanban .task-detail__detail-modal-field-edit-numeric-preview-value {
+  text-align: right;
+  font-weight: 400;
+  font-size: 13px;
+  color: #0F1B2A;
+}
+
+.kanban .task-detail__detail-modal-field-edit-footer--numeric-edit {
+  justify-content: flex-end;
+}
+
+.kanban .task-detail__detail-modal-field-edit-input--numeric-view {
+  width: 100%;
+  height: 36px;
+  border: 1px solid #E4E8EE;
+  border-radius: 4px;
+  color: #0F1B2A;
+  font-size: 14px;
+  outline: none;
+  text-align: right;
+}
+
+/* numeric dropdown */
+.kanban .task-detail__numeric-dropdown-current-value-wrapper {
+  height: 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid #E4E8EE;
+  border-radius: 4px;
+  flex-grow: 1;
+  padding: 0px 10px;
+}
+
+.kanban .task-detail__numeric-dropdown-current-value {
+  font-weight: 400;
+  font-size: 13px;
+  color: #0F1B2A;
+  display: flex;
+  align-items: center;
+}
+
+.kanban .task-detail__numeric-dropdown-arrow-icon-wrapper {
+  width: 16px;
+  height: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.kanban .task-detail__numeric-dropdown-panel {
+  width: 436px;
+  left: 116px;
+}
+
+/* 사용자 */
+.kanban .task-detail__detail-modal-field-edit-item--user {
+  justify-content: space-between;
+}
+
+.kanban .task-detail__detail-modal-field-edit-user-info {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.kanban .task-detail__detail-modal-field-edit-user-name {
+  font-weight: 600;
+  font-size: 13px;
+  color: #0F1B2A;
 }
 
 /* 작업 할 일 */
