@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { NumericField } from "../../../../types/type";
-import FieldLabel from "./field-label";
+import FieldLabel from "./field-common/field-label";
 import NumericDropdown from "./numeric-dropdown";
 import useClickOutside from "../../../../hooks/use-click-outside";
 

@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import FieldLabel from "./field-label";
+import FieldLabel from "./field-common/field-label";
 import useClickOutside from "../../../../hooks/use-click-outside";
 
 const TextField: React.FC<{ text: string }> = ({ text }) => {

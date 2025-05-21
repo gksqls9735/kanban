@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { UrlData } from "../../../../types/type";
 import ExpandToggle from "../../common/expand-toggle";
-import FieldLabel from "./field-label";
+import FieldLabel from "./field-common/field-label";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import useClickOutside from "../../../../hooks/use-click-outside";
@@ -65,7 +65,7 @@ const UrlField: React.FC<{
                         <div style={{ width: 16, height: 16, color: '#D9D9D9', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>⠿</div>
                         <div style={{ display: 'flex', gap: 8 }}>
                           <input type="text"
-                            placeholder="제목목을 입력하세요."
+                            placeholder="제목을 입력하세요."
                             style={{ width: 128, height: 32, border: '1px solid #E4E8EE', borderRadius: 4, padding: '0px 10px', outline: 'none', color: '#8D99A8', boxSizing: 'border-box' }}
                             value={url.title}
                           />

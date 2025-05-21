@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import { FileAttachment } from "../../../../types/type";
 import { getFileTypeInfo } from "../../common/file-icon";
 import ExpandToggle from "../../common/expand-toggle";
-import FieldLabel from "./field-label";
+import FieldLabel from "./field-common/field-label";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import useClickOutside from "../../../../hooks/use-click-outside";
