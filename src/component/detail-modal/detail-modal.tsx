@@ -24,29 +24,33 @@ import UserField from "./section/field/user-field";
 import DetailTodoList from "./section/detail-todo/detail-todo-list";
 import ChatList from "./section/chat/chat-list/chat-list";
 import ChatInput from "./section/chat/chat-input";
+import useTaskStore from "../../store/task-store";
 
 const DetailModal: React.FC<{
   task: Task;
   onClose: (e: React.MouseEvent) => void;
   openDeleteModal: (e: React.MouseEvent) => void;
-}> = ({ task, onClose, openDeleteModal }) => {
+}> = ({ task: initialTaskFromProp, onClose, openDeleteModal }) => {
   const sections = useSectionsStore(state => state.sections);
   const statusList = useStatusesStore(state => state.statusList);
   const currentUser = useUserStore(state => state.currentUser);
+  const tasksFromStore = useTaskStore(state => state.allTasks);
+
+  const currentTask = useMemo(() => {
+    return tasksFromStore.find(t => t.taskId === initialTaskFromProp.taskId) || initialTaskFromProp;
+  }, [tasksFromStore, initialTaskFromProp]);
 
   const [selectedSection, setSelectedSection] = useState<Section>(() => {
-    return sections.find(sec => sec.sectionId === task.sectionId) || sections[0];
+    return sections.find(sec => sec.sectionId === currentTask.sectionId) || sections[0];
   });
-  const [selectedPriority, setSelectedPriority] = useState<SelectOption>(task.priority || priorityMedium);
+  const [selectedPriority, setSelectedPriority] = useState<SelectOption>(currentTask.priority || priorityMedium);
   const [selectedStatus, setSelectedStatus] = useState(() => {
-    return statusList.find(status => status.code === task.status.code) || statusList[0];
-
+    return statusList.find(status => status.code === currentTask.status.code) || statusList[0];
   });
-
-  const [currentImportance, setCurrentImportance] = useState<number>(task.importance || 0);
-
+  const [currentImportance, setCurrentImportance] = useState<number>(currentTask.importance || 0);
   const [isOpenParticipantModal, setIsOpenParticipantModal] = useState<boolean>(false);
-  const [participants, setParticipants] = useState<Participant[]>(task.participants || []);
+  const [currentTodoList, setCurrentTodoList] = useState<Todo[]>(currentTask.todoList);
+  const [participants, setParticipants] = useState<Participant[]>(currentTask.participants || []);
   const sortedParticipants = useMemo(() => {
     if (!participants || participants.length === 0) return [];
     return [...participants].sort((a, b) => {
@@ -58,43 +62,43 @@ const DetailModal: React.FC<{
 
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
 
+  useEffect(() => {
+    setSelectedSection(sections.find(sec => sec.sectionId === currentTask.sectionId) || sections[0]);
+    setSelectedPriority(currentTask.priority || priorityMedium);
+    setSelectedStatus(statusList.find(status => status.code === currentTask.status.code) || statusList[0]);
+    setCurrentImportance(currentTask.importance || 0);
+    setParticipants(currentTask.participants || []);
+    setCurrentTodoList(currentTask.todoList || []);
+  }, [currentTask, sections, statusList]);
+
   const visibleFieldComponents = useMemo(() => {
     const allFields = [
-      task.urls?.length ? <UrlField key="url" urls={task.urls} /> : null,
-      task.multiSelection?.length ? <MultiSelection key="multi" options={task.multiSelection} /> : null,
-      task.taskAttachments?.length ? <AttachmentField key="attach" attachment={task.taskAttachments} /> : null,
-      task.singleSelection ? <SingleSelection key="single" option={task.singleSelection} /> : null,
-      task.memo ? <TextField key="text" text={task.memo} /> : null,
-      task.numericField ? <NumericFieldComponent key="num" numericField={task.numericField} /> : null,
-      task.prefix ? <IdField key="id" prefix={task.prefix} taskId={task.taskId} /> : null,
-      task.emails?.length ? <EmailField key="email" emails={task.emails} taskId={task.taskId}/> : null,
-      task.participants?.length ? <UserField key="user" users={task.participants} /> : null,
+      currentTask.urls?.length ? <UrlField key="url" urls={currentTask.urls} /> : null,
+      currentTask.multiSelection?.length ? <MultiSelection key="multi" options={currentTask.multiSelection} /> : null,
+      currentTask.taskAttachments?.length ? <AttachmentField key="attach" attachment={currentTask.taskAttachments} /> : null,
+      currentTask.singleSelection ? <SingleSelection key="single" option={currentTask.singleSelection} /> : null,
+      currentTask.memo ? <TextField key="text" text={currentTask.memo} /> : null,
+      currentTask.numericField ? <NumericFieldComponent key="num" numericField={currentTask.numericField} /> : null,
+      currentTask.prefix ? <IdField key="id" prefix={currentTask.prefix} taskId={currentTask.taskId} /> : null,
+      currentTask.emails?.length ? <EmailField key="email" emails={currentTask.emails} taskId={currentTask.taskId} /> : null,
+      currentTask.participants?.length ? <UserField key="user" users={currentTask.participants} /> : null,
     ].filter(Boolean);
     return isExpanded ? allFields : allFields.slice(0, 3);
-  }, [task, isExpanded]);
-
-  const [currentTodoList, setCurrentTodoList] = useState<Todo[]>(task.todoList);
+  }, [currentTask, isExpanded]);
 
   const handleSectionSelect = (section: Section) => setSelectedSection(section);
-  const handleParticipants = (participants: Participant[]) => {
-    setParticipants(participants);
-  };
+  const handleParticipants = (newParticipants: Participant[]) => setParticipants(newParticipants);
   const handleDeleteParticipants = (userId: string | number) => {
-    setParticipants(prev =>
-      prev.filter(u => u.id !== userId)
-    );
+    const updatedParticipants = participants.filter(u => u.id !== userId);
+    setParticipants(updatedParticipants);
   };
 
   const handlePrioritySelect = (priority: SelectOption) => setSelectedPriority(priority);
   const handleStatusSelect = (status: SelectOption) => setSelectedStatus(status);
-  const handleImportanceChange = (newImportance: number) => {
-    setCurrentImportance(newImportance);
-  };
+  const handleImportanceChange = (newImportance: number) => setCurrentImportance(newImportance);
 
   useEffect(() => {
-    // 모달이 열릴 때 body 스크롤 숨김
     document.body.style.overflow = 'hidden';
-    // 모달이 닫힐 때 body 스크롤 복원
     return () => {
       document.body.style.overflow = 'auto';
     };
@@ -109,8 +113,8 @@ const DetailModal: React.FC<{
           {/** 작업 설명(TITLE) */}
           <div className="task-detail__detail-modal-section">
             <SectionSelector selectedSection={selectedSection} onSectionSelect={handleSectionSelect} />
-            <div className="task-detail__detail-modal-title-info-name">{task.taskName}</div>
-            <div className="task-detail__detail-modal-title-info-name-description">{task.memo}</div>
+            <div className="task-detail__detail-modal-title-info-name">{currentTask.taskName}</div>
+            <div className="task-detail__detail-modal-title-info-name-description">{currentTask.memo}</div>
           </div>
 
           {/** 작업 정보 */}
@@ -123,8 +127,8 @@ const DetailModal: React.FC<{
               onAddParticipantClick={() => setIsOpenParticipantModal(true)}
             />
 
-            <DateField label="시작일" date={task.start} />
-            <DateField label="마감일" date={task.end} />
+            <DateField label="시작일" date={currentTask.start} />
+            <DateField label="마감일" date={currentTask.end} />
 
             <div className="task-detail__detail-modal-info-row">
               <div className="task-detail__detail-modal-info-value--select-option">우선순위</div>
@@ -156,11 +160,11 @@ const DetailModal: React.FC<{
           </div>
 
           {/** 작업 할 일 목록 */}
-          <DetailTodoList initialTodoList={currentTodoList} setInitialTodoList={setCurrentTodoList} taskId={task.taskId} />
+          <DetailTodoList initialTodoList={currentTodoList} setInitialTodoList={setCurrentTodoList} taskId={currentTask.taskId} />
 
           {/** 채팅 */}
-          <ChatList currentUser={currentUser!} taskId={task.taskId} />
-          <ChatInput currentUser={currentUser!} taskId={task.taskId} />
+          <ChatList currentUser={currentUser!} taskId={currentTask.taskId} />
+          <ChatInput currentUser={currentUser!} taskId={currentTask.taskId} />
         </div>
       </div>
       {
