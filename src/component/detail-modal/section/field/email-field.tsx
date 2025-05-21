@@ -9,7 +9,11 @@ import { generateUniqueId } from "../../../../utils/text-function";
 import { isValidEmailFormat } from "../../../../utils/valid-function";
 import useTaskStore from "../../../../store/task-store";
 
-const NEW_INLINE_EMAIL_KEY = 'new_inline_email_validator_key';
+interface NewEmailForm {
+  tempId: string;
+  nickname: string;
+  email: string;
+}
 
 const EmailField: React.FC<{ emails: Email[], taskId: string }> = ({ emails: initialEmails, taskId }) => {
   const updateTask = useTaskStore(state => state.updateTask);
@@ -20,14 +24,14 @@ const EmailField: React.FC<{ emails: Email[], taskId: string }> = ({ emails: ini
   const [isInEditMode, setIsInEditMode] = useState<boolean>(false);
   const [isOpenEdit, setIsOpenEdit] = useState<boolean>(false);
 
-  const [showInlineAddRow, setShowInlineAddRow] = useState<boolean>(false);
-  const [newInlineNickname, setNewInlineNickname] = useState<string>("");
-  const [newInlineEmailAddress, setNewInlineEmailAddress] = useState<string>("");
+  const [newEmailForms, setNewEmailForms] = useState<NewEmailForm[]>([]);
 
   const editContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setEmails(initialEmails);
+    setNewEmailForms([]);
+    setErrors({});
   }, [initialEmails]);
 
   const handleCopyEmail = (emailAddress: string) => {
@@ -38,9 +42,7 @@ const EmailField: React.FC<{ emails: Email[], taskId: string }> = ({ emails: ini
   const handleGlobalCancel = () => {
     setIsInEditMode(false);
     setIsOpenEdit(false);
-    setShowInlineAddRow(false);
-    setNewInlineNickname("");
-    setNewInlineEmailAddress("");
+    setNewEmailForms([]);
     setEmails(initialEmails);
     setErrors({});
   };
@@ -51,9 +53,7 @@ const EmailField: React.FC<{ emails: Email[], taskId: string }> = ({ emails: ini
     } else {
       setIsInEditMode(true);
       setIsOpenEdit(false);
-      setShowInlineAddRow(false);
-      setNewInlineNickname("");
-      setNewInlineEmailAddress("");
+      setNewEmailForms([]);
       setEmails(initialEmails);
       setErrors({});
     }
@@ -62,9 +62,8 @@ const EmailField: React.FC<{ emails: Email[], taskId: string }> = ({ emails: ini
   useClickOutside(editContainerRef, handleGlobalCancel, isInEditMode);
 
   const handleUpdateExistingEmail = (id: string | number, field: 'nickname' | 'email', value: string) => {
-    setEmails(prevEmails =>
-      prevEmails.map(e => (e.id === id ? { ...e, [field]: value } : e))
-    );
+    setEmails(prevEmails => prevEmails.map(e => (e.id === id ? { ...e, [field]: value } : e)));
+    if (errors[id]) setErrors(prev => ({ ...prev, [id]: [] }));
   };
 
   const handleDeleteEmail = (id: string | number) => {
@@ -76,27 +75,24 @@ const EmailField: React.FC<{ emails: Email[], taskId: string }> = ({ emails: ini
     });
   };
 
-  const handleToggleShowInlineAddForm = () => {
-    const newShowState = !showInlineAddRow;
-    setShowInlineAddRow(newShowState);
-    if (newShowState) {
-      setNewInlineNickname("");
-      setNewInlineEmailAddress("");
-      setErrors(prevErrors => {
-        const newErrors = { ...prevErrors };
-        delete newErrors[NEW_INLINE_EMAIL_KEY];
-        return newErrors;
-      });
-    }
+  const handleAddNewEmailForm = () => {
+    setNewEmailForms(prevForms => [
+      ...prevForms, { tempId: generateUniqueId('new-email'), nickname: "", email: "" }
+    ]);
+  }
+
+  const handleUpdateNewEmailForm = (tempId: string, field: 'nickname' | 'email', value: string) => {
+    setNewEmailForms(prevForms =>
+      prevForms.map(form => form.tempId === tempId ? { ...form, [field]: value } : form)
+    );
+    if (errors[tempId]) setErrors(prev => ({ ...prev, [tempId]: [] }));
   };
 
-  const handleRemoveInlineAddRow = () => {
-    setShowInlineAddRow(false);
-    setNewInlineNickname("");
-    setNewInlineEmailAddress("");
+  const handleRemoveNewEmailForm = (tempId: string) => {
+    setNewEmailForms(prevForms => prevForms.filter(form => form.tempId !== tempId));
     setErrors(prevErrors => {
       const newErrors = { ...prevErrors };
-      delete newErrors[NEW_INLINE_EMAIL_KEY];
+      delete newErrors[tempId];
       return newErrors;
     });
   };
@@ -105,22 +101,11 @@ const EmailField: React.FC<{ emails: Email[], taskId: string }> = ({ emails: ini
     const currentValidationErrors: Record<string | number, string[]> = {};
     let hasAnyError = false;
 
-    const validationList: Array<{ id: string | number; nickname: string; email: string }> =
-      emails.map(e => ({ id: e.id, nickname: e.nickname, email: e.email }));
-
-    // 유효성 검사를 위한 전체 이메일 목록 준비 (기존 + 신규)
-    if (showInlineAddRow) {
-      const trimmedNickname = newInlineNickname.trim();
-      const trimmedEmailAddress = newInlineEmailAddress.trim();
-
-      if (trimmedNickname || trimmedEmailAddress) {
-        validationList.push({
-          id: NEW_INLINE_EMAIL_KEY,
-          nickname: trimmedNickname,
-          email: trimmedEmailAddress,
-        });
-      }
-    }
+    // 유효성 검사를 위한 전체 이메일 목록 준비
+    const validationList: Array<{ id: string | number; nickname: string; email: string }> = [
+      ...emails.map(e => ({ id: e.id, nickname: e.nickname, email: e.email })),
+      ...newEmailForms.map(form => ({ id: form.tempId, nickname: form.nickname, email: form.email }))
+    ];
 
     // 이메일 주소별 카운트 (중복 검사용)
     const emailAddressCounts: Record<string, number> = {};
@@ -134,12 +119,15 @@ const EmailField: React.FC<{ emails: Email[], taskId: string }> = ({ emails: ini
       const itemId = item.id;
       const itemEmail = item.email.trim();
       const itemNickname = item.nickname.trim();
-      const currentItemErrors: string[] = [];
+      const currnetItemErrors: string[] = [];
 
-      // 새 이메일 추가 행에 대한 필수 필드 검사사
-      if (itemId === NEW_INLINE_EMAIL_KEY) {
-        if (!itemNickname || !itemEmail) {
-          currentItemErrors.push("새 이메일의 이름과 주소를 모두 입력해주세요.");
+      // 새 이메일 폼들에 대한 필수 필드 검사
+      // newEmailForms에 포함된 항목인지 확인하여, 둘 다 비어있으면 에러로 처리하지 않고 무시 (저장 시 제외)
+      // 둘 중 하나라고 값이 있다면 둘 다 있어야 함
+      const isNewFormEntry = newEmailForms.some(form => form.tempId === itemId);
+      if (isNewFormEntry) {
+        if ((itemNickname || itemEmail) && (!itemNickname || !itemEmail)) {
+          currnetItemErrors.push('새 이메일의 이름과 주소를 모두 입력해주세요.');
           hasAnyError = true;
         }
       }
@@ -147,51 +135,46 @@ const EmailField: React.FC<{ emails: Email[], taskId: string }> = ({ emails: ini
       // 이메일 필드가 비어있지 않은 경우에만 형식 및 중복 검사
       if (itemEmail) {
         if (!isValidEmailFormat(itemEmail)) {
-          currentItemErrors.push("이메일 형식이 맞지 않습니다.");
+          currnetItemErrors.push('이메일 형식이 맞지 않습니다.');
           hasAnyError = true;
         }
         if (emailAddressCounts[itemEmail] > 1) {
-          currentItemErrors.push("이메일이 동일합니다.");
+          currnetItemErrors.push("이메일이 동일합니다.");
           hasAnyError = true;
         }
-      } else if (itemId !== NEW_INLINE_EMAIL_KEY && !itemEmail) {
-        // 기존 이메일인데 이메일 주소가 비워진 경우 (닉네임만 남음)
-        // (정책에 따라) 에러로 처리할 수 있음. 여기서는 '이름과 주소를 모두 입력' 규칙은 새 항목에만 적용.
-        // 필요하다면 여기에 "이메일 주소를 입력해주세요." 추가 가능
+      } else if (!isNewFormEntry && !itemEmail && itemNickname) {
+        currnetItemErrors.push("이메일 주소를 입력해주세요");
       }
 
-      if (currentItemErrors.length > 0) {
-        currentValidationErrors[itemId] = currentItemErrors;
-      }
+      if (currnetItemErrors.length > 0) currentValidationErrors[itemId] = currnetItemErrors;
     });
 
     setErrors(currentValidationErrors);
 
     if (hasAnyError) return;
 
-    // 에러가 없으면 실제 저장 로직 진행
+    // 에러가 없을 시 실제 저장 로직 진행
     let finalEmailsToSave = [...emails];
 
-    if (showInlineAddRow) {
-      const trimmedNickname = newInlineEmailAddress.trim();
-      const trimmedEmailAddress = newInlineEmailAddress.trim();
+    newEmailForms.forEach(form => {
+      const trimmedNickname = form.nickname.trim();
+      const trimmedEmailAddress = form.email.trim();
 
       if (trimmedNickname && trimmedEmailAddress) {
-        const newEmailToAdd: Email = {
-          id: generateUniqueId('email'),
-          nickname: trimmedNickname,
-          email: trimmedEmailAddress,
-          order: finalEmailsToSave.length + 1,
-        };
-        finalEmailsToSave.push(newEmailToAdd);
+        if (!currentValidationErrors[form.tempId] || currentValidationErrors[form.tempId].length === 0) {
+          finalEmailsToSave.push({
+            id: generateUniqueId('email'),
+            nickname: trimmedNickname,
+            email: trimmedEmailAddress,
+            order: finalEmailsToSave.length + 1,
+          });
+        }
       }
-    }
+    });
 
     updateTask(taskId, { emails: finalEmailsToSave });
 
-    setShowInlineAddRow(false);
-    setNewInlineNickname("");
-    setNewInlineEmailAddress("");
+    setNewEmailForms([]);
     setIsOpenEdit(false);
     setIsInEditMode(false);
     setErrors({});
@@ -245,41 +228,42 @@ const EmailField: React.FC<{ emails: Email[], taskId: string }> = ({ emails: ini
                       </div>
                     </li>
                   ))}
-                  {showInlineAddRow && (
-                    <li className="task-detail__detail-modal-field-edit-item task-detail__detail-modal-field-edit-item--url-email" style={{ alignItems: 'baseline' }}>
+                  {newEmailForms.map((form, index) => (
+                    <li key={form.tempId} className="task-detail__detail-modal-field-edit-item task-detail__detail-modal-field-edit-item--url-email" style={{ alignItems: 'baseline' }}>
                       <div className="task-detail__detail-modal-field-edit-item-drag-handle">⠿</div>
                       <div className="task-detail__detail-modal-field-edit-item-inputs">
                         <input type="text"
                           className="task-detail__detail-modal-field-edit-input task-detail__detail-modal-field-edit-input--first"
                           placeholder="이름을 입력하세요."
-                          value={newInlineNickname}
-                          onChange={(e) => setNewInlineNickname(e.target.value)}
-                          autoFocus
+                          defaultValue={form.nickname}
+                          onChange={(e) => handleUpdateNewEmailForm(form.tempId, 'nickname', e.target.value)}
+                          autoFocus={index === newEmailForms.length - 1}
                         />
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 8 }}>
                           <input type="text"
                             className="task-detail__detail-modal-field-edit-input task-detail__detail-modal-field-edit-input--second"
                             placeholder="@mail.bizbee.ne.kr"
-                            value={newInlineEmailAddress}
-                            onChange={(e) => setNewInlineEmailAddress(e.target.value)}
-                            style={{ borderColor: `${errors[NEW_INLINE_EMAIL_KEY] && errors[NEW_INLINE_EMAIL_KEY].length > 0 ? '#F04438' : ''}` }}
+                            value={form.email}
+                            onChange={(e) => handleUpdateNewEmailForm(form.tempId, 'email', e.target.value)}
+                            style={{ borderColor: `${errors[form.tempId] && errors[form.tempId].length > 0 ? '#F04438' : ''}` }}
                           />
-                          {errors[NEW_INLINE_EMAIL_KEY] && errors[NEW_INLINE_EMAIL_KEY].length > 0 && (
-                            <div style={{ fontWeight: 400, fontSize: 12, color: '#F04438', marginTop: '4px' }}>
-                              {errors[NEW_INLINE_EMAIL_KEY].join(', ')}
+                          {errors[form.tempId] && errors[form.tempId].length > 0 && (
+                            <div style={{ fontWeight: 400, fontSize: 12, color: '#F04438' }}>
+                              {errors[form.tempId].join(', ')}
                             </div>
                           )}
                         </div>
                       </div>
-                      <div className="todo-item__action todo-item__action--delete" onClick={handleRemoveInlineAddRow}>
+                      <div className="todo-item__action todo-item__action--delete" onClick={() => handleRemoveNewEmailForm(form.tempId)}>
                         <FontAwesomeIcon icon={faTimes} className="task-detail__detail-modal-field-edit-item--delete" />
                       </div>
                     </li>
-                  )}
+                  ))}
+                  {emails.length === 0 && newEmailForms.length === 0 && <li style={{ textAlign: 'center', padding: '10px' }}>표시할 이메일이 없습니다.</li>}
                 </ul>
                 <div className="task-detail__detail-modal-field-edit-separator" />
               </div>
-              <FieldFooter title="이메일 추가" isPlusIcon={true} onClick={handleToggleShowInlineAddForm} handleCancel={handleGlobalCancel} isShowButton={true} onSave={handleGlobalSave} />
+              <FieldFooter title="이메일 추가" isPlusIcon={true} onClick={handleAddNewEmailForm} handleCancel={handleGlobalCancel} isShowButton={true} onSave={handleGlobalSave} />
             </>
           ) : (
             <>
