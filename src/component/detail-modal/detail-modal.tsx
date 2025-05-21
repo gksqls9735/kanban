@@ -67,7 +67,7 @@ const DetailModal: React.FC<{
       task.memo ? <TextField key="text" text={task.memo} /> : null,
       task.numericField ? <NumericFieldComponent key="num" numericField={task.numericField} /> : null,
       task.prefix ? <IdField key="id" prefix={task.prefix} taskId={task.taskId} /> : null,
-      task.emails?.length ? <EmailField key="email" emails={task.emails} /> : null,
+      task.emails?.length ? <EmailField key="email" emails={task.emails} taskId={task.taskId}/> : null,
       task.participants?.length ? <UserField key="user" users={task.participants} /> : null,
     ].filter(Boolean);
     return isExpanded ? allFields : allFields.slice(0, 3);

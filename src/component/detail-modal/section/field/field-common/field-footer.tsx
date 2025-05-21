@@ -17,7 +17,8 @@ const FieldFooter: React.FC<{
   onClick: () => void;
   handleCancel?: () => void;
   isShowButton?: boolean;
-}> = ({ title, isPlusIcon, onClick, handleCancel, isShowButton = false }) => {
+  onSave?: () => void;
+}> = ({ title, isPlusIcon, onClick, handleCancel, isShowButton = false, onSave }) => {
 
   const svgIcon = isPlusIcon ? PLUSICON : EDITICON
 
@@ -30,7 +31,7 @@ const FieldFooter: React.FC<{
       {isShowButton && (
         <div className="task-detail__detail-modal-field-footer-actions">
           <div onClick={handleCancel}>취소</div>
-          <div>저장</div>
+          <div onClick={onSave}>저장</div>
         </div>
       )}
     </div>

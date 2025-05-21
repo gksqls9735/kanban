@@ -25,4 +25,4 @@ dist-ssr
 
 # ignore
 .env
-src/test.tsx
+src/test
