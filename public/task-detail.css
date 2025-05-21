@@ -565,7 +565,7 @@
 }
 
 .kanban .task-detail__detail-modal-field-edit-item {
-  height: 40px;
+  min-height: 40px;
   box-sizing: border-box;
   padding: 0px 12px;
   display: flex;

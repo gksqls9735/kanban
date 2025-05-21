@@ -94,7 +94,7 @@ const UrlField: React.FC<{
                   <ul
                     className="kanban-scrollbar-y task-detail__detail-modal-field-edit-list">
                     {urls.map(url => (
-                      <li key={url.urlId} className="task-detail__detail-modal-field-edit-item">
+                      <li key={url.urlId} className="task-detail__detail-modal-field-edit-item" style={{ alignItems: 'center'}}>
                         <img
                           src={`https://www.google.com/s2/favicons?sz=256&domain_url=${url.requestedUrl}`} className="task-detail__detail-modal-field-value-item-url-favicon" />
                         <a className="truncate task-detail__detail-modal-field-value-item-url-link" href={url.requestedUrl} target="_blank" rel="noopener noreferrer">
