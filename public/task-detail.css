@@ -622,6 +622,24 @@
   width: 348px;
 }
 
+.kanban .task-detail__detail-modal-field-edit-input-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.kanban .task-detail__detail-modal-field-edit-error-message {
+  font-size: 12px;
+  font-weight: 400;
+  color: #F04438
+}
+
+.kanban .task-detail__detail-modal-field-edit-item--no-message {
+  text-align: center;
+  padding: 10px;
+}
+
 /* email */
 .kanban .task-detail__detail-modal-field-edit-item--email {
   gap: 12px;

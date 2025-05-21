@@ -208,7 +208,7 @@ const EmailField: React.FC<{ emails: Email[], taskId: string }> = ({ emails: ini
                           defaultValue={email.nickname}
                           onChange={(e) => handleUpdateExistingEmail(email.id, 'nickname', e.target.value)}
                         />
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 8 }}>
+                        <div className="task-detail__detail-modal-field-edit-input-wrapper">
                           <input type="text"
                             className="task-detail__detail-modal-field-edit-input task-detail__detail-modal-field-edit-input--second"
                             placeholder="@mail.bizbee.ne.kr"
@@ -217,7 +217,7 @@ const EmailField: React.FC<{ emails: Email[], taskId: string }> = ({ emails: ini
                             style={{ borderColor: `${errors[email.id] && errors[email.id].length > 0 ? '#F04438' : ''}` }}
                           />
                           {errors[email.id] && errors[email.id].length > 0 && (
-                            <div style={{ fontWeight: 400, fontSize: 12, color: '#F04438' }}>
+                            <div className="task-detail__detail-modal-field-edit-error-message">
                               {errors[email.id].join(', ')}
                             </div>
                           )}
@@ -239,7 +239,7 @@ const EmailField: React.FC<{ emails: Email[], taskId: string }> = ({ emails: ini
                           onChange={(e) => handleUpdateNewEmailForm(form.tempId, 'nickname', e.target.value)}
                           autoFocus={index === newEmailForms.length - 1}
                         />
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 8 }}>
+                        <div className="task-detail__detail-modal-field-edit-input-wrapper">
                           <input type="text"
                             className="task-detail__detail-modal-field-edit-input task-detail__detail-modal-field-edit-input--second"
                             placeholder="@mail.bizbee.ne.kr"
@@ -248,8 +248,8 @@ const EmailField: React.FC<{ emails: Email[], taskId: string }> = ({ emails: ini
                             style={{ borderColor: `${errors[form.tempId] && errors[form.tempId].length > 0 ? '#F04438' : ''}` }}
                           />
                           {errors[form.tempId] && errors[form.tempId].length > 0 && (
-                            <div style={{ fontWeight: 400, fontSize: 12, color: '#F04438' }}>
-                              {errors[form.tempId].join(', ')}
+                            <div className="task-detail__detail-modal-field-edit-error-message">
+                              {errors[form.tempId].join(' ')}
                             </div>
                           )}
                         </div>
@@ -259,7 +259,7 @@ const EmailField: React.FC<{ emails: Email[], taskId: string }> = ({ emails: ini
                       </div>
                     </li>
                   ))}
-                  {emails.length === 0 && newEmailForms.length === 0 && <li style={{ textAlign: 'center', padding: '10px' }}>표시할 이메일이 없습니다.</li>}
+                  {emails.length === 0 && newEmailForms.length === 0 && <li className="task-detail__detail-modal-field-edit-item--no-message">표시할 이메일이 없습니다.</li>}
                 </ul>
                 <div className="task-detail__detail-modal-field-edit-separator" />
               </div>
@@ -276,7 +276,7 @@ const EmailField: React.FC<{ emails: Email[], taskId: string }> = ({ emails: ini
                       <div className="task-detail__detail-modal-field-edit-item-email--email">{email.email}</div>
                     </li>
                   ))}
-                  {emails.length === 0 && <li style={{ textAlign: 'center', padding: '10px' }}>표시할 이메일이 없습니다.</li>}
+                  {emails.length === 0 && <li className="task-detail__detail-modal-field-edit-item--no-message">표시할 이메일이 없습니다.</li>}
                 </ul>
                 <div className="task-detail__detail-modal-field-edit-separator" />
               </div>
