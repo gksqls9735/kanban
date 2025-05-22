@@ -2,17 +2,16 @@ import { useEffect, useRef, useState } from "react";
 import { UrlData } from "../../../../types/type";
 import ExpandToggle from "../../common/expand-toggle";
 import FieldLabel from "./field-common/field-label";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import useClickOutside from "../../../../hooks/use-click-outside";
 import FieldFooter from "./field-common/field-footer";
 import useTaskStore from "../../../../store/task-store";
 import { generateUniqueId } from "../../../../utils/text-function";
 import { isValidUrlFormat } from "../../../../utils/valid-function";
 import ImgFallback from "./field-common/img-fallback";
+import UrlEmailEditableList from "./field-common/url-email-editable-list";
 
 interface NewUrlForm {
-  tempId: string;
+  tempId: string | number;
   title: string;
   requestedUrl: string;
 }
@@ -69,7 +68,7 @@ const UrlField: React.FC<{ urls: UrlData[], taskId: string }> = ({ urls: initial
 
   useClickOutside(editContainerRef, handleGlobalCancel, isInEditMode);
 
-  const handleUpdateExistingUrl = (id: string | number, field: 'title' | "requestedUrl", value: string) => {
+  const handleUpdateExistingUrl = (id: string | number, field: string, value: string) => {
     setUrls(prev => prev.map(u => (u.urlId === id ? { ...u, [field]: value } : u)));
     if (errors[id]) setErrors(prev => ({ ...prev, [id]: [] }));
   };
@@ -89,14 +88,14 @@ const UrlField: React.FC<{ urls: UrlData[], taskId: string }> = ({ urls: initial
     ]);
   };
 
-  const handleUpdateNewUrlForm = (tempId: string, field: 'title' | "requestedUrl", value: string) => {
+  const handleUpdateNewUrlForm = (tempId: string | number, field: string, value: string) => {
     setNewUrlForms(prev =>
       prev.map(form => form.tempId === tempId ? { ...form, [field]: value } : form)
     );
     if (errors[tempId]) setErrors(prev => ({ ...prev, [tempId]: [] }));
   };
 
-  const handleRemoveNewUrlForm = (tempId: string) => {
+  const handleRemoveNewUrlForm = (tempId: string | number) => {
     setNewUrlForms(prev => prev.filter(form => form.tempId !== tempId));
     setErrors(prev => {
       const newErrors = { ...prev };
@@ -204,70 +203,26 @@ const UrlField: React.FC<{ urls: UrlData[], taskId: string }> = ({ urls: initial
             {isOpenEdit ? (
               <>
                 <div className="task-detail__detail-modal-field-edit-list-wrapper">
-                  <ul className="kanban-scrollbar-y task-detail__detail-modal-field-edit-list">
-                    {urls.map(url => (
-                      <li key={url.urlId} className="task-detail__detail-modal-field-edit-item task-detail__detail-modal-field-edit-item--url-email">
-                        <div className="task-detail__detail-modal-field-edit-item-drag-handle">⠿</div>
-                        <div className="task-detail__detail-modal-field-edit-item-inputs">
-                          <input type="text"
-                            className="task-detail__detail-modal-field-edit-input task-detail__detail-modal-field-edit-input--first"
-                            placeholder="제목을 입력하세요."
-                            value={url.title}
-                            onChange={(e) => handleUpdateExistingUrl(url.urlId, 'title', e.target.value)}
-                          />
-                          <div className="task-detail__detail-modal-field-edit-input-wrapper">
-                            <input type="text"
-                              className="task-detail__detail-modal-field-edit-input task-detail__detail-modal-field-edit-input--second"
-                              placeholder="https://"
-                              value={url.requestedUrl}
-                              onChange={(e) => { handleUpdateExistingUrl(url.urlId, 'requestedUrl', e.target.value) }}
-                              style={{ borderColor: `${errors[url.urlId] && errors[url.urlId].length > 0 ? '#F04438' : ''}` }}
-                            />
-                            {errors[url.urlId] && errors[url.urlId].length > 0 && (
-                              <div className="task-detail__detail-modal-field-edit-error-message">
-                                {errors[url.urlId].join(' ')}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                        <div className="todo-item__action todo-item__action--delete" onClick={() => handleDeleteUrl(url.urlId)}>
-                          <FontAwesomeIcon icon={faTimes} className="task-detail__detail-modal-field-edit-item--delete" />
-                        </div>
-                      </li>
-                    ))}
-                    {newUrlForms.map((url, index) => (
-                      <li key={url.tempId} className="task-detail__detail-modal-field-edit-item task-detail__detail-modal-field-edit-item--url-email">
-                        <div className="task-detail__detail-modal-field-edit-item-drag-handle">⠿</div>
-                        <div className="task-detail__detail-modal-field-edit-item-inputs">
-                          <input type="text"
-                            className="task-detail__detail-modal-field-edit-input task-detail__detail-modal-field-edit-input--first"
-                            placeholder="제목을 입력하세요."
-                            value={url.title}
-                            onChange={(e) => handleUpdateNewUrlForm(url.tempId, 'title', e.target.value)}
-                            autoFocus={index === newUrlForms.length - 1}
-                          />
-                          <div className="task-detail__detail-modal-field-edit-input-wrapper">
-                            <input type="text"
-                              className="task-detail__detail-modal-field-edit-input task-detail__detail-modal-field-edit-input--second"
-                              placeholder="https://"
-                              value={url.requestedUrl}
-                              onChange={(e) => { handleUpdateNewUrlForm(url.tempId, 'requestedUrl', e.target.value) }}
-                              style={{ borderColor: `${errors[url.tempId] && errors[url.tempId].length > 0 ? '#F04438' : ''}` }}
-                            />
-                            {errors[url.tempId] && errors[url.tempId].length > 0 && (
-                              <div className="task-detail__detail-modal-field-edit-error-message">
-                                {errors[url.tempId].join(' ')}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                        <div className="todo-item__action todo-item__action--delete" onClick={() => handleRemoveNewUrlForm(url.tempId)}>
-                          <FontAwesomeIcon icon={faTimes} className="task-detail__detail-modal-field-edit-item--delete" />
-                        </div>
-                      </li>
-                    ))}
-                    {urls.length === 0 && newUrlForms.length === 0 && <li className="task-detail__detail-modal-field-edit-item--no-message">표시할 URL이 없습니다.</li>}
-                  </ul>
+                  <UrlEmailEditableList<UrlData, NewUrlForm>
+                    existingItems={urls}
+                    existingItemIdKey="urlId"
+                    existingItemValue1Key="title"
+                    existingItemValue2Key="requestedUrl"
+                    onUpdateExistingItem={handleUpdateExistingUrl}
+                    onDeleteExistingItem={handleDeleteUrl}
+
+                    newForms={newUrlForms}
+                    newFormTempIdKey="tempId"
+                    newFormValue1Key="title"
+                    newFormValue2Key="requestedUrl"
+                    onUpdateNewForm={handleUpdateNewUrlForm}
+                    onRemoveNewForm={handleRemoveNewUrlForm}
+
+                    placeholder1="제목을 입력하세요."
+                    placeholder2="https://"
+                    errors={errors}
+                    noItemsMsg="표시할 URL이 없습니다."
+                  />
                   <div className="task-detail__detail-modal-field-edit-separator" />
                 </div>
                 <FieldFooter title="url 추가" isPlusIcon={true} onClick={handleAddNewUrlForm} handleCancel={handleGlobalCancel} isShowButton={true} onSave={handleGlobalSave} />

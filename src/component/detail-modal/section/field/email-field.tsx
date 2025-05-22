@@ -1,16 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import { Email } from "../../../../types/type";
 import FieldLabel from "./field-common/field-label";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import useClickOutside from "../../../../hooks/use-click-outside";
 import FieldFooter from "./field-common/field-footer";
 import { generateUniqueId } from "../../../../utils/text-function";
 import { isValidEmailFormat } from "../../../../utils/valid-function";
 import useTaskStore from "../../../../store/task-store";
+import UrlEmailEditableList from "./field-common/url-email-editable-list";
 
 interface NewEmailForm {
-  tempId: string;
+  tempId: string | number;
   nickname: string;
   email: string;
 }
@@ -61,7 +60,7 @@ const EmailField: React.FC<{ emails: Email[], taskId: string }> = ({ emails: ini
 
   useClickOutside(editContainerRef, handleGlobalCancel, isInEditMode);
 
-  const handleUpdateExistingEmail = (id: string | number, field: 'nickname' | 'email', value: string) => {
+  const handleUpdateExistingEmail = (id: string | number, field: string, value: string) => {
     setEmails(prevEmails => prevEmails.map(e => (e.id === id ? { ...e, [field]: value } : e)));
     if (errors[id]) setErrors(prev => ({ ...prev, [id]: [] }));
   };
@@ -81,14 +80,14 @@ const EmailField: React.FC<{ emails: Email[], taskId: string }> = ({ emails: ini
     ]);
   }
 
-  const handleUpdateNewEmailForm = (tempId: string, field: 'nickname' | 'email', value: string) => {
+  const handleUpdateNewEmailForm = (tempId: string | number, field: string, value: string) => {
     setNewEmailForms(prevForms =>
       prevForms.map(form => form.tempId === tempId ? { ...form, [field]: value } : form)
     );
     if (errors[tempId]) setErrors(prev => ({ ...prev, [tempId]: [] }));
   };
 
-  const handleRemoveNewEmailForm = (tempId: string) => {
+  const handleRemoveNewEmailForm = (tempId: string | number) => {
     setNewEmailForms(prevForms => prevForms.filter(form => form.tempId !== tempId));
     setErrors(prevErrors => {
       const newErrors = { ...prevErrors };
@@ -197,70 +196,26 @@ const EmailField: React.FC<{ emails: Email[], taskId: string }> = ({ emails: ini
           {isOpenEdit ? (
             <>
               <div className="task-detail__detail-modal-field-edit-list-wrapper">
-                <ul className="kanban-scrollbar-y task-detail__detail-modal-field-edit-list">
-                  {emails.map(email => (
-                    <li key={email.id} className="task-detail__detail-modal-field-edit-item task-detail__detail-modal-field-edit-item--url-email" style={{ alignItems: 'baseline' }}>
-                      <div className="task-detail__detail-modal-field-edit-item-drag-handle">⠿</div>
-                      <div className="task-detail__detail-modal-field-edit-item-inputs">
-                        <input type="text"
-                          className="task-detail__detail-modal-field-edit-input task-detail__detail-modal-field-edit-input--first"
-                          placeholder="이름을 입력하세요."
-                          value={email.nickname}
-                          onChange={(e) => handleUpdateExistingEmail(email.id, 'nickname', e.target.value)}
-                        />
-                        <div className="task-detail__detail-modal-field-edit-input-wrapper">
-                          <input type="text"
-                            className="task-detail__detail-modal-field-edit-input task-detail__detail-modal-field-edit-input--second"
-                            placeholder="@mail.bizbee.ne.kr"
-                            value={email.email}
-                            onChange={(e) => handleUpdateExistingEmail(email.id, 'email', e.target.value)}
-                            style={{ borderColor: `${errors[email.id] && errors[email.id].length > 0 ? '#F04438' : ''}` }}
-                          />
-                          {errors[email.id] && errors[email.id].length > 0 && (
-                            <div className="task-detail__detail-modal-field-edit-error-message">
-                              {errors[email.id].join(' ')}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      <div className="todo-item__action todo-item__action--delete" onClick={() => handleDeleteEmail(email.id)}>
-                        <FontAwesomeIcon icon={faTimes} className="task-detail__detail-modal-field-edit-item--delete" />
-                      </div>
-                    </li>
-                  ))}
-                  {newEmailForms.map((form, index) => (
-                    <li key={form.tempId} className="task-detail__detail-modal-field-edit-item task-detail__detail-modal-field-edit-item--url-email" style={{ alignItems: 'baseline' }}>
-                      <div className="task-detail__detail-modal-field-edit-item-drag-handle">⠿</div>
-                      <div className="task-detail__detail-modal-field-edit-item-inputs">
-                        <input type="text"
-                          className="task-detail__detail-modal-field-edit-input task-detail__detail-modal-field-edit-input--first"
-                          placeholder="이름을 입력하세요."
-                          defaultValue={form.nickname}
-                          onChange={(e) => handleUpdateNewEmailForm(form.tempId, 'nickname', e.target.value)}
-                          autoFocus={index === newEmailForms.length - 1}
-                        />
-                        <div className="task-detail__detail-modal-field-edit-input-wrapper">
-                          <input type="text"
-                            className="task-detail__detail-modal-field-edit-input task-detail__detail-modal-field-edit-input--second"
-                            placeholder="@mail.bizbee.ne.kr"
-                            value={form.email}
-                            onChange={(e) => handleUpdateNewEmailForm(form.tempId, 'email', e.target.value)}
-                            style={{ borderColor: `${errors[form.tempId] && errors[form.tempId].length > 0 ? '#F04438' : ''}` }}
-                          />
-                          {errors[form.tempId] && errors[form.tempId].length > 0 && (
-                            <div className="task-detail__detail-modal-field-edit-error-message">
-                              {errors[form.tempId].join(' ')}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      <div className="todo-item__action todo-item__action--delete" onClick={() => handleRemoveNewEmailForm(form.tempId)}>
-                        <FontAwesomeIcon icon={faTimes} className="task-detail__detail-modal-field-edit-item--delete" />
-                      </div>
-                    </li>
-                  ))}
-                  {emails.length === 0 && newEmailForms.length === 0 && <li className="task-detail__detail-modal-field-edit-item--no-message">표시할 이메일이 없습니다.</li>}
-                </ul>
+                <UrlEmailEditableList<Email, NewEmailForm>
+                  existingItems={emails}
+                  existingItemIdKey="id"
+                  existingItemValue1Key="nickname"
+                  existingItemValue2Key="email"
+                  onUpdateExistingItem={handleUpdateExistingEmail}
+                  onDeleteExistingItem={handleDeleteEmail}
+
+                  newForms={newEmailForms}
+                  newFormTempIdKey="tempId"
+                  newFormValue1Key="nickname"
+                  newFormValue2Key="email"
+                  onUpdateNewForm={handleUpdateNewEmailForm}
+                  onRemoveNewForm={handleRemoveNewEmailForm}
+
+                  placeholder1="이름을 입력하세요."
+                  placeholder2="@mail.bizbee.ne.kr"
+                  errors={errors}
+                  noItemsMsg="표시할 이메일이 없습니다."
+                />
                 <div className="task-detail__detail-modal-field-edit-separator" />
               </div>
               <FieldFooter title="이메일 추가" isPlusIcon={true} onClick={handleAddNewEmailForm} handleCancel={handleGlobalCancel} isShowButton={true} onSave={handleGlobalSave} />
