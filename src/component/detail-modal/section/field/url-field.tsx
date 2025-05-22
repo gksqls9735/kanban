@@ -10,10 +10,11 @@ import { isValidUrlFormat } from "../../../../utils/valid-function";
 import ImgFallback from "./field-common/img-fallback";
 import UrlEmailEditableList from "./field-common/url-email-editable-list";
 
-interface NewUrlForm {
-  tempId: string | number;
+interface CombinedUrlItem {
+  id: string | number;
   title: string;
   requestedUrl: string;
+  isNew: boolean;
 }
 
 const FallbackIcon = (
@@ -25,7 +26,7 @@ const FallbackIcon = (
 const UrlField: React.FC<{ urls: UrlData[], taskId: string }> = ({ urls: initialUrls, taskId }) => {
   const updateTask = useTaskStore(state => state.updateTask);
 
-  const [urls, setUrls] = useState<UrlData[]>(initialUrls);
+  const [combinedItems, setCombinedItems] = useState<CombinedUrlItem[]>([]);
   const [errors, setErrors] = useState<Record<string | number, string[]>>({});
 
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
@@ -35,22 +36,24 @@ const UrlField: React.FC<{ urls: UrlData[], taskId: string }> = ({ urls: initial
   const [isInEditMode, setIsInEditMode] = useState<boolean>(false);
   const [isOpenEdit, setIsOpenEdit] = useState<boolean>(false);
 
-  const [newUrlForms, setNewUrlForms] = useState<NewUrlForm[]>([]);
-
   // edit-container를 참조하기 위한 ref 생성
   const editContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setUrls(initialUrls);
-    setNewUrlForms([]);
+    const initialCombined: CombinedUrlItem[] = initialUrls.map(u => ({
+      id: u.urlId, title: u.title, requestedUrl: u.requestedUrl, isNew: false,
+    }));
+    setCombinedItems(initialCombined);
     setErrors({});
   }, [initialUrls]);
 
   const handleGlobalCancel = () => {
     setIsInEditMode(false);
     setIsOpenEdit(false);
-    setNewUrlForms([]);
-    setUrls(initialUrls);
+    const initialCombined: CombinedUrlItem[] = initialUrls.map(u => ({
+      id: u.urlId, title: u.title, requestedUrl: u.requestedUrl, isNew: false,
+    }));
+    setCombinedItems(initialCombined);
     setErrors({});
   };
 
@@ -60,21 +63,25 @@ const UrlField: React.FC<{ urls: UrlData[], taskId: string }> = ({ urls: initial
     } else {
       setIsInEditMode(true);
       setIsOpenEdit(false);
-      setNewUrlForms([]);
-      setUrls(initialUrls);
+      const currentCombined: CombinedUrlItem[] = initialUrls.map(u => ({
+        id: u.urlId, title: u.title, requestedUrl: u.requestedUrl, isNew: false,
+      }));
+      setCombinedItems(currentCombined);
       setErrors({});
     }
   };
 
   useClickOutside(editContainerRef, handleGlobalCancel, isInEditMode);
 
-  const handleUpdateExistingUrl = (id: string | number, field: string, value: string) => {
-    setUrls(prev => prev.map(u => (u.urlId === id ? { ...u, [field]: value } : u)));
+  const handleUpdateUrl = (id: string | number, field: string, value: string) => {
+    setCombinedItems(prev =>
+      prev.map(item => (item.id === id ? { ...item, [field]: value } : item))
+    );
     if (errors[id]) setErrors(prev => ({ ...prev, [id]: [] }));
   };
 
   const handleDeleteUrl = (id: string | number) => {
-    setUrls(prev => prev.filter(u => u.urlId !== id));
+    setCombinedItems(prev => prev.filter(item => item.id !== id));
     setErrors(prev => {
       const newErrors = { ...prev };
       delete newErrors[id];
@@ -83,51 +90,30 @@ const UrlField: React.FC<{ urls: UrlData[], taskId: string }> = ({ urls: initial
   };
 
   const handleAddNewUrlForm = () => {
-    setNewUrlForms(prev => [
-      ...prev, { tempId: generateUniqueId('new-url'), title: "", requestedUrl: "" }
-    ]);
+    const tempId = generateUniqueId('new-url');
+    const newFormItem: CombinedUrlItem = {
+      id: tempId, title: "", requestedUrl: "", isNew: true,
+    };
+    setCombinedItems(prev => [...prev, newFormItem]);
   };
 
-  const handleUpdateNewUrlForm = (tempId: string | number, field: string, value: string) => {
-    setNewUrlForms(prev =>
-      prev.map(form => form.tempId === tempId ? { ...form, [field]: value } : form)
-    );
-    if (errors[tempId]) setErrors(prev => ({ ...prev, [tempId]: [] }));
-  };
-
-  const handleRemoveNewUrlForm = (tempId: string | number) => {
-    setNewUrlForms(prev => prev.filter(form => form.tempId !== tempId));
-    setErrors(prev => {
-      const newErrors = { ...prev };
-      delete newErrors[tempId];
-      return newErrors;
-    });
-  };
-
-  const handleOrderChange = (newOrderedUrls: UrlData[], newOrderedNewUrlForms: NewUrlForm[]) => {
-    setUrls(newOrderedUrls);
-    setNewUrlForms(newOrderedNewUrlForms);
+  const handleOrderChange = (newOrderedItems: CombinedUrlItem[]) => {
+    setCombinedItems(newOrderedItems);
   };
 
   const handleGlobalSave = () => {
     const currentValidationErrors: Record<string | number, string[]> = {};
     let hasAnyError = false;
 
-    // 유효성 검사를 위한 전체 url 목록 준비
-    const validationList: Array<{ id: string | number; title: string; requestedUrl: string; isNew: boolean }> = [
-      ...urls.map(u => ({ id: u.urlId, title: u.title, requestedUrl: u.requestedUrl, isNew: false })),
-      ...newUrlForms.map(form => ({ id: form.tempId, title: form.title, requestedUrl: form.requestedUrl, isNew: true })),
-    ];
-
     // url 주소별 카운트 (중복 검사용)
     const urlRequestedUrlCounts: Record<string, number> = {};
-    validationList.forEach(item => {
+    combinedItems.forEach(item => {
       const rUrl = item.requestedUrl.trim();
       if (rUrl) urlRequestedUrlCounts[rUrl] = (urlRequestedUrlCounts[rUrl] || 0) + 1;
     });
 
     // 각 항목 유효성 검사
-    validationList.forEach(item => {
+    combinedItems.forEach(item => {
       const itemId = item.id;
       const itemRUrl = item.requestedUrl.trim();
       const itemTitle = item.title.trim();
@@ -162,35 +148,34 @@ const UrlField: React.FC<{ urls: UrlData[], taskId: string }> = ({ urls: initial
     });
 
     setErrors(currentValidationErrors);
-
     if (hasAnyError) return;
 
-    const finalUrlsToSave: UrlData[] = [];
-    let orderCounter = 1;
+    const finalUrlsToSave: UrlData[] = combinedItems
+      .map((item, index) => {
+        const title = item.title.trim();
+        const requestedUrl = item.requestedUrl.trim();
 
-    urls.forEach(url => {
-      finalUrlsToSave.push({ ...url, order: orderCounter++ })
-    });
-
-    newUrlForms.forEach(form => {
-      const trimmedUrlTitle = form.title.trim();
-      const trimmedUrlRequestedUrl = form.requestedUrl.trim();
-
-      if (trimmedUrlTitle && trimmedUrlRequestedUrl) {
-        if (!currentValidationErrors[form.tempId] || currentValidationErrors[form.tempId].length === 0) {
-          finalUrlsToSave.push({
-            urlId: generateUniqueId('url'),
-            title: trimmedUrlTitle,
-            requestedUrl: trimmedUrlRequestedUrl,
-            order: orderCounter++,
-          });
+        if (item.isNew) {
+          if (title && requestedUrl) {
+            if (!currentValidationErrors[item.id] || currentValidationErrors[item.id].length === 0) {
+              return { urlId: generateUniqueId('url'), title, requestedUrl, order: index + 1 };
+            }
+          }
+        } else {
+          if (!currentValidationErrors[item.id] || currentValidationErrors[item.id].length === 0) {
+            return { urlId: item.id as string, title, requestedUrl, order: index + 1 };
+          }
         }
-      }
-    });
+        return null;
+      }).filter(Boolean) as UrlData[];
 
-    updateTask(taskId, { urls: finalUrlsToSave }); // 수정된 trulyFinalUrls 사용
+    updateTask(taskId, { urls: finalUrlsToSave });
 
-    setNewUrlForms([]);
+    const reinitializedCombined: CombinedUrlItem[] = finalUrlsToSave.map(u => ({
+      id: u.urlId, title: u.title, requestedUrl: u.requestedUrl, isNew: false,
+    }));
+    setCombinedItems(reinitializedCombined);
+
     setIsOpenEdit(false);
     setIsInEditMode(false);
     setErrors({});
@@ -217,27 +202,18 @@ const UrlField: React.FC<{ urls: UrlData[], taskId: string }> = ({ urls: initial
             {isOpenEdit ? (
               <>
                 <div className="task-detail__detail-modal-field-edit-list-wrapper">
-                  <UrlEmailEditableList<UrlData, NewUrlForm>
-                    existingItems={urls}
-                    existingItemIdKey="urlId"
-                    existingItemValue1Key="title"
-                    existingItemValue2Key="requestedUrl"
-                    onUpdateExistingItem={handleUpdateExistingUrl}
-                    onDeleteExistingItem={handleDeleteUrl}
-
-                    newForms={newUrlForms}
-                    newFormTempIdKey="tempId"
-                    newFormValue1Key="title"
-                    newFormValue2Key="requestedUrl"
-                    onUpdateNewForm={handleUpdateNewUrlForm}
-                    onRemoveNewForm={handleRemoveNewUrlForm}
-
+                  <UrlEmailEditableList<CombinedUrlItem>
+                    items={combinedItems}
+                    itemIdKey="id"
+                    itemValue1Key="title"
+                    itemValue2Key="requestedUrl"
+                    onUpdateItem={handleUpdateUrl}
+                    onDeleteItem={handleDeleteUrl}
+                    onOrderChange={handleOrderChange}
                     placeholder1="제목을 입력하세요."
                     placeholder2="https://"
                     errors={errors}
                     noItemsMsg="표시할 URL이 없습니다."
-
-                    onOrderChange={handleOrderChange}
                   />
                   <div className="task-detail__detail-modal-field-edit-separator" />
                 </div>
@@ -248,7 +224,7 @@ const UrlField: React.FC<{ urls: UrlData[], taskId: string }> = ({ urls: initial
                 <div className="task-detail__detail-modal-field-edit-list-wrapper">
                   <ul
                     className="kanban-scrollbar-y task-detail__detail-modal-field-edit-list">
-                    {urls.map(url => (
+                    {initialUrls.map(url => (
                       <li key={url.urlId} className="task-detail__detail-modal-field-edit-item" style={{ alignItems: 'center' }}>
                         <ImgFallback src={`https://www.google.com/s2/favicons?sz=256&domain_url=${url.requestedUrl}`} fallback={FallbackIcon} />
                         <a className="truncate task-detail__detail-modal-field-value-item-url-link" href={url.requestedUrl} target="_blank" rel="noopener noreferrer">
@@ -256,7 +232,7 @@ const UrlField: React.FC<{ urls: UrlData[], taskId: string }> = ({ urls: initial
                         </a>
                       </li>
                     ))}
-                    {urls.length === 0 && <li className="task-detail__detail-modal-field-edit-item--no-message">표시할 URL이 없습니다.</li>}
+                    {initialUrls.length === 0 && <li className="task-detail__detail-modal-field-edit-item--no-message">표시할 URL이 없습니다.</li>}
                   </ul>
                   <div className="task-detail__detail-modal-field-edit-separator" />
                 </div>

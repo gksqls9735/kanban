@@ -8,28 +8,29 @@ import { isValidEmailFormat } from "../../../../utils/valid-function";
 import useTaskStore from "../../../../store/task-store";
 import UrlEmailEditableList from "./field-common/url-email-editable-list";
 
-interface NewEmailForm {
-  tempId: string | number;
+interface CombinedEmailItem {
+  id: string | number;
   nickname: string;
   email: string;
+  isNew: boolean;
 }
 
 const EmailField: React.FC<{ emails: Email[], taskId: string }> = ({ emails: initialEmails, taskId }) => {
   const updateTask = useTaskStore(state => state.updateTask);
 
-  const [emails, setEmails] = useState<Email[]>(initialEmails);
+  const [combinedItems, setCombinedItems] = useState<CombinedEmailItem[]>([]);
   const [errors, setErrors] = useState<Record<string | number, string[]>>({});
 
   const [isInEditMode, setIsInEditMode] = useState<boolean>(false);
   const [isOpenEdit, setIsOpenEdit] = useState<boolean>(false);
 
-  const [newEmailForms, setNewEmailForms] = useState<NewEmailForm[]>([]);
-
   const editContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setEmails(initialEmails);
-    setNewEmailForms([]);
+    const initialCombined: CombinedEmailItem[] = initialEmails.map(e => ({
+      id: e.id, nickname: e.nickname, email: e.email, isNew: false,
+    }));
+    setCombinedItems(initialCombined);
     setErrors({});
   }, [initialEmails]);
 
@@ -41,8 +42,10 @@ const EmailField: React.FC<{ emails: Email[], taskId: string }> = ({ emails: ini
   const handleGlobalCancel = () => {
     setIsInEditMode(false);
     setIsOpenEdit(false);
-    setNewEmailForms([]);
-    setEmails(initialEmails);
+    const initialCombined: CombinedEmailItem[] = initialEmails.map(e => ({
+      id: e.id, nickname: e.nickname, email: e.email, isNew: false,
+    }));
+    setCombinedItems(initialCombined);
     setErrors({});
   };
 
@@ -52,53 +55,43 @@ const EmailField: React.FC<{ emails: Email[], taskId: string }> = ({ emails: ini
     } else {
       setIsInEditMode(true);
       setIsOpenEdit(false);
-      setNewEmailForms([]);
-      setEmails(initialEmails);
+      const currentCombined: CombinedEmailItem[] = initialEmails.map(e => ({
+        id: e.id, nickname: e.nickname, email: e.email, isNew: false,
+      }));
+      setCombinedItems(currentCombined);
       setErrors({});
     }
   };
 
   useClickOutside(editContainerRef, handleGlobalCancel, isInEditMode);
 
-  const handleUpdateExistingEmail = (id: string | number, field: string, value: string) => {
-    setEmails(prevEmails => prevEmails.map(e => (e.id === id ? { ...e, [field]: value } : e)));
+  const handleUpdateEmail = (id: string | number, field: string, value: string) => {
+    setCombinedItems(prev =>
+      prev.map(item => (item.id === id ? { ...item, [field]: value } : item))
+    );
     if (errors[id]) setErrors(prev => ({ ...prev, [id]: [] }));
   };
 
   const handleDeleteEmail = (id: string | number) => {
-    setEmails(prevEmails => prevEmails.filter(e => e.id !== id));
-    setErrors(prevErrors => {
-      const newErrors = { ...prevErrors };
+    setCombinedItems(prev => prev.filter(item => item.id !== id));
+    setErrors(prev => {
+      const newErrors = { ...prev };
       delete newErrors[id];
       return newErrors;
     });
   };
 
   const handleAddNewEmailForm = () => {
-    setNewEmailForms(prevForms => [
-      ...prevForms, { tempId: generateUniqueId('new-email'), nickname: "", email: "" }
-    ]);
-  }
-
-  const handleUpdateNewEmailForm = (tempId: string | number, field: string, value: string) => {
-    setNewEmailForms(prevForms =>
-      prevForms.map(form => form.tempId === tempId ? { ...form, [field]: value } : form)
-    );
-    if (errors[tempId]) setErrors(prev => ({ ...prev, [tempId]: [] }));
+    const tempId = generateUniqueId('new-email');
+    const newFormItem: CombinedEmailItem = {
+      id: tempId, nickname: "", email: "", isNew: true,
+    };
+    setCombinedItems(prev => [...prev, newFormItem]);
   };
 
-  const handleRemoveNewEmailForm = (tempId: string | number) => {
-    setNewEmailForms(prevForms => prevForms.filter(form => form.tempId !== tempId));
-    setErrors(prevErrors => {
-      const newErrors = { ...prevErrors };
-      delete newErrors[tempId];
-      return newErrors;
-    });
-  };
 
-  const handleOrderChange = (newOrderedEmails: Email[], newOrderedNewEmailForms: NewEmailForm[]) => {
-    setEmails(newOrderedEmails);
-    setNewEmailForms(newOrderedNewEmailForms);
+  const handleOrderChange = (newOrderedItems: CombinedEmailItem[]) => {
+    setCombinedItems(newOrderedItems);
   };
 
 
@@ -106,21 +99,15 @@ const EmailField: React.FC<{ emails: Email[], taskId: string }> = ({ emails: ini
     const currentValidationErrors: Record<string | number, string[]> = {};
     let hasAnyError = false;
 
-    // 유효성 검사를 위한 전체 이메일 목록 준비
-    const validationList: Array<{ id: string | number; nickname: string; email: string, isNew: boolean }> = [
-      ...emails.map(e => ({ id: e.id, nickname: e.nickname, email: e.email, isNew: false })),
-      ...newEmailForms.map(form => ({ id: form.tempId, nickname: form.nickname, email: form.email, isNew: true }))
-    ];
-
     // 이메일 주소별 카운트 (중복 검사용)
     const emailAddressCounts: Record<string, number> = {};
-    validationList.forEach(item => {
+    combinedItems.forEach(item => {
       const emailAddr = item.email.trim();
       if (emailAddr) emailAddressCounts[emailAddr] = (emailAddressCounts[emailAddr] || 0) + 1;
     });
 
     // 각 항목 유효성 검사
-    validationList.forEach(item => {
+    combinedItems.forEach(item => {
       const itemId = item.id;
       const itemEmail = item.email.trim();
       const itemNickname = item.nickname.trim();
@@ -156,36 +143,35 @@ const EmailField: React.FC<{ emails: Email[], taskId: string }> = ({ emails: ini
     });
 
     setErrors(currentValidationErrors);
-
     if (hasAnyError) return;
 
     // 에러가 없을 시 실제 저장 로직 진행
-    const finalEmailsToSave: Email[] = [];
-    let orderCounter = 1;
+    const finalEmailsToSave: Email[] = combinedItems
+      .map((item, index) => {
+        const nickname = item.nickname.trim();
+        const email = item.email.trim();
 
-    emails.forEach(e => {
-      finalEmailsToSave.push({ ...e, order: orderCounter++ })
-    });
-
-    newEmailForms.forEach(form => {
-      const trimmedNickname = form.nickname.trim();
-      const trimmedEmailAddress = form.email.trim();
-
-      if (trimmedNickname && trimmedEmailAddress) {
-        if (!currentValidationErrors[form.tempId] || currentValidationErrors[form.tempId].length === 0) {
-          finalEmailsToSave.push({
-            id: generateUniqueId('email'),
-            nickname: trimmedNickname,
-            email: trimmedEmailAddress,
-            order: orderCounter++,
-          });
+        if (item.isNew) {
+          if (nickname && email) {
+            if (!currentValidationErrors[item.id] || currentValidationErrors[item.id].length === 0) {
+              return { id: generateUniqueId('email'), nickname, email, order: index + 1 };
+            }
+          }
+        } else {
+          if (!currentValidationErrors[item.id] || currentValidationErrors[item.id].length === 0) {
+            return { id: item.id as string, nickname, email, order: index + 1 };
+          }
         }
-      }
-    });
+        return null;
+      }).filter(Boolean) as Email[];
 
     updateTask(taskId, { emails: finalEmailsToSave });
 
-    setNewEmailForms([]);
+    const reinitializedCombined: CombinedEmailItem[] = finalEmailsToSave.map(e => ({
+      id: e.id, nickname: e.nickname, email: e.email, isNew: false,
+    }));
+    setCombinedItems(reinitializedCombined);
+
     setIsOpenEdit(false);
     setIsInEditMode(false);
     setErrors({});
@@ -208,27 +194,18 @@ const EmailField: React.FC<{ emails: Email[], taskId: string }> = ({ emails: ini
           {isOpenEdit ? (
             <>
               <div className="task-detail__detail-modal-field-edit-list-wrapper">
-                <UrlEmailEditableList<Email, NewEmailForm>
-                  existingItems={emails}
-                  existingItemIdKey="id"
-                  existingItemValue1Key="nickname"
-                  existingItemValue2Key="email"
-                  onUpdateExistingItem={handleUpdateExistingEmail}
-                  onDeleteExistingItem={handleDeleteEmail}
-
-                  newForms={newEmailForms}
-                  newFormTempIdKey="tempId"
-                  newFormValue1Key="nickname"
-                  newFormValue2Key="email"
-                  onUpdateNewForm={handleUpdateNewEmailForm}
-                  onRemoveNewForm={handleRemoveNewEmailForm}
-
+                <UrlEmailEditableList<CombinedEmailItem>
+                  items={combinedItems}
+                  itemIdKey="id"
+                  itemValue1Key="nickname"
+                  itemValue2Key="email"
+                  onUpdateItem={handleUpdateEmail}
+                  onDeleteItem={handleDeleteEmail}
+                  onOrderChange={handleOrderChange}
                   placeholder1="이름을 입력하세요."
                   placeholder2="@mail.bizbee.ne.kr"
                   errors={errors}
                   noItemsMsg="표시할 이메일이 없습니다."
-
-                  onOrderChange={handleOrderChange}
                 />
                 <div className="task-detail__detail-modal-field-edit-separator" />
               </div>
@@ -239,13 +216,13 @@ const EmailField: React.FC<{ emails: Email[], taskId: string }> = ({ emails: ini
               <div className="task-detail__detail-modal-field-edit-list-wrapper">
                 <ul
                   className="kanban-scrollbar-y task-detail__detail-modal-field-edit-list">
-                  {emails.map(email => (
+                  {initialEmails.map(email => (
                     <li key={email.id} className="task-detail__detail-modal-field-edit-item task-detail__detail-modal-field-edit-item--email">
                       <div className="task-detail__detail-modal-field-edit-item--email--nickname">{email.nickname}</div>
                       <div className="task-detail__detail-modal-field-edit-item-email--email">{email.email}</div>
                     </li>
                   ))}
-                  {emails.length === 0 && <li className="task-detail__detail-modal-field-edit-item--no-message">표시할 이메일이 없습니다.</li>}
+                  {initialEmails.length === 0 && <li className="task-detail__detail-modal-field-edit-item--no-message">표시할 이메일이 없습니다.</li>}
                 </ul>
                 <div className="task-detail__detail-modal-field-edit-separator" />
               </div>

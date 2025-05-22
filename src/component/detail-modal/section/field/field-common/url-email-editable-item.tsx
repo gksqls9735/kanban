@@ -8,6 +8,7 @@ export interface ItemWithIdAndValues {
 }
 
 export interface UrlEmailEditableListItemProps {
+  dndId: string | number;
   item: ItemWithIdAndValues;
   idKey: string;
   value1Key: string;
@@ -18,17 +19,16 @@ export interface UrlEmailEditableListItemProps {
   onDelete: (id: string | number) => void;
   errors?: Record<string | number, string[] | undefined>;
   autoFocus?: boolean;
-  dndId: string | number;
 }
 
 const UrlEmailEditableItem: React.FC<UrlEmailEditableListItemProps> = ({
+  dndId,
   item,
   idKey, value1Key, value2Key,
   placeholder1, placeholder2,
   onUpdate, onDelete,
   errors,
   autoFocus,
-  dndId,
 }) => {
   const itemId = item[idKey] as string | number;
   const currentValue1 = item[value1Key] as string;
@@ -45,7 +45,7 @@ const UrlEmailEditableItem: React.FC<UrlEmailEditableListItemProps> = ({
     transition,
     opacity: isDragging ? 0.7 : 1,
     zIndex: isDragging ? 1 : 'auto',
-    alignItems: 'baseline'
+    alignItems: 'baseline',
   };
 
   return (
