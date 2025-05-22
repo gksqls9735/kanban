@@ -674,6 +674,7 @@
   font-size: 13px;
   font-weight: 400;
   color: #0F1B2A;
+  flex-shrink: 0;
 }
 
 .kanban .task-detail__detail-modal-field-edit-input--prefix {
@@ -686,6 +687,9 @@
   outline: none;
   font-size: 13px;
   font-weight: 400;
+}
+
+.kanban .task-detail__detail-modal-field-edit-input--prefix::placeholder {
   color: #8D99A8;
 }
 
@@ -698,6 +702,10 @@
   font-weight: 400;
   font-size: 13px;
   color: #0F1B2A;
+  max-height: 40px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .kanban .task-detail__detail-modal-field-edit-id-view-input-wrapper {
