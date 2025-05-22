@@ -1,4 +1,4 @@
-import useDropdown from "../../../../hooks/use-dropdown";
+import useDropdown from "../../../../../hooks/use-dropdown";
 
 const NumericDropdown: React.FC<{
   title: string;

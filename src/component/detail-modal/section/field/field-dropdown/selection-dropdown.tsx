@@ -1,8 +1,8 @@
 
 import { useEffect, useState } from "react";
-import useDropdown from "../../../../hooks/use-dropdown";
 import ReactDOM from "react-dom";
-import SelectionCheckBox from "./field-common/selection-checkbox";
+import useDropdown from "../../../../../hooks/use-dropdown";
+import SelectionCheckBox from "../field-common/selection-checkbox";
 
 const SelectionDropdown: React.FC<{
 
