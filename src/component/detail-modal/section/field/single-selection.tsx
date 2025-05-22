@@ -6,9 +6,9 @@ import useClickOutside from "../../../../hooks/use-click-outside";
 import { lightenColor } from "../../../../utils/color-function";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import SelectionDropdown from "./selection-dropdown";
 import SelectionCheckBox from "./field-common/selection-checkbox";
 import FieldFooter from "./field-common/field-footer";
+import SelectionDropdown from "./field-dropdown/selection-dropdown";
 
 const SingleSelection: React.FC<{ option: SelectOption }> = ({ option }) => {
 

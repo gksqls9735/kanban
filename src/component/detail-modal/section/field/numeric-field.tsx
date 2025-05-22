@@ -1,9 +1,9 @@
 import { useRef, useState } from "react";
 import { NumericField } from "../../../../types/type";
 import FieldLabel from "./field-common/field-label";
-import NumericDropdown from "./numeric-dropdown";
 import useClickOutside from "../../../../hooks/use-click-outside";
 import FieldFooter from "./field-common/field-footer";
+import NumericDropdown from "./field-dropdown/numeric-dropdown";
 
 const NumericFieldComponent: React.FC<{ numericField: NumericField }> = ({ numericField }) => {
   const formattedValue = numericField.value.toFixed(numericField.decimalPlaces);

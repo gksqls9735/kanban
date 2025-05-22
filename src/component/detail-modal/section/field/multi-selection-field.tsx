@@ -5,11 +5,11 @@ import ExpandToggle from "../../common/expand-toggle";
 import FieldLabel from "./field-common/field-label";
 import useClickOutside from "../../../../hooks/use-click-outside";
 import SelectionCheckBox from "./field-common/selection-checkbox";
-import SelectionDropdown from "./selection-dropdown";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import { lightenColor } from "../../../../utils/color-function";
 import FieldFooter from "./field-common/field-footer";
+import SelectionDropdown from "./field-dropdown/selection-dropdown";
 
 const MultiSelection: React.FC<{
   options: SelectOption[];
