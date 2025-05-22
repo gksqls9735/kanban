@@ -9,7 +9,6 @@ export type FileAttachment = {
 export type UrlData = {
   urlId: string
   title: string;
-  faviconUrl: string | null;
   requestedUrl: string;
   order: number;
 }

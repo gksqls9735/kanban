@@ -205,7 +205,7 @@ const EmailField: React.FC<{ emails: Email[], taskId: string }> = ({ emails: ini
                         <input type="text"
                           className="task-detail__detail-modal-field-edit-input task-detail__detail-modal-field-edit-input--first"
                           placeholder="이름을 입력하세요."
-                          defaultValue={email.nickname}
+                          value={email.nickname}
                           onChange={(e) => handleUpdateExistingEmail(email.id, 'nickname', e.target.value)}
                         />
                         <div className="task-detail__detail-modal-field-edit-input-wrapper">
@@ -218,7 +218,7 @@ const EmailField: React.FC<{ emails: Email[], taskId: string }> = ({ emails: ini
                           />
                           {errors[email.id] && errors[email.id].length > 0 && (
                             <div className="task-detail__detail-modal-field-edit-error-message">
-                              {errors[email.id].join(', ')}
+                              {errors[email.id].join(' ')}
                             </div>
                           )}
                         </div>

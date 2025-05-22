@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { UrlData } from "../../../../types/type";
 import ExpandToggle from "../../common/expand-toggle";
 import FieldLabel from "./field-common/field-label";
@@ -6,38 +6,175 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import useClickOutside from "../../../../hooks/use-click-outside";
 import FieldFooter from "./field-common/field-footer";
+import useTaskStore from "../../../../store/task-store";
+import { generateUniqueId } from "../../../../utils/text-function";
+import { isValidUrlFormat } from "../../../../utils/valid-function";
 
-const UrlField: React.FC<{
-  urls: UrlData[];
-}> = ({ urls }) => {
+interface NewUrlForm {
+  tempId: string;
+  title: string;
+  requestedUrl: string;
+}
+
+const UrlField: React.FC<{ urls: UrlData[], taskId: string }> = ({ urls: initialUrls, taskId }) => {
+  const updateTask = useTaskStore(state => state.updateTask);
+
+  const [urls, setUrls] = useState<UrlData[]>(initialUrls);
+  const [errors, setErrors] = useState<Record<string | number, string[]>>({});
 
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
-  const linksToShow = isExpanded ? urls : urls.slice(0, 3);
-  const hiddenCount = urls.length - 3;
+  const linksToShow = isExpanded ? initialUrls : initialUrls.slice(0, 3);
+  const hiddenCount = initialUrls.length - 3;
 
   const [isInEditMode, setIsInEditMode] = useState<boolean>(false);
   const [isOpenEdit, setIsOpenEdit] = useState<boolean>(false);
 
+  const [newUrlForms, setNewUrlForms] = useState<NewUrlForm[]>([]);
+
   // edit-container를 참조하기 위한 ref 생성
   const editContainerRef = useRef<HTMLDivElement>(null);
 
-  // 취소 및 창 닫기 로직
-  const handleCancel = () => {
+  useEffect(() => {
+    setUrls(initialUrls);
+    setNewUrlForms([]);
+    setErrors({});
+  }, [initialUrls]);
+
+  const handleGlobalCancel = () => {
     setIsInEditMode(false);
     setIsOpenEdit(false);
+    setNewUrlForms([]);
+    setUrls(initialUrls);
+    setErrors({});
   };
 
-  // FieldLabel 클릭 핸들러 (편집 모드 토글 및 초기 상태 설정)
   const handleToggleEditMode = () => {
     if (isInEditMode) {
-      handleCancel(); // 이미 편집 모드면 닫기
+      handleGlobalCancel();
     } else {
       setIsInEditMode(true);
-      setIsOpenEdit(false); // 편집 모드 진입 시, 기본적으로는 목록 뷰(isOpenEdit: false)로 시작
+      setIsOpenEdit(false);
+      setNewUrlForms([]);
+      setUrls(initialUrls);
+      setErrors({});
     }
   };
 
-  useClickOutside(editContainerRef, handleCancel, isInEditMode);
+  useClickOutside(editContainerRef, handleGlobalCancel, isInEditMode);
+
+  const handleUpdateExistingUrl = (id: string | number, field: 'title' | "requestedUrl", value: string) => {
+    setUrls(prev => prev.map(u => (u.urlId === id ? { ...u, [field]: value } : u)));
+    if (errors[id]) setErrors(prev => ({ ...prev, [id]: [] }));
+  };
+
+  const handleDeleteUrl = (id: string | number) => {
+    setUrls(prev => prev.filter(u => u.urlId !== id));
+    setErrors(prev => {
+      const newErrors = { ...prev };
+      delete newErrors[id];
+      return newErrors;
+    });
+  };
+
+  const handleAddNewUrlForm = () => {
+    setNewUrlForms(prev => [
+      ...prev, { tempId: generateUniqueId('new-url'), title: "", requestedUrl: "" }
+    ]);
+  };
+
+  const handleUpdateNewUrlForm = (tempId: string, field: 'title' | "requestedUrl", value: string) => {
+    setNewUrlForms(prev =>
+      prev.map(form => form.tempId === tempId ? { ...form, [field]: value } : form)
+    );
+    if (errors[tempId]) setErrors(prev => ({ ...prev, [tempId]: [] }));
+  };
+
+  const handleRemoveNewUrlForm = (tempId: string) => {
+    setNewUrlForms(prev => prev.filter(form => form.tempId !== tempId));
+    setErrors(prev => {
+      const newErrors = { ...prev };
+      delete newErrors[tempId];
+      return newErrors;
+    });
+  };
+
+  const handleGlobalSave = () => {
+    const currentValidationErrors: Record<string | number, string[]> = {};
+    let hasAnyError = false;
+
+    // 유효성 검사를 위한 전체 url 목록 준비
+    const validationList: Array<{ id: string | number; title: string; requestedUrl: string }> = [
+      ...urls.map(u => ({ id: u.urlId, title: u.title, requestedUrl: u.requestedUrl })),
+      ...newUrlForms.map(form => ({ id: form.tempId, title: form.title, requestedUrl: form.requestedUrl })),
+    ];
+
+    // url 주소별 카운트 (중복 검사용)
+    const urlRequestedUrlCounts: Record<string, number> = {};
+    validationList.forEach(item => {
+      const rUrl = item.requestedUrl.trim();
+      if (rUrl) urlRequestedUrlCounts[rUrl] = (urlRequestedUrlCounts[rUrl] || 0) + 1;
+    });
+
+    // 각 항목 유효성 검사
+    validationList.forEach(item => {
+      const itemId = item.id;
+      const itemRUrl = item.requestedUrl.trim();
+      const itemTitle = item.title.trim();
+      const currentItemErrors: string[] = [];
+
+      const isNewFormEntry = newUrlForms.some(form => form.tempId === itemId);
+      if (isNewFormEntry) {
+        if ((itemTitle || itemRUrl) && (!itemTitle || !itemRUrl)) {
+          currentItemErrors.push('새 URL의 이름과 주소를 모두 입력해주세요.');
+          hasAnyError = true;
+        }
+      }
+
+      if (itemRUrl) {
+        if (!isValidUrlFormat(itemRUrl)) {
+          currentItemErrors.push('URL은 https://가 포함 되어야 합니다.');
+          hasAnyError = true;
+        }
+        if (urlRequestedUrlCounts[itemRUrl] > 1) {
+          currentItemErrors.push('URL명이 동일합니다.');
+          hasAnyError = true;
+        }
+      } else if (!isNewFormEntry && !itemRUrl && itemTitle) {
+        currentItemErrors.push('URL을 입력해주세요.');
+      }
+
+      if (currentItemErrors.length > 0) currentValidationErrors[itemId] = currentItemErrors;
+    });
+
+    setErrors(currentValidationErrors);
+
+    if (hasAnyError) return;
+
+    let finalUrlsToSave = [...urls];
+
+    newUrlForms.forEach(form => {
+      const trimmedUrlTitle = form.title.trim();
+      const trimmedUrlRequestedUrl = form.requestedUrl.trim();
+
+      if (trimmedUrlTitle && trimmedUrlRequestedUrl) {
+        if (!currentValidationErrors[form.tempId] || currentValidationErrors[form.tempId].length === 0) {
+          finalUrlsToSave.push({
+            urlId: generateUniqueId('url'),
+            title: trimmedUrlTitle,
+            requestedUrl: trimmedUrlRequestedUrl,
+            order: finalUrlsToSave.length + 1,
+          });
+        }
+      }
+    });
+
+    updateTask(taskId, { urls: finalUrlsToSave });
+
+    setNewUrlForms([]);
+    setIsOpenEdit(false);
+    setIsInEditMode(false);
+    setErrors({});
+  };
 
   return (
     <>
@@ -69,24 +206,64 @@ const UrlField: React.FC<{
                             className="task-detail__detail-modal-field-edit-input task-detail__detail-modal-field-edit-input--first"
                             placeholder="제목을 입력하세요."
                             value={url.title}
-                            onChange={() => { }}
+                            onChange={(e) => handleUpdateExistingUrl(url.urlId, 'title', e.target.value)}
                           />
-                          <input type="text"
-                            className="task-detail__detail-modal-field-edit-input task-detail__detail-modal-field-edit-input--second"
-                            placeholder="https://"
-                            onChange={() => { }}
-                            value={url.requestedUrl}
-                          />
+                          <div className="task-detail__detail-modal-field-edit-input-wrapper">
+                            <input type="text"
+                              className="task-detail__detail-modal-field-edit-input task-detail__detail-modal-field-edit-input--second"
+                              placeholder="https://"
+                              value={url.requestedUrl}
+                              onChange={(e) => { handleUpdateExistingUrl(url.urlId, 'requestedUrl', e.target.value) }}
+                              style={{ borderColor: `${errors[url.urlId] && errors[url.urlId].length > 0 ? '#F04438' : ''}` }}
+                            />
+                            {errors[url.urlId] && errors[url.urlId].length > 0 && (
+                              <div className="task-detail__detail-modal-field-edit-error-message">
+                                {errors[url.urlId].join(' ')}
+                              </div>
+                            )}
+                          </div>
                         </div>
-                        <div className="todo-item__action todo-item__action--delete">
+                        <div className="todo-item__action todo-item__action--delete" onClick={() => handleDeleteUrl(url.urlId)}>
                           <FontAwesomeIcon icon={faTimes} className="task-detail__detail-modal-field-edit-item--delete" />
                         </div>
                       </li>
                     ))}
+                    {newUrlForms.map((url, index) => (
+                      <li key={url.tempId} className="task-detail__detail-modal-field-edit-item task-detail__detail-modal-field-edit-item--url-email">
+                        <div className="task-detail__detail-modal-field-edit-item-drag-handle">⠿</div>
+                        <div className="task-detail__detail-modal-field-edit-item-inputs">
+                          <input type="text"
+                            className="task-detail__detail-modal-field-edit-input task-detail__detail-modal-field-edit-input--first"
+                            placeholder="제목을 입력하세요."
+                            value={url.title}
+                            onChange={(e) => handleUpdateNewUrlForm(url.tempId, 'title', e.target.value)}
+                            autoFocus={index === newUrlForms.length - 1}
+                          />
+                          <div className="task-detail__detail-modal-field-edit-input-wrapper">
+                            <input type="text"
+                              className="task-detail__detail-modal-field-edit-input task-detail__detail-modal-field-edit-input--second"
+                              placeholder="https://"
+                              value={url.requestedUrl}
+                              onChange={(e) => { handleUpdateNewUrlForm(url.tempId, 'requestedUrl', e.target.value) }}
+                              style={{ borderColor: `${errors[url.tempId] && errors[url.tempId].length > 0 ? '#F04438' : ''}` }}
+                            />
+                            {errors[url.tempId] && errors[url.tempId].length > 0 && (
+                              <div className="task-detail__detail-modal-field-edit-error-message">
+                                {errors[url.tempId].join(' ')}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        <div className="todo-item__action todo-item__action--delete" onClick={() => handleRemoveNewUrlForm(url.tempId)}>
+                          <FontAwesomeIcon icon={faTimes} className="task-detail__detail-modal-field-edit-item--delete" />
+                        </div>
+                      </li>
+                    ))}
+                    {urls.length === 0 && newUrlForms.length === 0 && <li className="task-detail__detail-modal-field-edit-item--no-message">표시할 URL이 없습니다.</li>}
                   </ul>
                   <div className="task-detail__detail-modal-field-edit-separator" />
                 </div>
-                <FieldFooter title="url 추가" isPlusIcon={true} onClick={() => setIsOpenEdit(prev => !prev)} handleCancel={handleCancel} isShowButton={true} />
+                <FieldFooter title="url 추가" isPlusIcon={true} onClick={handleAddNewUrlForm} handleCancel={handleGlobalCancel} isShowButton={true} onSave={handleGlobalSave}/>
               </>
             ) : (
               <>
@@ -94,7 +271,7 @@ const UrlField: React.FC<{
                   <ul
                     className="kanban-scrollbar-y task-detail__detail-modal-field-edit-list">
                     {urls.map(url => (
-                      <li key={url.urlId} className="task-detail__detail-modal-field-edit-item" style={{ alignItems: 'center'}}>
+                      <li key={url.urlId} className="task-detail__detail-modal-field-edit-item" style={{ alignItems: 'center' }}>
                         <img
                           src={`https://www.google.com/s2/favicons?sz=256&domain_url=${url.requestedUrl}`} className="task-detail__detail-modal-field-value-item-url-favicon" />
                         <a className="truncate task-detail__detail-modal-field-value-item-url-link" href={url.requestedUrl} target="_blank" rel="noopener noreferrer">
@@ -102,10 +279,11 @@ const UrlField: React.FC<{
                         </a>
                       </li>
                     ))}
+                    {urls.length === 0 && <li className="task-detail__detail-modal-field-edit-item--no-message">표시할 URL이 없습니다.</li>}
                   </ul>
                   <div className="task-detail__detail-modal-field-edit-separator" />
                 </div>
-                <FieldFooter title="url 수정" isPlusIcon={false} onClick={() => setIsOpenEdit(prev => !prev)} />
+                <FieldFooter title="url 수정" isPlusIcon={false} onClick={() => { setIsOpenEdit(true); setErrors({}); }} />
               </>
             )}
           </div>

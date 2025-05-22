@@ -73,7 +73,7 @@ const DetailModal: React.FC<{
 
   const visibleFieldComponents = useMemo(() => {
     const allFields = [
-      currentTask.urls?.length ? <UrlField key="url" urls={currentTask.urls} /> : null,
+      currentTask.urls?.length ? <UrlField key="url" urls={currentTask.urls} taskId={currentTask.taskId}/> : null,
       currentTask.multiSelection?.length ? <MultiSelection key="multi" options={currentTask.multiSelection} /> : null,
       currentTask.taskAttachments?.length ? <AttachmentField key="attach" attachment={currentTask.taskAttachments} /> : null,
       currentTask.singleSelection ? <SingleSelection key="single" option={currentTask.singleSelection} /> : null,
