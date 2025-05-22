@@ -76,6 +76,14 @@ export type SelectOption = {
 }
 
 /**
+ * 다중 옵션 및 단일 옵션
+ */
+export type SelectableOption = SelectOption & {
+  /** 선택한 옵션인지 아닌지 확인 */
+  isSelected: boolean;
+}
+
+/**
  * 투두
  * -> 하나의 작업에 여러 투두가 존재
  * -> 투두에는 기한과 담당자(주, 부)가 있음
@@ -139,7 +147,7 @@ export type Task = {
   /** 작업 참고 링크 */
   urls?: UrlData[];
   /** 다중 선택 옵션 */
-  multiSelection?: SelectOption[];
+  multiSelection?: SelectableOption[];
   /** 단일 선택 옵션 */
   singleSelection?: SelectOption;
   /** 숫자 필드 */

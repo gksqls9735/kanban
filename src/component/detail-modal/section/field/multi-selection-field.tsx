@@ -14,6 +14,7 @@ import SelectionDropdown from "./field-dropdown/selection-dropdown";
 const MultiSelection: React.FC<{
   options: SelectOption[];
 }> = ({ options }) => {
+
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
 
   const optionsToShow = isExpanded ? options : options.slice(0, 3);
