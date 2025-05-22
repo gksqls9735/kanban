@@ -10,6 +10,7 @@ const SelectionDropdown: React.FC<{
   const { isOpen, setIsOpen, wrapperRef, dropdownRef, toggle } = useDropdown();
   const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number, width?: number, } | null>(null);
   const portalElement = typeof window !== 'undefined' ? document.getElementById('portal-root') : null;
+  const [hovered, setHovered] = useState<string>("");
 
   useEffect(() => {
     if (isOpen && wrapperRef.current) {
@@ -48,7 +49,13 @@ const SelectionDropdown: React.FC<{
           }}>
             <div style={{ fontWeight: 600, fontSize: 13, color: '#0F1B2A', height: 36, padding: '0px 12px', display: 'flex', alignItems: 'center' }}>컬러 선택</div>
             {colorList.map(color => (
-              <div style={{ height: 32, gap: 10, boxSizing: 'border-box', display: 'flex', alignItems: 'center', flexWrap: 'nowrap', padding: '0px 8px' }}>
+              <div
+                onMouseEnter={() => setHovered(color.colorName)} onMouseLeave={() => setHovered('')}
+                style={{
+                  height: 32, gap: 10, boxSizing: 'border-box', display: 'flex', alignItems: 'center', flexWrap: 'nowrap', padding: '0px 8px',
+                  backgroundColor: `${hovered === color.colorName ? '#ECFDF3' : ''}`, cursor: 'pointer'
+                }}
+              >
                 <SelectionCheckBox width={16} height={16} borderColor={color.borderColor} backgroundColor={color.backgroundColor} />
                 <div style={{ fontSize: 13, fontWeight: 400, whiteSpace: 'nowrap', }}>{color.colorName}</div>
               </div>
