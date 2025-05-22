@@ -5,7 +5,7 @@ const useDropdown = () => {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const toggle = useCallback(() => { console.log('toggle');setIsOpen(prev => !prev)}, []);
+  const toggle = useCallback(() => setIsOpen(prev => !prev), []);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
