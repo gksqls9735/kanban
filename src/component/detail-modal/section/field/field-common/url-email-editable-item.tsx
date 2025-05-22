@@ -1,5 +1,7 @@
+import { useSortable } from "@dnd-kit/sortable";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { CSS } from '@dnd-kit/utilities';
 
 export interface ItemWithIdAndValues {
   [key: string]: any;
@@ -16,6 +18,7 @@ export interface UrlEmailEditableListItemProps {
   onDelete: (id: string | number) => void;
   errors?: Record<string | number, string[] | undefined>;
   autoFocus?: boolean;
+  dndId: string | number;
 }
 
 const UrlEmailEditableItem: React.FC<UrlEmailEditableListItemProps> = ({
@@ -25,6 +28,7 @@ const UrlEmailEditableItem: React.FC<UrlEmailEditableListItemProps> = ({
   onUpdate, onDelete,
   errors,
   autoFocus,
+  dndId,
 }) => {
   const itemId = item[idKey] as string | number;
   const currentValue1 = item[value1Key] as string;
@@ -32,9 +36,29 @@ const UrlEmailEditableItem: React.FC<UrlEmailEditableListItemProps> = ({
 
   const currentItemErrors = errors && errors[itemId] ? errors[itemId] : [];
 
+  const {
+    attributes, listeners, setNodeRef, transform, transition, isDragging
+  } = useSortable({ id: dndId })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.7 : 1,
+    zIndex: isDragging ? 1 : 'auto',
+    alignItems: 'baseline'
+  };
+
   return (
-    <li className="task-detail__detail-modal-field-edit-item task-detail__detail-modal-field-edit-item--url-email" style={{ alignItems: 'baseline' }}>
-      <div className="task-detail__detail-modal-field-edit-item-drag-handle">⠿</div>
+    <li
+      ref={setNodeRef}
+      style={style}
+      className="task-detail__detail-modal-field-edit-item task-detail__detail-modal-field-edit-item--url-email"
+    >
+      <div
+        {...attributes}
+        {...listeners}
+        className="task-detail__detail-modal-field-edit-item-drag-handle"
+      >⠿</div>
       <div className="task-detail__detail-modal-field-edit-item-inputs">
         <input type="text"
           className="task-detail__detail-modal-field-edit-input task-detail__detail-modal-field-edit-input--first"

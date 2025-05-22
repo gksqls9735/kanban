@@ -96,14 +96,20 @@ const EmailField: React.FC<{ emails: Email[], taskId: string }> = ({ emails: ini
     });
   };
 
+  const handleOrderChange = (newOrderedEmails: Email[], newOrderedNewEmailForms: NewEmailForm[]) => {
+    setEmails(newOrderedEmails);
+    setNewEmailForms(newOrderedNewEmailForms);
+  };
+
+
   const handleGlobalSave = () => {
     const currentValidationErrors: Record<string | number, string[]> = {};
     let hasAnyError = false;
 
     // 유효성 검사를 위한 전체 이메일 목록 준비
-    const validationList: Array<{ id: string | number; nickname: string; email: string }> = [
-      ...emails.map(e => ({ id: e.id, nickname: e.nickname, email: e.email })),
-      ...newEmailForms.map(form => ({ id: form.tempId, nickname: form.nickname, email: form.email }))
+    const validationList: Array<{ id: string | number; nickname: string; email: string, isNew: boolean }> = [
+      ...emails.map(e => ({ id: e.id, nickname: e.nickname, email: e.email, isNew: false })),
+      ...newEmailForms.map(form => ({ id: form.tempId, nickname: form.nickname, email: form.email, isNew: true }))
     ];
 
     // 이메일 주소별 카운트 (중복 검사용)
@@ -118,15 +124,11 @@ const EmailField: React.FC<{ emails: Email[], taskId: string }> = ({ emails: ini
       const itemId = item.id;
       const itemEmail = item.email.trim();
       const itemNickname = item.nickname.trim();
-      const currnetItemErrors: string[] = [];
+      const currentItemErrors: string[] = [];
 
-      // 새 이메일 폼들에 대한 필수 필드 검사
-      // newEmailForms에 포함된 항목인지 확인하여, 둘 다 비어있으면 에러로 처리하지 않고 무시 (저장 시 제외)
-      // 둘 중 하나라고 값이 있다면 둘 다 있어야 함
-      const isNewFormEntry = newEmailForms.some(form => form.tempId === itemId);
-      if (isNewFormEntry) {
+      if (item.isNew) {
         if ((itemNickname || itemEmail) && (!itemNickname || !itemEmail)) {
-          currnetItemErrors.push('새 이메일의 이름과 주소를 모두 입력해주세요.');
+          currentItemErrors.push('새 이메일의 이름과 주소를 모두 입력해주세요.');
           hasAnyError = true;
         }
       }
@@ -134,18 +136,23 @@ const EmailField: React.FC<{ emails: Email[], taskId: string }> = ({ emails: ini
       // 이메일 필드가 비어있지 않은 경우에만 형식 및 중복 검사
       if (itemEmail) {
         if (!isValidEmailFormat(itemEmail)) {
-          currnetItemErrors.push('이메일 형식이 맞지 않습니다.');
+          currentItemErrors.push('이메일 형식이 맞지 않습니다.');
           hasAnyError = true;
         }
         if (emailAddressCounts[itemEmail] > 1) {
-          currnetItemErrors.push("이메일이 동일합니다.");
+          currentItemErrors.push("이메일이 동일합니다.");
           hasAnyError = true;
         }
-      } else if (!isNewFormEntry && !itemEmail && itemNickname) {
-        currnetItemErrors.push("이메일 주소를 입력해주세요");
+      } else if (!item.isNew && !itemEmail && itemNickname) {
+        currentItemErrors.push("이메일 주소를 입력해주세요");
+      } else if (!item.isNew && itemEmail && !itemNickname) {
+        if (!currentItemErrors.includes('새 이메일의 이름과 주소를 모두 입력해주세요.')) {
+          currentItemErrors.push('새 이메일의 주소를 입력해주세요.');
+          hasAnyError = true;
+        }
       }
 
-      if (currnetItemErrors.length > 0) currentValidationErrors[itemId] = currnetItemErrors;
+      if (currentItemErrors.length > 0) currentValidationErrors[itemId] = currentItemErrors;
     });
 
     setErrors(currentValidationErrors);
@@ -153,7 +160,12 @@ const EmailField: React.FC<{ emails: Email[], taskId: string }> = ({ emails: ini
     if (hasAnyError) return;
 
     // 에러가 없을 시 실제 저장 로직 진행
-    let finalEmailsToSave = [...emails];
+    const finalEmailsToSave: Email[] = [];
+    let orderCounter = 1;
+
+    emails.forEach(e => {
+      finalEmailsToSave.push({ ...e, order: orderCounter++ })
+    });
 
     newEmailForms.forEach(form => {
       const trimmedNickname = form.nickname.trim();
@@ -165,7 +177,7 @@ const EmailField: React.FC<{ emails: Email[], taskId: string }> = ({ emails: ini
             id: generateUniqueId('email'),
             nickname: trimmedNickname,
             email: trimmedEmailAddress,
-            order: finalEmailsToSave.length + 1,
+            order: orderCounter++,
           });
         }
       }
@@ -215,6 +227,8 @@ const EmailField: React.FC<{ emails: Email[], taskId: string }> = ({ emails: ini
                   placeholder2="@mail.bizbee.ne.kr"
                   errors={errors}
                   noItemsMsg="표시할 이메일이 없습니다."
+
+                  onOrderChange={handleOrderChange}
                 />
                 <div className="task-detail__detail-modal-field-edit-separator" />
               </div>

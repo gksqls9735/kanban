@@ -104,14 +104,19 @@ const UrlField: React.FC<{ urls: UrlData[], taskId: string }> = ({ urls: initial
     });
   };
 
+  const handleOrderChange = (newOrderedUrls: UrlData[], newOrderedNewUrlForms: NewUrlForm[]) => {
+    setUrls(newOrderedUrls);
+    setNewUrlForms(newOrderedNewUrlForms);
+  };
+
   const handleGlobalSave = () => {
     const currentValidationErrors: Record<string | number, string[]> = {};
     let hasAnyError = false;
 
     // 유효성 검사를 위한 전체 url 목록 준비
-    const validationList: Array<{ id: string | number; title: string; requestedUrl: string }> = [
-      ...urls.map(u => ({ id: u.urlId, title: u.title, requestedUrl: u.requestedUrl })),
-      ...newUrlForms.map(form => ({ id: form.tempId, title: form.title, requestedUrl: form.requestedUrl })),
+    const validationList: Array<{ id: string | number; title: string; requestedUrl: string; isNew: boolean }> = [
+      ...urls.map(u => ({ id: u.urlId, title: u.title, requestedUrl: u.requestedUrl, isNew: false })),
+      ...newUrlForms.map(form => ({ id: form.tempId, title: form.title, requestedUrl: form.requestedUrl, isNew: true })),
     ];
 
     // url 주소별 카운트 (중복 검사용)
@@ -128,8 +133,7 @@ const UrlField: React.FC<{ urls: UrlData[], taskId: string }> = ({ urls: initial
       const itemTitle = item.title.trim();
       const currentItemErrors: string[] = [];
 
-      const isNewFormEntry = newUrlForms.some(form => form.tempId === itemId);
-      if (isNewFormEntry) {
+      if (item.isNew) {
         if ((itemTitle || itemRUrl) && (!itemTitle || !itemRUrl)) {
           currentItemErrors.push('새 URL의 이름과 주소를 모두 입력해주세요.');
           hasAnyError = true;
@@ -145,8 +149,13 @@ const UrlField: React.FC<{ urls: UrlData[], taskId: string }> = ({ urls: initial
           currentItemErrors.push('URL명이 동일합니다.');
           hasAnyError = true;
         }
-      } else if (!isNewFormEntry && !itemRUrl && itemTitle) {
+      } else if (!item.isNew && !itemRUrl && itemTitle) {
         currentItemErrors.push('URL을 입력해주세요.');
+      } else if (!item.isNew && itemTitle && !itemRUrl) {
+        if (!currentItemErrors.includes('새 URL의 이름과 주소를 모두 입력해주세요.')) {
+          currentItemErrors.push('새 URL의 주소를 입력해주세요.');
+          hasAnyError = true;
+        }
       }
 
       if (currentItemErrors.length > 0) currentValidationErrors[itemId] = currentItemErrors;
@@ -156,7 +165,12 @@ const UrlField: React.FC<{ urls: UrlData[], taskId: string }> = ({ urls: initial
 
     if (hasAnyError) return;
 
-    let finalUrlsToSave = [...urls];
+    const finalUrlsToSave: UrlData[] = [];
+    let orderCounter = 1;
+
+    urls.forEach(url => {
+      finalUrlsToSave.push({ ...url, order: orderCounter++ })
+    });
 
     newUrlForms.forEach(form => {
       const trimmedUrlTitle = form.title.trim();
@@ -168,13 +182,13 @@ const UrlField: React.FC<{ urls: UrlData[], taskId: string }> = ({ urls: initial
             urlId: generateUniqueId('url'),
             title: trimmedUrlTitle,
             requestedUrl: trimmedUrlRequestedUrl,
-            order: finalUrlsToSave.length + 1,
+            order: orderCounter++,
           });
         }
       }
     });
 
-    updateTask(taskId, { urls: finalUrlsToSave });
+    updateTask(taskId, { urls: finalUrlsToSave }); // 수정된 trulyFinalUrls 사용
 
     setNewUrlForms([]);
     setIsOpenEdit(false);
@@ -222,6 +236,8 @@ const UrlField: React.FC<{ urls: UrlData[], taskId: string }> = ({ urls: initial
                     placeholder2="https://"
                     errors={errors}
                     noItemsMsg="표시할 URL이 없습니다."
+
+                    onOrderChange={handleOrderChange}
                   />
                   <div className="task-detail__detail-modal-field-edit-separator" />
                 </div>
