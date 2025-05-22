@@ -52,6 +52,7 @@ const UserField: React.FC<{ users: Participant[], taskId: string }> = ({ users, 
               <div>{user.username}</div>
             </li>
           ))}
+          {users.length === 0 && (<li className="task-detail__detail-modal-field-edit-item--no-message">표시할 사용자가 없습니다.</li>)}
         </ul>
         {isInEditMode && (
           <div ref={editContainerRef} className="task-detail__detail-modal-field-edit-container">
@@ -69,6 +70,7 @@ const UserField: React.FC<{ users: Participant[], taskId: string }> = ({ users, 
                     </div>
                   </li>
                 ))}
+                {users.length === 0 && (<li className="task-detail__detail-modal-field-edit-item--no-message">표시할 사용자가 없습니다.</li>)}
               </ul>
               <div className="task-detail__detail-modal-field-edit-separator" />
             </div>
