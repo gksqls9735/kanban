@@ -8,8 +8,10 @@ import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import ParticipantSelector from "../../../participant-select/participant-selector";
 import useClickOutside from "../../../../hooks/use-click-outside";
 import FieldFooter from "./field-common/field-footer";
+import useTaskStore from "../../../../store/task-store";
 
-const UserField: React.FC<{ users: Participant[] }> = ({ users }) => {
+const UserField: React.FC<{ users: Participant[], taskId: string }> = ({ users, taskId }) => {
+  const updateTask = useTaskStore(state => state.updateTask);
 
   const [isInEditMode, setIsInEditMode] = useState<boolean>(false);
   const [isOpenEdit, setIsOpenEdit] = useState<boolean>(false);
@@ -32,6 +34,12 @@ const UserField: React.FC<{ users: Participant[] }> = ({ users }) => {
   };
 
   useClickOutside(editContainerRef, handleCancel, isInEditMode);
+
+  const handleConfirm = (participants: Participant[]) => updateTask(taskId, { participants: participants });
+  const handleDeleteParticipants = (userId: string) => {
+    const updatedParticipants = users.filter(u => u.id !== userId);
+    updateTask(taskId, { participants: updatedParticipants });
+  };
 
   return (
     <>
@@ -56,7 +64,7 @@ const UserField: React.FC<{ users: Participant[] }> = ({ users }) => {
                       <AvatarItem size={24}>{getInitial(u.username)}</AvatarItem>
                       <div className="task-detail__detail-modal-field-edit-user-name">{u.username}</div>
                     </div>
-                    <div className="todo-item__action todo-item__action--delete">
+                    <div className="todo-item__action todo-item__action--delete" onClick={() => handleDeleteParticipants(u.id)}>
                       <FontAwesomeIcon icon={faTimes} className="task-detail__detail-modal-field-edit-item--delete" />
                     </div>
                   </li>
@@ -70,7 +78,7 @@ const UserField: React.FC<{ users: Participant[] }> = ({ users }) => {
       </li>
       {isOpenEdit && (
         <ParticipantSelector
-          initialParticipants={users} onClose={() => setIsOpenEdit(false)} onConfirm={() => { }}
+          initialParticipants={users} onClose={() => setIsOpenEdit(false)} onConfirm={handleConfirm}
         />
       )}
     </>

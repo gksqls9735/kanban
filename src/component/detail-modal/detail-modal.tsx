@@ -81,7 +81,7 @@ const DetailModal: React.FC<{
       currentTask.numericField ? <NumericFieldComponent key="num" numericField={currentTask.numericField} /> : null,
       currentTask.prefix ? <IdField key="id" prefix={currentTask.prefix} taskId={currentTask.taskId} /> : null,
       currentTask.emails?.length ? <EmailField key="email" emails={currentTask.emails} taskId={currentTask.taskId} /> : null,
-      currentTask.participants?.length ? <UserField key="user" users={currentTask.participants} /> : null,
+      currentTask.participants?.length ? <UserField key="user" users={currentTask.participants} taskId={currentTask.taskId} /> : null,
     ].filter(Boolean);
     return isExpanded ? allFields : allFields.slice(0, 3);
   }, [currentTask, isExpanded]);
