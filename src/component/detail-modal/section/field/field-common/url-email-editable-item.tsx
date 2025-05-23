@@ -58,6 +58,7 @@ const UrlEmailEditableItem: React.FC<UrlEmailEditableListItemProps> = ({
         {...attributes}
         {...listeners}
         className="task-detail__detail-modal-field-edit-item-drag-handle"
+        style={{cursor: `${isDragging ? 'grabbing' : 'grab'}`}}
       >⠿</div>
       <div className="task-detail__detail-modal-field-edit-item-inputs">
         <input type="text"

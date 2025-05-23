@@ -17,10 +17,12 @@ import ParticipantSelector from "../../participant-select/participant-selector";
 
 const NewTaskCard: React.FC<{
   columnId: string;
-  onClose: () => void;
-}> = ({ columnId, onClose }) => {
+  onClose: (newCardId: string) => void;
+  newCardId: string;
+}> = ({ columnId, onClose, newCardId }) => {
   const currentUser = useUserStore(state => state.currentUser);
 
+  const cardRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const addTask = useTaskStore(state => state.addTask);
   const statusList = useStatusesStore(state => state.statusList);
@@ -69,6 +71,7 @@ const NewTaskCard: React.FC<{
   const handleAddTask = () => {
     const taskNameCheck = inputRef.current?.value.trim();
     if (taskNameCheck && startDate && endDate && currentUser) {
+      const filteredTodos = todos.filter(todo => todo.todoTxt && todo.todoTxt.trim() !== '');
       const newTask: Task = {
         sectionId: selectedSection.sectionId,
         taskId: newTaskId,
@@ -80,7 +83,7 @@ const NewTaskCard: React.FC<{
         status: selectedStatus,
         importance: 1,
         progress: 0,
-        todoList: todos,
+        todoList: filteredTodos,
         dependencies: [],
         participants: participants,
         color: '',
@@ -90,10 +93,9 @@ const NewTaskCard: React.FC<{
         emails: [],
         prefix: '',
       }
+      console.log(newTask);
       addTask(newTask);
-      onClose();
-    } else {
-      if (!taskNameCheck) inputRef.current?.focus();
+      onClose(newCardId);
     }
   };
 
@@ -104,11 +106,34 @@ const NewTaskCard: React.FC<{
     }
   };
 
+  // 리스트 형태로 추가되면서 변경
+  // useEffect(() => {
+  //   const handleClickOutside = (e: MouseEvent) => {
+  //     if (isOpenParticipantModal) return;
+  //     const path = e.composedPath();
+  //     if (cardRef.current && !path.includes(cardRef.current)) {
+  //       handleAddTask();
+  //     }
+  //   };
+  //   document.addEventListener('mousedown', handleClickOutside);
+  //   return () => document.removeEventListener('mousedown', handleClickOutside);
+  // }, [handleAddTask]);
+
+
   return (
     <>
-      <div className="kanban-card relative">
+      <div ref={cardRef} className="kanban-card relative">
 
-        <SectionSelector selectedSection={selectedSection} onSectionSelect={handleSectionSelect} />
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <SectionSelector selectedSection={selectedSection} onSectionSelect={handleSectionSelect} />
+          <div className="task-detail__detail-modal-close-button" onClick={() => onClose(newCardId)}>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="-0.5 -0.5 16 16" fill="#8D99A8" stroke="#000000" strokeLinecap="round" strokeLinejoin="round" className="feather feather-x" id="X--Streamline-Feather" height="16" width="16">
+              <desc>X Streamline Icon: https://streamlinehq.com</desc>
+              <path d="M11.25 3.75 3.75 11.25" strokeWidth="1"></path>
+              <path d="m3.75 3.75 7.5 7.5" strokeWidth="1"></path>
+            </svg>
+          </div>
+        </div>
 
         <input
           type="text"

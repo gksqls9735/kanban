@@ -10,19 +10,55 @@ interface ChatState {
   deleteChat: (taskId: string, chatId: string) => void;
 }
 
+// 재귀적으로 부모 채팅을 찾아 답글을 추가하는 헬퍼 함수
+const addReplyToParent = (chats: Chat[], parentId: string, newReply: Chat): Chat[] => {
+  return chats.map(chat => {
+    if (chat.chatId === parentId) {
+      // 부모를 찾았으면, replies 배열을 복사하고 새 답글 추가
+      return {
+        ...chat,
+        replies: [...(chat.replies || []), newReply].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()), // 시간순 정렬 추가
+      };
+    }
+    if (chat.replies && chat.replies.length > 0) {
+      // 현재 채팅이 부모가 아니면, 자식 replies에서 재귀적으로 탐색
+      const updatedReplies = addReplyToParent(chat.replies, parentId, newReply);
+      // replies가 변경되었다면 (즉, 하위 어딘가에 추가되었다면) 현재 chat 객체도 새로 만들어야 함
+      if (updatedReplies !== chat.replies) {
+        return { ...chat, replies: updatedReplies };
+      }
+    }
+    return chat; // 변경 없으면 그대로 반환
+  });
+};
+
 const useChatStore = create<ChatState>((set, _get) => ({
   chatsByTask: {},
   setAllTaskChats: (allChatsData) =>
     set(() => ({ chatsByTask: allChatsData })),
   setChatsForTask: (taskId, chats) =>
     set((s) => ({ chatsByTask: { ...s.chatsByTask, [taskId]: chats } })),
-  addChatToTask: (taskId, chat) =>
-    set((s) => ({
-      chatsByTask: {
-        ...s.chatsByTask,
-        [taskId]: [...(s.chatsByTask[taskId] || []), chat],
-      },
-    })),
+  addChatToTask: (taskId, newChat) => {
+    set(state => {
+      const currentTaskChats = state.chatsByTask[taskId] || [];
+      let updatedTaskChats;
+
+      if (newChat.parentChatId) {
+        // 답글인 경우
+        updatedTaskChats = addReplyToParent(currentTaskChats, newChat.parentChatId, newChat);
+      } else {
+        // 최상위 댓글인 경우
+        updatedTaskChats = [...currentTaskChats, newChat].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+      }
+
+      return {
+        chatsByTask: {
+          ...state.chatsByTask,
+          [taskId]: updatedTaskChats,
+        },
+      };
+    });
+  },
   updateChat: (taskId: string, parentChatId: string | null, targetChatId: string, patch: Partial<Chat>) =>
     set((state) => {
       const taskChats = state.chatsByTask[taskId];

@@ -1,7 +1,7 @@
 import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
-import { Task } from "../../../types/type";
+import { SelectOption, Task } from "../../../types/type";
 import { CSS } from '@dnd-kit/utilities';
 import { useMemo, useState } from "react";
 import NewTaskCard from "../new-card/new-task-card";
@@ -16,6 +16,7 @@ import ColumnHeader from "./column-header";
 import ColumnEdit from "./column-edit";
 import { lightenColor } from "../../../utils/color-function";
 import { useToast } from "../../../context/toast-context";
+import { generateUniqueId } from "../../../utils/text-function";
 
 const DroppableColumn: React.FC<{
   tasks: Task[];
@@ -33,14 +34,17 @@ const DroppableColumn: React.FC<{
   const viewMode = useViewModeStore(state => state.viewMode);
   const deleteTasksBySection = useTaskStore(state => state.deleteTasksBySection);
   const updateTasksByStatus = useTaskStore(state => state.updateTasksByStatus);
+  const updateTasksWithNewStatusDetails = useTaskStore(state => state.updateTasksWithNewStatusDetails);
   const deleteStatus = useStatusesStore(state => state.deleteStatus);
   const deleteSection = useSectionsStore(state => state.deleteSection);
-  const updateSection = useSectionsStore(state => state.updateSection);
   const updateStatus = useStatusesStore(state => state.updateStatus);
+  const updateSection = useSectionsStore(state => state.updateSection);
+  const statusList = useStatusesStore(state => state.statusList);
+  const sections = useSectionsStore(state => state.sections);
+
   const { showToast } = useToast();
 
-
-  const [isAddingTask, setIsAddingTask] = useState<boolean>(false);
+  const [newCardList, setNewCardList] = useState<string[]>([]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
 
   const {
@@ -58,7 +62,6 @@ const DroppableColumn: React.FC<{
   } else {
     headerStyle.cursor = isOverlay ? 'grabbing' : 'grab';
     headerStyle.color = '#5F6B7A';
-    headerStyle.fontWeight = 600;
   }
 
   const columnStyle: React.CSSProperties = {
@@ -82,20 +85,40 @@ const DroppableColumn: React.FC<{
     showToast(`상태 ${title}이/가 성공적으로 삭제되었습니다.`)
   };
 
-  const handleClose = () => {
-    setIsAddingTask(false);
+  const handleClose = (newCardId: string) => {
+    const updatedNewCard = newCardList.filter(id => id !== newCardId);
+    setNewCardList(updatedNewCard);
   };
 
   const handleUpdate = (name: string, color?: string) => {
-    if (name) {
+    const trimmedName = name.trim();
+    if (trimmedName) {
       if (viewMode === ViewModes.STATUS && color) {
-        if (color === colorMain) {
-          updateStatus(id, { name: name })
+        const isExistStatusName = statusList.some(status => status.name === trimmedName);
+        if (!isExistStatusName) {
+          const statusUpdates: Partial<SelectOption> = {
+            name: trimmedName, colorMain: color, colorSub: lightenColor(color, 0.85)
+          };
+          updateStatus(id, statusUpdates);
+
+          const newStatus: SelectOption = {
+            code: id, name: trimmedName, colorMain: color, colorSub: lightenColor(color, 0.85)
+          };
+          updateTasksWithNewStatusDetails(newStatus);
+          showToast('상태명이 변경 되었습니다.');
         } else {
-          updateStatus(id, { name: name, colorMain: color, colorSub: lightenColor(color, 0.85) })
+          showToast('동일한 이름의 상태가 존재합니다.');
+          return;
         }
       } else if (viewMode === ViewModes.SECTION) {
-        updateSection(id, { sectionName: name })
+        const isExistSectionName = sections.some(sec => sec.sectionName === trimmedName);
+        if (!isExistSectionName) {
+          updateSection(id, { sectionName: name });
+          showToast('섹션명이 변경 되었습니다.')
+        } else {
+          showToast('동일한 이름의 섹션이 존재합니다.');
+          return;
+        }
       }
       setIsEditing(false);
     }
@@ -105,6 +128,10 @@ const DroppableColumn: React.FC<{
     setIsEditing(prev => !prev);
   };
 
+  const handleAddNewTask = () => {
+    const cardId = generateUniqueId('new-card');
+    setNewCardList(prev => [...prev, cardId]);
+  }
 
   const deleteActionLabel = useMemo(() => viewMode === ViewModes.STATUS ? '상태 삭제' : '섹션 삭제', [viewMode]);
   const deleteModalTitle = useMemo(() => viewMode === ViewModes.STATUS ? '상태를 삭제 하시겠습니까?' : '섹션을 삭제 하시겠습니까?', [viewMode]);
@@ -114,7 +141,6 @@ const DroppableColumn: React.FC<{
       : '이 섹션에 포함된 모든 작업 내역이 삭제되며,<br /> 복구할 수 없습니다.'
     , [viewMode]);
   const handleDelete = useMemo(() => viewMode === ViewModes.STATUS ? handleDeleteStatus : handleDeleteSection, [viewMode]);
-
 
   return (
     <>
@@ -136,8 +162,10 @@ const DroppableColumn: React.FC<{
               <CardWrapper key={t.taskId} task={t} sectionName={getSectionName(t.sectionId)} />
             ))}
           </SortableContext>
-          {isAddingTask && (<NewTaskCard columnId={id} onClose={handleClose} />)}
-          <div className="task-add" onClick={() => setIsAddingTask(true)}>
+          {newCardList.map(newCardId => (
+            <NewTaskCard key={`new-card-${newCardId}`} columnId={id} onClose={handleClose} newCardId={newCardId} />
+          ))}
+          <div className="task-add" onClick={handleAddNewTask}>
             <FontAwesomeIcon icon={faPlus} style={{ width: 13, height: 13 }} />
             <div>작업 추가</div>
           </div>

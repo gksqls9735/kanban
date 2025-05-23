@@ -41,22 +41,22 @@ class KanbanWebComponent extends HTMLElement {
       this.componentShadowRoot = this.attachShadow({ mode: 'open' });
 
       try {
-        const mainResponse = await fetch("kanban.css");
+        const mainResponse = await fetch("https://cdn-minio.bizbee.co.kr/common/kanban/kanban.css");
         const mainCssText = await mainResponse.text();
         const mainSheet = new CSSStyleSheet();
         await mainSheet.replace(mainCssText);
 
-        const pickerResponse = await fetch("datetimepicker.css");
+        const pickerResponse = await fetch("https://cdn-minio.bizbee.co.kr/common/kanban/datetimepicker.css");
         const pickerCssText = await pickerResponse.text();
         const pickerSheet = new CSSStyleSheet();
         await pickerSheet.replace(pickerCssText);
 
-        const selectorResponse = await fetch("participant-selector.css");
+        const selectorResponse = await fetch("https://cdn-minio.bizbee.co.kr/common/kanban/participant-selector.css");
         const selectorCssText = await selectorResponse.text();
         const selectorSheet = new CSSStyleSheet();
         await selectorSheet.replace(selectorCssText);
 
-        const detailResponse = await fetch("task-detail.css");
+        const detailResponse = await fetch("https://cdn-minio.bizbee.co.kr/common/kanban/task-detail.css");
         const detailCssText = await detailResponse.text();
         const detailSheet = new CSSStyleSheet();
         await detailSheet.replace(detailCssText);

@@ -13,12 +13,15 @@ export type UrlData = {
   order: number;
 }
 
+
+export type MeasurementUnit =
+  "숫자" | "퍼센트" | "KRW" |  "USD" | "EUR" | "JPY" | "CNY" | "사용자 지정 테이블" | "형식 없음";
+
 export interface NumericField {
   value: number;
-  unit: string;
+  unit: MeasurementUnit; // <--- 여기를 string에서 MeasurementUnit으로 변경
   decimalPlaces: number;
 }
-
 export type Email = {
   id: string;
   email: string;
@@ -99,8 +102,8 @@ export type Todo = {
   isCompleted: boolean
   /** 투두 내용 */
   todoTxt: string
-  /** 기한 */
-  todoDt: Date
+  /** 기한 (null)*/
+  todoDt: Date 
   /** 담당자 */
   participants: Participant[]
   /** 정렬순서 */
@@ -149,7 +152,7 @@ export type Task = {
   /** 다중 선택 옵션 */
   multiSelection?: SelectableOption[];
   /** 단일 선택 옵션 */
-  singleSelection?: SelectOption;
+  singleSelection?: SelectableOption[];
   /** 숫자 필드 */
   numericField?: NumericField;
   /** Email */

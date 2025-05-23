@@ -4,7 +4,7 @@ import useClickOutside from "../../../../hooks/use-click-outside";
 import FieldFooter from "./field-common/field-footer";
 import useTaskStore from "../../../../store/task-store";
 
-const IdField: React.FC<{ prefix: string, taskId: string }> = ({ prefix: initialPrefix, taskId }) => {
+const IdField: React.FC<{ prefix?: string | null | undefined, taskId: string }> = ({ prefix: initialPrefix = "", taskId }) => {
   const updateTask = useTaskStore(state => state.updateTask);
 
   const [prefix, setPrefix] = useState<string>("");
@@ -16,7 +16,7 @@ const IdField: React.FC<{ prefix: string, taskId: string }> = ({ prefix: initial
   const editContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setPrefix(initialPrefix);
+    setPrefix(initialPrefix ?? "");
   }, [initialPrefix]);
 
   // 취소 및 창 닫기 로직
@@ -37,7 +37,7 @@ const IdField: React.FC<{ prefix: string, taskId: string }> = ({ prefix: initial
 
   useClickOutside(editContainerRef, handleCancel, isInEditMode);
 
-  const handleUpdatePrefix = (value: string) =>  setPrefix(value);
+  const handleUpdatePrefix = (value: string) => setPrefix(value);
 
   const handleSubmit = (e: React.KeyboardEvent) => {
     e.preventDefault();
@@ -55,6 +55,48 @@ const IdField: React.FC<{ prefix: string, taskId: string }> = ({ prefix: initial
   };
 
   const handleEdit = () => setIsOpenEdit(prev => !prev);
+
+  if (!initialPrefix) {
+    return (
+      <li className="task-detail__detail-modal-field-item">
+        <FieldLabel fieldName="ID" onClick={handleToggleEditMode} />
+        <ul className="task-detail__detail-modal-field-content-list">
+          <li className="task-detail__detail-modal-field-edit-item--no-message">
+            표시할 ID가 존재하지 않습니다.
+          </li>
+        </ul>
+        {isInEditMode && (
+          <div ref={editContainerRef} className="task-detail__detail-modal-field-edit-container">
+            <>
+              <div className="task-detail__detail-modal-field-edit-list-wrapper">
+                <div>
+                  <div className="task-detail__detail-modal-field-edit-id-input-row">
+                    <div className="task-detail__detail-modal-field-edit-id-label">접두사</div>
+                    <input
+                      type="text"
+                      placeholder="IT"
+                      onChange={(e) => handleUpdatePrefix(e.target.value)}
+                      onKeyDown={handleSubmit}
+                      value={prefix}
+                      className="task-detail__detail-modal-field-edit-input--prefix"
+                    />
+                  </div>
+                  <div className="task-detail__detail-modal-field-edit-id-input-row  task-detail__detail-modal-field-edit-id-preview-row">
+                    <div className="task-detail__detail-modal-field-edit-id-label">미리보기</div>
+                    <div className="task-detail__detail-modal-field-edit-id-preview truncate">
+                      {`${prefix}-1`}, {`${prefix}-2`}, {`${prefix}-3`}, ...
+                    </div>
+                  </div>
+                </div>
+                <div className="task-detail__detail-modal-field-edit-separator" />
+              </div>
+              <FieldFooter title="옵션 수정" isPlusIcon={false} onClick={handleEdit} handleCancel={handleCancel} isShowButton={true} onSave={handleSave} />
+            </>
+          </div>
+        )}
+      </li>
+    )
+  }
 
   return (
     <li className="task-detail__detail-modal-field-item">

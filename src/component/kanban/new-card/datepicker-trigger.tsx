@@ -1,12 +1,6 @@
-import { format } from "date-fns";
-import { ko } from "date-fns/locale";
 import useDropdown from "../../../hooks/use-dropdown";
 import DateTimePicker from "../date-picker/datetime-picker";
-
-const formatDateDisplay = (date: Date | null) => {
-  if (!date) return '';
-  return format(date, 'yyyy.MM.dd', { locale: ko });
-};
+import { formatDateToYyyyMmDd } from "../../../utils/date-function";
 
 const DatePickerTrigger: React.FC<{
   startDate: Date | null;
@@ -28,9 +22,8 @@ const DatePickerTrigger: React.FC<{
           </svg>
         </div>
         <span className="card-datepicker-text">
-          {startDate && endDate && startDate.getTime() !== endDate.getTime()
-            ? `${formatDateDisplay(startDate)} - ${formatDateDisplay(endDate)}`
-            : formatDateDisplay(startDate)}
+          {startDate && `${formatDateToYyyyMmDd(startDate)} `}
+          {endDate && `- ${formatDateToYyyyMmDd(endDate)}`}
         </span>
       </div>
       {isOpen && (

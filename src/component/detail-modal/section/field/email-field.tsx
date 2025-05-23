@@ -15,7 +15,7 @@ interface CombinedEmailItem {
   isNew: boolean;
 }
 
-const EmailField: React.FC<{ emails: Email[], taskId: string }> = ({ emails: initialEmails, taskId }) => {
+const EmailField: React.FC<{ emails?: Email[], taskId: string }> = ({ emails: initialEmails = [], taskId }) => {
   const updateTask = useTaskStore(state => state.updateTask);
 
   const [combinedItems, setCombinedItems] = useState<CombinedEmailItem[]>([]);
@@ -187,7 +187,7 @@ const EmailField: React.FC<{ emails: Email[], taskId: string }> = ({ emails: ini
             {email.nickname}
           </li>
         ))}
-        {initialEmails.length === 0 && <li className="task-detail__detail-modal-field-value-item--empty">이메일 없음</li>}
+        {initialEmails.length === 0 && <li className="task-detail__detail-modal-field-edit-item--no-message">표시할 이메일이 없습니다.</li>}
       </ul>
       {isInEditMode && (
         <div ref={editContainerRef} className="task-detail__detail-modal-field-edit-container">

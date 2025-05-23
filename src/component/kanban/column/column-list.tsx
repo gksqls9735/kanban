@@ -21,7 +21,7 @@ interface ColumnData {
   colorSub?: string;
 }
 
-const Column: React.FC<{
+const ColumnList: React.FC<{
   getSectionName: (sectionId: string) => string;
 }> = ({ getSectionName }) => {
   const [isAddingSection, setIsAddingSection] = useState<boolean>(false);
@@ -221,4 +221,4 @@ const Column: React.FC<{
   );
 };
 
-export default Column;
+export default ColumnList;

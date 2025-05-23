@@ -2,13 +2,15 @@ import useChatStore from "../../../../../store/chat-store";
 import { Chat, User } from "../../../../../types/type"
 import ChatItem from "./chat-item";
 
+const EMPTY_CHATS: Chat[] = [];
+
 const ChatList: React.FC<{
   currentUser: User;
   taskId: string;
 }> = ({ currentUser, taskId }) => {
   const isLikedByCurrentUser = (chatLikeList: string[]) => chatLikeList.includes(currentUser.id);
 
-  const chats = useChatStore(s => s.chatsByTask[taskId] || []);
+  const chats = useChatStore(s => s.chatsByTask[taskId] || EMPTY_CHATS);
   const updateChat = useChatStore(s => s.updateChat);
 
   const handleUpdateChat = (chatId: string, update: Partial<Chat>, parentId: string | null) => {
@@ -18,15 +20,17 @@ const ChatList: React.FC<{
   return (
     <div className="task-detail__detail-modal-section">
       <div className="task-detail__detail-modal-chat-list">
-        {chats.map(chat => (
+        {chats.length > 0 && chats.map(chat => (
           <ChatItem
             key={chat.chatId}
             chat={chat}
             isLikedByCurrentUser={isLikedByCurrentUser(chat.likedUserIds || [])}
             onUpdate={handleUpdateChat}
             currentUserId={currentUser.id}
+            taskId={taskId}
           />
         ))}
+        {chats.length === 0 && <div className="task-detail__detail-modal-field-edit-item--no-message">채팅 내역이 존재하지 않습니다.</div>}
       </div>
     </div>
   );

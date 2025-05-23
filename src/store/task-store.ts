@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { Task } from "../types/type";
+import { SelectOption, Task } from "../types/type";
 import { statusWaiting } from "../mocks/select-option-mock";
 
 interface TaskState {
@@ -11,6 +11,7 @@ interface TaskState {
   copyTask: (originalTask: Task) => void;
   deleteTasksBySection: (sectionId: string) => void;
   updateTasksByStatus: (originalStatusCode: string) => void;
+  updateTasksWithNewStatusDetails: (newStatus: SelectOption) => void;
 }
 
 const useTaskStore = create<TaskState>((set, _get) => ({
@@ -62,6 +63,12 @@ const useTaskStore = create<TaskState>((set, _get) => ({
     );
 
     return { allTasks: updatedTasks };
+  }),
+  updateTasksWithNewStatusDetails: (newStatus: SelectOption) => set((state) => {
+    const newTasks = state.allTasks.map(t =>
+      newStatus.code === t.status.code ? { ...t, status: newStatus } : t
+    );
+    return { allTasks: newTasks };
   }),
 }));
 

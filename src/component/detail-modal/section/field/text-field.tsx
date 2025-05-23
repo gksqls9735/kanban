@@ -2,10 +2,10 @@ import { useRef, useState } from "react";
 import FieldLabel from "./field-common/field-label";
 import useClickOutside from "../../../../hooks/use-click-outside";
 
-const TextField: React.FC<{ text: string }> = ({ text }) => {
+const TextField: React.FC<{ text?: string }> = ({ text }) => {
 
   const [isInEditMode, setIsInEditMode] = useState<boolean>(false);
-  const [isOpenEdit, setIsOpenEdit] = useState<boolean>(false);
+  const [_isOpenEdit, setIsOpenEdit] = useState<boolean>(false);
   // edit-container를 참조하기 위한 ref 생성
   const editContainerRef = useRef<HTMLDivElement>(null);
 
@@ -31,13 +31,17 @@ const TextField: React.FC<{ text: string }> = ({ text }) => {
     <li className="task-detail__detail-modal-field-item">
       <FieldLabel fieldName="텍스트" onClick={handleToggleEditMode} />
       <ul className="task-detail__detail-modal-field-content-list">
-        <span className="task-detail__detail-modal-field-item--text">{text}</span>
+        {text ? (
+          <span className="task-detail__detail-modal-field-item--text">{text}</span>
+        ) : (
+          <span className="task-detail__detail-modal-field-edit-item--no-message">표시할 텍스트가 존재하지 않습니다.</span>
+        )}
       </ul>
-      {isInEditMode && (
+      {/* {isInEditMode && (
         <div ref={editContainerRef} className="task-detail__detail-modal-field-edit-container">
           편집 UI 영역 (예: "dk")
         </div>
-      )}
+      )} */}
     </li>
   );
 };

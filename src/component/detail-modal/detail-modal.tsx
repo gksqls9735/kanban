@@ -36,9 +36,19 @@ const DetailModal: React.FC<{
   const currentUser = useUserStore(state => state.currentUser);
   const tasksFromStore = useTaskStore(state => state.allTasks);
 
-  const currentTask = useMemo(() => {
-    return tasksFromStore.find(t => t.taskId === initialTaskFromProp.taskId) || initialTaskFromProp;
-  }, [tasksFromStore, initialTaskFromProp]);
+const currentTask = useMemo(() => {
+  const task = tasksFromStore.find(t => t.taskId === initialTaskFromProp.taskId) || initialTaskFromProp;
+  return {
+    ...task,
+    urls: task.urls || [], 
+    memo: task.memo || "",
+    taskAttachments: task.taskAttachments || [],
+    multiSelection: task.multiSelection || [],
+    singleSelection: task.singleSelection || [],
+    emails: task.emails || [],
+    prefix: task.prefix || "",
+  };
+}, [tasksFromStore, initialTaskFromProp]);
 
   const [selectedSection, setSelectedSection] = useState<Section>(() => {
     return sections.find(sec => sec.sectionId === currentTask.sectionId) || sections[0];
@@ -73,14 +83,14 @@ const DetailModal: React.FC<{
 
   const visibleFieldComponents = useMemo(() => {
     const allFields = [
-      currentTask.urls?.length ? <UrlField key="url" urls={currentTask.urls} taskId={currentTask.taskId}/> : null,
-      currentTask.multiSelection?.length ? <MultiSelection key="multi" options={currentTask.multiSelection} /> : null,
-      currentTask.taskAttachments?.length ? <AttachmentField key="attach" attachment={currentTask.taskAttachments} /> : null,
-      currentTask.singleSelection ? <SingleSelection key="single" option={currentTask.singleSelection} /> : null,
-      currentTask.memo ? <TextField key="text" text={currentTask.memo} /> : null,
-      currentTask.numericField ? <NumericFieldComponent key="num" numericField={currentTask.numericField} /> : null,
-      currentTask.prefix ? <IdField key="id" prefix={currentTask.prefix} taskId={currentTask.taskId} /> : null,
-      currentTask.emails?.length ? <EmailField key="email" emails={currentTask.emails} taskId={currentTask.taskId} /> : null,
+      <UrlField key="url" urls={currentTask.urls} taskId={currentTask.taskId}/>,
+      <MultiSelection key="multi" options={currentTask.multiSelection} taskId={currentTask.taskId}/>,
+      <AttachmentField key="attach" attachments={currentTask.taskAttachments} taskId={currentTask.taskId}/> ,
+      <SingleSelection key="single" options={currentTask.singleSelection} taskId={currentTask.taskId}/>,
+      <TextField key="text" text={currentTask.memo} />,
+      <NumericFieldComponent key="num" numericField={currentTask.numericField} taskId={currentTask.taskId}/>,
+      <IdField key="id" prefix={currentTask.prefix} taskId={currentTask.taskId} />,
+      <EmailField key="email" emails={currentTask.emails} taskId={currentTask.taskId} />,
       <UserField key="user" users={currentTask.participants} taskId={currentTask.taskId} />,
     ].filter(Boolean);
     return isExpanded ? allFields : allFields.slice(0, 3);
@@ -164,7 +174,7 @@ const DetailModal: React.FC<{
 
           {/** 채팅 */}
           <ChatList currentUser={currentUser!} taskId={currentTask.taskId} />
-          <ChatInput currentUser={currentUser!} taskId={currentTask.taskId} />
+          <ChatInput taskId={currentTask.taskId} />
         </div>
       </div>
       {

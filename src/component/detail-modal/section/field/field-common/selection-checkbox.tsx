@@ -14,7 +14,8 @@ const SelectionCheckBox: React.FC<{
       borderColor: borderColor,
       backgroundColor: backgroundColor,
       flexShrink: 0,
-      boxSizing: 'border-box'
+      boxSizing: 'border-box',
+      marginRight: 4
     }} />
   );
 };

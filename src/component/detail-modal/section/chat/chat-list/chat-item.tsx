@@ -3,14 +3,18 @@ import { Chat } from "../../../../../types/type";
 import { formatTimeToHHMM } from "../../../../../utils/date-function";
 import { getInitial } from "../../../../../utils/text-function";
 import AvatarItem from "../../../../avatar/avatar";
-import ChatReply from "./chat-reply";
+import ChatInput from "../chat-input";
 
 const ChatItem: React.FC<{
   chat: Chat;
   isLikedByCurrentUser: boolean;
   onUpdate: (chatId: string, update: Partial<Chat>, parentId: string | null) => void;
   currentUserId: string;
-}> = ({ chat, isLikedByCurrentUser, onUpdate, currentUserId }) => {
+  depth?: number;
+  taskId: string;
+}> = ({ chat, isLikedByCurrentUser, onUpdate, currentUserId, depth = 0, taskId }) => {
+
+  const [isReplying, setIsReplying] = useState<boolean>(false);
 
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
 
@@ -21,15 +25,27 @@ const ChatItem: React.FC<{
     const currentLikedUserIds = chat.likedUserIds || [];
     let newLikedUserIds;
 
-    if (isLikedByCurrentUser) newLikedUserIds = currentLikedUserIds.filter(id => id !== currentUserId);
-    else newLikedUserIds = [...currentLikedUserIds, currentUserId];
-
+    if (isLikedByCurrentUser) {
+      newLikedUserIds = currentLikedUserIds.filter(id => id !== currentUserId);
+    } else {
+      newLikedUserIds = [...currentLikedUserIds, currentUserId];
+    }
     onUpdate(chat.chatId, { likedUserIds: newLikedUserIds }, chat.parentChatId);
+  };
+
+  const itemStyle = useMemo(() => ({
+    paddingLeft: depth > 0 ? '48px' : undefined,
+  }), [depth]);
+
+  const checkIsLikedByCurrentUserForReply = (chatLikeList: string[]) => chatLikeList.includes(currentUserId);
+
+  const handleToggleReplyForm = () => {
+    setIsReplying(prev => !prev);
   };
 
   return (
     <>
-      <div className="task-detail__detail-modal-chat-item">
+      <div className="task-detail__detail-modal-chat-item" style={itemStyle}>
         <AvatarItem size={40}>{getInitial(chat.user.username)}</AvatarItem>
         <div className="task-detail__detail-modal-chat-content">
           <div className="task-detail__detail-modal-chat-header">
@@ -44,7 +60,7 @@ const ChatItem: React.FC<{
             </div>
           </div>
           <div className="task-detail__detail-modal-chat-text">{chat.chatContent}</div>
-          <div className="task-detail__detail-modal-chat-reply-button">답글 달기</div>
+          <div className="task-detail__detail-modal-chat-reply-button" onClick={handleToggleReplyForm}>답글 달기</div>
           {chat.replies && chat.replies.length > 0 && (
             <div className="task-detail__detail-modal-chat-replies" onClick={() => setIsExpanded(prev => !prev)}>
               <div />
@@ -66,8 +82,23 @@ const ChatItem: React.FC<{
           <span className="task-detail__detail-modal-chat-like-count">{chat.likedUserIds.length}</span>
         </div>
       </div>
+      {isReplying && (
+        <ChatInput taskId={taskId} parentId={chat.chatId} onClose={handleToggleReplyForm}/>
+      )}
       {isExpanded && chat.replies && chat.replies.length > 0 &&
-        (<ChatReply currentUserId={currentUserId} onUpdate={onUpdate} replies={chat.replies} />)}
+        (<div className="task-detail__detail-modal-chat-replies-container"> {/* 답글들을 감싸는 컨테이너 (선택사항) */}
+          {chat.replies.map(reply => (
+            <ChatItem
+              key={reply.chatId}
+              chat={reply}
+              isLikedByCurrentUser={checkIsLikedByCurrentUserForReply(reply.likedUserIds || [])}
+              onUpdate={onUpdate}
+              currentUserId={currentUserId}
+              depth={depth + 1}
+              taskId={taskId}
+            />
+          ))}
+        </div>)}
     </>
   );
 };

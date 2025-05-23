@@ -30,6 +30,7 @@ const ColumnHeader: React.FC<{
   };
   const addBeforeLabel = `왼쪽에 ${viewMode === ViewModes.STATUS ? '상태' : '섹션'}추가`;
   const addAfterLabel = `오른쪽에 ${viewMode === ViewModes.STATUS ? '상태' : '섹션'}추가`;
+
   return (
     <>
       <span className="section-header__title">{columnTitle}</span>

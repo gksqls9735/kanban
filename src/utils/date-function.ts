@@ -19,7 +19,7 @@ export const formatKoreanDateSimple = (date: Date): string => {
   return dateStr;
 };
 
-export const formatDateToYyyyMmDd = (dateInput: Date) => {
+export const formatDateToYyyyMmDd = (dateInput: Date | null) => {
   if (!dateInput) return '';
   const date = new Date(dateInput);
 

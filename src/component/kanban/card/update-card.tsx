@@ -39,12 +39,12 @@ const UpdateCard: React.FC<{
 
   const sortedParticipants = useMemo(() => {
     if (!participants || participants.length === 0) return [];
-    return [...participants].sort((a,b) => {
+    return [...participants].sort((a, b) => {
       if (a.isMain && !b.isMain) return -1;
       if (!a.isMain && b.isMain) return 1;
       return 0;
     });
-  },[participants]);
+  }, [participants]);
 
   const newTaskId = useRef<string>(generateUniqueId('task')).current;
 
@@ -64,6 +64,7 @@ const UpdateCard: React.FC<{
   const handleUpdateTask = () => {
     const taskNameCheck = inputRef.current?.value.trim();
     if (taskNameCheck && startDate && endDate) {
+      const filteredTodos = todos.filter(todo => todo.todoTxt && todo.todoTxt.trim() !== '');
       updateTask(currentTask.taskId, {
         sectionId: selectedSection.sectionId,
         taskName: taskNameCheck,
@@ -71,7 +72,7 @@ const UpdateCard: React.FC<{
         end: endDate,
         priority: selectedPriority,
         status: selectedStatus,
-        todoList: todos,
+        todoList: filteredTodos,
         participants: participants,
       });
       onClose();

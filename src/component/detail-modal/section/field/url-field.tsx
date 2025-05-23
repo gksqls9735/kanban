@@ -23,7 +23,7 @@ const FallbackIcon = (
   </svg>
 );
 
-const UrlField: React.FC<{ urls: UrlData[], taskId: string }> = ({ urls: initialUrls, taskId }) => {
+const UrlField: React.FC<{ urls?: UrlData[], taskId: string }> = ({ urls: initialUrls = [], taskId }) => {
   const updateTask = useTaskStore(state => state.updateTask);
 
   const [combinedItems, setCombinedItems] = useState<CombinedUrlItem[]>([]);
@@ -195,6 +195,7 @@ const UrlField: React.FC<{ urls: UrlData[], taskId: string }> = ({ urls: initial
               </li>
             )
           })}
+          {linksToShow.length === 0 && <li className="task-detail__detail-modal-field-edit-item--no-message">표시할 URL이 없습니다.</li>}
           <ExpandToggle hiddenCount={hiddenCount} toggle={() => setIsExpanded(prev => !prev)} isExpanded={isExpanded} />
         </ul>
         {isInEditMode && (

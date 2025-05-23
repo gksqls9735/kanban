@@ -32,7 +32,7 @@ const DetailTodoItem: React.FC<{
   const checkboxId = `todo-check-${todo.todoId}`;
   return (
     <li className="task-detail__detail-modal-todo-item" style={{ ...style }} ref={setNodeRef} {...attributes}>
-      <DetailTodoHandler listeners={listeners} />
+      <DetailTodoHandler listeners={listeners} isDragging={isDragging}/>
       <div className="task-detail__detail-modal-todo-item-checkbox">
         <div className="task-detail__checkbox-area">
           <input

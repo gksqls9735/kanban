@@ -2,6 +2,8 @@ import { useEffect, useRef } from "react";
 import { Todo } from "../../../types/type";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from '@dnd-kit/utilities';
 
 const EditableTodoItem: React.FC<{
   todo: Todo;
@@ -23,9 +25,28 @@ const EditableTodoItem: React.FC<{
     onChange(todo.todoId, { isCompleted: !todo.isCompleted });
   };
 
+    const {
+      attributes,
+      listeners,
+      setNodeRef,
+      transform,
+      transition,
+      isDragging
+    } = useSortable({ id: todo.todoId });
+  
+    const style = {
+      transform: CSS.Transform.toString(transform),
+      transition,
+      opacity: isDragging ? 0.5 : 1,
+      zIndex: isDragging ? 10 : 'auto',
+    };
+
   return (
     <div
       className="todo-item editable-todo-item"
+      ref={setNodeRef}
+      style={{...style}}
+      {...attributes}
     >
       <div className="todo-item__main">
         <div className="todo-item__checkbox-area">
@@ -53,6 +74,7 @@ const EditableTodoItem: React.FC<{
         </div>
         <div
           className="todo-item__action todo-item__action--drag-handle"
+          {...listeners}
         >
           ⠿
         </div>

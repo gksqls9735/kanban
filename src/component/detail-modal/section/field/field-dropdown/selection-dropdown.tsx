@@ -5,9 +5,10 @@ import useDropdown from "../../../../../hooks/use-dropdown";
 import SelectionCheckBox from "../field-common/selection-checkbox";
 
 const SelectionDropdown: React.FC<{
-
-}> = ({ }) => {
-  const { isOpen, setIsOpen, wrapperRef, dropdownRef, toggle } = useDropdown();
+  onUpdate: (code: string, colorMain: string, colorSub: string) => void;
+  code: string;
+}> = ({ onUpdate, code }) => {
+  const { isOpen, wrapperRef, dropdownRef, toggle } = useDropdown();
   const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number, width?: number, } | null>(null);
   const portalElement = typeof window !== 'undefined' ? document.getElementById('portal-root') : null;
   const [hovered, setHovered] = useState<string>("");
@@ -20,16 +21,16 @@ const SelectionDropdown: React.FC<{
   }, [isOpen]);
 
   const colorList = [
-    { borderColor: '#FFE6EB', backgroundColor: '#FFEFF2', colorName: '분홍색' },
-    { borderColor: '#FFEAD5', backgroundColor: '#FFF6ED', colorName: '주황색' },
-    { borderColor: '#E4F8B4', backgroundColor: '#F5FFDE', colorName: '연두색' },
-    { borderColor: '#D1FADF', backgroundColor: '#ECFDF3', colorName: '초록색' },
-    { borderColor: '#D2FCEE', backgroundColor: '#E6FFF7', colorName: '청록색' },
-    { borderColor: '#F0F9FF', backgroundColor: '#E0F2FE', colorName: '파란색' },
-    { borderColor: '#E4E8EE', backgroundColor: '#F8F9FB', colorName: '회색' },
-    { borderColor: '#D8DCEC', backgroundColor: '#EAECF5', colorName: '남색' },
-    { borderColor: '#E1DDFE', backgroundColor: '#EDE9FE', colorName: '보라색' },
-    { borderColor: '#EFE8D3', backgroundColor: '#F5F3EA', colorName: '황토색' },
+    { colorMain: '#FFE6EB', colorSub: '#FFEFF2', colorName: '분홍색' },
+    { colorMain: '#FFEAD5', colorSub: '#FFF6ED', colorName: '주황색' },
+    { colorMain: '#E4F8B4', colorSub: '#F5FFDE', colorName: '연두색' },
+    { colorMain: '#D1FADF', colorSub: '#ECFDF3', colorName: '초록색' },
+    { colorMain: '#D2FCEE', colorSub: '#E6FFF7', colorName: '청록색' },
+    { colorMain: '#F0F9FF', colorSub: '#E0F2FE', colorName: '파란색' },
+    { colorMain: '#E4E8EE', colorSub: '#F8F9FB', colorName: '회색' },
+    { colorMain: '#D8DCEC', colorSub: '#EAECF5', colorName: '남색' },
+    { colorMain: '#E1DDFE', colorSub: '#EDE9FE', colorName: '보라색' },
+    { colorMain: '#EFE8D3', colorSub: '#F5F3EA', colorName: '황토색' },
   ]
 
   return (
@@ -50,13 +51,15 @@ const SelectionDropdown: React.FC<{
             <div style={{ fontWeight: 600, fontSize: 13, color: '#0F1B2A', height: 36, padding: '0px 12px', display: 'flex', alignItems: 'center' }}>컬러 선택</div>
             {colorList.map(color => (
               <div
+                key={color.colorName}
+                onClick={() => onUpdate(code, color.colorMain, color.colorSub)}
                 onMouseEnter={() => setHovered(color.colorName)} onMouseLeave={() => setHovered('')}
                 style={{
-                  height: 32, gap: 10, boxSizing: 'border-box', display: 'flex', alignItems: 'center', flexWrap: 'nowrap', padding: '0px 8px',
+                  height: 32, gap: 8, boxSizing: 'border-box', display: 'flex', alignItems: 'center', flexWrap: 'nowrap', padding: '0px 8px',
                   backgroundColor: `${hovered === color.colorName ? '#ECFDF3' : ''}`, cursor: 'pointer'
                 }}
               >
-                <SelectionCheckBox width={16} height={16} borderColor={color.borderColor} backgroundColor={color.backgroundColor} />
+                <SelectionCheckBox width={16} height={16} borderColor={color.colorMain} backgroundColor={color.colorSub} />
                 <div style={{ fontSize: 13, fontWeight: 400, whiteSpace: 'nowrap', }}>{color.colorName}</div>
               </div>
             ))}

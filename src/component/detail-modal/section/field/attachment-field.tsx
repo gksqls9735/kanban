@@ -6,12 +6,15 @@ import FieldLabel from "./field-common/field-label";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import useClickOutside from "../../../../hooks/use-click-outside";
+import useTaskStore from "../../../../store/task-store";
 
-const AttachmentField: React.FC<{ attachment: FileAttachment[] }> = ({ attachment }) => {
+const AttachmentField: React.FC<{ attachments?: FileAttachment[], taskId: string }> = ({ attachments = [], taskId }) => {
+  const updateTask = useTaskStore(state => state.updateTask);
+
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
 
-  const attachmentsToShow = isExpanded ? attachment : attachment.slice(0, 3);
-  const hiddenCount = attachment.length - 3;
+  const attachmentsToShow = isExpanded ? attachments : attachments.slice(0, 3);
+  const hiddenCount = attachments.length - 3;
 
   const [isInEditMode, setIsInEditMode] = useState<boolean>(false);
 
@@ -39,6 +42,11 @@ const AttachmentField: React.FC<{ attachment: FileAttachment[] }> = ({ attachmen
 
   useClickOutside(editContainerRef, handleCancel, isInEditMode);
 
+  const handleDeleteFile = (fileId: string) => {
+    const updatedFiles = attachments.filter(file => file.fileId !== fileId);
+    updateTask(taskId, {taskAttachments: updatedFiles});
+  };
+
   return (
     <li className="task-detail__detail-modal-field-item">
       <FieldLabel fieldName="첨부파일" onClick={handleToggleEditMode} />
@@ -65,6 +73,7 @@ const AttachmentField: React.FC<{ attachment: FileAttachment[] }> = ({ attachmen
             </li>
           );
         })}
+        {attachmentsToShow.length === 0 && <li className="task-detail__detail-modal-field-edit-item--no-message">표시할 파일이 없습니다.</li>}
         <ExpandToggle hiddenCount={hiddenCount} toggle={() => setIsExpanded(prev => !prev)} isExpanded={isExpanded} />
       </ul>
       {isInEditMode && (
@@ -72,7 +81,7 @@ const AttachmentField: React.FC<{ attachment: FileAttachment[] }> = ({ attachmen
           <div className="task-detail__detail-modal-field-edit-list-wrapper">
             <ul
               className="kanban-scrollbar-y task-detail__detail-modal-field-edit-url-list">
-              {attachment.map(file => {
+              {attachments.map(file => {
                 const { icon } = getFileTypeInfo(file.fileName, 24);
                 return (
                   <li style={{ display: 'flex', flexDirection: 'column', padding: '0px 12px', height: 40, boxSizing: 'border-box' }}>
@@ -89,7 +98,7 @@ const AttachmentField: React.FC<{ attachment: FileAttachment[] }> = ({ attachmen
                             <path d="M160-120v-80h640v80H160Zm320-160L280-480l56-56 104 104v-408h80v408l104-104 56 56-200 200Z" />
                           </svg>
                         </div>
-                        <div className="todo-item__action todo-item__action--delete" style={{ backgroundColor: '#CDD3DD' }}>
+                        <div className="todo-item__action todo-item__action--delete" style={{ backgroundColor: '#CDD3DD' }} onClick={() => handleDeleteFile(file.fileId)}>
                           <FontAwesomeIcon icon={faTimes} style={{ width: 12, height: 12, color: '#FFFFFF', }} />
                         </div>
                       </div>
@@ -97,6 +106,7 @@ const AttachmentField: React.FC<{ attachment: FileAttachment[] }> = ({ attachmen
                   </li>
                 )
               })}
+              {attachments.length === 0 && <li className="task-detail__detail-modal-field-edit-item--no-message">표시할 파일이 없습니다.</li>}
             </ul>
             <div className="task-detail__detail-modal-field-edit-separator" />
           </div>

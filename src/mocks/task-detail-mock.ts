@@ -98,21 +98,13 @@ export const urls: UrlData[] = [
   },
 ]
 
-export type MeasurementUnit =
-  | '%' | 'cm' | 'm' | 'mm' | 'inch'
-  | 'kg' | 'g' | 'lb'
-  | '$' | '₩' | '€' | '¥'
-  | 's' | 'min' | 'hr'
-  | '°C' | '°F'
-  | 'ml' | 'l';
-
 export const numericExamples: NumericField[] = [
-  { value: 3.4567, unit: '%', decimalPlaces: 2 },
-  { value: 180.25, unit: 'cm', decimalPlaces: 1 },
-  { value: 75.123, unit: '$', decimalPlaces: 1 },
-  { value: 12999.99, unit: '₩', decimalPlaces: 0 },
-  { value: 36.689, unit: '°C', decimalPlaces: 1 },
-  { value: 1.23456, unit: 'l', decimalPlaces: 3 }
+  { value: 3.4567, unit: "퍼센트", decimalPlaces: 2 },
+  { value: 180.25, unit: '숫자', decimalPlaces: 1 },
+  { value: 75.123, unit: '숫자', decimalPlaces: 1 },
+  { value: 12999.99, unit: 'USD', decimalPlaces: 0 },
+  { value: 36.689, unit: 'USD', decimalPlaces: 1 },
+  { value: 1.23456, unit: 'USD', decimalPlaces: 3 }
 ];
 
 export const emails: Email[] = [

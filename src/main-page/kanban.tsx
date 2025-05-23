@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import SectionComponent from "../component/kanban/column/column-list";
+import ColumnList from "../component/kanban/column/column-list";
 import { Chat, Section, SelectOption, Task, User } from "../types/type";
 import { DndContext, DragOverlay, rectIntersection } from "@dnd-kit/core";
 import useViewModeStore from "../store/viewmode-store";
@@ -109,16 +109,19 @@ const Kanban: React.FC<{
 
     return (
       <ToastProvider>
-        <div className="kanban-wrapper" style={{
-          display: 'flex',
-          margin: '0 auto',
-          flexDirection: 'column',
-          paddingLeft: `${isSideMenuOpen === 'hidden' ? '' : isSideMenuOpen === 'expanded' ? '260px' : '86px'}`,
-          paddingTop: 80,
-          width: `${isSideMenuOpen === 'hidden' ? '100%' : isSideMenuOpen === 'expanded' ? 'calc(100vw-260px)' : 'calc(100vw - 86px)'}`,
-          boxSizing: 'border-box',
-          transition: 'padding-left 0.3s ease, width 0.3s ease'
-        }}>
+        <div className="kanban-wrapper"
+          style={{
+            display: 'flex',
+            margin: '0 auto',
+            flexDirection: 'column',
+            paddingLeft: `${isSideMenuOpen === 'hidden' ? '' : isSideMenuOpen === 'expanded' ? '260px' : '86px'}`,
+            paddingTop: 80,
+            width: `${isSideMenuOpen === 'hidden' ? '100%' : isSideMenuOpen === 'expanded' ? 'calc(100vw - 260px)' : 'calc(100vw - 86px)'}`,
+            boxSizing: 'border-box',
+            transition: 'padding-left 0.3s ease, width 0.3s ease',
+            overflow: 'hidden',
+          }}
+        >
           <div onClick={toggleViewMode} style={{
             width: 'fit-content', cursor: 'pointer', marginBottom: '1rem', padding: '8px', border: '1px solid #ccc', display: 'inline-block'
           }}>
@@ -131,11 +134,8 @@ const Kanban: React.FC<{
             onDragEnd={handleDragEnd}
             onDragCancel={handleDragCancel}
           >
-            <div className='kanban kanban-scrollbar-x' style={{ width: '100%', overflowX: 'auto' }}>
-              <SectionComponent
-
-                getSectionName={getSectionName}
-              />
+            <div className='kanban kanban-scrollbar-x' style={{ width: '100%', overflowX: 'auto', minWidth: 0, }}>
+              <ColumnList getSectionName={getSectionName} />
               <DragOverlay>
                 {activeTask ? (
                   <CardWrapper task={activeTask} sectionName={getSectionName(activeTask.sectionId)} isOverlay={true} />

@@ -35,13 +35,8 @@ const useColumnInput = ({
   const handleConfirmClick = useCallback(() => {
     const name = inputRef.current?.value.trim();
     if (name) {
-      if (viewMode === ViewModes.STATUS && ['대기', '진행', '완료'].includes(name) && !initialName) {
-        inputRef.current?.focus();
-        alert(`'${name}'은(는) 예약된 상태명으로 생성할 수 없습니다.`);
-      } else {
-        const colorToSubmit = viewMode === ViewModes.STATUS ? selectedColor : undefined;
-        onSubmit(name, colorToSubmit);
-      }
+      const colorToSubmit = viewMode === ViewModes.STATUS ? selectedColor : undefined;
+      onSubmit(name, colorToSubmit);
     } else {
       inputRef.current?.focus();
     }
@@ -61,10 +56,10 @@ const useColumnInput = ({
     setSelectedColor(color);
   }, []);
 
-return {
-  inputRef, selectedColor, placeholderTxt,
-  handleConfirmClick, handleInputKeyDown, handleColorSelect
-}
+  return {
+    inputRef, selectedColor, placeholderTxt,
+    handleConfirmClick, handleInputKeyDown, handleColorSelect
+  }
 
 };
 
