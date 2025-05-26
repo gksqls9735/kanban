@@ -3,7 +3,6 @@ import { Chat } from "../../../../../types/type";
 import { formatTimeToHHMM } from "../../../../../utils/date-function";
 import { getInitial } from "../../../../../utils/text-function";
 import AvatarItem from "../../../../avatar/avatar";
-import ChatInput from "../chat-input";
 
 const ChatItem: React.FC<{
   chat: Chat;
@@ -12,9 +11,8 @@ const ChatItem: React.FC<{
   currentUserId: string;
   depth?: number;
   taskId: string;
-}> = ({ chat, isLikedByCurrentUser, onUpdate, currentUserId, depth = 0, taskId }) => {
-
-  const [isReplying, setIsReplying] = useState<boolean>(false);
+  handleReplyId: (parentId: string, username: string) => void;
+}> = ({ chat, isLikedByCurrentUser, onUpdate, currentUserId, depth = 0, taskId, handleReplyId }) => {
 
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
 
@@ -39,10 +37,6 @@ const ChatItem: React.FC<{
 
   const checkIsLikedByCurrentUserForReply = (chatLikeList: string[]) => chatLikeList.includes(currentUserId);
 
-  const handleToggleReplyForm = () => {
-    setIsReplying(prev => !prev);
-  };
-
   return (
     <>
       <div className="task-detail__detail-modal-chat-item" style={itemStyle}>
@@ -60,7 +54,7 @@ const ChatItem: React.FC<{
             </div>
           </div>
           <div className="task-detail__detail-modal-chat-text">{chat.chatContent}</div>
-          <div className="task-detail__detail-modal-chat-reply-button" onClick={handleToggleReplyForm}>답글 달기</div>
+          <div className="task-detail__detail-modal-chat-reply-button" onClick={() => handleReplyId(chat.chatId, chat.user.username)}>답글 달기</div>
           {chat.replies && chat.replies.length > 0 && (
             <div className="task-detail__detail-modal-chat-replies" onClick={() => setIsExpanded(prev => !prev)}>
               <div />
@@ -82,9 +76,6 @@ const ChatItem: React.FC<{
           <span className="task-detail__detail-modal-chat-like-count">{chat.likedUserIds.length}</span>
         </div>
       </div>
-      {isReplying && (
-        <ChatInput taskId={taskId} parentId={chat.chatId} onClose={handleToggleReplyForm}/>
-      )}
       {isExpanded && chat.replies && chat.replies.length > 0 &&
         (<div className="task-detail__detail-modal-chat-replies-container"> {/* 답글들을 감싸는 컨테이너 (선택사항) */}
           {chat.replies.map(reply => (
@@ -96,6 +87,7 @@ const ChatItem: React.FC<{
               currentUserId={currentUserId}
               depth={depth + 1}
               taskId={taskId}
+              handleReplyId={handleReplyId}
             />
           ))}
         </div>)}

@@ -12,7 +12,6 @@ import { getFileTypeInfo } from "../../common/file-icon";
 
 // 임시 파일 업로드 함수 (실제로는 서버 API 호출)
 const uploadFileToServer = async (file: File): Promise<FileAttachment> => {
-  console.log(`Uploading ${file.name}...`);
   await new Promise(resolve => setTimeout(resolve, 1000));
   return {
     fileId: generateUniqueId('file'),
@@ -23,8 +22,8 @@ const uploadFileToServer = async (file: File): Promise<FileAttachment> => {
 };
 
 const ChatInput: React.FC<{
-  taskId: string; parentId?: string | null; onClose?: () => void;
-}> = ({ taskId, parentId, onClose }) => {
+  taskId: string; parentChat?: { parentId: string, username: string } | null; onClose?: () => void;
+}> = ({ taskId, parentChat, onClose }) => {
   const addChatToTask = useChatStore(state => state.addChatToTask);
   const currentUser = useUserStore(state => state.currentUser)!;
 
@@ -92,7 +91,7 @@ const ChatInput: React.FC<{
     const newChat: Chat = {
       chatId: generateUniqueId('chat'),
       taskId: taskId,
-      parentChatId: parentId ?? null,
+      parentChatId: parentChat?.parentId ?? null,
       chatContent: chatContent,
       user: currentUser,
       createdAt: new Date(),
@@ -101,7 +100,7 @@ const ChatInput: React.FC<{
       replies: [],
     }
     addChatToTask(taskId, newChat);
-    if (parentId && onClose) {
+    if (parentChat?.parentId && onClose) {
       onClose();
     }
     if (textInputRef.current) {
@@ -124,7 +123,13 @@ const ChatInput: React.FC<{
   };
 
   return (
-    <div className={`task-detail__detail-modal-chat-input-area ${parentId ? 'task-detail__detail-modal-chat-input-area--reply' : ''}`} style={{ flexDirection: 'column' }}>
+    <div className="task-detail__detail-modal-chat-input-area">
+      {parentChat && (
+        <div className="task-detail__detail-modal-chat-input-area--reply">
+          <span>{parentChat.username}님에게 답글 달기</span>
+          <span onClick={onClose}>취소</span>
+        </div>
+      )}
       <div style={{ display: 'flex', gap: 6, alignItems: 'flex-start' /* 아이콘과 textarea 정렬 */ }}>
         <AvatarItem fontSize={22} isOverflow={true} size={40} isFirst={false}>{getInitial(currentUser.username)}</AvatarItem>
         <div className="task-detail__detail-modal-chat-input-wrapper">

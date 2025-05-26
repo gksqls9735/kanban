@@ -41,6 +41,10 @@
 
 /* 헤더 */
 .kanban .task-detail__detail-modal-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: white;
   width: 100%;
   height: 56px;
   padding: 0px 30px;
@@ -48,6 +52,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  border-bottom: 1px solid #EEF1F6;
 }
 
 .kanban .task-detail__detail-modal-close-button {
@@ -1031,7 +1036,7 @@
   margin-bottom: 20px;
 }
 
-.kanban .task-detail__detail-modal-chat-list > .task-detail__detail-modal-chat-item:last-child {
+.kanban .task-detail__detail-modal-chat-list>.task-detail__detail-modal-chat-item:last-child {
   margin-bottom: 0px;
 }
 
@@ -1118,28 +1123,50 @@
 /* 작업 채팅 입력 */
 .kanban .task-detail__detail-modal-chat-input-area {
   display: flex;
+  flex-direction: column;
+  position: sticky;
+  bottom: 0;
+  right: 0;
+  width: 720px;
+  background-color: white;
+  z-index: 1001;
+  box-sizing: border-box;
   gap: 10px;
-  border-top: 1px solid #EEF1F6;
   padding: 20px 30px;
 }
 
 .kanban .task-detail__detail-modal-chat-input-area--reply {
-  border: none;
-  padding-left: 48px;
-  padding-top: 0px;
-  padding-bottom: 0px;
-  margin-bottom: 20px;
+  position: absolute;
+  left: 0px;
+  bottom: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding: 0px 16px;
+  background-color: white;
+  font-size: 12px;
+  border-top: 1px solid #E4E8EE;
+  color: #414D5C;
+}
+
+.kanban .task-detail__detail-modal-chat-input-area--reply>span:last-child {
+  cursor: pointer;
 }
 
 /* 기존 CSS */
 .kanban .task-detail__detail-modal-chat-input-wrapper {
   display: flex;
   /* align-items: center; /* textarea 높이가 가변적이므로 center보다는 flex-start 또는 flex-end가 나을 수 있음 */
-  align-items: flex-end; /* 아이콘을 하단에 맞추려면 */
+  align-items: flex-end;
+  /* 아이콘을 하단에 맞추려면 */
   width: 100%;
-  min-height: 40px; /* 최소 높이 유지 */
-  padding: 8px 12px; /* 패딩 조정 (textarea는 기본 패딩이 다를 수 있음) */
-  border-radius: 20px; /* 이전 24px보다 조금 줄여봄, 취향에 맞게 조절 */
+  min-height: 40px;
+  /* 최소 높이 유지 */
+  padding: 8px 12px;
+  /* 패딩 조정 (textarea는 기본 패딩이 다를 수 있음) */
+  border-radius: 20px;
+  /* 이전 24px보다 조금 줄여봄, 취향에 맞게 조절 */
   background-color: #F8F9FB;
   box-sizing: border-box;
 }
@@ -1147,41 +1174,49 @@
 /* input[type="text"] 대신 textarea로 변경 */
 .kanban .task-detail__detail-modal-chat-input-wrapper {
   display: flex;
-  align-items: center; /* << --- 다시 center로 시도하거나, flex-start 유지하고 textarea 패딩 조절 */
+  align-items: center;
+  /* << --- 다시 center로 시도하거나, flex-start 유지하고 textarea 패딩 조절 */
   width: 100%;
   min-height: 40px;
-  padding: 0 12px; /* wrapper의 좌우 패딩 */
+  padding: 0 12px;
+  /* wrapper의 좌우 패딩 */
   border-radius: 20px;
   background-color: #F8F9FB;
   box-sizing: border-box;
 }
 
-.kanban .task-detail__detail-modal-chat-input-wrapper > textarea {
+.kanban .task-detail__detail-modal-chat-input-wrapper>textarea {
   font-size: 14px;
   font-weight: 400;
-  line-height: 1.4; /* 이 값을 font-size에 가깝게 조절해보세요 (예: 1.2 또는 1) */
+  line-height: 1.4;
+  /* 이 값을 font-size에 가깝게 조절해보세요 (예: 1.2 또는 1) */
   flex-grow: 1;
   border: none;
   outline: none;
   background-color: transparent;
   resize: none;
-  padding: 8px 0; /* << --- textarea의 상하 패딩을 조절하여 수직 위치 조정 */
-                  /* 예: min-height 40px일 때 (40 - (14*1.4)) / 2 = 약 10px. padding: 10px 0; */
+  padding: 8px 0;
+  /* << --- textarea의 상하 패딩을 조절하여 수직 위치 조정 */
+  /* 예: min-height 40px일 때 (40 - (14*1.4)) / 2 = 약 10px. padding: 10px 0; */
   margin: 0;
   /* 한 줄일 때 placeholder가 잘 보이도록 box-sizing도 고려 */
-  box-sizing: border-box; /* textarea에도 box-sizing 적용 */
+  box-sizing: border-box;
+  /* textarea에도 box-sizing 적용 */
   /* max-height: 100px; */
   /* overflow-y: auto; */
 }
 
-.kanban .task-detail__detail-modal-chat-input-wrapper > textarea::placeholder {
+.kanban .task-detail__detail-modal-chat-input-wrapper>textarea::placeholder {
   color: #5F6B7A;
 }
 
 .kanban .task-detail__detail-modal-chat-input-attach-icon {
-  width: 20px; /* 아이콘 크기 */
-  height: 20px; /* 아이콘 크기 */
-  margin-left: 8px; /* textarea와의 간격 */
+  width: 20px;
+  /* 아이콘 크기 */
+  height: 20px;
+  /* 아이콘 크기 */
+  margin-left: 8px;
+  /* textarea와의 간격 */
   color: #5F6B7A;
   cursor: pointer;
   /* align-self: center; /* wrapper가 align-items: center이면 아이콘도 중앙 정렬됨 */

@@ -7,7 +7,8 @@ const EMPTY_CHATS: Chat[] = [];
 const ChatList: React.FC<{
   currentUser: User;
   taskId: string;
-}> = ({ currentUser, taskId }) => {
+  handleReplyId: (parentId: string, username: string) => void;
+}> = ({ currentUser, taskId, handleReplyId }) => {
   const isLikedByCurrentUser = (chatLikeList: string[]) => chatLikeList.includes(currentUser.id);
 
   const chats = useChatStore(s => s.chatsByTask[taskId] || EMPTY_CHATS);
@@ -28,6 +29,7 @@ const ChatList: React.FC<{
             onUpdate={handleUpdateChat}
             currentUserId={currentUser.id}
             taskId={taskId}
+            handleReplyId={handleReplyId}
           />
         ))}
         {chats.length === 0 && <div className="task-detail__detail-modal-field-edit-item--no-message">채팅 내역이 존재하지 않습니다.</div>}

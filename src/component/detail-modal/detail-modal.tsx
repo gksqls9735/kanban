@@ -22,9 +22,9 @@ import IdField from "./section/field/id-field";
 import EmailField from "./section/field/email-field";
 import UserField from "./section/field/user-field";
 import DetailTodoList from "./section/detail-todo/detail-todo-list";
+import useTaskStore from "../../store/task-store";
 import ChatList from "./section/chat/chat-list/chat-list";
 import ChatInput from "./section/chat/chat-input";
-import useTaskStore from "../../store/task-store";
 
 const DetailModal: React.FC<{
   task: Task;
@@ -36,19 +36,19 @@ const DetailModal: React.FC<{
   const currentUser = useUserStore(state => state.currentUser);
   const tasksFromStore = useTaskStore(state => state.allTasks);
 
-const currentTask = useMemo(() => {
-  const task = tasksFromStore.find(t => t.taskId === initialTaskFromProp.taskId) || initialTaskFromProp;
-  return {
-    ...task,
-    urls: task.urls || [], 
-    memo: task.memo || "",
-    taskAttachments: task.taskAttachments || [],
-    multiSelection: task.multiSelection || [],
-    singleSelection: task.singleSelection || [],
-    emails: task.emails || [],
-    prefix: task.prefix || "",
-  };
-}, [tasksFromStore, initialTaskFromProp]);
+  const currentTask = useMemo(() => {
+    const task = tasksFromStore.find(t => t.taskId === initialTaskFromProp.taskId) || initialTaskFromProp;
+    return {
+      ...task,
+      urls: task.urls || [],
+      memo: task.memo || "",
+      taskAttachments: task.taskAttachments || [],
+      multiSelection: task.multiSelection || [],
+      singleSelection: task.singleSelection || [],
+      emails: task.emails || [],
+      prefix: task.prefix || "",
+    };
+  }, [tasksFromStore, initialTaskFromProp]);
 
   const [selectedSection, setSelectedSection] = useState<Section>(() => {
     return sections.find(sec => sec.sectionId === currentTask.sectionId) || sections[0];
@@ -72,6 +72,17 @@ const currentTask = useMemo(() => {
 
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
 
+  const [reply, setReply] = useState<{ parentId: string; username: string; } | null>(null);
+
+  const handleCancelReply = () => {
+    setReply(null);
+  };
+
+  const handleReplyId = (parentId: string, username: string) => {
+    setReply({ parentId, username });
+  };
+
+
   useEffect(() => {
     setSelectedSection(sections.find(sec => sec.sectionId === currentTask.sectionId) || sections[0]);
     setSelectedPriority(currentTask.priority || priorityMedium);
@@ -83,12 +94,12 @@ const currentTask = useMemo(() => {
 
   const visibleFieldComponents = useMemo(() => {
     const allFields = [
-      <UrlField key="url" urls={currentTask.urls} taskId={currentTask.taskId}/>,
-      <MultiSelection key="multi" options={currentTask.multiSelection} taskId={currentTask.taskId}/>,
-      <AttachmentField key="attach" attachments={currentTask.taskAttachments} taskId={currentTask.taskId}/> ,
-      <SingleSelection key="single" options={currentTask.singleSelection} taskId={currentTask.taskId}/>,
+      <UrlField key="url" urls={currentTask.urls} taskId={currentTask.taskId} />,
+      <MultiSelection key="multi" options={currentTask.multiSelection} taskId={currentTask.taskId} />,
+      <AttachmentField key="attach" attachments={currentTask.taskAttachments} taskId={currentTask.taskId} />,
+      <SingleSelection key="single" options={currentTask.singleSelection} taskId={currentTask.taskId} />,
       <TextField key="text" text={currentTask.memo} />,
-      <NumericFieldComponent key="num" numericField={currentTask.numericField} taskId={currentTask.taskId}/>,
+      <NumericFieldComponent key="num" numericField={currentTask.numericField} taskId={currentTask.taskId} />,
       <IdField key="id" prefix={currentTask.prefix} taskId={currentTask.taskId} />,
       <EmailField key="email" emails={currentTask.emails} taskId={currentTask.taskId} />,
       <UserField key="user" users={currentTask.participants} taskId={currentTask.taskId} />,
@@ -117,8 +128,8 @@ const currentTask = useMemo(() => {
   return (
     <div className="task-detail__detail-modal-overlay" onClick={(e) => { e.stopPropagation(); onClose(e); }} role="dialog" aria-modal="true" aria-labelledby="modal-title">
       <div className="task-detail__detail-modal-wrapper" onClick={(e) => e.stopPropagation()}>
+        <DetailHeader onClose={onClose} openDeleteModal={openDeleteModal} />
         <div className="task-detail__detail-modal-content">
-          <DetailHeader onClose={onClose} openDeleteModal={openDeleteModal} />
 
           {/** 작업 설명(TITLE) */}
           <div className="task-detail__detail-modal-section">
@@ -171,11 +182,11 @@ const currentTask = useMemo(() => {
 
           {/** 작업 할 일 목록 */}
           <DetailTodoList initialTodoList={currentTodoList} setInitialTodoList={setCurrentTodoList} taskId={currentTask.taskId} />
-
-          {/** 채팅 */}
-          <ChatList currentUser={currentUser!} taskId={currentTask.taskId} />
-          <ChatInput taskId={currentTask.taskId} />
+          
+          {/** 채팅팅 */}
+          <ChatList currentUser={currentUser!} taskId={currentTask.taskId} handleReplyId={handleReplyId} />
         </div>
+        <ChatInput taskId={currentTask.taskId} parentChat={reply} onClose={handleCancelReply} />
       </div>
       {
         isOpenParticipantModal && (
