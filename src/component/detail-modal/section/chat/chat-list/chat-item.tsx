@@ -9,7 +9,7 @@ import useChatStore from "../../../../../store/chat-store";
 const ChatItem: React.FC<{
   chat: Chat;
   isLikedByCurrentUser: boolean;
-  onUpdate: (chatId: string, update: Partial<Chat>, parentId: string | null) => void;
+  onUpdate: (chatId: string, update: Partial<Chat>) => void;
   currentUserId: string;
   depth?: number;
   taskId: string;
@@ -32,7 +32,7 @@ const ChatItem: React.FC<{
     } else {
       newLikedUserIds = [...currentLikedUserIds, currentUserId];
     }
-    onUpdate(chat.chatId, { likedUserIds: newLikedUserIds }, chat.parentChatId);
+    onUpdate(chat.chatId, { likedUserIds: newLikedUserIds });
   };
 
   const itemStyle = useMemo(() => ({
