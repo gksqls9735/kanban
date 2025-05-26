@@ -35,93 +35,89 @@ const DetailModal: React.FC<{
   const statusList = useStatusesStore(state => state.statusList);
   const currentUser = useUserStore(state => state.currentUser);
   const tasksFromStore = useTaskStore(state => state.allTasks);
+  const updateTask = useTaskStore(state => state.updateTask);
 
   const currentTask = useMemo(() => {
-    const task = tasksFromStore.find(t => t.taskId === initialTaskFromProp.taskId) || initialTaskFromProp;
+    const taskFromStore = tasksFromStore.find(t => t.taskId === initialTaskFromProp.taskId);
+    const taskToUse = taskFromStore || initialTaskFromProp;
     return {
-      ...task,
-      urls: task.urls || [],
-      memo: task.memo || "",
-      taskAttachments: task.taskAttachments || [],
-      multiSelection: task.multiSelection || [],
-      singleSelection: task.singleSelection || [],
-      emails: task.emails || [],
-      prefix: task.prefix || "",
+      ...taskToUse,
+      participants: taskToUse.participants || [],
+      todoList: taskToUse.todoList || [],
+      urls: taskToUse.urls || [],
+      memo: taskToUse.memo || "",
+      taskAttachments: taskToUse.taskAttachments || [],
+      multiSelection: taskToUse.multiSelection || [],
+      singleSelection: taskToUse.singleSelection || [],
+      emails: taskToUse.emails || [],
+      prefix: taskToUse.prefix || "",
+      priority: taskToUse.priority || priorityMedium,
+      importance: taskToUse.importance || 0,
+      status: statusList.find(s => s.code === taskToUse.status?.code) || taskToUse.status || statusList[0],
     };
-  }, [tasksFromStore, initialTaskFromProp]);
+  }, [tasksFromStore, initialTaskFromProp, statusList]);
 
-  const [selectedSection, setSelectedSection] = useState<Section>(() => {
-    return sections.find(sec => sec.sectionId === currentTask.sectionId) || sections[0];
-  });
-  const [selectedPriority, setSelectedPriority] = useState<SelectOption>(currentTask.priority || priorityMedium);
-  const [selectedStatus, setSelectedStatus] = useState(() => {
-    return statusList.find(status => status.code === currentTask.status.code) || statusList[0];
-  });
-  const [currentImportance, setCurrentImportance] = useState<number>(currentTask.importance || 0);
   const [isOpenParticipantModal, setIsOpenParticipantModal] = useState<boolean>(false);
-  const [currentTodoList, setCurrentTodoList] = useState<Todo[]>(currentTask.todoList);
-  const [participants, setParticipants] = useState<Participant[]>(currentTask.participants || []);
+  const [isExpanded, setIsExpanded] = useState<boolean>(false);
+  const [reply, setReply] = useState<{ parentId: string; username: string; } | null>(null);
+
+  // 현재 작업 값 설정
+  const derivedSelectedSection = useMemo(() => {
+    return sections.find(sec => sec.sectionId === currentTask.sectionId) || sections[0];
+  }, [sections, currentTask.sectionId]);
+
+  const derivedSelectedPriority = useMemo(() => {
+    return prioritySelect.find(p => p.code === currentTask.priority.code) || currentTask.priority || prioritySelect[0];
+  }, [currentTask.priority]);
+
+  const derivedSelectedStatus = useMemo(() => {
+    return statusList.find(s => s.code === currentTask.status.code) || currentTask.status || statusList[0];
+  }, [statusList, currentTask.status]);
+
+
+  // 어차피 메인은 한명이기 때문에 다 sort로 하는것보다는 isMain하나만 앞에 두고 나머지를 뒤에 추가하는게?
   const sortedParticipants = useMemo(() => {
-    if (!participants || participants.length === 0) return [];
-    return [...participants].sort((a, b) => {
+    if (!currentTask.participants || currentTask.participants.length === 0) return [];
+    return [...currentTask.participants].sort((a, b) => {
       if (a.isMain && !b.isMain) return -1;
       if (!a.isMain && b.isMain) return 1;
       return 0;
     });
-  }, [participants]);
+  }, [currentTask.participants]);
 
-  const [isExpanded, setIsExpanded] = useState<boolean>(false);
-
-  const [reply, setReply] = useState<{ parentId: string; username: string; } | null>(null);
-
-  const handleCancelReply = () => {
-    setReply(null);
-  };
-
-  const handleReplyId = (parentId: string, username: string) => {
-    setReply({ parentId, username });
-  };
-
-  useEffect(() => {
-    setSelectedSection(sections.find(sec => sec.sectionId === currentTask.sectionId) || sections[0]);
-    setSelectedPriority(currentTask.priority || priorityMedium);
-    setSelectedStatus(statusList.find(status => status.code === currentTask.status.code) || statusList[0]);
-    setCurrentImportance(currentTask.importance || 0);
-    setParticipants(currentTask.participants || []);
-    setCurrentTodoList(currentTask.todoList || []);
-  }, [currentTask, sections, statusList]);
-
-
-  const isTaskOnwer = currentTask.taskOwner.id === currentUser?.id;
-
-  const isOwnerOrParticipant = isTaskOnwer ||
+  const isOwnerOrParticipant = currentTask.taskOwner.id === currentUser?.id ||
     currentTask.participants.some(p => p.id === currentUser?.id);
+
+  // 답글 설정
+  const handleCancelReply = () => setReply(null);
+  const handleReplyId = (parentId: string, username: string) => setReply({ parentId, username });
+
+  // 값 업데이트
+  const handleSectionChange = (section: Section) => updateTask(currentTask.taskId, { sectionId: section.sectionId });
+  const handleParticipantsUpdate = (newParticipants: Participant[]) => updateTask(currentTask.taskId, { participants: newParticipants });
+  const handleDeleteParticipant = (userId: string | number) => {
+    const updatedParticipants = (currentTask.participants || []).filter(u => u.id !== userId);
+    updateTask(currentTask.taskId, { participants: updatedParticipants });
+  };
+  const handlePriorityChange = (priority: SelectOption) => updateTask(currentTask.taskId, { priority: priority });
+  const handleStatusChange = (status: SelectOption) => updateTask(currentTask.taskId, { status: status });
+  const handleImportanceValueChange = (newImportance: number) => updateTask(currentTask.taskId, { importance: newImportance });
+  const handleTodoListUpdate = (updatedTodoList: Todo[]) => updateTask(currentTask.taskId, { todoList: updatedTodoList });
 
   const visibleFieldComponents = useMemo(() => {
     const allFields = [
-      <UrlField key="url" urls={currentTask.urls} taskId={currentTask.taskId} isOwnerOrParticipant={isOwnerOrParticipant}/>,
-      <MultiSelection key="multi" options={currentTask.multiSelection} taskId={currentTask.taskId} isOwnerOrParticipant={isOwnerOrParticipant}/>,
-      <AttachmentField key="attach" attachments={currentTask.taskAttachments} taskId={currentTask.taskId} isOwnerOrParticipant={isOwnerOrParticipant}/>,
-      <SingleSelection key="single" options={currentTask.singleSelection} taskId={currentTask.taskId} isOwnerOrParticipant={isOwnerOrParticipant}/>,
-      <TextField key="text" text={currentTask.memo} isOwnerOrParticipant={isOwnerOrParticipant}/>,
-      <NumericFieldComponent key="num" numericField={currentTask.numericField} taskId={currentTask.taskId} isOwnerOrParticipant={isOwnerOrParticipant}/>,
-      <IdField key="id" prefix={currentTask.prefix} taskId={currentTask.taskId} isOwnerOrParticipant={isOwnerOrParticipant}/>,
-      <EmailField key="email" emails={currentTask.emails} taskId={currentTask.taskId} isOwnerOrParticipant={isOwnerOrParticipant}/>,
-      <UserField key="user" users={currentTask.participants} taskId={currentTask.taskId} isOwnerOrParticipant={isOwnerOrParticipant}/>,
+      <UrlField key="url" urls={currentTask.urls} taskId={currentTask.taskId} isOwnerOrParticipant={isOwnerOrParticipant} />,
+      <MultiSelection key="multi" options={currentTask.multiSelection} taskId={currentTask.taskId} isOwnerOrParticipant={isOwnerOrParticipant} />,
+      <AttachmentField key="attach" attachments={currentTask.taskAttachments} taskId={currentTask.taskId} isOwnerOrParticipant={isOwnerOrParticipant} />,
+      <SingleSelection key="single" options={currentTask.singleSelection} taskId={currentTask.taskId} isOwnerOrParticipant={isOwnerOrParticipant} />,
+      <TextField key="text" text={currentTask.memo} isOwnerOrParticipant={isOwnerOrParticipant} />,
+      <NumericFieldComponent key="num" numericField={currentTask.numericField} taskId={currentTask.taskId} isOwnerOrParticipant={isOwnerOrParticipant} />,
+      <IdField key="id" prefix={currentTask.prefix} taskId={currentTask.taskId} isOwnerOrParticipant={isOwnerOrParticipant} />,
+      <EmailField key="email" emails={currentTask.emails} taskId={currentTask.taskId} isOwnerOrParticipant={isOwnerOrParticipant} />,
+      <UserField key="user" users={currentTask.participants} taskId={currentTask.taskId} isOwnerOrParticipant={isOwnerOrParticipant} />,
     ].filter(Boolean);
     return isExpanded ? allFields : allFields.slice(0, 3);
-  }, [currentTask, isExpanded]);
-
-  const handleSectionSelect = (section: Section) => setSelectedSection(section);
-  const handleParticipants = (newParticipants: Participant[]) => setParticipants(newParticipants);
-  const handleDeleteParticipants = (userId: string | number) => {
-    const updatedParticipants = participants.filter(u => u.id !== userId);
-    setParticipants(updatedParticipants);
-  };
-
-  const handlePrioritySelect = (priority: SelectOption) => setSelectedPriority(priority);
-  const handleStatusSelect = (status: SelectOption) => setSelectedStatus(status);
-  const handleImportanceChange = (newImportance: number) => setCurrentImportance(newImportance);
+  }, [currentTask, isExpanded, isOpenParticipantModal]);
 
   useEffect(() => {
     document.body.style.overflow = 'hidden';
@@ -133,12 +129,12 @@ const DetailModal: React.FC<{
   return (
     <div className="task-detail__detail-modal-overlay" onClick={(e) => { e.stopPropagation(); onClose(e); }} role="dialog" aria-modal="true" aria-labelledby="modal-title">
       <div className="task-detail__detail-modal-wrapper" onClick={(e) => e.stopPropagation()}>
-        <DetailHeader onClose={onClose} openDeleteModal={openDeleteModal} isOwnerOrParticipant={isOwnerOrParticipant}/>
+        <DetailHeader onClose={onClose} openDeleteModal={openDeleteModal} isOwnerOrParticipant={isOwnerOrParticipant} />
         <div className="task-detail__detail-modal-content kanban-scrollbar-y ">
 
           {/** 작업 설명(TITLE) */}
           <div className="task-detail__detail-modal-section">
-            <SectionSelector selectedSection={selectedSection} onSectionSelect={handleSectionSelect} isOwnerOrParticipant={isOwnerOrParticipant}/>
+            <SectionSelector selectedSection={derivedSelectedSection} onSectionSelect={handleSectionChange} isOwnerOrParticipant={isOwnerOrParticipant} />
             <div className="task-detail__detail-modal-title-info-name">{currentTask.taskName}</div>
             <div className="task-detail__detail-modal-title-info-name-description">{currentTask.memo}</div>
           </div>
@@ -149,7 +145,7 @@ const DetailModal: React.FC<{
 
             <ParticipantsField
               participants={sortedParticipants}
-              onDeleteParticipant={handleDeleteParticipants}
+              onDeleteParticipant={handleDeleteParticipant}
               onAddParticipantClick={() => setIsOpenParticipantModal(true)}
               isOwnerOrParticipant={isOwnerOrParticipant}
             />
@@ -159,15 +155,15 @@ const DetailModal: React.FC<{
 
             <div className="task-detail__detail-modal-info-row">
               <div className="task-detail__detail-modal-info-value--select-option">우선순위</div>
-              <OptionSelector options={prioritySelect} selectedOption={selectedPriority} onSelect={handlePrioritySelect} isOwnerOrParticipant={isOwnerOrParticipant}/>
+              <OptionSelector options={prioritySelect} selectedOption={derivedSelectedPriority} onSelect={handlePriorityChange} isOwnerOrParticipant={isOwnerOrParticipant} />
             </div>
 
             <div className="task-detail__detail-modal-info-row">
               <div className="task-detail__detail-modal-info-value--select-option">상태</div>
-              <OptionSelector options={statusList} selectedOption={selectedStatus} onSelect={handleStatusSelect} isOwnerOrParticipant={isOwnerOrParticipant}/>
+              <OptionSelector options={statusList} selectedOption={derivedSelectedStatus} onSelect={handleStatusChange} isOwnerOrParticipant={isOwnerOrParticipant} />
             </div>
 
-            <ImportanceField initialValue={currentImportance} onChange={handleImportanceChange} isOwnerOrParticipant={isOwnerOrParticipant} />
+            <ImportanceField initialValue={currentTask.importance} onChange={handleImportanceValueChange} isOwnerOrParticipant={isOwnerOrParticipant} />
 
           </div>
 
@@ -187,7 +183,7 @@ const DetailModal: React.FC<{
           </div>
 
           {/** 작업 할 일 목록 */}
-          <DetailTodoList initialTodoList={currentTodoList} setInitialTodoList={setCurrentTodoList} taskId={currentTask.taskId} isOwnerOrParticipant={isOwnerOrParticipant}/>
+          <DetailTodoList initialTodoList={currentTask.todoList || []} onTodoListUpdate={handleTodoListUpdate} taskId={currentTask.taskId} isOwnerOrParticipant={isOwnerOrParticipant} />
 
           {/** 채팅팅 */}
           <ChatList currentUser={currentUser!} taskId={currentTask.taskId} handleReplyId={handleReplyId} />
@@ -197,7 +193,7 @@ const DetailModal: React.FC<{
       {
         isOpenParticipantModal && (
           <ParticipantSelector
-            initialParticipants={participants} onClose={() => setIsOpenParticipantModal(false)} onConfirm={handleParticipants}
+            initialParticipants={currentTask.participants || []} onClose={() => setIsOpenParticipantModal(false)} onConfirm={handleParticipantsUpdate}
           />)
       }
     </div>

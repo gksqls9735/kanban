@@ -18,10 +18,10 @@ export interface CombinedTodoItem { // 인터페이스 정의
 }
 const DetailTodoList: React.FC<{
   initialTodoList: Todo[];
-  setInitialTodoList: (list: Todo[]) => void;
+  onTodoListUpdate: (list: Todo[]) => void;
   taskId: string;
   isOwnerOrParticipant: boolean;
-}> = ({ initialTodoList, setInitialTodoList, taskId, isOwnerOrParticipant }) => {
+}> = ({ initialTodoList, onTodoListUpdate, taskId, isOwnerOrParticipant }) => {
   const currentUser = useUserStore(state => state.currentUser);
   const [combinedItems, setCombinedItems] = useState<CombinedTodoItem[]>([]);
 
@@ -67,7 +67,7 @@ const DetailTodoList: React.FC<{
       ...todo, order: idx,
     }));
 
-    setInitialTodoList(updatedList);
+    onTodoListUpdate(updatedList);
   };
 
   const handleAddNewItemField = () => {
@@ -103,7 +103,7 @@ const DetailTodoList: React.FC<{
     };
 
     // 부모에게 전달달
-    setInitialTodoList([...initialTodoList, newTodo]);
+    onTodoListUpdate([...initialTodoList, newTodo]);
 
     // isNew였던 임시 항복 제거 새로 추가된 Todo를 isNew: false인 combinedItems로 반영
     // useEffect에서 initialTodoList 변경 시 combinedItems가 재구성되므로 임시항목만 제거
@@ -127,13 +127,13 @@ const DetailTodoList: React.FC<{
 
   // 기존 항목 삭제
   const handleDeleteExistingTodo = (todoId: string) => {
-    setInitialTodoList(initialTodoList.filter(todo => todo.todoId !== todoId));
+    onTodoListUpdate(initialTodoList.filter(todo => todo.todoId !== todoId));
   };
 
   // 기존 항목 완료 / 미완료 토글 
   const handleCompleteExistingTodo = (todoId: string) => {
     if (!isOwnerOrParticipant) return;
-    setInitialTodoList(
+    onTodoListUpdate(
       initialTodoList.map(todo =>
         todo.todoId === todoId ? { ...todo, isCompleted: !todo.isCompleted } : todo
       )
