@@ -1133,6 +1133,10 @@
   color: #A8B1BD;
 }
 
+.kanban .comment-dropdown-item:hover {
+  background-color: #ECFDF3;
+}
+
 .kanban .task-detail__detail-modal-chat-text {
   font-weight: 400;
   font-size: 14px;

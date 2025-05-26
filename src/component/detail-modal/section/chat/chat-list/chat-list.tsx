@@ -8,14 +8,15 @@ const ChatList: React.FC<{
   currentUser: User;
   taskId: string;
   handleReplyId: (parentId: string, username: string) => void;
-}> = ({ currentUser, taskId, handleReplyId }) => {
+  onStartEditComment: (chatToEdit: Chat) => void;
+}> = ({ currentUser, taskId, handleReplyId, onStartEditComment }) => {
   const isLikedByCurrentUser = (chatLikeList: string[]) => chatLikeList.includes(currentUser.id);
 
   const chats = useChatStore(s => s.chatsByTask[taskId] || EMPTY_CHATS);
   const updateChat = useChatStore(s => s.updateChat);
 
   const handleUpdateChat = (chatId: string, update: Partial<Chat>, parentId: string | null) => {
-    updateChat(taskId, parentId, chatId, update);
+    updateChat(taskId, chatId, update);
   };
 
   return (
@@ -32,6 +33,7 @@ const ChatList: React.FC<{
                 currentUserId={currentUser.id}
                 taskId={taskId}
                 handleReplyId={handleReplyId}
+                onStartEdit={onStartEditComment}
               />
             ))}
           </div>

@@ -6,7 +6,7 @@ interface ChatState {
   setAllTaskChats: (allChatsData: Record<string, Chat[]>) => void;
   setChatsForTask: (taskId: string, chats: Chat[]) => void;
   addChatToTask: (taskId: string, chat: Chat) => void;
-  updateChat: (taskId: string, parentChatId: string | null, targetChatId: string, patch: Partial<Chat>) => void;
+  updateChat: (taskId: string, targetChatId: string, patch: Partial<Chat>) => void;
   deleteChat: (taskId: string, chatId: string) => void;
 }
 
@@ -59,52 +59,94 @@ const useChatStore = create<ChatState>((set, _get) => ({
       };
     });
   },
-  updateChat: (taskId: string, parentChatId: string | null, targetChatId: string, patch: Partial<Chat>) =>
+
+  updateChat: (taskId: string, targetChatId: string, patch: Partial<Chat>) =>
     set((state) => {
       const taskChats = state.chatsByTask[taskId];
       if (!taskChats) return state;
 
-      const updatedTaskChats = taskChats.map(chat => {
-        // 1. 최상위 채팅 자체가 업데이트 대상인 경우 (parentChatId === null)
-        if (parentChatId === null && chat.chatId === targetChatId) {
-          return { ...chat, ...patch };
-        }
+      const precessAndUpdateChats = (currentChats: Chat[], idToUpdate: string, patchData: Partial<Chat>,
+      ): { updatedChats: Chat[], changed: boolean } => {
+        let hasChangedInThisLevel = false;
 
-        // 2. 최상위 채팅의 답글(ChatReply가 다루는 replies)이 업데이트 대상인 경우
-        if (chat.chatId === parentChatId && chat.replies) { // parentChatId는 이 chat의 ID
-          const updatedReplies = chat.replies.map(reply => {
-            if (reply.chatId === targetChatId) { // targetChatId는 이 reply의 ID
-              return { ...reply, ...patch }; // ★★★ 새로운 답글 객체로 교체
-            }
-            // 2-1. 답글의 답글이 업데이트 대상인 경우 (재귀적으로 처리 필요)
-            // 이 부분은 ChatReply가 또 다른 ChatReply를 렌더링하는 경우에 해당
-            if (reply.replies && reply.replies.length > 0) {
-              // 여기서 재귀 함수를 호출하거나, updateChat을 다시 호출하는 로직 필요
-              // (이 예시에서는 한 단계 답글만 고려)
-              // const updatedSubReplies = updateNestedReplies(reply.replies, targetChatId, patch);
-              // return { ...reply, replies: updatedSubReplies };
-            }
-            return reply;
-          });
-          return { ...chat, replies: updatedReplies };
-        }
-        return chat;
-      });
+        const mappedChats = currentChats.map(chat => {
+          if (chat.chatId === idToUpdate) {
+            hasChangedInThisLevel = true;
+            return { ...chat, ...patchData };
+          }
 
-      return {
-        chatsByTask: {
-          ...state.chatsByTask,
-          [taskId]: updatedTaskChats,
-        },
+          if (chat.replies && chat.replies.length > 0) {
+            const result = precessAndUpdateChats(chat.replies, idToUpdate, patchData);
+            if (result.changed) {
+              hasChangedInThisLevel = true;
+              return { ...chat, replies: result.updatedChats };
+            }
+          }
+
+          return chat;
+        });
+
+        if (hasChangedInThisLevel) {
+          return { updatedChats: mappedChats, changed: true };
+        } else {
+          return { updatedChats: currentChats, changed: false };
+        }
       };
+
+      const result = precessAndUpdateChats(taskChats, targetChatId, patch);
+
+      if (result.changed) {
+        return {
+          chatsByTask: {
+            ...state.chatsByTask,
+            [taskId]: result.updatedChats,
+          }
+        };
+      }
+
+      return state;
     }),
+
   deleteChat: (taskId, chatId) =>
-    set((s) => ({
-      chatsByTask: {
-        ...s.chatsByTask,
-        [taskId]: s.chatsByTask[taskId].filter((c) => c.chatId !== chatId),
-      },
-    })),
+    set((state) => {
+      const taskChats = state.chatsByTask[taskId];
+      if (!taskChats) return state;
+
+      // 재귀적으로 채팅 삭제
+      // 삭제 대상이 아닌 경우 chat, 삭제 대상이면 null 반환
+      const transformOrRemoveRecursive = (chats: Chat[], idToDelete: string): Chat[] => {
+        return chats.map(chat => {
+          // 현재 chat이 삭제 대상인지 확인
+          if (chat.chatId === idToDelete) return null;
+
+          // 현재 chat이 삭제 대상이 아니고 답글이 있는 경우 답글 처리
+          if (chat.replies && chat.replies.length > 0) {
+            const updatedReplies = transformOrRemoveRecursive(chat.replies, idToDelete);
+
+            // 답글 목록에 변화 확인
+            if (updatedReplies.length !== (chat.replies).length ||
+              updatedReplies.some((reply, index) => reply !== (chat.replies as Chat[])[index])) {
+              return { ...chat, replies: updatedReplies };
+            }
+          }
+          return chat;
+        }).filter(chat => chat !== null) as Chat[];
+      };
+
+      const updatedTaskChats = transformOrRemoveRecursive(taskChats, chatId);
+
+      // 실제로 변경이 있었는지 확인 (선택적 최적화)
+      if (updatedTaskChats.length !== taskChats.length ||
+        updatedTaskChats.some((chat, index) => chat !== taskChats[index])) {
+        return {
+          chatsByTask: {
+            ...state.chatsByTask,
+            [taskId]: updatedTaskChats,
+          },
+        };
+      }
+      return state;
+    }),
 }));
 
 export default useChatStore;

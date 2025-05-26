@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import AvatarItem from "../../../avatar/avatar";
 import { generateUniqueId, getInitial } from "../../../../utils/text-function";
 import { Chat, FileAttachment } from "../../../../types/type";
-import { ChangeEvent, useRef, useState, KeyboardEvent } from "react"; // KeyboardEvent 임포트
+import { ChangeEvent, useRef, useState, KeyboardEvent, useEffect } from "react"; // KeyboardEvent 임포트
 import useChatStore from "../../../../store/chat-store";
 import useUserStore from "../../../../store/user-store";
 import { getFileTypeInfo } from "../../common/file-icon";
@@ -22,14 +22,37 @@ const uploadFileToServer = async (file: File): Promise<FileAttachment> => {
 };
 
 const ChatInput: React.FC<{
-  taskId: string; parentChat?: { parentId: string, username: string } | null; onClose?: () => void;
-}> = ({ taskId, parentChat, onClose }) => {
+  taskId: string;
+  parentChat?: { parentId: string, username: string } | null;
+  onClose?: () => void;
+  editingChat?: { chatId: string, content: string, parentChatId: string | null } | null;
+  onFinishEdit?: () => void;
+}> = ({ taskId, parentChat, onClose, editingChat, onFinishEdit }) => {
   const addChatToTask = useChatStore(state => state.addChatToTask);
+  const updateChat = useChatStore(state => state.updateChat);
   const currentUser = useUserStore(state => state.currentUser)!;
 
   const textInputRef = useRef<HTMLTextAreaElement>(null); // HTMLTextAreaElement로 변경
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFilesForUpload, setSelectedFilesForUpload] = useState<File[]>([]);
+
+  // 중복 제출 방지
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
+  // 수정보드일때 textarea 초기값 설정
+  useEffect(() => {
+    if (editingChat && textInputRef.current) {
+      textInputRef.current.value = editingChat.content;
+      handleTextAreaInput({ currentTarget: textInputRef.current } as React.FormEvent<HTMLTextAreaElement>);
+      textInputRef.current.focus();
+    } else if (!editingChat && textInputRef.current) {
+      textInputRef.current.value = "";
+    }
+  }, [editingChat]);
+
+  useEffect(() => {
+    if (parentChat && textInputRef.current) textInputRef.current.focus();
+  }, [parentChat]);
 
   const handleIconClick = () => {
     fileInputRef.current?.click();
@@ -37,89 +60,124 @@ const ChatInput: React.FC<{
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
-      setSelectedFilesForUpload(prevFiles => [...prevFiles, ...Array.from(event.target.files!)]);
+      setSelectedFilesForUpload(prev => [...prev, ...Array.from(event.target.files!)]);
       event.target.value = '';
     }
   };
 
+
   const handleSubmit = async (
-    // KeyboardEvent의 타입을 HTMLTextAreaElement로 명시
     e: KeyboardEvent<HTMLTextAreaElement> | React.MouseEvent<HTMLButtonElement>
   ) => {
+    if (isSubmitting) return; // 이미 제출 중이면 반환
+
+    const processSubmit = async () => {
+      setIsSubmitting(true);
+      const chatContent = textInputRef.current?.value.trim() || "";
+
+      // 수정 모드가 아니고, 내용과 파일 모두 없을 때 (새 댓글)
+      if (!editingChat && !chatContent && selectedFilesForUpload.length === 0) {
+        setIsSubmitting(false);
+        return;
+      }
+      // 수정 모드이고, 내용과 파일 모두 없을 때 (기존 내용 다 지우고 파일도 없을 때)
+      // 이 경우는 허용할 수도, 막을 수도 있음 (정책에 따라)
+      // 여기서는 일단 내용이 있어야 수정 가능하다고 가정 (파일은 선택사항)
+      if (editingChat && !chatContent && selectedFilesForUpload.length === 0) {
+        setIsSubmitting(false);
+        if (textInputRef.current) textInputRef.current.focus();
+        return;
+      }
+
+
+      let uploadedAttachments: FileAttachment[] = [];
+      if (selectedFilesForUpload.length > 0) {
+        // 파일 업로드는 수정 시에도 새로 추가되는 파일에 대해서만 처리
+        // 기존 첨부파일을 유지/삭제하는 로직은 더 복잡해지므로 여기서는 새 파일 추가만 고려
+        for (const file of selectedFilesForUpload) {
+          try {
+            const attachment = await uploadFileToServer(file);
+            uploadedAttachments.push(attachment);
+          } catch (error) {
+            console.error("File upload failed:", error);
+          }
+        }
+      }
+
+      if (editingChat) {
+        // 수정 모드
+        const updatePayload: Partial<Chat> = { chatContent };
+        if (uploadedAttachments.length > 0) {
+          // 기존 첨부파일에 새 첨부파일을 추가하는 방식 (정책에 따라 다를 수 있음)
+          // Chat 타입에 attachments가 FileAttachment[] | undefined 등으로 되어있어야 함
+          // updatePayload.attachments = [...(chatToEdit.attachments || []), ...uploadedAttachments];
+          // 여기서는 간단하게 새로 업로드된 파일만 반영 (기존 파일은 유지된다고 가정, 스토어 로직에서 처리)
+          updatePayload.attachments = uploadedAttachments; // 또는 기존것과 합치는 로직
+        }
+        updateChat(taskId, editingChat.chatId, updatePayload);
+        if (onFinishEdit) {
+          onFinishEdit();
+        }
+      } else {
+        // 새 댓글 모드
+        const newChat: Chat = {
+          chatId: generateUniqueId('chat'),
+          taskId: taskId,
+          parentChatId: parentChat?.parentId ?? null,
+          chatContent: chatContent,
+          user: currentUser,
+          createdAt: new Date(),
+          likedUserIds: [],
+          attachments: uploadedAttachments,
+          replies: [],
+        };
+        addChatToTask(taskId, newChat);
+        if (parentChat?.parentId && onClose) {
+          onClose(); // 답글 입력창 닫기
+        }
+      }
+
+      // 입력 필드 초기화
+      if (textInputRef.current) {
+        textInputRef.current.value = "";
+        textInputRef.current.style.height = 'auto';
+      }
+      setSelectedFilesForUpload([]);
+      setIsSubmitting(false);
+    };
+
+
     if (e.type === 'keydown') {
       const keyboardEvent = e as KeyboardEvent<HTMLTextAreaElement>;
       if (keyboardEvent.nativeEvent.isComposing) {
+        setIsSubmitting(false);
         return;
       }
-
-      // Enter만 눌렀을 때 (Shift + Enter가 아닐 때) 제출
       if (keyboardEvent.key === 'Enter' && !keyboardEvent.shiftKey) {
-        e.preventDefault(); // Enter 키의 기본 동작(줄바꿈)을 막고 제출 처리
-        // 제출 로직 진행
+        e.preventDefault();
+        await processSubmit();
       } else if (keyboardEvent.key === 'Enter' && keyboardEvent.shiftKey) {
-        // Shift + Enter는 기본 동작(줄바꿈)을 허용하므로 아무것도 하지 않음
+        setIsSubmitting(false);
         return;
       } else if (keyboardEvent.key !== 'Enter') {
-        // Enter 키가 아닌 다른 키 입력은 무시
+        setIsSubmitting(false);
         return;
       }
     } else if (e.type === 'click') {
-      // 클릭 이벤트의 경우 항상 제출 (버튼 클릭 시)
       e.preventDefault();
+      await processSubmit();
     }
-
-
-    const chatContent = textInputRef.current?.value.trim() || "";
-
-    if (!chatContent && selectedFilesForUpload.length === 0) {
-      console.log("Chat content and files are empty");
-      return;
-    }
-
-    let uploadedAttachments: FileAttachment[] = [];
-    if (selectedFilesForUpload.length > 0) {
-      for (const file of selectedFilesForUpload) {
-        try {
-          const attachment = await uploadFileToServer(file);
-          uploadedAttachments.push(attachment);
-        } catch (error) {
-          console.error("File upload failed:", error);
-        }
-      }
-    }
-
-    const newChat: Chat = {
-      chatId: generateUniqueId('chat'),
-      taskId: taskId,
-      parentChatId: parentChat?.parentId ?? null,
-      chatContent: chatContent,
-      user: currentUser,
-      createdAt: new Date(),
-      likedUserIds: [],
-      attachments: uploadedAttachments,
-      replies: [],
-    }
-    addChatToTask(taskId, newChat);
-    if (parentChat?.parentId && onClose) {
-      onClose();
-    }
-    if (textInputRef.current) {
-      textInputRef.current.value = "";
-      // 필요하다면 textarea 높이 초기화 로직 추가
-      textInputRef.current.style.height = 'auto'; // 예시: 높이 초기화
-    }
-    setSelectedFilesForUpload([]);
   };
 
-  const handleDelete = (name: string) => {
+
+  const handleDeleteFile = (name: string) => { // 함수 이름 변경
     setSelectedFilesForUpload(prev => prev.filter(file => file.name !== name));
   }
 
-  // textarea 높이 자동 조절 (선택 사항)
   const handleTextAreaInput = (event: React.FormEvent<HTMLTextAreaElement>) => {
     const textarea = event.currentTarget;
-    textarea.style.height = 'auto'; // 높이를 auto로 설정하여 scrollHeight를 정확히 계산
-    textarea.style.height = `${textarea.scrollHeight}px`; // scrollHeight만큼 높이 설정
+    textarea.style.height = 'auto';
+    textarea.style.height = `${textarea.scrollHeight}px`;
   };
 
   return (
@@ -141,6 +199,7 @@ const ChatInput: React.FC<{
             rows={1} // 초기 줄 수 (CSS로 min-height 설정하는 것이 더 좋을 수 있음)
             style={{ overflowY: 'hidden' }} // 내용이 적을 때 스크롤바 숨김 (선택 사항)
           />
+          <div onClick={onFinishEdit}>취소</div>
           <input
             type="file"
             ref={fileInputRef}
@@ -162,7 +221,7 @@ const ChatInput: React.FC<{
                 <div className="task-detail__detail-modal-field-value-item-attachment-link truncate">
                   {icon}
                   <div className="truncate task-detail__detail-modal-field-value-item-attachment-name">{file.name}</div>
-                  <div className="task-detail__detail-modal-field-value-item-attachment-download" onClick={() => handleDelete(file.name)} style={{ cursor: 'pointer' }}>
+                  <div className="task-detail__detail-modal-field-value-item-attachment-download" onClick={() => handleDeleteFile(file.name)} style={{ cursor: 'pointer' }}>
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="-0.5 -0.5 16 16" fill="#8D99A8" stroke="#000000" strokeLinecap="round" strokeLinejoin="round" className="feather feather-x" id="X--Streamline-Feather" height="16" width="16">
                       <desc>X Streamline Icon: https://streamlinehq.com</desc>
                       <path d="M11.25 3.75 3.75 11.25" strokeWidth="1"></path>

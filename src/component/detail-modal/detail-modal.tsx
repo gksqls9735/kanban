@@ -1,4 +1,4 @@
-import { Participant, Section, SelectOption, Task, Todo } from "../../types/type";
+import { Chat, Participant, Section, SelectOption, Task, Todo } from "../../types/type";
 import { useEffect, useMemo, useState } from "react";
 import useSectionsStore from "../../store/sections-store";
 import SectionSelector from "../kanban/new-card/section-selector";
@@ -60,6 +60,9 @@ const DetailModal: React.FC<{
   const [isOpenParticipantModal, setIsOpenParticipantModal] = useState<boolean>(false);
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
   const [reply, setReply] = useState<{ parentId: string; username: string; } | null>(null);
+  const [editingChatInfo, setEditingChatInfo] = useState<{
+    chatId: string; content: string; parentChatId: string | null; taskId: string;
+  } | null>(null);
 
   // 현재 작업 값 설정
   const derivedSelectedSection = useMemo(() => {
@@ -90,7 +93,26 @@ const DetailModal: React.FC<{
 
   // 답글 설정
   const handleCancelReply = () => setReply(null);
-  const handleReplyId = (parentId: string, username: string) => setReply({ parentId, username });
+  const handleReplyId = (parentId: string, username: string) => {
+    setReply({ parentId, username });
+    if (editingChatInfo) setEditingChatInfo(null);
+  }
+
+  // ChatItem에서 수정 시작 시 호출 될 함수
+  const handleStartEditComment = (chatToEdit: Chat) => {
+    setEditingChatInfo({
+      chatId: chatToEdit.chatId,
+      content: chatToEdit.chatContent,
+      parentChatId: chatToEdit.parentChatId,
+      taskId: chatToEdit.taskId,
+    });
+    if (reply) setReply(null);
+  };
+
+  const handleChatEditFinish = () => {
+    setEditingChatInfo(null);
+  };
+
 
   // 값 업데이트
   const handleSectionChange = (section: Section) => updateTask(currentTask.taskId, { sectionId: section.sectionId });
@@ -186,9 +208,11 @@ const DetailModal: React.FC<{
           <DetailTodoList initialTodoList={currentTask.todoList || []} onTodoListUpdate={handleTodoListUpdate} taskId={currentTask.taskId} isOwnerOrParticipant={isOwnerOrParticipant} />
 
           {/** 채팅팅 */}
-          <ChatList currentUser={currentUser!} taskId={currentTask.taskId} handleReplyId={handleReplyId} />
+          <ChatList currentUser={currentUser!} taskId={currentTask.taskId} handleReplyId={handleReplyId} onStartEditComment={handleStartEditComment} />
         </div>
-        <ChatInput taskId={currentTask.taskId} parentChat={reply} onClose={handleCancelReply} />
+        <ChatInput
+          taskId={currentTask.taskId} parentChat={reply} onClose={handleCancelReply}
+          editingChat={editingChatInfo} onFinishEdit={handleChatEditFinish} />
       </div>
       {
         isOpenParticipantModal && (
