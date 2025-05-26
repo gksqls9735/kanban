@@ -10,7 +10,7 @@ import useClickOutside from "../../../../hooks/use-click-outside";
 import FieldFooter from "./field-common/field-footer";
 import useTaskStore from "../../../../store/task-store";
 
-const UserField: React.FC<{ users: Participant[], taskId: string }> = ({ users, taskId }) => {
+const UserField: React.FC<{ users: Participant[], taskId: string, isOwnerOrParticipant: boolean }> = ({ users, taskId, isOwnerOrParticipant }) => {
   const updateTask = useTaskStore(state => state.updateTask);
 
   const [isInEditMode, setIsInEditMode] = useState<boolean>(false);
@@ -65,16 +65,18 @@ const UserField: React.FC<{ users: Participant[], taskId: string }> = ({ users, 
                       <AvatarItem size={24}>{getInitial(u.username)}</AvatarItem>
                       <div className="task-detail__detail-modal-field-edit-user-name">{u.username}</div>
                     </div>
-                    <div className="todo-item__action todo-item__action--delete" onClick={() => handleDeleteParticipants(u.id)}>
-                      <FontAwesomeIcon icon={faTimes} className="task-detail__detail-modal-field-edit-item--delete" />
-                    </div>
+                    {isOwnerOrParticipant && (
+                      <div className="todo-item__action todo-item__action--delete" onClick={() => handleDeleteParticipants(u.id)}>
+                        <FontAwesomeIcon icon={faTimes} className="task-detail__detail-modal-field-edit-item--delete" />
+                      </div>
+                    )}
                   </li>
                 ))}
                 {users.length === 0 && (<li className="task-detail__detail-modal-field-edit-item--no-message">표시할 사용자가 없습니다.</li>)}
               </ul>
-              <div className="task-detail__detail-modal-field-edit-separator" />
+              {isOwnerOrParticipant && (<div className="task-detail__detail-modal-field-edit-separator" />)}
             </div>
-            <FieldFooter title="사용자 수정" isPlusIcon={true} onClick={() => setIsOpenEdit(prev => !prev)} />
+            {isOwnerOrParticipant && (<FieldFooter title="사용자 수정" isPlusIcon={true} onClick={() => setIsOpenEdit(prev => !prev)} />)}
           </div>
         )}
       </li>

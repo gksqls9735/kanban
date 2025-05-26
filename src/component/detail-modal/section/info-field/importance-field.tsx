@@ -4,10 +4,12 @@ import { useImportanceSlider } from "../../../../hooks/use-importance-slider";
 const ImportanceField: React.FC<{
   initialValue: number;
   onChange: (value: number) => void;
-}> = ({ initialValue, onChange: parentOnChange }) => {
+  isOwnerOrParticipant: boolean;
+}> = ({ initialValue, onChange: parentOnChange, isOwnerOrParticipant }) => {
   const trackRef = useRef<HTMLDivElement>(null);
   const [currentValue, setCurrentValue] = useState<number>(initialValue);
-  const { onMouseDownHandler, isDragging } = useImportanceSlider({
+
+  const { onMouseDownHandler: hookMouseDownHandler, isDragging } = useImportanceSlider({
     trackRef,
     value: currentValue,
     onChange: setCurrentValue,
@@ -22,8 +24,11 @@ const ImportanceField: React.FC<{
   }, [initialValue]);
 
   useEffect(() => {
-    if (currentValue !== initialValue) parentOnChange(currentValue);
-  }, [currentValue, parentOnChange, initialValue]);
+    if (isOwnerOrParticipant && currentValue !== initialValue) parentOnChange(currentValue);
+  }, [currentValue, parentOnChange, initialValue, isOwnerOrParticipant]);
+
+  const actualMouseDownHandler = isOwnerOrParticipant ? hookMouseDownHandler : undefined;
+  const cursorStyle = isOwnerOrParticipant ? (isDragging ? 'grabbing' : 'grab') : 'default';
 
   return (
     <div className="task-detail__detail-modal-info-row task-detail__detail-modal-info-row--weight">
@@ -43,8 +48,8 @@ const ImportanceField: React.FC<{
           {['0%', '25%', '50%', '75%', '100%'].map((leftPosition, index) => (
             <div key={index} className="task-detail__detail-modal-info-weight-tick" style={{ left: leftPosition }} />
           ))}
-          <div className="task-detail__detail-modal-info-weight-handler" onMouseDown={onMouseDownHandler}
-            style={{ left: `${handlerLeftPercent}%`, cursor: `${isDragging ? 'grabbing' : 'grab'}` }} />
+          <div className="task-detail__detail-modal-info-weight-handler" onMouseDown={actualMouseDownHandler}
+            style={{ left: `${handlerLeftPercent}%`, cursor: cursorStyle }} />
         </div>
         <div className="task-detail__detail-modal-info-weight-labels">
           {[

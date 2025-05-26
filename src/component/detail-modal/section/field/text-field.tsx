@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import FieldLabel from "./field-common/field-label";
 import useClickOutside from "../../../../hooks/use-click-outside";
 
-const TextField: React.FC<{ text?: string }> = ({ text }) => {
+const TextField: React.FC<{ text?: string, isOwnerOrParticipant: boolean; }> = ({ text, isOwnerOrParticipant }) => {
 
   const [isInEditMode, setIsInEditMode] = useState<boolean>(false);
   const [_isOpenEdit, setIsOpenEdit] = useState<boolean>(false);

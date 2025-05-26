@@ -82,7 +82,6 @@ const DetailModal: React.FC<{
     setReply({ parentId, username });
   };
 
-
   useEffect(() => {
     setSelectedSection(sections.find(sec => sec.sectionId === currentTask.sectionId) || sections[0]);
     setSelectedPriority(currentTask.priority || priorityMedium);
@@ -92,17 +91,23 @@ const DetailModal: React.FC<{
     setCurrentTodoList(currentTask.todoList || []);
   }, [currentTask, sections, statusList]);
 
+
+  const isTaskOnwer = currentTask.taskOwner.id === currentUser?.id;
+
+  const isOwnerOrParticipant = isTaskOnwer ||
+    currentTask.participants.some(p => p.id === currentUser?.id);
+
   const visibleFieldComponents = useMemo(() => {
     const allFields = [
-      <UrlField key="url" urls={currentTask.urls} taskId={currentTask.taskId} />,
-      <MultiSelection key="multi" options={currentTask.multiSelection} taskId={currentTask.taskId} />,
-      <AttachmentField key="attach" attachments={currentTask.taskAttachments} taskId={currentTask.taskId} />,
-      <SingleSelection key="single" options={currentTask.singleSelection} taskId={currentTask.taskId} />,
-      <TextField key="text" text={currentTask.memo} />,
-      <NumericFieldComponent key="num" numericField={currentTask.numericField} taskId={currentTask.taskId} />,
-      <IdField key="id" prefix={currentTask.prefix} taskId={currentTask.taskId} />,
-      <EmailField key="email" emails={currentTask.emails} taskId={currentTask.taskId} />,
-      <UserField key="user" users={currentTask.participants} taskId={currentTask.taskId} />,
+      <UrlField key="url" urls={currentTask.urls} taskId={currentTask.taskId} isOwnerOrParticipant={isOwnerOrParticipant}/>,
+      <MultiSelection key="multi" options={currentTask.multiSelection} taskId={currentTask.taskId} isOwnerOrParticipant={isOwnerOrParticipant}/>,
+      <AttachmentField key="attach" attachments={currentTask.taskAttachments} taskId={currentTask.taskId} isOwnerOrParticipant={isOwnerOrParticipant}/>,
+      <SingleSelection key="single" options={currentTask.singleSelection} taskId={currentTask.taskId} isOwnerOrParticipant={isOwnerOrParticipant}/>,
+      <TextField key="text" text={currentTask.memo} isOwnerOrParticipant={isOwnerOrParticipant}/>,
+      <NumericFieldComponent key="num" numericField={currentTask.numericField} taskId={currentTask.taskId} isOwnerOrParticipant={isOwnerOrParticipant}/>,
+      <IdField key="id" prefix={currentTask.prefix} taskId={currentTask.taskId} isOwnerOrParticipant={isOwnerOrParticipant}/>,
+      <EmailField key="email" emails={currentTask.emails} taskId={currentTask.taskId} isOwnerOrParticipant={isOwnerOrParticipant}/>,
+      <UserField key="user" users={currentTask.participants} taskId={currentTask.taskId} isOwnerOrParticipant={isOwnerOrParticipant}/>,
     ].filter(Boolean);
     return isExpanded ? allFields : allFields.slice(0, 3);
   }, [currentTask, isExpanded]);
@@ -129,11 +134,11 @@ const DetailModal: React.FC<{
     <div className="task-detail__detail-modal-overlay" onClick={(e) => { e.stopPropagation(); onClose(e); }} role="dialog" aria-modal="true" aria-labelledby="modal-title">
       <div className="task-detail__detail-modal-wrapper" onClick={(e) => e.stopPropagation()}>
         <DetailHeader onClose={onClose} openDeleteModal={openDeleteModal} />
-        <div className="task-detail__detail-modal-content">
+        <div className="task-detail__detail-modal-content kanban-scrollbar-y ">
 
           {/** 작업 설명(TITLE) */}
           <div className="task-detail__detail-modal-section">
-            <SectionSelector selectedSection={selectedSection} onSectionSelect={handleSectionSelect} />
+            <SectionSelector selectedSection={selectedSection} onSectionSelect={handleSectionSelect} isOwnerOrParticipant={isOwnerOrParticipant}/>
             <div className="task-detail__detail-modal-title-info-name">{currentTask.taskName}</div>
             <div className="task-detail__detail-modal-title-info-name-description">{currentTask.memo}</div>
           </div>
@@ -153,15 +158,15 @@ const DetailModal: React.FC<{
 
             <div className="task-detail__detail-modal-info-row">
               <div className="task-detail__detail-modal-info-value--select-option">우선순위</div>
-              <OptionSelector options={prioritySelect} selectedOption={selectedPriority} onSelect={handlePrioritySelect} />
+              <OptionSelector options={prioritySelect} selectedOption={selectedPriority} onSelect={handlePrioritySelect} isOwnerOrParticipant={isOwnerOrParticipant}/>
             </div>
 
             <div className="task-detail__detail-modal-info-row">
               <div className="task-detail__detail-modal-info-value--select-option">상태</div>
-              <OptionSelector options={statusList} selectedOption={selectedStatus} onSelect={handleStatusSelect} />
+              <OptionSelector options={statusList} selectedOption={selectedStatus} onSelect={handleStatusSelect} isOwnerOrParticipant={isOwnerOrParticipant}/>
             </div>
 
-            <ImportanceField initialValue={currentImportance} onChange={handleImportanceChange} />
+            <ImportanceField initialValue={currentImportance} onChange={handleImportanceChange} isOwnerOrParticipant={isOwnerOrParticipant} />
 
           </div>
 
@@ -182,7 +187,7 @@ const DetailModal: React.FC<{
 
           {/** 작업 할 일 목록 */}
           <DetailTodoList initialTodoList={currentTodoList} setInitialTodoList={setCurrentTodoList} taskId={currentTask.taskId} />
-          
+
           {/** 채팅팅 */}
           <ChatList currentUser={currentUser!} taskId={currentTask.taskId} handleReplyId={handleReplyId} />
         </div>

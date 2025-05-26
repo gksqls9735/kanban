@@ -14,7 +14,8 @@ import OptionList from "./field-common/option/option-list";
 const MultiSelection: React.FC<{
   options?: SelectableOption[];
   taskId: string;
-}> = ({ options: initialOptions = [], taskId }) => {
+  isOwnerOrParticipant: boolean;
+}> = ({ options: initialOptions = [], taskId, isOwnerOrParticipant }) => {
   const updateTask = useTaskStore(state => state.updateTask);
 
   const [combinedItems, setCombinedItems] = useState<CombinedOptionItem[]>([]);
@@ -125,6 +126,7 @@ const MultiSelection: React.FC<{
   };
 
   const handleChangeSelect = (clickedOption: CombinedOptionItem) => {
+    if (!isOwnerOrParticipant) return;
     setCombinedItems(prevItems =>
       prevItems.map(item =>
         item.code === clickedOption.code
@@ -172,16 +174,16 @@ const MultiSelection: React.FC<{
                         />
                         <label htmlFor={`checkbox-${option.code}`} className="participant-modal__checkbox--visual" />
                       </div>
-                      <div onClick={() => handleChangeSelect(option)} style={{cursor: 'pointer'}}>
-                      <OptionItem option={option} />
+                      <div onClick={() => handleChangeSelect(option)} style={{ cursor: 'pointer' }}>
+                        <OptionItem option={option} />
                       </div>
                     </li>
                   ))}
                   {combinedItems.length === 0 && <li className="task-detail__detail-modal-field-edit-item--no-message">표시할 옵션이 없습니다.</li>}
                 </ul>
-                <div className="task-detail__detail-modal-field-edit-separator" />
+                {isOwnerOrParticipant && (<div className="task-detail__detail-modal-field-edit-separator" />)}
               </div>
-              <FieldFooter title="옵션 수정" isPlusIcon={false} onClick={() => setIsOpenEdit(true)} isShowButton={true} onSave={handleSaveOptions} />
+              {isOwnerOrParticipant && (<FieldFooter title="옵션 수정" isPlusIcon={false} onClick={() => setIsOpenEdit(true)} isShowButton={true} onSave={handleSaveOptions} />)}
             </>
           )}
         </div>

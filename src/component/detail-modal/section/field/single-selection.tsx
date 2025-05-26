@@ -17,7 +17,7 @@ export interface CombinedOptionItem {
   isSelected: boolean;
 }
 
-const SingleSelection: React.FC<{ options?: SelectableOption[], taskId: string }> = ({ options: initialOptions = [], taskId }) => {
+const SingleSelection: React.FC<{ options?: SelectableOption[], taskId: string, isOwnerOrParticipant: boolean }> = ({ options: initialOptions = [], taskId, isOwnerOrParticipant }) => {
   const updateTask = useTaskStore(state => state.updateTask);
 
   // initialOptions가 비어있거나 isSelected인 항목이 없을 경우 null로 초기화
@@ -80,6 +80,7 @@ const SingleSelection: React.FC<{ options?: SelectableOption[], taskId: string }
   useClickOutside(editContainerRef, handleCancel, isInEditMode);
 
   const handleOption = (option: SelectableOption) => {
+    if (!isOwnerOrParticipant) return;
     setCurrentOption(option);
   };
 
@@ -165,7 +166,7 @@ const SingleSelection: React.FC<{ options?: SelectableOption[], taskId: string }
           {isOpenEdit ? ( // 이 부분은 옵션 자체를 관리(추가/삭제/이름변경 등)하는 UI로 보입니다.
             <>
               <div className="task-detail__detail-modal-field-edit-list-wrapper">
-                <OptionList options={combinedItems} onUpdate={handleUpdateOption} onDelete={handleDeleteOption} onColorUpdate={handleUpdateColor} onOrderChange={handleOrderChange}/>
+                <OptionList options={combinedItems} onUpdate={handleUpdateOption} onDelete={handleDeleteOption} onColorUpdate={handleUpdateColor} onOrderChange={handleOrderChange} />
                 <div className="task-detail__detail-modal-field-edit-separator" />
               </div>
               <FieldFooter title="옵션 추가" isPlusIcon={true} onClick={handleAddNewForm} handleCancel={handleCancel} isShowButton={true} onSave={handleSaveOptions} />
@@ -193,9 +194,9 @@ const SingleSelection: React.FC<{ options?: SelectableOption[], taskId: string }
                     </li>
                   )}
                 </ul>
-                <div className="task-detail__detail-modal-field-edit-separator" />
+                {isOwnerOrParticipant && (<div className="task-detail__detail-modal-field-edit-separator" />)}
               </div>
-              <FieldFooter title="옵션 목록" isPlusIcon={false} onClick={() => setIsOpenEdit(true)} handleCancel={handleCancel} isShowButton={true} onSave={handleSaveOptionSelect} />
+              {isOwnerOrParticipant && (<FieldFooter title="옵션 목록" isPlusIcon={false} onClick={() => setIsOpenEdit(true)} handleCancel={handleCancel} isShowButton={true} onSave={handleSaveOptionSelect} />)}
             </>
           )}
         </div>

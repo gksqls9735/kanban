@@ -118,7 +118,7 @@ const UpdateCard: React.FC<{
   return (
     <div ref={cardRef} className="edit-task-content" style={{ display: 'contents' }}>
 
-      <SectionSelector selectedSection={selectedSection} onSectionSelect={handleSectionSelect} />
+      <SectionSelector selectedSection={selectedSection} onSectionSelect={handleSectionSelect} isOwnerOrParticipant={true}/>
 
       <input
         type="text"
@@ -132,8 +132,8 @@ const UpdateCard: React.FC<{
 
       <div className="card-meta">
         <div className="card-priority-status">
-          <OptionSelector options={prioritySelect} selectedOption={selectedPriority} onSelect={handlePrioritySelect} />
-          <OptionSelector options={statusList} selectedOption={selectedStatus} onSelect={handleStatusSelect} />
+          <OptionSelector options={prioritySelect} selectedOption={selectedPriority} onSelect={handlePrioritySelect} isOwnerOrParticipant={true}/>
+          <OptionSelector options={statusList} selectedOption={selectedStatus} onSelect={handleStatusSelect} isOwnerOrParticipant={true}/>
         </div>
       </div>
 

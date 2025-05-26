@@ -15,7 +15,7 @@ interface CombinedEmailItem {
   isNew: boolean;
 }
 
-const EmailField: React.FC<{ emails?: Email[], taskId: string }> = ({ emails: initialEmails = [], taskId }) => {
+const EmailField: React.FC<{ emails?: Email[], taskId: string, isOwnerOrParticipant: boolean }> = ({ emails: initialEmails = [], taskId, isOwnerOrParticipant }) => {
   const updateTask = useTaskStore(state => state.updateTask);
 
   const [combinedItems, setCombinedItems] = useState<CombinedEmailItem[]>([]);
@@ -224,9 +224,9 @@ const EmailField: React.FC<{ emails?: Email[], taskId: string }> = ({ emails: in
                   ))}
                   {initialEmails.length === 0 && <li className="task-detail__detail-modal-field-edit-item--no-message">표시할 이메일이 없습니다.</li>}
                 </ul>
-                <div className="task-detail__detail-modal-field-edit-separator" />
+                {isOwnerOrParticipant && (<div className="task-detail__detail-modal-field-edit-separator" />)}
               </div>
-              <FieldFooter title="이메일 수정" isPlusIcon={false} onClick={() => { setIsOpenEdit(true); setErrors({}); }} />
+              {isOwnerOrParticipant && (<FieldFooter title="이메일 수정" isPlusIcon={false} onClick={() => { setIsOpenEdit(true); setErrors({}); }} />)}
             </>
           )}
         </div>

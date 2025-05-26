@@ -124,7 +124,7 @@ const NewTaskCard: React.FC<{
       <div ref={cardRef} className="kanban-card relative">
 
         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-          <SectionSelector selectedSection={selectedSection} onSectionSelect={handleSectionSelect} />
+          <SectionSelector selectedSection={selectedSection} onSectionSelect={handleSectionSelect} isOwnerOrParticipant={true}/>
           <div className="task-detail__detail-modal-close-button" onClick={() => onClose(newCardId)}>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="-0.5 -0.5 16 16" fill="#8D99A8" stroke="#000000" strokeLinecap="round" strokeLinejoin="round" className="feather feather-x" id="X--Streamline-Feather" height="16" width="16">
               <desc>X Streamline Icon: https://streamlinehq.com</desc>
@@ -146,8 +146,8 @@ const NewTaskCard: React.FC<{
 
         <div className="card-meta">
           <div className="card-priority-status">
-            <OptionSelector options={prioritySelect} selectedOption={selectedPriority} onSelect={handlePrioritySelect} />
-            <OptionSelector options={statusList} selectedOption={selectedStatus} onSelect={handleStatusSelect} />
+            <OptionSelector options={prioritySelect} selectedOption={selectedPriority} onSelect={handlePrioritySelect} isOwnerOrParticipant={true}/>
+            <OptionSelector options={statusList} selectedOption={selectedStatus} onSelect={handleStatusSelect} isOwnerOrParticipant={true}/>
           </div>
         </div>
 

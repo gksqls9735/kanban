@@ -8,7 +8,8 @@ import useSectionsStore from "../../../store/sections-store";
 const SectionSelector: React.FC<{
   selectedSection: Section;
   onSectionSelect: (section: Section) => void;
-}> = ({ selectedSection, onSectionSelect }) => {
+  isOwnerOrParticipant?: boolean;
+}> = ({ selectedSection, onSectionSelect, isOwnerOrParticipant = false }) => {
   const { isOpen, setIsOpen, wrapperRef, dropdownRef, toggle } = useDropdown();
   const sections = useSectionsStore(state => state.sections);
 
@@ -19,19 +20,26 @@ const SectionSelector: React.FC<{
 
   return (
     <div className="relative">
-      <div ref={wrapperRef} className="card-current-section update-card-current-section" onClick={toggle}>
-        {truncateText(selectedSection.sectionName, 10)}
-        <FontAwesomeIcon icon={faCaretDown} style={{ width: 12, height: 12 }} />
-      </div>
-      {isOpen && (
-        <div ref={dropdownRef} className="select-dropdown-panel section-dropdown-panel">
-          {sections.map(sec => (
-            <div key={sec.sectionId} className="select-dropdown-item section-dropdown-item truncate" onClick={() => handleSelect(sec)}>
-              {sec.sectionName}
+      {isOwnerOrParticipant ? (
+        <>
+          <div ref={wrapperRef} className="card-current-section update-card-current-section" onClick={toggle}>
+            {truncateText(selectedSection.sectionName, 10)}
+            <FontAwesomeIcon icon={faCaretDown} style={{ width: 12, height: 12 }} />
+          </div>
+          {isOpen && (
+            <div ref={dropdownRef} className="select-dropdown-panel section-dropdown-panel">
+              {sections.map(sec => (
+                <div key={sec.sectionId} className="select-dropdown-item section-dropdown-item truncate" onClick={() => handleSelect(sec)}>
+                  {sec.sectionName}
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          )}
+        </>
+      ) : (
+        <div className="card-current-section">{truncateText(selectedSection.sectionName, 10)}</div>
       )}
+
     </div>
   );
 };

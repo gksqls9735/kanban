@@ -220,12 +220,20 @@ export const sectionTasks: Task[] = [
     participants: [{ ...user7, isMain: true }, { ...user4, isMain: false }],
     color: '#ADD8E6', // LightBlue
     order: 6,
-    taskAttachments: [],
-    urls: [],
+    taskAttachments: [
+      exampleAttachments[0],
+      exampleAttachments[1],
+      exampleAttachments[2],
+      exampleAttachments[3],
+      exampleAttachments[4],
+    ],
+    urls: urls,
     multiSelection: options,
     singleSelection: singleOptions,
+    numericField: numericExamples[0],
     emails: emails,
     prefix: 'IT',
+    chatlist: chatlist,
   },
   {
     sectionId: 'SM202503191552000003',

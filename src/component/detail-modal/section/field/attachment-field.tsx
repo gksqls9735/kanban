@@ -8,7 +8,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import useClickOutside from "../../../../hooks/use-click-outside";
 import useTaskStore from "../../../../store/task-store";
 
-const AttachmentField: React.FC<{ attachments?: FileAttachment[], taskId: string }> = ({ attachments = [], taskId }) => {
+const AttachmentField: React.FC<{ attachments?: FileAttachment[], taskId: string, isOwnerOrParticipant: boolean }> = ({ attachments = [], taskId, isOwnerOrParticipant }) => {
   const updateTask = useTaskStore(state => state.updateTask);
 
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
@@ -44,7 +44,7 @@ const AttachmentField: React.FC<{ attachments?: FileAttachment[], taskId: string
 
   const handleDeleteFile = (fileId: string) => {
     const updatedFiles = attachments.filter(file => file.fileId !== fileId);
-    updateTask(taskId, {taskAttachments: updatedFiles});
+    updateTask(taskId, { taskAttachments: updatedFiles });
   };
 
   return (
@@ -84,7 +84,7 @@ const AttachmentField: React.FC<{ attachments?: FileAttachment[], taskId: string
               {attachments.map(file => {
                 const { icon } = getFileTypeInfo(file.fileName, 24);
                 return (
-                  <li style={{ display: 'flex', flexDirection: 'column', padding: '0px 12px', height: 40, boxSizing: 'border-box' }}>
+                  <li key={file.fileId} style={{ display: 'flex', flexDirection: 'column', padding: '0px 12px', height: 40, boxSizing: 'border-box' }}>
                     <div style={{
                       border: '1px solid #EEF1F6', borderRadius: 4, padding: '4px 8px', display: 'flex', gap: 8, width: 'fit-content',
                     }}>
@@ -98,9 +98,11 @@ const AttachmentField: React.FC<{ attachments?: FileAttachment[], taskId: string
                             <path d="M160-120v-80h640v80H160Zm320-160L280-480l56-56 104 104v-408h80v408l104-104 56 56-200 200Z" />
                           </svg>
                         </div>
-                        <div className="todo-item__action todo-item__action--delete" style={{ backgroundColor: '#CDD3DD' }} onClick={() => handleDeleteFile(file.fileId)}>
-                          <FontAwesomeIcon icon={faTimes} style={{ width: 12, height: 12, color: '#FFFFFF', }} />
-                        </div>
+                        {isOwnerOrParticipant && (
+                          <div className="todo-item__action todo-item__action--delete" style={{ backgroundColor: '#CDD3DD' }} onClick={() => handleDeleteFile(file.fileId)}>
+                            <FontAwesomeIcon icon={faTimes} style={{ width: 12, height: 12, color: '#FFFFFF', }} />
+                          </div>
+                        )}
                       </div>
                     </div>
                   </li>
@@ -108,20 +110,22 @@ const AttachmentField: React.FC<{ attachments?: FileAttachment[], taskId: string
               })}
               {attachments.length === 0 && <li className="task-detail__detail-modal-field-edit-item--no-message">표시할 파일이 없습니다.</li>}
             </ul>
-            <div className="task-detail__detail-modal-field-edit-separator" />
+            {isOwnerOrParticipant && (<div className="task-detail__detail-modal-field-edit-separator" />)}
           </div>
-          <div className="task-detail__detail-modal-field-edit-footer" onClick={handleIconClick}>
-            <input
-              type="file"
-              ref={fileInputRef}
-              multiple
-              style={{ display: 'none' }}
-            />
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#414D5C" className="bi bi-plus-lg" viewBox="0 0 16 16">
-              <path fillRule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2" />
-            </svg>
-            <span className="task-detail__detail-modal-field-edit-footer-text">파일 추가</span>
-          </div>
+          {isOwnerOrParticipant && (
+            <div className="task-detail__detail-modal-field-edit-footer" onClick={handleIconClick}>
+              <input
+                type="file"
+                ref={fileInputRef}
+                multiple
+                style={{ display: 'none' }}
+              />
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#414D5C" className="bi bi-plus-lg" viewBox="0 0 16 16">
+                <path fillRule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2" />
+              </svg>
+              <span className="task-detail__detail-modal-field-edit-footer-text">파일 추가</span>
+            </div>
+          )}
         </div>
       )}
     </li>

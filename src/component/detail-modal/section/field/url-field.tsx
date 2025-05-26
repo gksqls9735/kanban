@@ -23,7 +23,7 @@ const FallbackIcon = (
   </svg>
 );
 
-const UrlField: React.FC<{ urls?: UrlData[], taskId: string }> = ({ urls: initialUrls = [], taskId }) => {
+const UrlField: React.FC<{ urls?: UrlData[], taskId: string, isOwnerOrParticipant: boolean }> = ({ urls: initialUrls = [], taskId, isOwnerOrParticipant }) => {
   const updateTask = useTaskStore(state => state.updateTask);
 
   const [combinedItems, setCombinedItems] = useState<CombinedUrlItem[]>([]);
@@ -235,9 +235,9 @@ const UrlField: React.FC<{ urls?: UrlData[], taskId: string }> = ({ urls: initia
                     ))}
                     {initialUrls.length === 0 && <li className="task-detail__detail-modal-field-edit-item--no-message">표시할 URL이 없습니다.</li>}
                   </ul>
-                  <div className="task-detail__detail-modal-field-edit-separator" />
+                  {isOwnerOrParticipant && (<div className="task-detail__detail-modal-field-edit-separator" />)}
                 </div>
-                <FieldFooter title="url 수정" isPlusIcon={false} onClick={() => { setIsOpenEdit(true); setErrors({}); }} />
+                {isOwnerOrParticipant && (<FieldFooter title="url 수정" isPlusIcon={false} onClick={() => { setIsOpenEdit(true); setErrors({}); }} />)}
               </>
             )}
           </div>

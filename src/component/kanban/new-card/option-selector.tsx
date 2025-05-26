@@ -9,7 +9,8 @@ const OptionSelector: React.FC<{
   options: SelectOption[];
   selectedOption: SelectOption;
   onSelect: (option: SelectOption) => void;
-}> = ({ options, selectedOption, onSelect }) => {
+  isOwnerOrParticipant?: boolean;
+}> = ({ options, selectedOption, onSelect, isOwnerOrParticipant = false }) => {
   const { isOpen, setIsOpen, wrapperRef, dropdownRef, toggle } = useDropdown();
 
   const handleSelect = (option: SelectOption) => {
@@ -19,24 +20,37 @@ const OptionSelector: React.FC<{
 
   return (
     <div className="card-select-wrapper">
-      <div ref={wrapperRef} className="card-priority-status-current " onClick={toggle}
-        style={{ color: selectedOption.colorMain, backgroundColor: selectedOption.colorSub || lightenColor(selectedOption.colorMain, 0.85), cursor: 'pointer' }}
-      >
-        {truncateText(selectedOption.name, 2)}
-        <FontAwesomeIcon icon={faCaretDown} style={{ width: 12, height: 12, marginLeft: 2 }} />
-      </div>
-      {isOpen && (
-        <div ref={dropdownRef} className="select-dropdown-panel">
-          {options.map(option => (
-            <div key={option.code} className="select-dropdown-item truncate" onClick={() => handleSelect(option)}
-              style={{
-                color: option.colorMain, backgroundColor: selectedOption.code === option.code ? (option.colorSub || lightenColor(option.colorMain, 0.85)) : '#fff',
-              }}
-            >
-              {option.name}
+      {isOwnerOrParticipant ? (
+        <>
+          <div ref={wrapperRef} className="card-priority-status-current " onClick={toggle}
+            style={{ color: selectedOption.colorMain, backgroundColor: selectedOption.colorSub || lightenColor(selectedOption.colorMain, 0.85), cursor: 'pointer' }}
+          >
+            {truncateText(selectedOption.name, 2)}
+            <FontAwesomeIcon icon={faCaretDown} style={{ width: 12, height: 12, marginLeft: 2 }} />
+          </div>
+          {isOpen && (
+            <div ref={dropdownRef} className="select-dropdown-panel">
+              {options.map(option => (
+                <div key={option.code} className="select-dropdown-item truncate" onClick={() => handleSelect(option)}
+                  style={{
+                    color: option.colorMain, backgroundColor: selectedOption.code === option.code ? (option.colorSub || lightenColor(option.colorMain, 0.85)) : '#fff',
+                  }}
+                >
+                  {option.name}
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          )}
+        </>
+      ) : (
+        <>
+          <div className="card-priority-status">
+            <div className="card-priority-status-current truncate"
+              style={{ color: selectedOption.colorMain, backgroundColor: selectedOption.colorSub || lightenColor(selectedOption.colorMain, 0.85) }}
+            >
+              {truncateText(selectedOption.name, 2)}</div>
+          </div>
+        </>
       )}
     </div>
   );

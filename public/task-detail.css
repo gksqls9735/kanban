@@ -7,6 +7,30 @@
   justify-content: space-between;
 }
 
+.task-detail__detail-modal-content.kanban-scrollbar-y {
+  &::-webkit-scrollbar {
+    width: 5px;
+    height: 0px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+
+  &::-webkit-scrollbar-track {
+    border-radius: 10px;
+  }
+
+  &::-webkit-scrollbar-button {
+    display: none;
+  }
+}
+
 .kanban .task-detail__detail-modal-overlay {
   position: fixed;
   top: 0;
@@ -721,14 +745,45 @@
   padding: 0px 10px;
 }
 
+.kanban .task-detail__detail-modal-field-edit-numeric-view-input-wrapper {
+  padding: 0px 10px;
+  border: 1px solid #E4E8EE;
+  border-radius: 4px;
+  width: 525px;
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  justify-content: flex-end;
+  font-family: '"Noto Sans KR"';
+}
+
+.kanban .task-detail__detail-modal-field-edit-numeric-view-input-wrapper>input {
+  height: 36px;
+  border: none;
+  outline: none;
+  text-align: right;
+  flex-grow: 1;
+  background-color: white;
+}
+
+.kanban .task-detail__detail-modal-field-edit-numeric-view-input-wrapper>div {
+  height: 38px;
+  display: flex;
+  align-items: center;
+}
+
+
 .kanban .task-detail__detail-modal-field-edit-input--id-view {
   width: 100%;
   height: 36px;
   border: 1px solid #E4E8EE;
   border-radius: 4px;
-  color: #CDD3DD;
   font-size: 14px;
   outline: none;
+}
+
+.kanban .task-detail__detail-modal-field-edit-input--id-view::placeholder {
+  color: #CDD3DD;
 }
 
 /* selection 공통 */
