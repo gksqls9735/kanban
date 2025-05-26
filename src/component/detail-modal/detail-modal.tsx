@@ -149,7 +149,7 @@ const DetailModal: React.FC<{
   }, []);
 
   return (
-    <div className="task-detail__detail-modal-overlay" onClick={(e) => { e.stopPropagation(); onClose(e); }} role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div role="dialog" aria-modal="true" aria-labelledby="modal-title">
       <div className="task-detail__detail-modal-wrapper" onClick={(e) => e.stopPropagation()}>
         <DetailHeader onClose={onClose} openDeleteModal={openDeleteModal} isOwnerOrParticipant={isOwnerOrParticipant} />
         <div className="task-detail__detail-modal-content kanban-scrollbar-y ">

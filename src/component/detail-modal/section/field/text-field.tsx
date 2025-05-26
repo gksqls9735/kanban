@@ -13,6 +13,7 @@ const TextField: React.FC<{ text?: string, isOwnerOrParticipant: boolean; }> = (
   const handleCancel = () => {
     setIsInEditMode(false);
     setIsOpenEdit(false);
+    console.log(isOwnerOrParticipant);
   };
 
   // FieldLabel 클릭 핸들러 (편집 모드 토글 및 초기 상태 설정)
