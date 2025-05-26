@@ -133,7 +133,7 @@ const DetailModal: React.FC<{
   return (
     <div className="task-detail__detail-modal-overlay" onClick={(e) => { e.stopPropagation(); onClose(e); }} role="dialog" aria-modal="true" aria-labelledby="modal-title">
       <div className="task-detail__detail-modal-wrapper" onClick={(e) => e.stopPropagation()}>
-        <DetailHeader onClose={onClose} openDeleteModal={openDeleteModal} />
+        <DetailHeader onClose={onClose} openDeleteModal={openDeleteModal} isOwnerOrParticipant={isOwnerOrParticipant}/>
         <div className="task-detail__detail-modal-content kanban-scrollbar-y ">
 
           {/** 작업 설명(TITLE) */}
@@ -151,6 +151,7 @@ const DetailModal: React.FC<{
               participants={sortedParticipants}
               onDeleteParticipant={handleDeleteParticipants}
               onAddParticipantClick={() => setIsOpenParticipantModal(true)}
+              isOwnerOrParticipant={isOwnerOrParticipant}
             />
 
             <DateField label="시작일" date={currentTask.start} />
