@@ -7,7 +7,7 @@ interface TaskState {
   setTasks: (tasks: Task[]) => void;
   addTask: (newTask: Task) => void;
   updateTask: (taskId: string, updated: Partial<Task>) => void;
-  deletTask: (taskId: string) => void;
+  deleteTask: (taskId: string) => void;
   copyTask: (originalTask: Task) => void;
   deleteTasksBySection: (sectionId: string) => void;
   updateTasksByStatus: (originalStatusCode: string) => void;
@@ -31,7 +31,7 @@ const useTaskStore = create<TaskState>((set, _get) => ({
         allTasks: newTasks
       };
     }),
-  deletTask: (taskId: string) => set((state) => {
+  deleteTask: (taskId: string) => set((state) => {
     const newList = state.allTasks.filter(t => t.taskId !== taskId);
     return { allTasks: newList };
   }),

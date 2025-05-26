@@ -35,7 +35,7 @@ const ColumnList: React.FC<{
   const { showToast } = useToast();
   const viewMode = useViewModeStore(state => state.viewMode);
   const tasks = useTaskStore(state => state.allTasks);
-  const deletTask = useTaskStore(state => state.deletTask);
+  const deleteTask = useTaskStore(state => state.deleteTask);
 
   const statusList = useStatusesStore(state => state.statusList);
   const addStatus = useStatusesStore(state => state.addStatus);
@@ -62,7 +62,7 @@ const ColumnList: React.FC<{
   };
   const confirmDeleteTask = () => {
     if (detailedTask) {
-      deletTask(detailedTask.taskId);
+      deleteTask(detailedTask.taskId);
       showToast('작업이 성공적으로 삭제되었습니다.');
       handleCloseDetailModal();
       setIsDeleteConfirmationOpen(false);

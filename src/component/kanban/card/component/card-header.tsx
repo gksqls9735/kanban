@@ -18,7 +18,7 @@ const CardHeader: React.FC<{
 
   const { isOpen, setIsOpen, wrapperRef, dropdownRef, toggle } = useDropdown();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
-  const deleteTask = useTaskStore(state => state.deletTask);
+  const deleteTask = useTaskStore(state => state.deleteTask);
   const copyTask = useTaskStore(state => state.copyTask);
   const { showToast } = useToast();
 
