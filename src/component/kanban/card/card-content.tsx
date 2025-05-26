@@ -12,7 +12,8 @@ const CardContent: React.FC<{
   sectionName: string;
   onClick: () => void;
   onModalStateChange: (isOpen: boolean) => void;
-}> = ({ task, sectionName, onClick, onModalStateChange }) => {
+  onOpenDetailModal?: (taskId: string) => void;
+}> = ({ task, sectionName, onClick, onModalStateChange, onOpenDetailModal }) => {
   const currentUser = useUserStore(state => state.currentUser);
 
   const isOwnerOrParticipant =
@@ -21,7 +22,7 @@ const CardContent: React.FC<{
 
   return (
     <>
-      <CardHeader task={task} sectionName={sectionName} onClick={onClick} onModalStateChange={onModalStateChange} />
+      <CardHeader task={task} sectionName={sectionName} onClick={onClick} onModalStateChange={onModalStateChange} onOpenDetailModal={onOpenDetailModal}/>
       <div className="card-title">{task.taskName}</div>
       <div className="card-due-date">
         <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="#7d8998">

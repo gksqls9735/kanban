@@ -12,6 +12,8 @@ import ColumnCreate from "./column-create";
 import { useToast } from "../../../context/toast-context";
 import { generateUniqueId } from "../../../utils/text-function";
 import useUserStore from "../../../store/user-store";
+import DetailModal from "../../detail-modal/detail-modal";
+import DeleteModal from "../delete-modal";
 
 interface ColumnData {
   id: string;
@@ -25,10 +27,15 @@ const ColumnList: React.FC<{
   getSectionName: (sectionId: string) => string;
 }> = ({ getSectionName }) => {
   const [isAddingSection, setIsAddingSection] = useState<boolean>(false);
+  // 상세 보기 창
+  const [detailedTask, setDetailedTask] = useState<Task | null>(null);
+  // 상세 보기 창에서 삭제 창
+  const [isDeleteConfirmationOpen, setIsDeleteConfirmationOpen] = useState(false);
 
   const { showToast } = useToast();
   const viewMode = useViewModeStore(state => state.viewMode);
   const tasks = useTaskStore(state => state.allTasks);
+  const deletTask = useTaskStore(state => state.deletTask);
 
   const statusList = useStatusesStore(state => state.statusList);
   const addStatus = useStatusesStore(state => state.addStatus);
@@ -39,6 +46,28 @@ const ColumnList: React.FC<{
   const insertSection = useSectionsStore(state => state.insertSection);
 
   const currentUser = useUserStore(state => state.currentUser);
+
+  // 상세보기 로직직
+  const handleOpenDetailModal = (taskId: string) => {
+    const taskToDetail = tasks.find(t => t.taskId === taskId);
+    if (taskToDetail) setDetailedTask(taskToDetail);
+  };
+
+  const handleCloseDetailModal = () => {
+    setDetailedTask(null);
+  };
+
+  const handleDeleteRequestFromDetail = () => {
+    setIsDeleteConfirmationOpen(true);
+  };
+  const confirmDeleteTask = () => {
+    if (detailedTask) {
+      deletTask(detailedTask.taskId);
+      showToast('작업이 성공적으로 삭제되었습니다.');
+      handleCloseDetailModal();
+      setIsDeleteConfirmationOpen(false);
+    }
+  };
 
   const getAllUniqueUserIds = useCallback(() => {
     const allIds = tasks.flatMap(t => {
@@ -162,62 +191,54 @@ const ColumnList: React.FC<{
   }, [viewMode, insertSection]);
 
   return (
-    <SortableContext items={allColumnIds} strategy={horizontalListSortingStrategy}>
-      <div className="kanban-content">
-        {baseColumns.map(col => (
-          <DroppableColumn
-            key={col.id}
-            id={col.id}
-            title={col.title}
-            tasks={getTasksForColumn(col.id)}
-            getSectionName={getSectionName}
-            colorMain={col.colorMain}
-            colorSub={col.colorSub}
-            onAddBefore={handleAddBefore}
-            onAddAfter={handleAddAfter}
-          />
-        ))}
-        {/* {columnsWithTasks.map(col => (
-          <DroppableColumn
-            key={col.id}
-            id={col.id}
-            title={col.title}
-            tasks={col.tasks}
-            getSectionName={getSectionName}
-            colorMain={col.colorMain}
-            colorSub={col.colorSub}
-            onAddBefore={handleAddBefore}
-            onAddAfter={handleAddAfter}
-          />
-        ))}
-        <div className="kanban-content__empty-columns-container">
-          {columnsWithoutTasks.map(col => (
+    <>
+      <SortableContext items={allColumnIds} strategy={horizontalListSortingStrategy}>
+        <div className="kanban-content">
+          {baseColumns.map(col => (
             <DroppableColumn
               key={col.id}
               id={col.id}
               title={col.title}
-              tasks={col.tasks}
+              tasks={getTasksForColumn(col.id)}
               getSectionName={getSectionName}
               colorMain={col.colorMain}
               colorSub={col.colorSub}
               onAddBefore={handleAddBefore}
               onAddAfter={handleAddAfter}
+              onOpenDetailModal={handleOpenDetailModal}
             />
           ))}
-        </div> */}
-        {isAddingSection && isOwnerOrParticipant && (
-          <ColumnCreate viewMode={viewMode} isAdd={isAddingSection} onAdd={handleAddNewItem} toggle={toggle} />
-        )}
+          {isAddingSection && isOwnerOrParticipant && (
+            <ColumnCreate viewMode={viewMode} isAdd={isAddingSection} onAdd={handleAddNewItem} toggle={toggle} />
+          )}
 
-        {isOwnerOrParticipant && (
-          <div className="add-section-button" onClick={() => setIsAddingSection(prev => !prev)}>
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#7d8998" className="bi bi-plus-lg" viewBox="0 0 16 16">
-              <path fillRule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2" />
-            </svg>
-          </div>
-        )}
-      </div>
-    </SortableContext >
+          {isOwnerOrParticipant && (
+            <div className="add-section-button" onClick={() => setIsAddingSection(prev => !prev)}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#7d8998" className="bi bi-plus-lg" viewBox="0 0 16 16">
+                <path fillRule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2" />
+              </svg>
+            </div>
+          )}
+        </div>
+      </SortableContext >
+      {detailedTask && (
+        <DetailModal
+          task={detailedTask}
+          onClose={handleCloseDetailModal}
+          openDeleteModal={(e) => { 
+            e.stopPropagation();
+            handleDeleteRequestFromDetail();
+          }}
+        />
+      )}
+      {isDeleteConfirmationOpen && detailedTask && (
+        <DeleteModal
+          message={`작업 '${detailedTask.taskName}'을(를) 삭제하시겠습니까?`}
+          onCancel={() => setIsDeleteConfirmationOpen(false)}
+          onConfirm={confirmDeleteTask}
+        />
+      )}
+    </>
   );
 };
 

@@ -9,7 +9,8 @@ const CardWrapper: React.FC<{
   task: Task;
   sectionName: string;
   isOverlay?: boolean;
-}> = ({ task, sectionName, isOverlay }) => {
+  onOpenDetailModal?: (taskId: string) => void;
+}> = ({ task, sectionName, isOverlay, onOpenDetailModal }) => {
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [isAnyModalOpen, setIsAnyModalOpen] = useState<boolean>(false);
 
@@ -51,7 +52,7 @@ const CardWrapper: React.FC<{
           {...attributes}
           className="kanban-card"
         >
-          <CardContent task={task} sectionName={sectionName} onClick={() => setIsEdit(true)} onModalStateChange={handleModalStateChange} />
+          <CardContent task={task} sectionName={sectionName} onClick={() => setIsEdit(true)} onModalStateChange={handleModalStateChange} onOpenDetailModal={onOpenDetailModal}/>
         </div>
       )}
     </>

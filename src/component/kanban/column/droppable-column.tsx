@@ -28,7 +28,8 @@ const DroppableColumn: React.FC<{
   isOverlay?: boolean;
   onAddBefore?: (targetSectionId: string) => void;
   onAddAfter?: (targetSectionId: string) => void;
-}> = ({ tasks, id, title, getSectionName, colorMain, colorSub, isOverlay, onAddBefore, onAddAfter }) => {
+  onOpenDetailModal?: (taskId: string) => void;
+}> = ({ tasks, id, title, getSectionName, colorMain, colorSub, isOverlay, onAddBefore, onAddAfter, onOpenDetailModal }) => {
   const [isEdting, setIsEditing] = useState<boolean>(false);
 
   const viewMode = useViewModeStore(state => state.viewMode);
@@ -159,7 +160,7 @@ const DroppableColumn: React.FC<{
         <div className="section-content">
           <SortableContext items={tasksId} strategy={verticalListSortingStrategy}>
             {tasks.map(t => (
-              <CardWrapper key={t.taskId} task={t} sectionName={getSectionName(t.sectionId)} />
+              <CardWrapper key={t.taskId} task={t} sectionName={getSectionName(t.sectionId)} onOpenDetailModal={onOpenDetailModal}/>
             ))}
           </SortableContext>
           {newCardList.map(newCardId => (
