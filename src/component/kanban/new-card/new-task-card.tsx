@@ -106,18 +106,17 @@ const NewTaskCard: React.FC<{
     }
   };
 
-  // 리스트 형태로 추가되면서 변경
-  // useEffect(() => {
-  //   const handleClickOutside = (e: MouseEvent) => {
-  //     if (isOpenParticipantModal) return;
-  //     const path = e.composedPath();
-  //     if (cardRef.current && !path.includes(cardRef.current)) {
-  //       handleAddTask();
-  //     }
-  //   };
-  //   document.addEventListener('mousedown', handleClickOutside);
-  //   return () => document.removeEventListener('mousedown', handleClickOutside);
-  // }, [handleAddTask]);
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (isOpenParticipantModal) return;
+      const path = e.composedPath();
+      if (cardRef.current && !path.includes(cardRef.current)) {
+        handleAddTask();
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [handleAddTask]);
 
 
   return (
