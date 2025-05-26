@@ -667,7 +667,6 @@
   background-color: #fff;
   border: 1px solid #ccc;
   border-radius: 9999px;
-  margin-top: 2px;
   position: relative;
   transition: background-color 0.2s, border-color 0.2s;
   vertical-align: middle;

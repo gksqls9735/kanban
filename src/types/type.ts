@@ -103,7 +103,7 @@ export type Todo = {
   /** 투두 내용 */
   todoTxt: string
   /** 기한 (null)*/
-  todoDt: Date 
+  todoDt: Date | null
   /** 담당자 */
   participants: Participant[]
   /** 정렬순서 */

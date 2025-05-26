@@ -19,22 +19,25 @@ const ChatList: React.FC<{
   };
 
   return (
-    <div className="task-detail__detail-modal-section">
-      <div className="task-detail__detail-modal-chat-list">
-        {chats.length > 0 && chats.map(chat => (
-          <ChatItem
-            key={chat.chatId}
-            chat={chat}
-            isLikedByCurrentUser={isLikedByCurrentUser(chat.likedUserIds || [])}
-            onUpdate={handleUpdateChat}
-            currentUserId={currentUser.id}
-            taskId={taskId}
-            handleReplyId={handleReplyId}
-          />
-        ))}
-        {chats.length === 0 && <div className="task-detail__detail-modal-field-edit-item--no-message">채팅 내역이 존재하지 않습니다.</div>}
-      </div>
-    </div>
+    <>
+      {chats.length > 0 && (
+        <div className="task-detail__detail-modal-section">
+          <div className="task-detail__detail-modal-chat-list">
+            {chats.length > 0 && chats.map(chat => (
+              <ChatItem
+                key={chat.chatId}
+                chat={chat}
+                isLikedByCurrentUser={isLikedByCurrentUser(chat.likedUserIds || [])}
+                onUpdate={handleUpdateChat}
+                currentUserId={currentUser.id}
+                taskId={taskId}
+                handleReplyId={handleReplyId}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 

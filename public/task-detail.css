@@ -941,11 +941,17 @@
   gap: 6px;
 }
 
+.kanban .task-detail__detail-modal-todo-item--new {
+  align-items: center;
+  padding-left: 22px;
+}
+
 .kanban .task-detail__detail-modal-todo-add-item {
   align-items: center;
   padding-left: 24px;
   width: fit-content;
   cursor: pointer;
+  margin-top: -8px;
 }
 
 .kanban .task-detail__detail-modal-todo-add-icon-wrapper {

@@ -1,16 +1,17 @@
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
-import { Todo } from "../../../../../types/type";
 import { formatDateToKoreanDeadline } from "../../../../../utils/date-function";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import DetailTodoHandler from "./detail-todo-handler";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from '@dnd-kit/utilities';
+import { CombinedTodoItem } from "../detail-todo-list";
 
 const DetailTodoItem: React.FC<{
-  todo: Todo
+  item: CombinedTodoItem;
   onDelete: (todoId: string) => void;
-  onComplete: (todoId: string) => void;
-}> = ({ todo, onDelete, onComplete }) => {
+  onCompleteChange: (todoId: string) => void;
+  isOwnerOrParticipant: boolean;
+}> = ({ item, onDelete, onCompleteChange, isOwnerOrParticipant }) => {
 
   const {
     attributes,
@@ -19,7 +20,7 @@ const DetailTodoItem: React.FC<{
     transform,
     transition,
     isDragging
-  } = useSortable({ id: todo.todoId });
+  } = useSortable({ id: item.todoId, disabled: !isOwnerOrParticipant });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -28,30 +29,31 @@ const DetailTodoItem: React.FC<{
     zIndex: isDragging ? 10 : 'auto',
   };
 
-
-  const checkboxId = `todo-check-${todo.todoId}`;
+  const checkboxId = `todo-check-${item.todoId}`;
   return (
     <li className="task-detail__detail-modal-todo-item" style={{ ...style }} ref={setNodeRef} {...attributes}>
-      <DetailTodoHandler listeners={listeners} isDragging={isDragging}/>
+      <DetailTodoHandler listeners={listeners} isDragging={isDragging} />
       <div className="task-detail__detail-modal-todo-item-checkbox">
         <div className="task-detail__checkbox-area">
           <input
             type="checkbox"
             className="task-detail__checkbox--native"
             id={checkboxId}
-            checked={todo.isCompleted}
-            onChange={() => onComplete(todo.todoId)}
+            checked={item.isCompleted}
+            onChange={() => onCompleteChange(item.todoId)}
           />
           <label htmlFor={checkboxId} className="task-detail__checkbox--visual" />
         </div>
       </div>
       <div className="task-detail__detail-modal-todo-item-content">
-        <div className={`${todo.isCompleted ? 'line-through' : ''}`}>{todo.todoTxt}</div>
-        <div>{formatDateToKoreanDeadline(todo.todoDt)}</div>
+        <div className={`${item.isCompleted ? 'line-through' : ''}`}>{item.todoTxt}</div>
+        {item.todoDt ? (<div>{formatDateToKoreanDeadline(item.todoDt)}</div>) : (<div>기한 없음</div>)}
       </div>
-      <div className="todo-item__action todo-item__action--delete" onClick={() => onDelete(todo.todoId)}>
-        <FontAwesomeIcon icon={faTimes} style={{ width: 12, height: 12, color: "rgba(125, 137, 152, 1)" }} />
-      </div>
+      {isOwnerOrParticipant && (
+        <div className="todo-item__action todo-item__action--delete" onClick={() => onDelete(item.todoId)}>
+          <FontAwesomeIcon icon={faTimes} style={{ width: 12, height: 12, color: "rgba(125, 137, 152, 1)" }} />
+        </div>
+      )}
     </li>
   );
 };

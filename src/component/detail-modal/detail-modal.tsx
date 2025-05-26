@@ -186,7 +186,7 @@ const DetailModal: React.FC<{
           </div>
 
           {/** 작업 할 일 목록 */}
-          <DetailTodoList initialTodoList={currentTodoList} setInitialTodoList={setCurrentTodoList} taskId={currentTask.taskId} />
+          <DetailTodoList initialTodoList={currentTodoList} setInitialTodoList={setCurrentTodoList} taskId={currentTask.taskId} isOwnerOrParticipant={isOwnerOrParticipant}/>
 
           {/** 채팅팅 */}
           <ChatList currentUser={currentUser!} taskId={currentTask.taskId} handleReplyId={handleReplyId} />

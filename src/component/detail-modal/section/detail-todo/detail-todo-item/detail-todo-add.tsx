@@ -1,56 +1,64 @@
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useEffect, useRef, useState } from "react";
+import { KeyboardEvent, useEffect, useRef, useState } from "react";
+import { CombinedTodoItem } from "../detail-todo-list";
 
 const DetailTodoAdd: React.FC<{
-  handleIsAddTask: () => void;
-  onAdd: (todoTxt: string, isComplete: boolean) => void;
-}> = ({ handleIsAddTask, onAdd }) => {
-
-  const newTaskTextRef = useRef<HTMLInputElement>(null);
+  item: CombinedTodoItem;
+  onSave: (todoId: string, todoTxt: string, isCompleted: boolean) => void;
+  onCancel: (todoId: string) => void;
+}> = ({ item, onSave, onCancel }) => {
+  const [todoTxt, setTodoTxt] = useState<string>(item.todoTxt);
   const [isComplete, setIsComplete] = useState<boolean>(false);
+  const textInputRef = useRef<HTMLInputElement>(null);
 
-  const handleAdd = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (!newTaskTextRef.current) return;
-    const todoTxt = newTaskTextRef.current.value;
-    if (!todoTxt) return;
+  useEffect(() => {
+    textInputRef.current?.focus();
+  }, []);
+
+  const handleSave = () => {
+    if (todoTxt.trim() === "") {
+      onCancel(item.todoId);
+      return;
+    }
+    onSave(item.todoId, todoTxt, isComplete);
+  };
+
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
-      onAdd(todoTxt, isComplete);
-      newTaskTextRef.current.value = '';
-      setIsComplete(false);
+      e.preventDefault();
+      handleSave();
+    } else if (e.key === 'Escape') {
+      onCancel(item.todoId);
     }
   };
 
-  useEffect(() => {
-    newTaskTextRef.current?.focus();
-  }, []);
-
   return (
-    <li className="task-detail__detail-modal-todo-item">
-      <div className="task-detail__todo-item__action task-detail__todo-item__action--drag-handle">⠿</div>
+    <li className="task-detail__detail-modal-todo-item task-detail__detail-modal-todo-item--new">
       <div className="task-detail__detail-modal-todo-item-checkbox">
         <div className="task-detail__checkbox-area">
           <input
-            ref={newTaskTextRef}
             type="checkbox"
             className="task-detail__checkbox--native"
             checked={isComplete}
-            id={`newTask`}
+            id={`new-todo-checkbox-${item.todoId}`}
             onChange={() => setIsComplete(!isComplete)}
           />
-          <label htmlFor={`newTask`} className="task-detail__checkbox--visual" />
+          <label htmlFor={`new-todo-checkbox-${item.todoId}`} className="task-detail__checkbox--visual" />
         </div>
       </div>
       <div className="task-detail__detail-modal-todo-item-content">
         <input
-          ref={newTaskTextRef}
-          onKeyDown={handleAdd}
+          ref={textInputRef}
           type="text"
-          placeholder="할 일을 입력하세요."
+          placeholder="할 일을 입력하세요 (Enter: 저장, Esc: 취소)"
           className="task-detail__todo-item__input"
+          value={todoTxt}
+          onChange={e => setTodoTxt(e.target.value)}
+          onKeyDown={handleKeyDown}
         />
       </div>
-      <div className="todo-item__action todo-item__action--delete" onClick={handleIsAddTask}>
+      <div className="todo-item__action todo-item__action--delete" onClick={() => onCancel(item.todoId)}>
         <FontAwesomeIcon icon={faTimes} style={{ width: 12, height: 12, color: "rgba(125, 137, 152, 1)" }} />
       </div>
     </li>
