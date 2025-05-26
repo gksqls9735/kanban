@@ -1215,6 +1215,22 @@
   color: #414D5C;
 }
 
+.kanban .task-detail__detail-modal-chat-input--content {
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+}
+
+.kanban .task-detail__detail-modal-chat-input--content-cancel {
+  cursor: pointer;
+  color: #73777A;
+  font-size: 13px;
+}
+
+.kanban .task-detail__detail-modal-chat-input-wrapper > input[type="file"] {
+  display: none;
+}
+
 .kanban .task-detail__detail-modal-chat-input-area--reply>span:last-child {
   cursor: pointer;
 }

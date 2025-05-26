@@ -188,7 +188,7 @@ const ChatInput: React.FC<{
           <span onClick={onClose}>취소</span>
         </div>
       )}
-      <div style={{ display: 'flex', gap: 6, alignItems: 'flex-start' /* 아이콘과 textarea 정렬 */ }}>
+      <div className="task-detail__detail-modal-chat-input--content">
         <AvatarItem fontSize={22} isOverflow={true} size={40} isFirst={false}>{getInitial(currentUser.username)}</AvatarItem>
         <div className="task-detail__detail-modal-chat-input-wrapper">
           <textarea // input에서 textarea로 변경
@@ -199,12 +199,11 @@ const ChatInput: React.FC<{
             rows={1} // 초기 줄 수 (CSS로 min-height 설정하는 것이 더 좋을 수 있음)
             style={{ overflowY: 'hidden' }} // 내용이 적을 때 스크롤바 숨김 (선택 사항)
           />
-          <div onClick={onFinishEdit}>취소</div>
+          {editingChat && (<div className="task-detail__detail-modal-chat-input--content-cancel" onClick={onFinishEdit}>취소</div>)}
           <input
             type="file"
             ref={fileInputRef}
             multiple
-            style={{ display: 'none' }}
             onChange={handleFileChange}
           />
           {/* 아이콘 위치 조정을 위해 wrapper div를 사용하거나 flex-end 등으로 정렬 필요할 수 있음 */}
