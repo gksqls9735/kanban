@@ -50,12 +50,26 @@
   top: 80px;
   bottom: 0;
   right: 0;
-  width: 720px;
+  min-width: 720px;
+  max-width: 1200px;
   display: flex;
   flex-direction: column;
   background: white;
   box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
   overflow: hidden;
+  transition: width 0.1s ease;
+}
+
+.kanban .task-detail__detail-modal-resizer {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  cursor: col-resize;
+  background-color: transparent;
+  /* 시각적으로 보이게 하려면 #e0e0e0 */
+  z-index: 10;
 }
 
 .kanban .task-detail__detail-modal-content {
@@ -1141,6 +1155,7 @@
   font-weight: 400;
   font-size: 14px;
   line-height: 21px;
+  white-space: pre-line;
 }
 
 .kanban .task-detail__detail-modal-chat-reply-button {
@@ -1192,7 +1207,7 @@
   position: sticky;
   bottom: 0;
   right: 0;
-  width: 720px;
+  width: 100%;
   background-color: white;
   z-index: 1001;
   box-sizing: border-box;
@@ -1227,7 +1242,7 @@
   font-size: 13px;
 }
 
-.kanban .task-detail__detail-modal-chat-input-wrapper > input[type="file"] {
+.kanban .task-detail__detail-modal-chat-input-wrapper>input[type="file"] {
   display: none;
 }
 

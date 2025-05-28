@@ -73,7 +73,7 @@ const ChatInput: React.FC<{
 
     const processSubmit = async () => {
       setIsSubmitting(true);
-      const chatContent = textInputRef.current?.value.trim() || "";
+      const chatContent = textInputRef.current?.value ?? "";
 
       // 수정 모드가 아니고, 내용과 파일 모두 없을 때 (새 댓글)
       if (!editingChat && !chatContent && selectedFilesForUpload.length === 0) {

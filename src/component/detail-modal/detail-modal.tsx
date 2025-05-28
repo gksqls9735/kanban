@@ -1,5 +1,5 @@
 import { Chat, Participant, Section, SelectOption, Task, Todo } from "../../types/type";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import useSectionsStore from "../../store/sections-store";
 import SectionSelector from "../kanban/new-card/section-selector";
 import ParticipantSelector from "../participant-select/participant-selector";
@@ -31,6 +31,37 @@ const DetailModal: React.FC<{
   onClose: (e: React.MouseEvent) => void;
   openDeleteModal: (e: React.MouseEvent) => void;
 }> = ({ task: initialTaskFromProp, onClose, openDeleteModal }) => {
+  // 리사이즈 설정
+  const [modalWidth, setModalWidth] = useState(720);
+  const isResizing = useRef<boolean>(false);
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    isResizing.current = true;
+    document.body.style.cursor = 'col-resize';
+
+    const startX = e.clientX;
+    const startWidth = modalWidth;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isResizing.current) return;
+      const newWidth = startWidth + (startX - e.clientX);
+      if (newWidth >= 720 && newWidth <= 1200) {
+        setModalWidth(newWidth);
+      }
+    };
+
+    const handleMouseUp = () => {
+      isResizing.current = false;
+      document.body.style.cursor = 'default';
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+  };
+
+
   const sections = useSectionsStore(state => state.sections);
   const statusList = useStatusesStore(state => state.statusList);
   const currentUser = useUserStore(state => state.currentUser);
@@ -150,7 +181,11 @@ const DetailModal: React.FC<{
 
   return (
     <div role="dialog" aria-modal="true" aria-labelledby="modal-title">
-      <div className="task-detail__detail-modal-wrapper" onClick={(e) => e.stopPropagation()}>
+      <div className="task-detail__detail-modal-wrapper" onClick={(e) => e.stopPropagation()} style={{ width: modalWidth }}>
+        <div
+          className="task-detail__detail-modal-resizer"
+          onMouseDown={handleMouseDown}
+        />
         <DetailHeader onClose={onClose} openDeleteModal={openDeleteModal} isOwnerOrParticipant={isOwnerOrParticipant} />
         <div className="task-detail__detail-modal-content kanban-scrollbar-y ">
 
