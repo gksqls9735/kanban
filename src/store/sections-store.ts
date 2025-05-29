@@ -5,7 +5,7 @@ import { generateUniqueId } from "../utils/text-function";
 interface SectionsState {
   sections: Section[];
   setSections: (list: Section[]) => void;
-  addSection: (sectionName: string) => void;
+  addSection: (sectionName: string, ganttMode?: boolean) => void;
   insertSection: (referenceSectionId: string, position: 'before' | 'after') => void;
   updateSection: (sectionId: string, updated: Partial<Section>) => void;
   deleteSection: (sectionId: string) => void;
@@ -16,11 +16,13 @@ const useSectionsStore = create<SectionsState>((set, _get) => ({
   
   setSections: (list: Section[]) => set({ sections: list }),
 
-  addSection: (sectionName: string) => set((state) => {
+  addSection: (sectionName: string, ganttMode: boolean = false) => set((state) => {
     const newSection: Section = {
       sectionId: generateUniqueId('section'),
       sectionName: sectionName,
       order: state.sections.length + 1,
+      isOpen: ganttMode,
+      isNew: ganttMode,
     }
     return { sections: [...state.sections, newSection] };
   }),
