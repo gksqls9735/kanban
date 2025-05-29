@@ -5,6 +5,7 @@ import { getInitial } from "../../../../../utils/text-function";
 import AvatarItem from "../../../../avatar/avatar";
 import ChatDropdownMenu from "./chat-dropdown-menu";
 import useChatStore from "../../../../../store/chat-store";
+import LinkPreview from "../../../common/link-preview";
 
 const ChatItem: React.FC<{
   chat: Chat;
@@ -51,6 +52,13 @@ const ChatItem: React.FC<{
     deleteChat(chat.taskId, chat.chatId);
   };
 
+  const extractUrl = (text: string) => {
+    const regex = /https?:\/\/[^\s]+/g;
+    const matches = text.match(regex);
+    return matches ? matches[0] : null;
+  };
+
+  const extractedUrl = extractUrl(chat.chatContent);
 
   return (
     <>
@@ -67,6 +75,7 @@ const ChatItem: React.FC<{
             )}
           </div>
           <div className="task-detail__detail-modal-chat-text">{chat.chatContent}</div>
+          {extractedUrl && <LinkPreview link={extractedUrl} />}
           <div className="task-detail__detail-modal-chat-reply-button" onClick={() => handleReplyId(chat.chatId, chat.user.username)}>답글 달기</div>
           {chat.replies && chat.replies.length > 0 && (
             <div className="task-detail__detail-modal-chat-replies" onClick={() => setIsExpanded(prev => !prev)}>
