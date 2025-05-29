@@ -96,7 +96,6 @@ const NewTaskCard: React.FC<{
         emails: [],
         prefix: '',
       }
-      console.log(newTask);
       addTask(newTask);
       showToast('작업이 추가 되었습니다.')
       onClose(newCardId);

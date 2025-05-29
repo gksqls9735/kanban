@@ -1,5 +1,6 @@
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
+import { Task } from "../types/type";
 
 export const formatKoreanDateSimple = (date: Date): string => {
   const y = date.getFullYear().toString().slice(-2);
@@ -88,3 +89,16 @@ export const formatTimeToHHMM = (date: Date): string => {
 
   return `${formattedHours} : ${formattedMinutes}`;
 }
+
+export const calcMinStart = (task: Task, dependencies: Task[]) => {
+  let minStart: Date | null = null;
+  if (task && task.dependencies && task.dependencies.length > 0) {
+    const dependencyEndTimes = dependencies.map(d => {
+      const depEndDate = new Date(d.end);
+      return isNaN(depEndDate.getTime()) ? -Infinity : depEndDate.getTime();
+    }).filter(time => time !== -Infinity);
+
+    if (dependencyEndTimes.length > 0) minStart = new Date(Math.max(...dependencyEndTimes));
+  }
+  return minStart;
+};

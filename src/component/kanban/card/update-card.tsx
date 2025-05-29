@@ -11,6 +11,7 @@ import TodoListEditor from "../new-card/todolist-editor";
 import AvatarItem from "../../avatar/avatar";
 import { generateUniqueId, getInitial } from "../../../utils/text-function";
 import ParticipantSelector from "../../participant-select/participant-selector";
+import { calcMinStart } from "../../../utils/date-function";
 
 const UpdateCard: React.FC<{
   onClose: () => void;
@@ -21,6 +22,31 @@ const UpdateCard: React.FC<{
   const updateTask = useTaskStore(state => state.updateTask);
   const statusList = useStatusesStore(state => state.statusList);
   const sections = useSectionsStore(state => state.sections);
+
+  const allTasks = useTaskStore(state => state.allTasks);
+
+  const getMinStartDateForTask = (task: Task): Date | null => {
+    // 대상 작업이나 작업의 의존성 ID 목록이 없으면 계산할 필요가 없습니다.
+    if (!task || !task.dependencies || task.dependencies.length === 0) {
+      return null;
+    }
+
+    // task.dependencies는 ID 문자열의 배열입니다.
+    // allTasks 배열에서 해당 ID를 가진 실제 Task 객체들을 찾습니다.
+    const resolvedDependencies: Task[] = task.dependencies
+      .map(depId => allTasks.find(t => t.taskId === depId)) // ID로 Task 객체 검색
+      .filter((dep): dep is Task => dep !== undefined); // undefined 제거 및 타입 가드
+
+    // 유효한 실제 의존성 작업 객체가 하나도 없다면 minStart를 계산할 수 없습니다.
+    if (resolvedDependencies.length === 0) {
+      return null;
+    }
+
+    // 찾은 실제 의존성 Task 객체들을 사용하여 calcMinStart 호출
+    return calcMinStart(task, resolvedDependencies);
+  };
+
+  const minStart = getMinStartDateForTask(currentTask);
 
   const [isOpenParticipantModal, setIsOpenParticipantModal] = useState<boolean>(false);
 
@@ -118,7 +144,7 @@ const UpdateCard: React.FC<{
   return (
     <div ref={cardRef} className="edit-task-content" style={{ display: 'contents' }}>
 
-      <SectionSelector selectedSection={selectedSection} onSectionSelect={handleSectionSelect} isOwnerOrParticipant={true}/>
+      <SectionSelector selectedSection={selectedSection} onSectionSelect={handleSectionSelect} isOwnerOrParticipant={true} />
 
       <input
         type="text"
@@ -128,12 +154,12 @@ const UpdateCard: React.FC<{
         onKeyDown={handleInputSubmit}
       />
 
-      <DatePickerTrigger startDate={startDate} endDate={endDate} onDateSelect={handleDateSelect} />
+      <DatePickerTrigger startDate={startDate} endDate={endDate} onDateSelect={handleDateSelect} minStart={minStart}/>
 
       <div className="card-meta">
         <div className="card-priority-status">
-          <OptionSelector options={prioritySelect} selectedOption={selectedPriority} onSelect={handlePrioritySelect} isOwnerOrParticipant={true}/>
-          <OptionSelector options={statusList} selectedOption={selectedStatus} onSelect={handleStatusSelect} isOwnerOrParticipant={true}/>
+          <OptionSelector options={prioritySelect} selectedOption={selectedPriority} onSelect={handlePrioritySelect} isOwnerOrParticipant={true} />
+          <OptionSelector options={statusList} selectedOption={selectedStatus} onSelect={handleStatusSelect} isOwnerOrParticipant={true} />
         </div>
       </div>
 

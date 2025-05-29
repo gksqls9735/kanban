@@ -5,6 +5,11 @@ import { ShadowRootContext } from "../context/shadowroot-context";
 import { StyleSheetManager } from "styled-components";
 import Kanban from "../main-page/kanban";
 
+import kanbanCssText from "../styles/kanban.css?raw";
+import DatePickerText from "../styles/datetimepicker.css?raw";
+import participantSelectorCssText from "../styles/participant-selector.css?raw";
+import taskDetailCssText from "../styles/task-detail.css?raw";
+
 class KanbanWebComponent extends HTMLElement {
   private root: ReactDOM.Root | null = null;
   private container: HTMLDivElement | null = null;
@@ -30,7 +35,7 @@ class KanbanWebComponent extends HTMLElement {
   constructor() {
     super();
   }
-//https://cdn-minio.bizbee.co.kr/common/kanban/
+  //https://cdn-minio.bizbee.co.kr/common/kanban/
 
   static get observedAttributes() {
     return ['tasks', 'sections', 'statuslist', 'currentuser', 'userlist', 'issidemenuopen', 'chatlist'];
@@ -42,32 +47,22 @@ class KanbanWebComponent extends HTMLElement {
       this.componentShadowRoot = this.attachShadow({ mode: 'open' });
 
       try {
-        const mainResponse = await fetch("kanban.css");
-        const mainCssText = await mainResponse.text();
-        const mainSheet = new CSSStyleSheet();
-        await mainSheet.replace(mainCssText);
+        const localCssPromises = [
+          kanbanCssText, DatePickerText, participantSelectorCssText, taskDetailCssText
+        ].map(cssText => {
+          const sheet = new CSSStyleSheet();
+          return sheet.replace(cssText).then(() => sheet);
+        });
 
-        const pickerResponse = await fetch("datetimepicker.css");
-        const pickerCssText = await pickerResponse.text();
-        const pickerSheet = new CSSStyleSheet();
-        await pickerSheet.replace(pickerCssText);
+        const cdnCssPromise = fetch("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css")
+          .then(res => res.text())
+          .then(text => {
+            const sheet = new CSSStyleSheet();
+            return sheet.replace(text).then(() => sheet);
+          });
 
-        const selectorResponse = await fetch("participant-selector.css");
-        const selectorCssText = await selectorResponse.text();
-        const selectorSheet = new CSSStyleSheet();
-        await selectorSheet.replace(selectorCssText);
-
-        const detailResponse = await fetch("task-detail.css");
-        const detailCssText = await detailResponse.text();
-        const detailSheet = new CSSStyleSheet();
-        await detailSheet.replace(detailCssText);
-
-        const pretendardResponse = await fetch("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
-        const pretendardText = await pretendardResponse.text();
-        const pretendardSheet = new CSSStyleSheet();
-        await pretendardSheet.replace(pretendardText);
-
-        this.componentShadowRoot.adoptedStyleSheets = [mainSheet, pickerSheet, selectorSheet, detailSheet, pretendardSheet];
+        const allSheets = await Promise.all([...localCssPromises, cdnCssPromise]);
+        this.componentShadowRoot.adoptedStyleSheets = allSheets;
       } catch (error) {
         console.error("Failed to load stylesheet: ", error);
       }
@@ -82,6 +77,16 @@ class KanbanWebComponent extends HTMLElement {
     if (oldValue === newValue) return;
     this._updateProps();
     this._render();
+  }
+
+  dispatchUpdateEvent(eventName: string, data: any) {
+    this.dispatchEvent(
+      new CustomEvent(eventName, {
+        detail: data,
+        bubbles: true,
+        composed: true,
+      })
+    );
   }
 
   // props 파싱 및 업데이트 로직
@@ -144,6 +149,11 @@ class KanbanWebComponent extends HTMLElement {
             userlist: this.props.userlist,
             isSideMenuOpen: this.props.isSideMenuOpen,
             chatlist: chatListWithDates,
+            onTasksChange: (data: Task[]) => this.dispatchUpdateEvent("tasksChanged", data),
+            onSectionsChange: (data: Section[]) => this.dispatchUpdateEvent("sectionsChanged", data),
+            onChatlistChange: (data: Chat[]) => this.dispatchUpdateEvent("chatlistChanged", data),
+            onStatusChange: (data: SelectOption[]) => this.dispatchUpdateEvent("statuslistChanged", data),
+            onSelectTaskId: (data: string) => this.dispatchUpdateEvent("selectedDetailTask", data),
           })
         )
       )

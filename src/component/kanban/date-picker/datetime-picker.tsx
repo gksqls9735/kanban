@@ -16,6 +16,7 @@ interface DateTimePickerProps {
   initialIncludeTime?: boolean;
   initialShowDeadline?: boolean;
   onChange?: (stateDate: Date | null, endDate: Date | null) => void;
+  minStart?: Date | null;
 }
 
 
@@ -25,6 +26,7 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
   initialIncludeTime = false,
   initialShowDeadline = false,
   onChange,
+  minStart
 }) => {
   const [currentMonth, setCurrentMonth] = useState<Date>(initialStartDate ? startOfMonth(initialStartDate) : new Date());
   const [startDate, setStartDate] = useState<Date | null>(initialStartDate);
@@ -82,16 +84,19 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
       const isCurrentMonthDay = isSameMonth(day, monthStart);
       const dayIsStartDate = startDate && isSameDay(day, startDate);
       const dayIsEndDate = showDeadline && endDate && isSameDay(day, endDate);
-
       const hasBothDatesAndDifferent = startDate && endDate && !isSameDay(startDate, endDate);
-
       const isInRange =
         showDeadline && startDate && endDate &&
         isAfter(day, startOfDay(startDate)) &&
         isBefore(day, startOfDay(endDate));
 
+      const isDisabledByMinStart = minStart && isValid(minStart) && isBefore(startOfDay(day), startOfDay(minStart));
+
+
       let cellClass = 'calendar-cell';
-      if (!isCurrentMonthDay) cellClass += ' disabled';
+      if (!isCurrentMonthDay || isDisabledByMinStart) {
+        cellClass += ' disabled';
+      }
       if (dayIsStartDate && dayIsEndDate) {
         // 시작일과 종료일이 같은 경우 (하루 선택)
         cellClass += ' start-date end-date single-date';
@@ -113,7 +118,7 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
         <div
           key={day.toString()}
           className={cellClass}
-          onClick={() => handleDateClick(day)}
+          onClick={() => !isDisabledByMinStart && handleDateClick(day)}
         >
           <span>{format(day, 'd')}</span>
         </div>

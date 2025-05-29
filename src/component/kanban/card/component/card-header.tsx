@@ -6,6 +6,7 @@ import { truncateText } from "../../../../utils/text-function";
 import DeleteModal from "../../delete-modal";
 import useUserStore from "../../../../store/user-store";
 import { useToast } from "../../../../context/toast-context";
+import { useTaskSelection } from "../../../../context/task-action-context";
 
 const CardHeader: React.FC<{
   task: Task;
@@ -15,6 +16,7 @@ const CardHeader: React.FC<{
   onOpenDetailModal?: (taskId: string) => void;
 }> = ({ task, sectionName, onClick, onModalStateChange, onOpenDetailModal }) => {
   const currentUser = useUserStore(state => state.currentUser);
+  const { onSelectTaskId } = useTaskSelection();
 
   const { isOpen, setIsOpen, wrapperRef, dropdownRef, toggle } = useDropdown();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
@@ -47,7 +49,12 @@ const CardHeader: React.FC<{
 
   const handleOpenDetailModal = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (onOpenDetailModal) onOpenDetailModal(task.taskId);
+    if (onOpenDetailModal) {
+      onOpenDetailModal(task.taskId);
+    }
+    if (onSelectTaskId) {
+      onSelectTaskId(task.taskId);
+    }
     toggle();
   };
 

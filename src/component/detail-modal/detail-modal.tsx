@@ -171,14 +171,7 @@ const DetailModal: React.FC<{
     ].filter(Boolean);
     return isExpanded ? allFields : allFields.slice(0, 3);
   }, [currentTask, isExpanded, isOpenParticipantModal]);
-
-  useEffect(() => {
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = 'auto';
-    };
-  }, []);
-
+  
   return (
     <div role="dialog" aria-modal="true" aria-labelledby="modal-title">
       <div className="task-detail__detail-modal-wrapper" onClick={(e) => e.stopPropagation()} style={{ width: modalWidth }}>

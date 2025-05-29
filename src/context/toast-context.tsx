@@ -35,7 +35,7 @@ const ToastContext = createContext<ToastContextType | undefined>(undefined);
 export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isToastVisible, setIsToastVisible] = useState<boolean>(false);
   const [toastMsg, setToastMsg] = useState<string>('');
-  const timeoutRef = useRef<number | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const hideToast = useCallback(() => {
     setIsToastVisible(false);
