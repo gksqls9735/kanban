@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { SelectOption, Task } from "../types/type";
 import { statusWaiting } from "../mocks/select-option-mock";
+import { generateUniqueId } from "../utils/text-function";
 
 interface TaskState {
   allTasks: Task[];
@@ -50,7 +51,7 @@ const useTaskStore = create<TaskState>((set, _get) => ({
       nextOrder = originalOrder + 1;
     }
     const newOrder = (originalOrder + nextOrder) / 2;
-    const copiedTask = { ...originalTask, taskId: `task-${Date.now()}-${Math.random().toString(36).substring(7)}`, order: newOrder };
+    const copiedTask = { ...originalTask, taskId: generateUniqueId('task'), order: newOrder };
     return { allTasks: [...state.allTasks, copiedTask] };
   }),
   deleteTasksBySection: (sectionId: string) => set((state) => {

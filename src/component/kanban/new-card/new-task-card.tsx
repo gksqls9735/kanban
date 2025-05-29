@@ -14,6 +14,7 @@ import AvatarItem from "../../avatar/avatar";
 import { generateUniqueId, getInitial } from "../../../utils/text-function";
 import useUserStore from "../../../store/user-store";
 import ParticipantSelector from "../../participant-select/participant-selector";
+import { useToast } from "../../../context/toast-context";
 
 const NewTaskCard: React.FC<{
   columnId: string;
@@ -30,6 +31,8 @@ const NewTaskCard: React.FC<{
   const viewMode = useViewModeStore(state => state.viewMode);
 
   const [isOpenParticipantModal, setIsOpenParticipantModal] = useState<boolean>(false);
+
+  const { showToast } = useToast();
 
   const [selectedSection, setSelectedSection] = useState<Section>(() => {
     if (viewMode === ViewModes.STATUS) {
@@ -95,6 +98,7 @@ const NewTaskCard: React.FC<{
       }
       console.log(newTask);
       addTask(newTask);
+      showToast('작업이 추가 되었습니다.')
       onClose(newCardId);
     }
   };
@@ -124,7 +128,7 @@ const NewTaskCard: React.FC<{
       <div ref={cardRef} className="kanban-card relative">
 
         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-          <SectionSelector selectedSection={selectedSection} onSectionSelect={handleSectionSelect} isOwnerOrParticipant={true}/>
+          <SectionSelector selectedSection={selectedSection} onSectionSelect={handleSectionSelect} isOwnerOrParticipant={true} />
           <div className="task-detail__detail-modal-close-button" onClick={() => onClose(newCardId)}>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="-0.5 -0.5 16 16" fill="#8D99A8" stroke="#000000" strokeLinecap="round" strokeLinejoin="round" className="feather feather-x" id="X--Streamline-Feather" height="16" width="16">
               <desc>X Streamline Icon: https://streamlinehq.com</desc>
@@ -146,8 +150,8 @@ const NewTaskCard: React.FC<{
 
         <div className="card-meta">
           <div className="card-priority-status">
-            <OptionSelector options={prioritySelect} selectedOption={selectedPriority} onSelect={handlePrioritySelect} isOwnerOrParticipant={true}/>
-            <OptionSelector options={statusList} selectedOption={selectedStatus} onSelect={handleStatusSelect} isOwnerOrParticipant={true}/>
+            <OptionSelector options={prioritySelect} selectedOption={selectedPriority} onSelect={handlePrioritySelect} isOwnerOrParticipant={true} />
+            <OptionSelector options={statusList} selectedOption={selectedStatus} onSelect={handleStatusSelect} isOwnerOrParticipant={true} />
           </div>
         </div>
 

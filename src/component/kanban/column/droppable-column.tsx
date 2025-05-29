@@ -91,38 +91,98 @@ const DroppableColumn: React.FC<{
     setNewCardList(updatedNewCard);
   };
 
+
   const handleUpdate = (name: string, color?: string) => {
     const trimmedName = name.trim();
-    if (trimmedName) {
-      if (viewMode === ViewModes.STATUS && color) {
-        const isExistStatusName = statusList.some(status => status.name === trimmedName);
-        if (!isExistStatusName) {
+    if (!trimmedName) {
+      showToast('이름을 입력해주세요.');
+      return;
+    }
+
+    if (viewMode === ViewModes.STATUS && color) {
+      const originalStatus = statusList.find(status => status.code === id);
+      if (!originalStatus) {
+        console.error("수정할 원본 상태를 찾을 수 없습니다. ID:", id);
+        return;
+      }
+
+      // 시나리오 1: 입력된 이름이 원래 이름과 동일한 경우
+      if (trimmedName === originalStatus.name) {
+        // 이름은 같지만 색상이 변경되었는지 확인
+        if (color !== originalStatus.colorMain) {
           const statusUpdates: Partial<SelectOption> = {
-            name: trimmedName, colorMain: color, colorSub: lightenColor(color, 0.85)
+            // name: trimmedName, // 이름은 변경되지 않았으므로 생략 가능
+            colorMain: color,
+            colorSub: lightenColor(color, 0.85),
           };
           updateStatus(id, statusUpdates);
 
-          const newStatus: SelectOption = {
-            code: id, name: trimmedName, colorMain: color, colorSub: lightenColor(color, 0.85)
+          // 연결된 작업들의 상태 정보도 업데이트
+          const newStatusDetails: SelectOption = {
+            ...originalStatus, // 기존 상태의 다른 정보는 유지
+            colorMain: color,
+            colorSub: lightenColor(color, 0.85),
           };
-          updateTasksWithNewStatusDetails(newStatus);
-          showToast('상태명이 변경 되었습니다.');
+          updateTasksWithNewStatusDetails(newStatusDetails);
+          showToast('상태 색상이 변경되었습니다.');
         } else {
-          showToast('동일한 이름의 상태가 존재합니다.');
-          return;
+          showToast('변경된 내용이 없습니다.');  // 문구 고민
         }
-      } else if (viewMode === ViewModes.SECTION) {
-        const isExistSectionName = sections.some(sec => sec.sectionName === trimmedName);
-        if (!isExistSectionName) {
-          updateSection(id, { sectionName: name });
-          showToast('섹션명이 변경 되었습니다.')
-        } else {
-          showToast('동일한 이름의 섹션이 존재합니다.');
-          return;
-        }
+        setIsEditing(false);
+        return;
       }
-      setIsEditing(false);
+
+      const isDuplicateWithOthers = statusList.some(
+        status => status.code !== id && status.name === trimmedName
+      );
+
+      if (isDuplicateWithOthers) {
+        showToast('동일한 이름의 다른 상태가 이미 존재합니다.');
+        return;
+      }
+
+      const statusUpdates: Partial<SelectOption> = {
+        name: trimmedName,
+        colorMain: color,
+        colorSub: lightenColor(color, 0.85),
+      };
+      updateStatus(id, statusUpdates);
+
+      const newStatusDataForTasks: SelectOption = {
+        code: id,
+        name: trimmedName,
+        colorMain: color,
+        colorSub: lightenColor(color, 0.85),
+      };
+      updateTasksWithNewStatusDetails(newStatusDataForTasks);
+      showToast('상태 정보가 변경되었습니다.');
+
+    } else if (viewMode === ViewModes.SECTION) {
+      const originalSection = sections.find(sec => sec.sectionId === id);
+      if (!originalSection) {
+        console.error("수정할 원본 섹션을 찾을 수 없습니다. ID:", id);
+        return;
+      }
+
+      if (trimmedName === originalSection.sectionName) {
+        showToast('변경된 내용이 없습니다.');
+        setIsEditing(false);
+        return;
+      }
+
+      const isDuplicateWithOthers = sections.some(
+        sec => sec.sectionId !== id && sec.sectionName === trimmedName
+      );
+
+      if (isDuplicateWithOthers) {
+        showToast('동일한 이름의 다른 섹션이 이미 존재합니다.');
+        return;
+      }
+
+      updateSection(id, { sectionName: trimmedName });
+      showToast('섹션명이 변경되었습니다.');
     }
+    setIsEditing(false);
   };
 
   const toggle = () => {
@@ -160,7 +220,7 @@ const DroppableColumn: React.FC<{
         <div className="section-content">
           <SortableContext items={tasksId} strategy={verticalListSortingStrategy}>
             {tasks.map(t => (
-              <CardWrapper key={t.taskId} task={t} sectionName={getSectionName(t.sectionId)} onOpenDetailModal={onOpenDetailModal}/>
+              <CardWrapper key={t.taskId} task={t} sectionName={getSectionName(t.sectionId)} onOpenDetailModal={onOpenDetailModal} />
             ))}
           </SortableContext>
           {newCardList.map(newCardId => (
