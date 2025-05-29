@@ -37,6 +37,14 @@ export type Section = {
   sectionName: string
   /** 정렬순서 */
   order: number
+  /** 토글 */
+  isOpen?: boolean;
+  /** 새 작업 확인 */
+  isNew?: boolean;
+}
+
+export interface SectionGroup extends Section {
+  tasks: Task[];
 }
 
 
@@ -183,15 +191,6 @@ export type Chat = {
 
   replies?: Chat[]; // ✅ 재귀 구조로 자식들 포함
 };
-
-export interface SectionGroup {
-  sectionId: string;
-  sectionName: string;
-  order: number; // 섹션 자체의 정렬 순서
-  tasks: Task[]; // 해당 섹션에 속한 Task_ 배열 (내부에서 order 순으로 정렬됨)
-  isOpen: boolean; // UI 상태 등을 위한 추가 속성 (선택적)
-  isNew: boolean;  // UI 상태 등을 위한 추가 속성 (선택적)
-}
 
 
 export type Tooltip = {
