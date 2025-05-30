@@ -72,6 +72,7 @@ const DroppableColumn: React.FC<{
       } else {
         style.color = '#5F6B7A';
       }
+      style.flexShrink = 0
       style.cursor = isOverlay ? 'grabbing' : 'grab';
       style.marginBottom = isOverlay ? 16 : 0;
       return style;

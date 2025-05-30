@@ -142,7 +142,7 @@ const UpdateCard: React.FC<{
   }
 
   return (
-    <div ref={cardRef} className="edit-task-content" style={{ display: 'contents' }}>
+    <div ref={cardRef} className="edit-task-content" style={{ display: 'contents' }} onClick={e => e.stopPropagation()}>
 
       <SectionSelector selectedSection={selectedSection} onSectionSelect={handleSectionSelect} isOwnerOrParticipant={true} />
 

@@ -26,6 +26,7 @@ const SortableColumn: React.FC<{
     transition,
     opacity: isDragging ? 0.5 : 1,
     minWidth: 260,
+    flexShrink: 0,
   };
 
   return (

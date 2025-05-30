@@ -55,8 +55,8 @@ const TodoList: React.FC<{
   };
 
   return (
-    <div className="card-todolist">
-      <div className="card-todotoggle" onClick={() => setShowTodo(prev => !prev)}>
+    <div className="card-todolist" onClick={e => e.stopPropagation()}>
+      <div className="card-todotoggle" onClick={(e) => { e.stopPropagation(); setShowTodo(prev => !prev) }}>
         <span>할 일</span>
         <span className={`card-todotoggle arrow ${showTodo ? 'arrow--open' : ''}`}>
           <FontAwesomeIcon icon={faCaretDown} style={{ width: 16, height: 16 }} />
@@ -71,8 +71,8 @@ const TodoList: React.FC<{
         <div className={`todo-list ${showTodo ? 'todo-list--open' : ''}`}>
           <SortableContext items={todoList.map(todo => todo.todoId)} strategy={verticalListSortingStrategy}>
             {todoList.map(todo => (
-              <DraggableTodo 
-                key={todo.todoId} todo={todo} isOwnerOrParticipant={isOwnerOrParticipant} 
+              <DraggableTodo
+                key={todo.todoId} todo={todo} isOwnerOrParticipant={isOwnerOrParticipant}
                 onCompleteChange={handleTodoCompleteChange} onDelete={handleDeleteTodo} />
             ))}
           </SortableContext>

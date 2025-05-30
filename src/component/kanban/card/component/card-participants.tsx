@@ -25,9 +25,14 @@ const CardParticipants: React.FC<{
     });
   }, [taskParticipants]);
 
+  const handleToggle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    toggle();
+  };
+  
   return (
     <div ref={wrapperRef} className="card-participant">
-      <div onClick={toggle}>
+      <div onClick={handleToggle}>
         <AvatarGroup list={sortedParticipants} maxVisible={3} />
       </div>
       {isOpen && (

@@ -232,27 +232,18 @@ export const useKanbanDnd = () => {
     }
 
     if (activeType === 'Task') {
-      if (activeId === overId && active.data.current?.task && getColumnId(active.data.current.task as Task) === (over.data.current?.task ? getColumnId(over.data.current.task as Task) : over.id as string)) {
-        if (activeId === overId) return;
-      }
-
       const originalTask = allTasks.find(t => t.taskId === activeId);
       if (!originalTask) return;
 
       let targetColumnId: string;
       let overTaskData: Task | null = null;
 
-      const isOverColumnDirectly = over.data.current?.type === 'Column' ||
-        (viewMode === ViewModes.STATUS
-          ? statusList.some(s => s.code === overId)
-          : sections.some(s => s.sectionId === overId))
-
-      if (isOverColumnDirectly) {
-        targetColumnId = overId;
-      } else if (over.data.current?.type === 'Task' && over.data.current?.task) { // over된 것이 Task인지 명확히 확인
+      if (over.data.current?.type === 'Column') {
+        targetColumnId = over.id as string;
+      } else if (over.data.current?.type === 'Task' && over.data.current?.task) {
         overTaskData = over.data.current.task as Task;
-        targetColumnId = getColumnId(overTaskData); // 내부 getColumnId 사용
-      } else { // 유효하지 않은 드롭 대상
+        targetColumnId = getColumnId(overTaskData);
+      } else {
         return;
       }
 
@@ -263,33 +254,28 @@ export const useKanbanDnd = () => {
       let newOrder: number;
 
       if (overTaskData) {
-        const overTaskIndex = tasksInTargetColumn.findIndex(t => t.taskId === overTaskData.taskId);
-        const prevOrder = overTaskIndex > 0 ? (tasksInTargetColumn[overTaskIndex - 1].order ?? 0) : 0;
-        const nextOrder = overTaskData.order ?? 0;
-        newOrder = (prevOrder + nextOrder) / 2;
+        const overIndex = tasksInTargetColumn.findIndex(t => t.taskId === overTaskData.taskId);
+        const prev = overIndex > 0 ? tasksInTargetColumn[overIndex - 1].order ?? 0 : 0;
+        const next = overTaskData.order ?? prev + 1;
+        newOrder = (prev + next) / 2;
       } else {
-        const lastTaskOrder = tasksInTargetColumn.length > 0
-          ? (tasksInTargetColumn[tasksInTargetColumn.length = 1].order ?? 0)
-          : 0;
-        newOrder = lastTaskOrder + 1;
+        const lastOrder = tasksInTargetColumn[tasksInTargetColumn.length - 1]?.order ?? 0;
+        newOrder = lastOrder + 1;
       }
 
-      const attributeUpdate: Partial<Task> = {};
-      const originalColumnId = getColumnId(originalTask);
+      const updatedData: Partial<Task> = {
+        order: newOrder,
+      };
 
-      if (originalColumnId !== targetColumnId) {
-        if (viewMode === ViewModes.STATUS) {
-          const newStatus = statusList.find(s => s.code === targetColumnId);
-          if (newStatus) attributeUpdate.status = newStatus;
-          else return;
-        } else {
-          attributeUpdate.sectionId = targetColumnId;
-        }
+      if (viewMode === ViewModes.STATUS) {
+        updatedData.status = { ...originalTask.status, code: targetColumnId };
+      } else {
+        updatedData.sectionId = targetColumnId;
       }
 
-      updateTask(activeId, { ...attributeUpdate, order: newOrder });
-
+      updateTask(activeId, updatedData);
     }
+
 
   };
   return {

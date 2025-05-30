@@ -68,7 +68,7 @@ const CardWrapper: React.FC<{
           style={style}
           {...listeners}
           {...attributes}
-          className="kanban-card"
+          className={`kanban-card ${isOverlay ? '드래그 오버레이' : '일반'}`}
           onClick={handleOpenDetailModal}
         >
           <CardContent task={task} sectionName={sectionName} onClick={handleEditMode} onModalStateChange={handleModalStateChange} />
