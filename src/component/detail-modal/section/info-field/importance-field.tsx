@@ -9,24 +9,25 @@ const ImportanceField: React.FC<{
   const trackRef = useRef<HTMLDivElement>(null);
   const [currentValue, setCurrentValue] = useState<number>(initialValue);
 
-  const { onMouseDownHandler: hookMouseDownHandler, isDragging } = useImportanceSlider({
-    trackRef,
-    value: currentValue,
-    onChange: setCurrentValue,
-    min: 0,
-    max: 2,
-    step: 0.5,
-  });
-  const handlerLeftPercent = (currentValue / 2) * 100;
-
   useEffect(() => {
     setCurrentValue(initialValue);
   }, [initialValue]);
 
-  useEffect(() => {
-    if (isOwnerOrParticipant && currentValue !== initialValue) parentOnChange(currentValue);
-  }, [currentValue, parentOnChange, initialValue, isOwnerOrParticipant]);
+  const handleSliderChange = (newValue: number) => {
+    setCurrentValue(newValue);
+    if (isOwnerOrParticipant && newValue !== initialValue) parentOnChange(newValue);
+  };
 
+  const { onMouseDownHandler: hookMouseDownHandler, isDragging } = useImportanceSlider({
+    trackRef,
+    value: currentValue,
+    onChange: handleSliderChange,
+    min: 0,
+    max: 2,
+    step: 0.5,
+  });
+
+  const handlerLeftPercent = (currentValue / 2) * 100;
   const actualMouseDownHandler = isOwnerOrParticipant ? hookMouseDownHandler : undefined;
   const cursorStyle = isOwnerOrParticipant ? (isDragging ? 'grabbing' : 'grab') : 'default';
 

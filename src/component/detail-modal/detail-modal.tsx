@@ -1,5 +1,5 @@
 import { Chat, Participant, Section, SelectOption, Task, Todo } from "../../types/type";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import useSectionsStore from "../../store/sections-store";
 import SectionSelector from "../kanban/new-card/section-selector";
 import ParticipantSelector from "../participant-select/participant-selector";
