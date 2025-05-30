@@ -237,7 +237,7 @@ const DroppableColumn: React.FC<{
           <div className="section-content">
             <SortableContext items={tasksId} strategy={verticalListSortingStrategy}>
               {tasks.map((t, index) => (
-                <React.Fragment>
+                <React.Fragment key={t.taskId}>
                   {placeholderData && (
                     placeholderData.columnId === columnId &&
                     placeholderData.index === index && renderPlaceholder()

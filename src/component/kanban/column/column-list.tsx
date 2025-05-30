@@ -15,14 +15,6 @@ import useUserStore from "../../../store/user-store";
 import DetailModal from "../../detail-modal/detail-modal";
 import DeleteModal from "../delete-modal";
 
-interface ColumnData {
-  id: string;
-  title: string;
-  tasks: Task[];
-  colorMain?: string;
-  colorSub?: string;
-}
-
 const ColumnList: React.FC<{
   getSectionName: (sectionId: string) => string;
   placeholderData: { columnId: string; index: number } | null;
