@@ -10,10 +10,9 @@ import useUserStore from "../../../store/user-store";
 const CardContent: React.FC<{
   task: Task;
   sectionName: string;
-  onClick: () => void;
+  onClick: (e: React.MouseEvent) => void;
   onModalStateChange: (isOpen: boolean) => void;
-  onOpenDetailModal?: (taskId: string) => void;
-}> = ({ task, sectionName, onClick, onModalStateChange, onOpenDetailModal }) => {
+}> = ({ task, sectionName, onClick, onModalStateChange }) => {
   const currentUser = useUserStore(state => state.currentUser);
 
   const isOwnerOrParticipant =
@@ -22,7 +21,7 @@ const CardContent: React.FC<{
 
   return (
     <>
-      <CardHeader task={task} sectionName={sectionName} onClick={onClick} onModalStateChange={onModalStateChange} onOpenDetailModal={onOpenDetailModal}/>
+      <CardHeader task={task} sectionName={sectionName} onClick={onClick} onModalStateChange={onModalStateChange}/>
       <div className="card-title">{task.taskName}</div>
       <div className="card-due-date">
         <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="#7d8998">
@@ -43,7 +42,7 @@ const CardContent: React.FC<{
   );
 };
 
-const areEqual = (prevProps: Readonly<{ task: Task; sectionName: string; onClick: () => void; }>, nextProps: Readonly<{ task: Task; sectionName: string; onClick: () => void; }>): boolean => {
+const areEqual = (prevProps: Readonly<{ task: Task; sectionName: string; onClick: (e: React.MouseEvent) => void; }>, nextProps: Readonly<{ task: Task; sectionName: string; onClick: (e: React.MouseEvent) => void; }>): boolean => {
 
   const prevTask = prevProps.task;
   const nextTask = nextProps.task;

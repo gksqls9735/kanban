@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import CardContent from "./card-content";
 import { Task } from '../../../types/type';
 import UpdateCard from './update-card';
+import { useTaskSelection } from '../../../context/task-action-context';
 
 const CardWrapper: React.FC<{
   task: Task;
@@ -11,6 +12,8 @@ const CardWrapper: React.FC<{
   isOverlay?: boolean;
   onOpenDetailModal?: (taskId: string) => void;
 }> = ({ task, sectionName, isOverlay, onOpenDetailModal }) => {
+  const { onSelectTaskId } = useTaskSelection();
+
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [isAnyModalOpen, setIsAnyModalOpen] = useState<boolean>(false);
 
@@ -29,11 +32,26 @@ const CardWrapper: React.FC<{
     marginBottom: '8px',
     position: 'relative',
     backgroundColor: 'white',
-    cursor: isAnyModalOpen ? 'default' : (isOverlay ? 'grabbing' : 'grab'),
+    cursor: isAnyModalOpen ? 'pointer' : (isOverlay ? 'grabbing' : 'grab'),
   };
 
   const handleModalStateChange = (isOpen: boolean) => {
     setIsAnyModalOpen(isOpen);
+  };
+
+  const handleOpenDetailModal = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onOpenDetailModal) {
+      onOpenDetailModal(task.taskId);
+    }
+    if (onSelectTaskId) {
+      onSelectTaskId(task.taskId);
+    }
+  };
+
+  const handleEditMode = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsEdit(true);
   };
 
   return (
@@ -51,8 +69,9 @@ const CardWrapper: React.FC<{
           {...listeners}
           {...attributes}
           className="kanban-card"
+          onClick={handleOpenDetailModal}
         >
-          <CardContent task={task} sectionName={sectionName} onClick={() => setIsEdit(true)} onModalStateChange={handleModalStateChange} onOpenDetailModal={onOpenDetailModal}/>
+          <CardContent task={task} sectionName={sectionName} onClick={handleEditMode} onModalStateChange={handleModalStateChange} />
         </div>
       )}
     </>

@@ -4,6 +4,16 @@ const DeleteModal: React.FC<{
   onCancel: () => void;
   onConfirm: () => void;
 }> = ({ title, message, onCancel, onConfirm }) => {
+  const handleConfirm = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onConfirm();
+  };
+
+  const handleCancel = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onCancel();
+  };
+
   return (
     <div className="delete-modal">
       <div className="delete-modal__icon-container">
@@ -17,10 +27,10 @@ const DeleteModal: React.FC<{
       </div>
       <div className="delete-modal__actions">
         <button
-          className="delete-modal__button delete-modal__button--cancel" onClick={onCancel}>
+          className="delete-modal__button delete-modal__button--cancel" onClick={handleCancel}>
           취소</button>
         <button
-          className="delete-modal__button delete-modal__button--confirm" onClick={onConfirm}>확인</button>
+          className="delete-modal__button delete-modal__button--confirm" onClick={handleConfirm}>확인</button>
       </div>
     </div >
   );
