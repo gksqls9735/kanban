@@ -63,7 +63,7 @@ const Kanban: React.FC<KanbanProps> = ({
   const setAllTaskChats = useChatStore(state => state.setAllTaskChats);
 
   const {
-    sensors, activeTask, activeColumn, handleDragStart, handleDragEnd, handleDragCancel
+    sensors, activeTask, activeColumn, placeholderData, handleDragStart, handleDragOver, handleDragEnd, handleDragCancel
   } = useKanbanDnd();
 
   useEffect(() => {
@@ -75,7 +75,6 @@ const Kanban: React.FC<KanbanProps> = ({
   useEffect(() => {
     if (onTasksChange) onTasksChange(allTasks);
   }, [allTasks]);
-
 
   useEffect(() => {
     if (!sectionsLoaded) {
@@ -137,7 +136,6 @@ const Kanban: React.FC<KanbanProps> = ({
   const toggleViewMode = () => {
     setViewMode(viewMode === ViewModes.STATUS ? ViewModes.SECTION : ViewModes.STATUS);
   };
-
   return (
     <ToastProvider>
       <div className="kanban-wrapper"
@@ -161,24 +159,27 @@ const Kanban: React.FC<KanbanProps> = ({
           sensors={sensors}
           collisionDetection={rectIntersection}
           onDragStart={handleDragStart}
+          onDragOver={handleDragOver}
           onDragEnd={handleDragEnd}
           onDragCancel={handleDragCancel}
         >
           <TaskSelectionContext.Provider value={taskSelectionContextValue}>
             <div className='kanban kanban-scrollbar-x' style={{ width: '100%', overflowX: 'auto', minWidth: 0, }}>
-              <ColumnList getSectionName={getSectionName} />
+              <ColumnList getSectionName={getSectionName} placeholderData={placeholderData} activeTaskForPlaceholder={activeTask} />
               <DragOverlay>
                 {activeTask ? (
                   <CardWrapper task={activeTask} sectionName={getSectionName(activeTask.sectionId)} isOverlay={true} />
                 ) : activeColumn ? (
                   <DroppableColumn
-                    id={activeColumn.id}
+                    columnId={activeColumn.id}
                     title={activeColumn.title}
                     tasks={activeColumn.tasks}
                     getSectionName={activeColumn.getSectionName}
                     colorMain={activeColumn.colorMain}
                     colorSub={activeColumn.colorSub}
                     isOverlay={true}
+                    placeholderData={null}
+                    activeTaskForPlaceholder={null}
                   />
                 ) : null}
               </DragOverlay>

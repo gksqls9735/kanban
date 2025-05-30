@@ -25,7 +25,9 @@ interface ColumnData {
 
 const ColumnList: React.FC<{
   getSectionName: (sectionId: string) => string;
-}> = ({ getSectionName }) => {
+  placeholderData: { columnId: string; index: number } | null;
+  activeTaskForPlaceholder: Task | null;
+}> = ({ getSectionName, placeholderData, activeTaskForPlaceholder }) => {
   const [isAddingSection, setIsAddingSection] = useState<boolean>(false);
   // 상세 보기 창
   const [detailedTask, setDetailedTask] = useState<Task | null>(null);
@@ -47,7 +49,7 @@ const ColumnList: React.FC<{
 
   const currentUser = useUserStore(state => state.currentUser);
 
-  // 상세보기 로직직
+  // 상세보기 로직
   const handleOpenDetailModal = (taskId: string) => {
     const taskToDetail = tasks.find(t => t.taskId === taskId);
     if (taskToDetail) setDetailedTask(taskToDetail);
@@ -60,6 +62,7 @@ const ColumnList: React.FC<{
   const handleDeleteRequestFromDetail = () => {
     setIsDeleteConfirmationOpen(true);
   };
+
   const confirmDeleteTask = () => {
     if (detailedTask) {
       deleteTask(detailedTask.taskId);
@@ -75,9 +78,7 @@ const ColumnList: React.FC<{
       const participantIds = t.participants ? t.participants.map(p => p.id) : [];
       return [...onwerId, ...participantIds];
     });
-
     const uniqueIds = new Set(allIds);
-
     return Array.from(uniqueIds);
   }, [tasks]);
 
@@ -88,14 +89,14 @@ const ColumnList: React.FC<{
     setIsAddingSection(false);
   }, [viewMode]);
 
-  const getTasksForColumn = (columnId: string): Task[] => {
+  const getTasksForColumn = useCallback((columnId: string): Task[] => {
     return tasks
       .filter(t => (viewMode === ViewModes.STATUS ? t.status.code : t.sectionId) === columnId)
       .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-  };
+  }, [tasks, viewMode]);
 
-  const { columnsWithTasks, columnsWithoutTasks, baseColumns } = useMemo(() => {
-    const baseColumns = viewMode === ViewModes.STATUS
+  const baseColumns = useMemo(() => {
+    return viewMode === ViewModes.STATUS
       ? statusList.map(status => ({
         id: status.code,
         title: status.name,
@@ -108,27 +109,9 @@ const ColumnList: React.FC<{
         colorMain: undefined,
         colorSub: undefined,
       }));
+  }, [viewMode, statusList, sections]); // getTasksForColumn 의존성 제거
 
-    const withTasks: ColumnData[] = [];
-    const withoutTasks: ColumnData[] = [];
-
-    baseColumns.forEach(col => {
-      const columnTasks = getTasksForColumn(col.id);
-      const columnData: ColumnData = { ...col, tasks: columnTasks };
-
-      if (columnTasks.length > 0) {
-        withTasks.push(columnData);
-      } else {
-        withoutTasks.push(columnData);
-      }
-    });
-    return { columnsWithTasks: withTasks, columnsWithoutTasks: withoutTasks, baseColumns };
-  }, [viewMode, statusList, sections, tasks]);
-
-  const allColumnIds = useMemo(() => [
-    ...columnsWithTasks.map(col => col.id),
-    ...columnsWithoutTasks.map(col => col.id),
-  ], [columnsWithTasks, columnsWithoutTasks]);
+  const allColumnIds = useMemo(() => baseColumns.map(col => col.id), [baseColumns]);
 
   const handleAddNewItem = (name: string, color?: string) => {
     const trimmedName = name.trim();
@@ -160,9 +143,9 @@ const ColumnList: React.FC<{
     setIsAddingSection(prev => !prev);
   };
 
-  const handleAddBefore = useCallback((referenceId: string) => {
+  const handleAddBefore = useCallback((targetColumnId: string) => {
     if (viewMode === ViewModes.SECTION) {
-      insertSection(referenceId, 'before');
+      insertSection(targetColumnId, 'before');
     } else if (viewMode === ViewModes.STATUS) {
       const newColor = colors[0];
       const newStatusData: SelectOption = {
@@ -171,13 +154,13 @@ const ColumnList: React.FC<{
         colorMain: newColor,
         colorSub: lightenColor(newColor, 0.85),
       }
-      insertStatus(referenceId, newStatusData, 'before');
+      insertStatus(targetColumnId, newStatusData, 'before');
     }
-  }, [viewMode, insertSection]);
+  }, [viewMode, insertSection, insertStatus]);
 
-  const handleAddAfter = useCallback((referenceId: string) => {
+  const handleAddAfter = useCallback((targetColumnId: string) => {
     if (viewMode === ViewModes.SECTION) {
-      insertSection(referenceId, 'after');
+      insertSection(targetColumnId, 'after');
     } else if (viewMode === ViewModes.STATUS) {
       const newColor = colors[0];
       const newStatusData: SelectOption = {
@@ -186,9 +169,9 @@ const ColumnList: React.FC<{
         colorMain: newColor,
         colorSub: lightenColor(newColor, 0.85),
       }
-      insertStatus(referenceId, newStatusData, 'after');
+      insertStatus(targetColumnId, newStatusData, 'after');
     }
-  }, [viewMode, insertSection]);
+  }, [viewMode, insertSection, insertStatus]);
 
   return (
     <>
@@ -197,7 +180,7 @@ const ColumnList: React.FC<{
           {baseColumns.map(col => (
             <DroppableColumn
               key={col.id}
-              id={col.id}
+              columnId={col.id}
               title={col.title}
               tasks={getTasksForColumn(col.id)}
               getSectionName={getSectionName}
@@ -206,6 +189,8 @@ const ColumnList: React.FC<{
               onAddBefore={handleAddBefore}
               onAddAfter={handleAddAfter}
               onOpenDetailModal={handleOpenDetailModal}
+              placeholderData={placeholderData}
+              activeTaskForPlaceholder={activeTaskForPlaceholder}
             />
           ))}
           {isAddingSection && isOwnerOrParticipant && (
@@ -225,7 +210,7 @@ const ColumnList: React.FC<{
         <DetailModal
           task={detailedTask}
           onClose={handleCloseDetailModal}
-          openDeleteModal={(e) => { 
+          openDeleteModal={(e) => {
             e.stopPropagation();
             handleDeleteRequestFromDetail();
           }}

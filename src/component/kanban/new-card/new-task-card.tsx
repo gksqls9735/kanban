@@ -18,7 +18,7 @@ import { useToast } from "../../../context/toast-context";
 
 const NewTaskCard: React.FC<{
   columnId: string;
-  onClose: (newCardId: string) => void;
+  onClose: (closedId: string) => void;
   newCardId: string;
 }> = ({ columnId, onClose, newCardId }) => {
   const currentUser = useUserStore(state => state.currentUser);

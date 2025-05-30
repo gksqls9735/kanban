@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import useTaskStore from "../store/task-store";
 import useViewModeStore from "../store/viewmode-store";
 import { Task } from "../types/type";
-import { DragEndEvent, DragStartEvent, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
+import { DragEndEvent, DragOverEvent, DragStartEvent, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 import { ViewModes } from "../constants";
 import { lightenColor } from "../utils/color-function";
@@ -32,6 +32,9 @@ export const useKanbanDnd = () => {
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [activeColumn, setActiveColumn] = useState<ActiveColumnData | null>(null);
 
+  const [placeholderData, setPlaceholderData] = useState<{ columnId: string; index: number } | null>(null);
+  const [draggedItemOriginalColumnId, setDraggedItemOriginalColumnId] = useState<string | null>(null);
+
   const currentUser = useUserStore(state => state.currentUser);
 
   const isOnwerOrParticipant = useMemo(() => {
@@ -40,11 +43,8 @@ export const useKanbanDnd = () => {
       const participantIds = t.participants ? t.participants.map(p => p.id) : [];
       return [...onwerId, ...participantIds];
     });
-
     const uniqueIds = new Set(allIds);
-    const uniqueIdsArray = Array.from(uniqueIds);
-
-    return uniqueIdsArray.some(uId => uId === currentUser?.id);
+    return Array.from(uniqueIds).some(uId => uId === currentUser?.id);
 
   }, [allTasks, currentUser]);
 
@@ -74,12 +74,14 @@ export const useKanbanDnd = () => {
     if (type === 'Task') {
       const taskId = active.id as string;
       const task = allTasks.find(t => t.taskId === taskId);
-      if (task) setActiveTask(task);
+      if (task) {
+        setActiveTask(task);
+        setDraggedItemOriginalColumnId(getColumnId(task));
+      }
       setActiveColumn(null);
     } else if (type === 'Column') {
       const columnId = active.id as string;
       let columnData: ActiveColumnData | null = null;
-
       if (viewMode === ViewModes.STATUS) {
         const status = statusList.find(s => s.code === columnId);
         if (status) {
@@ -108,12 +110,69 @@ export const useKanbanDnd = () => {
       setActiveColumn(columnData);
       setActiveTask(null);
     }
+    setPlaceholderData(null);
+  };
+
+  const handleDragOver = (e: DragOverEvent) => {
+    const { active, over } = e;
+
+    if (!over || !activeTask || active.id === over.id) { // activeTask (currentDraggingTask 역할) 사용
+      const overData = over?.data.current;
+      let currentOverColumnId: string | null = null;
+      if (overData?.type === 'Column') {
+        currentOverColumnId = over!.id as string;
+      } else if (overData?.type === 'Task' && overData.task) {
+        currentOverColumnId = getColumnId(overData.task as Task);
+      }
+      if (currentOverColumnId === draggedItemOriginalColumnId) {
+        setPlaceholderData(null);
+      }
+      return;
+    }
+
+    if (active.data.current?.type !== 'Task') {
+      setPlaceholderData(null);
+      return;
+    }
+
+    const overIsTask = over.data.current?.type === 'Task';
+    const overIsColumn = over.data.current?.type === 'Column';
+
+    let targetColumnId: string | null = null;
+    if (overIsColumn) {
+      targetColumnId = over.id as string;
+    } else if (overIsTask && over.data.current?.task) {
+      targetColumnId = getColumnId(over.data.current.task as Task);
+    }
+
+    if (!targetColumnId || targetColumnId === draggedItemOriginalColumnId) {
+      setPlaceholderData(null);
+      return;
+    }
+
+    const tasksInTargetColumn = getTasksForColumn(targetColumnId); // 내부 getTasksForColumn 사용
+    let newIndex: number;
+
+    if (overIsTask && over.data.current?.task) {
+      const overTask = over.data.current.task as Task;
+      const overTaskIndexInTargetColumn = tasksInTargetColumn.findIndex(t => t.taskId === overTask.taskId);
+      if (overTaskIndexInTargetColumn === -1) {
+        setPlaceholderData(null); return;
+      }
+      newIndex = overTaskIndexInTargetColumn;
+    } else if (overIsColumn) {
+      newIndex = tasksInTargetColumn.length;
+    } else {
+      setPlaceholderData(null); return;
+    }
+    setPlaceholderData({ columnId: targetColumnId, index: newIndex });
   };
 
   const handleDragCancel = () => {
     setActiveTask(null);
     setActiveColumn(null);
-
+    setPlaceholderData(null);
+    setDraggedItemOriginalColumnId(null);
   };
 
   const handleDragEnd = (e: DragEndEvent) => {
@@ -126,6 +185,8 @@ export const useKanbanDnd = () => {
 
     setActiveTask(null);
     setActiveColumn(null);
+    setPlaceholderData(null);
+    setDraggedItemOriginalColumnId(null);
 
     if (!over) return;
 
@@ -137,13 +198,11 @@ export const useKanbanDnd = () => {
     const overType = over.data.current?.type;
 
     if (activeType === 'Column') {
-      if (overType === 'Task') {
-        const overTask = allTasks.find(t => t.taskId === originalOverId);
-        if (overTask) {
-          overId = getColumnId(overTask);
-        } else {
-          return;
-        }
+      if (overType === 'Task' && over.data.current?.task) { // over.data.current.task null 체크
+        const overTask = over.data.current.task as Task; // 타입 단언
+        overId = getColumnId(overTask); // 내부 getColumnId 사용
+      } else if (overType !== 'Column') { // Task도 아니고 Column도 아니면 무시
+        return;
       }
 
       if (activeId === overId) return;
@@ -153,9 +212,9 @@ export const useKanbanDnd = () => {
         let newIndex = statusList.findIndex(s => s.code === overId);
         if (oldIndex !== -1 && newIndex !== -1) {
           const isColumnWaiting = statusList[newIndex].name === '대기';
-          if (isColumnWaiting) {
-            newIndex = 1;
-          }
+          if (isColumnWaiting && newIndex !== 0) newIndex = 1;
+          if (statusList[oldIndex].name !== '대기' && newIndex === 0 && statusList[0].name === '대기') newIndex = 1;
+          if (statusList[activeId as any]?.name === '대기' && newIndex !== 0) return;
           setStatusList(arrayMove(statusList, oldIndex, newIndex));
         }
       } else {
@@ -173,13 +232,15 @@ export const useKanbanDnd = () => {
     }
 
     if (activeType === 'Task') {
-      if (activeId === overId) return;
+      if (activeId === overId && active.data.current?.task && getColumnId(active.data.current.task as Task) === (over.data.current?.task ? getColumnId(over.data.current.task as Task) : over.id as string)) {
+        if (activeId === overId) return;
+      }
 
       const originalTask = allTasks.find(t => t.taskId === activeId);
       if (!originalTask) return;
 
       let targetColumnId: string;
-      let overTaskData: Task | undefined | null = null;
+      let overTaskData: Task | null = null;
 
       const isOverColumnDirectly = over.data.current?.type === 'Column' ||
         (viewMode === ViewModes.STATUS
@@ -188,10 +249,11 @@ export const useKanbanDnd = () => {
 
       if (isOverColumnDirectly) {
         targetColumnId = overId;
-      } else {
-        overTaskData = allTasks.find(t => t.taskId === overId);
-        if (!overTaskData) return;
-        targetColumnId = getColumnId(overTaskData);
+      } else if (over.data.current?.type === 'Task' && over.data.current?.task) { // over된 것이 Task인지 명확히 확인
+        overTaskData = over.data.current.task as Task;
+        targetColumnId = getColumnId(overTaskData); // 내부 getColumnId 사용
+      } else { // 유효하지 않은 드롭 대상
+        return;
       }
 
       const tasksInTargetColumn = allTasks
@@ -202,9 +264,7 @@ export const useKanbanDnd = () => {
 
       if (overTaskData) {
         const overTaskIndex = tasksInTargetColumn.findIndex(t => t.taskId === overTaskData.taskId);
-        const prevOrder = overTaskIndex > 0
-          ? (tasksInTargetColumn[overTaskIndex - 1].order ?? 0)
-          : 0;
+        const prevOrder = overTaskIndex > 0 ? (tasksInTargetColumn[overTaskIndex - 1].order ?? 0) : 0;
         const nextOrder = overTaskData.order ?? 0;
         newOrder = (prevOrder + nextOrder) / 2;
       } else {
@@ -236,7 +296,9 @@ export const useKanbanDnd = () => {
     sensors,
     activeTask,
     activeColumn,
+    placeholderData,
     handleDragStart,
+    handleDragOver,
     handleDragEnd,
     handleDragCancel,
   };
