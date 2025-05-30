@@ -370,6 +370,15 @@
   border-top-right-radius: 50px;
 }
 
+.kanban .kanban-task-placeholder {
+  height: 60px;
+  background-color: rgba(0, 0, 0, 0.05);
+  border: 2px dashed #a9a9a9;
+  border-radius: 4px;
+  margin: 8px 0px;
+  box-sizing: border-box;
+}
+
 .kanban .section-content {
   border: 1px solid rgba(228, 232, 238, 1);
   border-radius: 16px;

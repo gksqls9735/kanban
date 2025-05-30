@@ -31,7 +31,6 @@ const DroppableColumn: React.FC<{
   onOpenDetailModal?: (taskId: string) => void;
 
   placeholderData: { columnId: string; index: number } | null;
-  activeTaskForPlaceholder: Task | null;
 }> = ({
   tasks,
   columnId,
@@ -44,7 +43,6 @@ const DroppableColumn: React.FC<{
   onAddAfter,
   onOpenDetailModal,
   placeholderData,
-  activeTaskForPlaceholder,
 }) => {
     const [isEdting, setIsEditing] = useState<boolean>(false);
 
@@ -205,21 +203,6 @@ const DroppableColumn: React.FC<{
       , [viewMode]);
     const handleDelete = useMemo(() => viewMode === ViewModes.STATUS ? handleDeleteStatus : handleDeleteSection, [viewMode]);
 
-    // placeholder UI 랜더링 함수
-    const renderPlaceholder = () => {
-      const placeholderHeight = activeTaskForPlaceholder ? '60px' : '60px'  // 조정하기
-      return (
-        <div
-          key="dnd-kit-placeholder"
-          style={{
-            height: placeholderHeight, backgroundColor: 'rgba(0,0,0,0.05)',
-            border: '2px dashed #a9a9a9', borderRadius: 4, margin: '8px 0px', boxSizing: 'border-box',
-          }}
-          className="kanban-task-placeholder"
-        />
-      )
-    };
-
     return (
       <>
         <div ref={setNodeRef} style={columnStyle} {...attributes} className="kanban-section">
@@ -240,7 +223,7 @@ const DroppableColumn: React.FC<{
                 <React.Fragment key={t.taskId}>
                   {placeholderData && (
                     placeholderData.columnId === columnId &&
-                    placeholderData.index === index && renderPlaceholder()
+                    placeholderData.index === index && <div key="dnd-kit-placeholder" className="kanban-task-placeholder"/>
                   )}
                   <CardWrapper task={t} sectionName={getSectionName(t.sectionId)} onOpenDetailModal={onOpenDetailModal} />
                 </React.Fragment>
@@ -248,7 +231,7 @@ const DroppableColumn: React.FC<{
               {/* 리스트 맨 마지막에 플레이스홀더가 와야 하는 경우 */}
               {placeholderData && (
                 placeholderData.columnId === columnId &&
-                placeholderData.index === tasks.length && renderPlaceholder()
+                placeholderData.index === tasks.length && <div key="dnd-kit-placeholder" className="kanban-task-placeholder"/>
               )}
             </SortableContext>
             {newCardList.map(newCardId => (

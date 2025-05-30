@@ -18,8 +18,7 @@ import DeleteModal from "../delete-modal";
 const ColumnList: React.FC<{
   getSectionName: (sectionId: string) => string;
   placeholderData: { columnId: string; index: number } | null;
-  activeTaskForPlaceholder: Task | null;
-}> = ({ getSectionName, placeholderData, activeTaskForPlaceholder }) => {
+}> = ({ getSectionName, placeholderData }) => {
   const [isAddingSection, setIsAddingSection] = useState<boolean>(false);
   // 상세 보기 창
   const [detailedTask, setDetailedTask] = useState<Task | null>(null);
@@ -182,7 +181,6 @@ const ColumnList: React.FC<{
               onAddAfter={handleAddAfter}
               onOpenDetailModal={handleOpenDetailModal}
               placeholderData={placeholderData}
-              activeTaskForPlaceholder={activeTaskForPlaceholder}
             />
           ))}
           {isAddingSection && isOwnerOrParticipant && (

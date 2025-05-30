@@ -165,7 +165,7 @@ const Kanban: React.FC<KanbanProps> = ({
         >
           <TaskSelectionContext.Provider value={taskSelectionContextValue}>
             <div className='kanban kanban-scrollbar-x' style={{ width: '100%', overflowX: 'auto', minWidth: 0, }}>
-              <ColumnList getSectionName={getSectionName} placeholderData={placeholderData} activeTaskForPlaceholder={activeTask} />
+              <ColumnList getSectionName={getSectionName} placeholderData={placeholderData} />
               <DragOverlay>
                 {activeTask ? (
                   <CardWrapper task={activeTask} sectionName={getSectionName(activeTask.sectionId)} isOverlay={true} />
@@ -179,7 +179,6 @@ const Kanban: React.FC<KanbanProps> = ({
                     colorSub={activeColumn.colorSub}
                     isOverlay={true}
                     placeholderData={null}
-                    activeTaskForPlaceholder={null}
                   />
                 ) : null}
               </DragOverlay>
