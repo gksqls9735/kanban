@@ -390,7 +390,7 @@
   flex-direction: column;
 }
 
-.kanban .kanban-section .task-add {
+.kanban .section-content .task-add {
   margin: 0 auto;
   display: flex;
   align-items: center;

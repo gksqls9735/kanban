@@ -73,9 +73,9 @@ const DroppableColumn: React.FC<{
         style.color = '#5F6B7A';
       }
       style.cursor = isOverlay ? 'grabbing' : 'grab';
+      style.marginBottom = isOverlay ? 16 : 0;
       return style;
     }, [colorMain, colorSub, isOverlay]);
-
 
     const handleDeleteSection = () => {
       deleteSection(columnId);
@@ -194,42 +194,42 @@ const DroppableColumn: React.FC<{
 
     return (
       <>
-          <div className="section-header" style={currentHeaderStyle}>
-            <ColumnHeader
-              columnId={columnId} columnTitle={title} deleteActionLabel={deleteActionLabel}
-              onDelete={() => setIsDeleteModalOpen(true)} handleEditClick={() => setIsEditing(true)}
-              onAddBefore={onAddBefore} onAddAfter={onAddAfter}
-            />
-          </div>
-          {isEdting && (
-            <ColumnEdit
-              viewMode={viewMode} isEdting={isEdting} toggle={toggle} onUpdate={handleUpdate} colorMain={colorMain} columnTitle={title} />
-          )}
-          <div className="section-content">
-            <SortableContext items={tasksId} strategy={verticalListSortingStrategy}>
-              {tasks.map((t, index) => (
-                <React.Fragment key={t.taskId}>
-                  {placeholderData && (
-                    placeholderData.columnId === columnId &&
-                    placeholderData.index === index && <div key="dnd-kit-placeholder" className="kanban-task-placeholder"/>
-                  )}
-                  <CardWrapper task={t} sectionName={getSectionName(t.sectionId)} onOpenDetailModal={onOpenDetailModal} />
-                </React.Fragment>
-              ))}
-              {/* 리스트 맨 마지막에 플레이스홀더가 와야 하는 경우 */}
-              {placeholderData && (
-                placeholderData.columnId === columnId &&
-                placeholderData.index === tasks.length && <div key="dnd-kit-placeholder" className="kanban-task-placeholder"/>
-              )}
-            </SortableContext>
-            {newCardList.map(newCardId => (
-              <NewTaskCard key={`new-card-${newCardId}`} columnId={columnId} onClose={handleClose} newCardId={newCardId} />
+        <div className="section-header" style={currentHeaderStyle}>
+          <ColumnHeader
+            columnId={columnId} columnTitle={title} deleteActionLabel={deleteActionLabel}
+            onDelete={() => setIsDeleteModalOpen(true)} handleEditClick={() => setIsEditing(true)}
+            onAddBefore={onAddBefore} onAddAfter={onAddAfter}
+          />
+        </div>
+        {isEdting && (
+          <ColumnEdit
+            viewMode={viewMode} isEdting={isEdting} toggle={toggle} onUpdate={handleUpdate} colorMain={colorMain} columnTitle={title} />
+        )}
+        <div className="section-content">
+          <SortableContext items={tasksId} strategy={verticalListSortingStrategy}>
+            {tasks.map((t, index) => (
+              <React.Fragment key={t.taskId}>
+                {placeholderData && (
+                  placeholderData.columnId === columnId &&
+                  placeholderData.index === index && <div key="dnd-kit-placeholder" className="kanban-task-placeholder" />
+                )}
+                <CardWrapper task={t} sectionName={getSectionName(t.sectionId)} onOpenDetailModal={onOpenDetailModal} />
+              </React.Fragment>
             ))}
-            <div className="task-add" onClick={handleAddNewTask}>
-              <FontAwesomeIcon icon={faPlus} style={{ width: 13, height: 13 }} />
-              <div>작업 추가</div>
-            </div>
+            {/* 리스트 맨 마지막에 플레이스홀더가 와야 하는 경우 */}
+            {placeholderData && (
+              placeholderData.columnId === columnId &&
+              placeholderData.index === tasks.length && <div key="dnd-kit-placeholder" className="kanban-task-placeholder" />
+            )}
+          </SortableContext>
+          {newCardList.map(newCardId => (
+            <NewTaskCard key={`new-card-${newCardId}`} columnId={columnId} onClose={handleClose} newCardId={newCardId} />
+          ))}
+          <div className="task-add" onClick={handleAddNewTask}>
+            <FontAwesomeIcon icon={faPlus} style={{ width: 13, height: 13 }} />
+            <div>작업 추가</div>
           </div>
+        </div>
         {isDeleteModalOpen && (
           <DeleteModal
             title={deleteModalTitle}
