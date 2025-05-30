@@ -21,7 +21,7 @@ const CardContent: React.FC<{
 
   return (
     <>
-      <CardHeader task={task} sectionName={sectionName} onClick={onClick} onModalStateChange={onModalStateChange}/>
+      <CardHeader task={task} sectionName={sectionName} onClick={onClick} onModalStateChange={onModalStateChange} />
       <div className="card-title">{task.taskName}</div>
       <div className="card-due-date">
         <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="#7d8998">
@@ -35,7 +35,7 @@ const CardContent: React.FC<{
       {task.todoList.length > 0 && (
         <>
           <div className="seperation-line" />
-          <TodoList taskId={task.taskId} todoList={task.todoList} isOwnerOrParticipant={isOwnerOrParticipant}/>
+          <TodoList taskId={task.taskId} todoList={task.todoList} isOwnerOrParticipant={isOwnerOrParticipant} />
         </>
       )}
     </>
@@ -56,6 +56,7 @@ const areEqual = (prevProps: Readonly<{ task: Task; sectionName: string; onClick
     return false;
   }
 
+  if (prevTask.taskName !== nextTask.taskName) return false;
 
   if (prevTask.start.getTime() !== nextTask.start.getTime() || prevTask.end.getTime() !== nextTask.end.getTime()) return false;
 
