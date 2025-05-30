@@ -1,8 +1,7 @@
-import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { SelectOption, Task } from "../../../types/type";
-import { CSS } from '@dnd-kit/utilities';
 import React, { useMemo, useState } from "react";
 import NewTaskCard from "../new-card/new-task-card";
 import CardWrapper from "../card/card-wrapper";
@@ -62,10 +61,6 @@ const DroppableColumn: React.FC<{
     const [newCardList, setNewCardList] = useState<string[]>([]);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
 
-    const {
-      attributes, listeners, setNodeRef, transform, transition, isDragging
-    } = useSortable({ id: columnId, data: { type: 'Column', columnId: columnId } });
-
     const tasksId = tasks.map(item => item.taskId);
 
     const currentHeaderStyle: React.CSSProperties = useMemo(() => {
@@ -81,12 +76,6 @@ const DroppableColumn: React.FC<{
       return style;
     }, [colorMain, colorSub, isOverlay]);
 
-    const columnStyle: React.CSSProperties = {
-      transform: CSS.Translate.toString(transform),
-      transition,
-      opacity: isDragging ? 0.5 : 1,
-      flexShrink: 0,
-    };
 
     const handleDeleteSection = () => {
       deleteSection(columnId);
@@ -205,8 +194,7 @@ const DroppableColumn: React.FC<{
 
     return (
       <>
-        <div ref={setNodeRef} style={columnStyle} {...attributes} className="kanban-section">
-          <div className="section-header" style={currentHeaderStyle} {...listeners}>
+          <div className="section-header" style={currentHeaderStyle}>
             <ColumnHeader
               columnId={columnId} columnTitle={title} deleteActionLabel={deleteActionLabel}
               onDelete={() => setIsDeleteModalOpen(true)} handleEditClick={() => setIsEditing(true)}
@@ -242,7 +230,6 @@ const DroppableColumn: React.FC<{
               <div>작업 추가</div>
             </div>
           </div>
-        </div>
         {isDeleteModalOpen && (
           <DeleteModal
             title={deleteModalTitle}

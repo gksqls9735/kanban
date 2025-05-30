@@ -4,7 +4,6 @@ import useTaskStore from "../../../store/task-store";
 import { colors, ViewModes } from "../../../constants";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { lightenColor } from "../../../utils/color-function";
-import DroppableColumn from "./droppable-column";
 import { horizontalListSortingStrategy, SortableContext } from "@dnd-kit/sortable";
 import useSectionsStore from "../../../store/sections-store";
 import useStatusesStore from "../../../store/statuses-store";
@@ -14,6 +13,7 @@ import { generateUniqueId } from "../../../utils/text-function";
 import useUserStore from "../../../store/user-store";
 import DetailModal from "../../detail-modal/detail-modal";
 import DeleteModal from "../delete-modal";
+import SortableColumn from "./sortable-column";
 
 const ColumnList: React.FC<{
   getSectionName: (sectionId: string) => string;
@@ -169,18 +169,15 @@ const ColumnList: React.FC<{
       <SortableContext items={allColumnIds} strategy={horizontalListSortingStrategy}>
         <div className="kanban-content">
           {baseColumns.map(col => (
-            <DroppableColumn
+            <SortableColumn
               key={col.id}
-              columnId={col.id}
-              title={col.title}
-              tasks={getTasksForColumn(col.id)}
+              col={col}
               getSectionName={getSectionName}
-              colorMain={col.colorMain}
-              colorSub={col.colorSub}
+              placeholderData={placeholderData}
+              getTasksForColumn={getTasksForColumn}
               onAddBefore={handleAddBefore}
               onAddAfter={handleAddAfter}
               onOpenDetailModal={handleOpenDetailModal}
-              placeholderData={placeholderData}
             />
           ))}
           {isAddingSection && isOwnerOrParticipant && (
