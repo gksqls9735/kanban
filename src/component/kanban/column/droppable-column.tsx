@@ -16,6 +16,7 @@ import ColumnEdit from "./column-edit";
 import { lightenColor } from "../../../utils/color-function";
 import { useToast } from "../../../context/toast-context";
 import { generateUniqueId } from "../../../utils/text-function";
+import { SyntheticListenerMap } from "@dnd-kit/core/dist/hooks/utilities";
 
 const DroppableColumn: React.FC<{
   tasks: Task[];
@@ -30,6 +31,7 @@ const DroppableColumn: React.FC<{
   onOpenDetailModal?: (taskId: string) => void;
 
   placeholderData: { columnId: string; index: number } | null;
+  listeners?: SyntheticListenerMap | undefined;
 }> = ({
   tasks,
   columnId,
@@ -42,6 +44,7 @@ const DroppableColumn: React.FC<{
   onAddAfter,
   onOpenDetailModal,
   placeholderData,
+  listeners
 }) => {
     const [isEdting, setIsEditing] = useState<boolean>(false);
 
@@ -195,7 +198,7 @@ const DroppableColumn: React.FC<{
 
     return (
       <>
-        <div className="section-header" style={currentHeaderStyle}>
+        <div className="section-header" style={currentHeaderStyle} {...listeners}>
           <ColumnHeader
             columnId={columnId} columnTitle={title} deleteActionLabel={deleteActionLabel}
             onDelete={() => setIsDeleteModalOpen(true)} handleEditClick={() => setIsEditing(true)}

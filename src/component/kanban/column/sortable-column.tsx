@@ -30,7 +30,7 @@ const SortableColumn: React.FC<{
   };
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners} className="kanban-section">
+    <div ref={setNodeRef} style={style} {...attributes} className="kanban-section">
       <DroppableColumn
         key={col.id}
         columnId={col.id}
@@ -43,6 +43,7 @@ const SortableColumn: React.FC<{
         onAddAfter={onAddAfter}
         onOpenDetailModal={onOpenDetailModal}
         placeholderData={placeholderData}
+        listeners={listeners}
       />
     </div>
   );
