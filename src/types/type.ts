@@ -15,7 +15,7 @@ export type UrlData = {
 
 
 export type MeasurementUnit =
-  "숫자" | "퍼센트" | "KRW" |  "USD" | "EUR" | "JPY" | "CNY" | "사용자 지정 테이블" | "형식 없음";
+  "숫자" | "퍼센트" | "KRW" | "USD" | "EUR" | "JPY" | "CNY" | "사용자 지정 테이블" | "형식 없음";
 
 export interface NumericField {
   value: number;
@@ -149,8 +149,10 @@ export type Task = {
   participants: Participant[]
   /** 작업 그래프 색 */
   color: string
-  /** 정렬순서 */
-  order: number
+  /** 정렬순서(섹션별) */
+  sectionOrder: number;
+  /** 정렬순서(상태별) */
+  statusOrder: number
 
   /** 작업 상세 컴포넌트 필요 */
   /** 작업 자체 첨부파일 목록 (추가) */

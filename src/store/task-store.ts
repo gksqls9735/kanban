@@ -30,9 +30,45 @@ const useTaskStore = create<TaskState>((set, get) => ({
   setTasks: (tasks: Task[]) => set({ allTasks: tasks }),
 
   addTask: (newTask: Task) => set((state) => {
-    const orderedTask = { ...newTask, order: state.allTasks.length + 1 };
-    const newTasks = [...state.allTasks, orderedTask];
-    return { allTasks: newTasks }
+    let newSectionOrder: number | undefined = undefined;
+    let newStatusOrder: number | undefined = undefined;
+
+    if (newTask.sectionId !== undefined && newTask.sectionId !== null) {
+      const tasksInSameSection = state.allTasks.filter(
+        task => task.sectionId === newTask.sectionId
+      );
+
+      if (tasksInSameSection.length > 0) {
+        newSectionOrder = Math.max(
+          ...tasksInSameSection.map(task => task.sectionOrder ?? -1)
+        ) + 1;
+      } else {
+        newSectionOrder = 0;
+      }
+    }
+
+    if (newTask.status?.code !== undefined && newTask.status?.code !== null) {
+      const tasksInSameStatus = state.allTasks.filter(
+        task => task.status?.code === newTask.status.code
+      );
+
+      if (tasksInSameStatus.length > 0) {
+        newStatusOrder = Math.max(
+          ...tasksInSameStatus.map(task => task.statusOrder ?? -1)
+        ) + 1;
+      } else {
+        newStatusOrder = 0;
+      }
+    }
+
+    const taskToAdd: Task = {
+      ...newTask,
+      sectionOrder: newSectionOrder ?? 0,
+      statusOrder: newStatusOrder ?? 0,
+    };
+
+    const newTasks = [...state.allTasks, taskToAdd];
+    return { allTasks: newTasks };
   }),
 
   updateTask: (taskId: string, updated: Partial<Task>) =>
@@ -77,7 +113,7 @@ const useTaskStore = create<TaskState>((set, get) => ({
 
             // 기본적으로 기존 시간은 유지한 채 날짜만 delta 만큼 이동
             const shiftedStart = new Date(oldStart.getTime() + delta);
-         //   const shiftedEnd = new Date(shiftedStart.getTime() + duration);
+            //   const shiftedEnd = new Date(shiftedStart.getTime() + duration);
 
             // 만약 선행 작업 end보다 후행작업 start가 앞서면 → 날짜 보정
             if (shiftedStart < currentEnd) {
@@ -122,14 +158,14 @@ const useTaskStore = create<TaskState>((set, get) => ({
   copyTask: (originalTask: Task) => set((state) => {
     const currentOriginalTask = state.allTasks.find(t => t.taskId === originalTask.taskId);
     if (!currentOriginalTask) return {};
-    const originalOrder = currentOriginalTask.order ?? 0;
+    const originalOrder = currentOriginalTask.sectionOrder ?? 0;
 
     let nextOrder: number;
-    const sortedTasks = [...state.allTasks].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+    const sortedTasks = [...state.allTasks].sort((a, b) => (a.sectionOrder ?? 0) - (b.sectionOrder ?? 0));
     const originalIndex = sortedTasks.findIndex(t => t.taskId === originalTask.taskId);
 
     if (originalIndex + 1 < sortedTasks.length) {
-      nextOrder = sortedTasks[originalIndex + 1].order ?? (originalOrder + 2);
+      nextOrder = sortedTasks[originalIndex + 1].sectionOrder ?? (originalOrder + 2);
     } else {
       nextOrder = originalOrder + 1;
     }

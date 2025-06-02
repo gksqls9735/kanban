@@ -75,7 +75,7 @@ const NewTaskCard: React.FC<{
     const taskNameCheck = inputRef.current?.value.trim();
     if (taskNameCheck && startDate && endDate && currentUser) {
       const filteredTodos = todos.filter(todo => todo.todoTxt && todo.todoTxt.trim() !== '');
-      const newTask: Task = {
+      const newTask: Omit<Task, 'sectionOrder' | 'color' | 'statusOrder'> & { id?: string; } = {
         sectionId: selectedSection.sectionId,
         taskId: newTaskId,
         taskName: taskNameCheck,
@@ -89,14 +89,8 @@ const NewTaskCard: React.FC<{
         todoList: filteredTodos,
         dependencies: [],
         participants: participants,
-        color: '',
-        order: 9999,
-        taskAttachments: [],
-        urls: [],
-        emails: [],
-        prefix: '',
       }
-      addTask(newTask);
+      addTask(newTask as Task);
       showToast('작업이 추가 되었습니다.')
       onClose(newCardId);
     }

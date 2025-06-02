@@ -82,8 +82,14 @@ const ColumnList: React.FC<{
 
   const getTasksForColumn = useCallback((columnId: string): Task[] => {
     return tasks
-      .filter(t => (viewMode === ViewModes.STATUS ? t.status.code : t.sectionId) === columnId)
-      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+      .filter(t => (viewMode === ViewModes.STATUS ? (t.status?.code || '') : (t.sectionId || '')) === columnId)
+      .sort((a, b) => {
+        if (viewMode === ViewModes.STATUS) {
+          return (a.statusOrder ?? 0) - (b.statusOrder ?? 0); // STATUS 모드일 때는 statusOrder로 정렬
+        } else { // ViewModes.SECTION
+          return (a.sectionOrder ?? 0) - (b.sectionOrder ?? 0); // SECTION 모드일 때는 sectionOrder로 정렬
+        }
+      });
   }, [tasks, viewMode]);
 
   const baseColumns = useMemo(() => {

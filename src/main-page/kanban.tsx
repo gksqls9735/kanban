@@ -5,7 +5,7 @@ import { DndContext, DragOverlay, rectIntersection } from "@dnd-kit/core";
 import useViewModeStore from "../store/viewmode-store";
 import { ViewModes } from "../constants";
 import useTaskStore from "../store/task-store";
-import { useKanbanDnd } from "../hooks/use-task-dnd";
+import { useKanbanDnd } from "../hooks/dnd/use-task-dnd";
 import DroppableColumn from "../component/kanban/column/droppable-column";
 import useStatusesStore from "../store/statuses-store";
 import useSectionsStore from "../store/sections-store";
@@ -68,7 +68,7 @@ const Kanban: React.FC<KanbanProps> = ({
 
   useEffect(() => {
     if (initialTasks.length > 0) {
-      const sortedTasks = initialTasks.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+      const sortedTasks = initialTasks.sort((a, b) => (a.sectionOrder ?? 0) - (b.sectionOrder ?? 0));
       setTasks(sortedTasks);
     }
   }, [initialTasks, setTasks]);
