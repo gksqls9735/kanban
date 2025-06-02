@@ -122,20 +122,26 @@ const useTaskStore = create<TaskState>((set, get) => ({
   copyTask: (originalTask: Task) => set((state) => {
     const currentOriginalTask = state.allTasks.find(t => t.taskId === originalTask.taskId);
     if (!currentOriginalTask) return {};
-    const originalOrder = currentOriginalTask.sectionOrder ?? 0;
 
-    let nextOrder: number;
-    const sortedTasks = [...state.allTasks].sort((a, b) => (a.sectionOrder ?? 0) - (b.sectionOrder ?? 0));
-    const originalIndex = sortedTasks.findIndex(t => t.taskId === originalTask.taskId);
+    const copiedTaskId = generateUniqueId('task');
+    const newSectionOrder = originalTask.sectionOrder + 1;
+    const newStatusOrder = originalTask.statusOrder + 1;
 
-    if (originalIndex + 1 < sortedTasks.length) {
-      nextOrder = sortedTasks[originalIndex + 1].sectionOrder ?? (originalOrder + 2);
-    } else {
-      nextOrder = originalOrder + 1;
-    }
-    const newOrder = (originalOrder + nextOrder) / 2;
-    const copiedTask = { ...originalTask, taskId: generateUniqueId('task'), order: newOrder };
-    return { allTasks: [...state.allTasks, copiedTask] };
+    const copiedTask: Task = {
+      ...originalTask,
+      taskId: copiedTaskId,
+      sectionOrder: newSectionOrder,
+      statusOrder: newStatusOrder,
+    };
+
+    const updatedTasks = state.allTasks.map(task => {
+      let updated = { ...task };
+      if (task.sectionId === originalTask.sectionId && task.sectionOrder >= newSectionOrder) updated.sectionOrder += 1;
+      if (task.status.code === originalTask.status.code && task.statusOrder >= newStatusOrder) updated.statusOrder += 1;
+      return updated;
+    });
+
+    return { allTasks: [...updatedTasks, copiedTask] };
   }),
 
   deleteTasksBySection: (sectionId: string) => set((state) => {

@@ -293,7 +293,10 @@ export const useKanbanDnd = () => {
       const updatedDraggedTask = { ...draggedTaskOriginal };
 
       if (viewMode === ViewModes.STATUS) {
-        updatedDraggedTask.status = { ...(draggedTaskOriginal.status || {}), code: targetColumnId } as Task['status'];
+        const targetStatus = statusList.find(s => s.code === targetColumnId);
+        if (!targetStatus) return;
+
+        updatedDraggedTask.status = targetStatus;
       } else { // ViewModes.SECTION
         updatedDraggedTask.sectionId = targetColumnId;
       }
