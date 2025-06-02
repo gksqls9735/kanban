@@ -9,6 +9,7 @@ import kanbanCssText from "../styles/kanban.css?raw";
 import DatePickerText from "../styles/datetimepicker.css?raw";
 import participantSelectorCssText from "../styles/participant-selector.css?raw";
 import taskDetailCssText from "../styles/task-detail.css?raw";
+import KanbanActionsContext, { KanbanActionsContextType } from "../context/task-action-context";
 
 class KanbanWebComponent extends HTMLElement {
   private root: ReactDOM.Root | null = null;
@@ -134,6 +135,18 @@ class KanbanWebComponent extends HTMLElement {
 
     if (!this.root) this.root = ReactDOM.createRoot(this.container);
 
+    const taskActionContextValue: KanbanActionsContextType = {
+      onTaskAdd: (data: Task) => this.dispatchUpdateEvent("kanban-task-added", { task: data }), // 페이로드 구조에 맞게
+      onTasksChange: (data: Task[]) => this.dispatchUpdateEvent("kanban-task-updated", { tasks: data }),
+      onTasksDelete: (data: string) => this.dispatchUpdateEvent("kanban-task-deleted", { taskId: data }), // string[] 예상
+      onSectionsChange: (data: Section[]) => this.dispatchUpdateEvent("kanban-sections-updated", { sections: data }),
+      onSectionDelete: (data: string) => this.dispatchUpdateEvent("kanban-section-deleted", { sectionId: data }), // alsoDeletedTaskIds는 예시
+      onStatusesChange: (data: SelectOption[]) => this.dispatchUpdateEvent("kanban-status-definitions-updated", { statusOptions: data }),
+      onChatlistChange: (data: Chat[]) => this.dispatchUpdateEvent("kanban-task-chats-updated", { chats: data }), // taskId와 chats를 함께 전달
+      onSelectTaskId: (data: string | null) => this.dispatchUpdateEvent("kanban-task-selected", { taskId: data }),
+    };
+
+
     this.root.render(
       React.createElement(
         ShadowRootContext.Provider,
@@ -141,20 +154,17 @@ class KanbanWebComponent extends HTMLElement {
         React.createElement(
           StyleSheetManager,
           { target: this.componentShadowRoot },
-          React.createElement(Kanban, {
-            tasks: sectionTasksWithDates,
-            sections: this.props.sections,
-            statusList: this.props.statusList,
-            currentUser: this.props.currentUser,
-            userlist: this.props.userlist,
-            isSideMenuOpen: this.props.isSideMenuOpen,
-            chatlist: chatListWithDates,
-            onTasksChange: (data: Task[]) => this.dispatchUpdateEvent("tasksChanged", data),
-            onSectionsChange: (data: Section[]) => this.dispatchUpdateEvent("sectionsChanged", data),
-            onChatlistChange: (data: Chat[]) => this.dispatchUpdateEvent("chatlistChanged", data),
-            onStatusChange: (data: SelectOption[]) => this.dispatchUpdateEvent("statuslistChanged", data),
-            onSelectTaskId: (data: string) => this.dispatchUpdateEvent("selectedDetailTask", data),
-          })
+          React.createElement(KanbanActionsContext.Provider, { value: taskActionContextValue },
+            React.createElement(Kanban, {
+              tasks: sectionTasksWithDates,
+              sections: this.props.sections,
+              statusList: this.props.statusList,
+              currentUser: this.props.currentUser,
+              userlist: this.props.userlist,
+              isSideMenuOpen: this.props.isSideMenuOpen,
+              chatlist: chatListWithDates,
+            })
+          )
         )
       )
     );

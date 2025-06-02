@@ -3,10 +3,11 @@ import { useEffect, useRef, useState } from "react";
 import FieldLabel from "./field-common/field-label";
 import useClickOutside from "../../../../hooks/use-click-outside";
 import FieldFooter from "./field-common/field-footer";
-import useTaskStore from "../../../../store/task-store";
+import { Task } from "../../../../types/type";
 
-const IdField: React.FC<{ prefix?: string | null | undefined, taskId: string, isOwnerOrParticipant: boolean }> = ({ prefix: initialPrefixProp, taskId, isOwnerOrParticipant }) => {
-  const updateTask = useTaskStore(state => state.updateTask);
+const IdField: React.FC<{
+  prefix?: string | null | undefined, taskId: string, isOwnerOrParticipant: boolean, handleChangeAndNotify: (updates: Partial<Task>) => void
+}> = ({ prefix: initialPrefixProp, taskId, isOwnerOrParticipant, handleChangeAndNotify }) => {
 
   // initialPrefixProp이 null 또는 undefined일 경우 빈 문자열로 처리
   const initialPrefix = initialPrefixProp ?? "";
@@ -62,7 +63,7 @@ const IdField: React.FC<{ prefix?: string | null | undefined, taskId: string, is
       return;
     }
     // 실제 업데이트 로직 (여기서는 빈 문자열 저장을 허용하여 접두사 제거 기능으로 활용)
-    updateTask(taskId, { prefix: trimmedPrefix });
+    handleChangeAndNotify({ prefix: trimmedPrefix });
     handleCancel(); // 저장 후 편집 모드 종료 및 상태 초기화
   };
 

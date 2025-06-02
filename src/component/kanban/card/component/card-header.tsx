@@ -6,6 +6,7 @@ import { truncateText } from "../../../../utils/text-function";
 import DeleteModal from "../../delete-modal";
 import useUserStore from "../../../../store/user-store";
 import { useToast } from "../../../../context/toast-context";
+import { useKanbanActions } from "../../../../context/task-action-context";
 
 const CardHeader: React.FC<{
   task: Task;
@@ -20,6 +21,7 @@ const CardHeader: React.FC<{
   const deleteTask = useTaskStore(state => state.deleteTask);
   const copyTask = useTaskStore(state => state.copyTask);
   const { showToast } = useToast();
+  const { onTasksDelete } = useKanbanActions();
 
   const handleCopy = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -29,6 +31,7 @@ const CardHeader: React.FC<{
 
   const handleDeleteConfirm = () => {
     deleteTask(task.taskId);
+    if (onTasksDelete) onTasksDelete(task.taskId);
     closeDeleteModal();
     showToast('작업이 성공적으로 삭제되었습니다.');
   };

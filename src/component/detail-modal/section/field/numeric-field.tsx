@@ -1,12 +1,10 @@
 // NumericFieldComponent.tsx
 import { useEffect, useMemo, useRef, useState } from "react";
-import { MeasurementUnit, NumericField } from "../../../../types/type"; // Adjust path as needed
+import { MeasurementUnit, NumericField, Task } from "../../../../types/type"; // Adjust path as needed
 import FieldLabel from "./field-common/field-label";
 import useClickOutside from "../../../../hooks/use-click-outside";
 import FieldFooter from "./field-common/field-footer";
 import NumericDropdown from "./field-dropdown/numeric-dropdown";
-import useTaskStore from "../../../../store/task-store"; // Adjust path as needed
-
 const DEFAULT_NUMERIC_FIELD_VALUE: NumericField = {
   value: 0,
   unit: "숫자",
@@ -15,8 +13,9 @@ const DEFAULT_NUMERIC_FIELD_VALUE: NumericField = {
 
 const PREVIEW_NUMBER = 1234.56789;
 
-const NumericFieldComponent: React.FC<{ numericField: NumericField | null | undefined, taskId: string, isOwnerOrParticipant: boolean }> = ({ numericField, taskId, isOwnerOrParticipant }) => {
-  const updateTask = useTaskStore(state => state.updateTask);
+const NumericFieldComponent: React.FC<{
+  numericField: NumericField | null | undefined, taskId: string, isOwnerOrParticipant: boolean, handleChangeAndNotify: (updates: Partial<Task>) => void
+}> = ({ numericField, isOwnerOrParticipant, handleChangeAndNotify }) => {
 
   const [isInEditMode, setIsInEditMode] = useState<boolean>(false);
   const [isOpenEdit, setIsOpenEdit] = useState<boolean>(false);
@@ -106,7 +105,7 @@ const NumericFieldComponent: React.FC<{ numericField: NumericField | null | unde
       unit: editingUnit,
       decimalPlaces: applyDecimalPlaces ? editingDecimalPlaces : 0,
     };
-    updateTask(taskId, { numericField: updatedNumericField });
+    handleChangeAndNotify({ numericField: updatedNumericField });
     setIsInEditMode(false);
     setIsOpenEdit(false);
   };

@@ -12,6 +12,7 @@ import AvatarItem from "../../avatar/avatar";
 import { generateUniqueId, getInitial } from "../../../utils/text-function";
 import ParticipantSelector from "../../participant-select/participant-selector";
 import { calcMinStart } from "../../../utils/date-function";
+import { useKanbanActions } from "../../../context/task-action-context";
 
 const UpdateCard: React.FC<{
   onClose: () => void;
@@ -24,6 +25,7 @@ const UpdateCard: React.FC<{
   const sections = useSectionsStore(state => state.sections);
 
   const allTasks = useTaskStore(state => state.allTasks);
+  const { onTasksChange } = useKanbanActions();
 
   const getMinStartDateForTask = (task: Task): Date | null => {
     // 대상 작업이나 작업의 의존성 ID 목록이 없으면 계산할 필요가 없습니다.
@@ -101,6 +103,10 @@ const UpdateCard: React.FC<{
         todoList: filteredTodos,
         participants: participants,
       });
+      if (onTasksChange) {
+        const updatedTask = useTaskStore.getState().allTasks.find(t => t.taskId === currentTask.taskId);
+        if (updatedTask) onTasksChange([updatedTask]);
+      }
       onClose();
     } else {
       if (!taskNameCheck) inputRef.current?.focus();
@@ -154,7 +160,7 @@ const UpdateCard: React.FC<{
         onKeyDown={handleInputSubmit}
       />
 
-      <DatePickerTrigger startDate={startDate} endDate={endDate} onDateSelect={handleDateSelect} minStart={minStart}/>
+      <DatePickerTrigger startDate={startDate} endDate={endDate} onDateSelect={handleDateSelect} minStart={minStart} />
 
       <div className="card-meta">
         <div className="card-priority-status">

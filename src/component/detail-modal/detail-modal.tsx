@@ -25,6 +25,7 @@ import DetailTodoList from "./section/detail-todo/detail-todo-list";
 import useTaskStore from "../../store/task-store";
 import ChatList from "./section/chat/chat-list/chat-list";
 import ChatInput from "./section/chat/chat-input";
+import { useKanbanActions } from "../../context/task-action-context";
 
 const DetailModal: React.FC<{
   task: Task;
@@ -67,6 +68,7 @@ const DetailModal: React.FC<{
   const currentUser = useUserStore(state => state.currentUser);
   const tasksFromStore = useTaskStore(state => state.allTasks);
   const updateTask = useTaskStore(state => state.updateTask);
+  const { onTasksChange } = useKanbanActions();
 
   const currentTask = useMemo(() => {
     const taskFromStore = tasksFromStore.find(t => t.taskId === initialTaskFromProp.taskId);
@@ -146,32 +148,39 @@ const DetailModal: React.FC<{
 
 
   // 값 업데이트
-  const handleSectionChange = (section: Section) => updateTask(currentTask.taskId, { sectionId: section.sectionId });
-  const handleParticipantsUpdate = (newParticipants: Participant[]) => updateTask(currentTask.taskId, { participants: newParticipants });
+  const handleChangeAndNotify = (updates: Partial<Task>) => {
+    if (!currentTask) return;
+    updateTask(currentTask.taskId, { ...updates });
+    const taskToSendToParent = { ...currentTask, ...updates };
+    if (onTasksChange) onTasksChange([taskToSendToParent]);
+  };
+
+  const handleSectionChange = (section: Section) => handleChangeAndNotify({ sectionId: section.sectionId });
+  const handleParticipantsUpdate = (newParticipants: Participant[]) => handleChangeAndNotify({ participants: newParticipants });
   const handleDeleteParticipant = (userId: string | number) => {
     const updatedParticipants = (currentTask.participants || []).filter(u => u.id !== userId);
-    updateTask(currentTask.taskId, { participants: updatedParticipants });
+    handleChangeAndNotify({ participants: updatedParticipants });
   };
-  const handlePriorityChange = (priority: SelectOption) => updateTask(currentTask.taskId, { priority: priority });
-  const handleStatusChange = (status: SelectOption) => updateTask(currentTask.taskId, { status: status });
-  const handleImportanceValueChange = (newImportance: number) => updateTask(currentTask.taskId, { importance: newImportance });
-  const handleTodoListUpdate = (updatedTodoList: Todo[]) => updateTask(currentTask.taskId, { todoList: updatedTodoList });
+  const handlePriorityChange = (priority: SelectOption) => handleChangeAndNotify({ priority: priority });
+  const handleStatusChange = (status: SelectOption) => handleChangeAndNotify({ status: status });
+  const handleImportanceValueChange = (newImportance: number) => handleChangeAndNotify({ importance: newImportance });
+  const handleTodoListUpdate = (updatedTodoList: Todo[]) => handleChangeAndNotify({ todoList: updatedTodoList });
 
   const visibleFieldComponents = useMemo(() => {
     const allFields = [
-      <UrlField key="url" urls={currentTask.urls} taskId={currentTask.taskId} isOwnerOrParticipant={isOwnerOrParticipant} />,
-      <MultiSelection key="multi" options={currentTask.multiSelection} taskId={currentTask.taskId} isOwnerOrParticipant={isOwnerOrParticipant} />,
-      <AttachmentField key="attach" attachments={currentTask.taskAttachments} taskId={currentTask.taskId} isOwnerOrParticipant={isOwnerOrParticipant} />,
-      <SingleSelection key="single" options={currentTask.singleSelection} taskId={currentTask.taskId} isOwnerOrParticipant={isOwnerOrParticipant} />,
+      <UrlField key="url" urls={currentTask.urls} isOwnerOrParticipant={isOwnerOrParticipant} handleChangeAndNotify={handleChangeAndNotify} />,
+      <MultiSelection key="multi" options={currentTask.multiSelection} isOwnerOrParticipant={isOwnerOrParticipant} handleChangeAndNotify={handleChangeAndNotify} />,
+      <AttachmentField key="attach" attachments={currentTask.taskAttachments} isOwnerOrParticipant={isOwnerOrParticipant} handleChangeAndNotify={handleChangeAndNotify} />,
+      <SingleSelection key="single" options={currentTask.singleSelection} isOwnerOrParticipant={isOwnerOrParticipant} handleChangeAndNotify={handleChangeAndNotify} />,
       <TextField key="text" text={currentTask.memo} isOwnerOrParticipant={isOwnerOrParticipant} />,
-      <NumericFieldComponent key="num" numericField={currentTask.numericField} taskId={currentTask.taskId} isOwnerOrParticipant={isOwnerOrParticipant} />,
-      <IdField key="id" prefix={currentTask.prefix} taskId={currentTask.taskId} isOwnerOrParticipant={isOwnerOrParticipant} />,
-      <EmailField key="email" emails={currentTask.emails} taskId={currentTask.taskId} isOwnerOrParticipant={isOwnerOrParticipant} />,
-      <UserField key="user" users={currentTask.participants} taskId={currentTask.taskId} isOwnerOrParticipant={isOwnerOrParticipant} />,
+      <NumericFieldComponent key="num" numericField={currentTask.numericField} taskId={currentTask.taskId} isOwnerOrParticipant={isOwnerOrParticipant} handleChangeAndNotify={handleChangeAndNotify} />,
+      <IdField key="id" prefix={currentTask.prefix} taskId={currentTask.taskId} isOwnerOrParticipant={isOwnerOrParticipant} handleChangeAndNotify={handleChangeAndNotify} />,
+      <EmailField key="email" emails={currentTask.emails} isOwnerOrParticipant={isOwnerOrParticipant} handleChangeAndNotify={handleChangeAndNotify} />,
+      <UserField key="user" users={currentTask.participants} isOwnerOrParticipant={isOwnerOrParticipant} handleChangeAndNotify={handleChangeAndNotify} />,
     ].filter(Boolean);
     return isExpanded ? allFields : allFields.slice(0, 3);
   }, [currentTask, isExpanded, isOpenParticipantModal]);
-  
+
   return (
     <div role="dialog" aria-modal="true" aria-labelledby="modal-title">
       <div className="task-detail__detail-modal-wrapper" onClick={(e) => e.stopPropagation()} style={{ width: modalWidth }}>

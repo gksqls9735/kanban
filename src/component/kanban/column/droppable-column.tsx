@@ -17,6 +17,7 @@ import { lightenColor } from "../../../utils/color-function";
 import { useToast } from "../../../context/toast-context";
 import { generateUniqueId } from "../../../utils/text-function";
 import { SyntheticListenerMap } from "@dnd-kit/core/dist/hooks/utilities";
+import { useKanbanActions } from "../../../context/task-action-context";
 
 const DroppableColumn: React.FC<{
   tasks: Task[];
@@ -60,6 +61,7 @@ const DroppableColumn: React.FC<{
     const sections = useSectionsStore(state => state.sections);
 
     const { showToast } = useToast();
+    const { onSectionDelete, onStatusesChange, onTasksChange, onSectionsChange } = useKanbanActions();
 
     const [newCardList, setNewCardList] = useState<string[]>([]);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
@@ -85,6 +87,7 @@ const DroppableColumn: React.FC<{
       deleteSection(columnId);
       deleteTasksBySection(columnId);
       setIsDeleteModalOpen(false);
+      if (onSectionDelete) onSectionDelete(columnId);
       showToast(`섹션 ${title}이/가 성공적으로 삭제되었습니다.`)
     }
 
@@ -92,6 +95,12 @@ const DroppableColumn: React.FC<{
       deleteStatus(columnId);
       updateTasksByStatus(columnId);
       setIsDeleteModalOpen(false);
+      if (onStatusesChange && onTasksChange) {
+        const updatedStatuses = useStatusesStore.getState().statusList;
+        onStatusesChange(updatedStatuses);
+        const updatedTasks = useTaskStore.getState().allTasks.filter(t => t.status.code === columnId);
+        onTasksChange(updatedTasks);
+      }
       showToast(`상태 ${title}이/가 성공적으로 삭제되었습니다.`)
     };
 
@@ -140,6 +149,10 @@ const DroppableColumn: React.FC<{
           colorSub: lightenColor(color, 0.85),
         };
         updateStatus(columnId, statusUpdates);
+        if (onStatusesChange) {
+          const updatedStatuses = useStatusesStore.getState().statusList;
+          onStatusesChange(updatedStatuses);
+        }
 
         const newStatusDataForTasks: SelectOption = {
           code: columnId,
@@ -148,6 +161,10 @@ const DroppableColumn: React.FC<{
           colorSub: lightenColor(color, 0.85),
         };
         updateTasksWithNewStatusDetails(newStatusDataForTasks);
+        if (onTasksChange) {
+          const updatedTasks = useTaskStore.getState().allTasks.filter(t => t.status.code === columnId);
+          if (updatedTasks.length > 0) onTasksChange(updatedTasks);
+        }
         showToast('상태 정보가 변경되었습니다.');
 
       } else if (viewMode === ViewModes.SECTION) {
@@ -173,6 +190,10 @@ const DroppableColumn: React.FC<{
         }
 
         updateSection(columnId, { sectionName: trimmedName });
+        if (onSectionsChange) {
+          const updatedSections = useSectionsStore.getState().sections;
+          onSectionsChange(updatedSections);
+        }
         showToast('섹션명이 변경되었습니다.');
       }
       setIsEditing(false);

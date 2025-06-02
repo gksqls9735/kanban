@@ -1,22 +1,21 @@
 import { useEffect, useRef, useState } from "react";
-import { SelectableOption } from "../../../../types/type";
+import { SelectableOption, Task } from "../../../../types/type";
 import OptionItem from "../../common/option-item";
 import ExpandToggle from "../../common/expand-toggle";
 import FieldLabel from "./field-common/field-label";
 import useClickOutside from "../../../../hooks/use-click-outside";
 import { lightenColor } from "../../../../utils/color-function";
 import FieldFooter from "./field-common/field-footer";
-import useTaskStore from "../../../../store/task-store";
 import { CombinedOptionItem } from "./single-selection";
 import { generateUniqueId } from "../../../../utils/text-function";
 import OptionList from "./field-common/option/option-list";
 
+
 const MultiSelection: React.FC<{
   options?: SelectableOption[];
-  taskId: string;
   isOwnerOrParticipant: boolean;
-}> = ({ options: initialOptions = [], taskId, isOwnerOrParticipant }) => {
-  const updateTask = useTaskStore(state => state.updateTask);
+  handleChangeAndNotify: (updates: Partial<Task>) => void;
+}> = ({ options: initialOptions = [], isOwnerOrParticipant, handleChangeAndNotify }) => {
 
   const [combinedItems, setCombinedItems] = useState<CombinedOptionItem[]>([]);
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
@@ -46,16 +45,6 @@ const MultiSelection: React.FC<{
   const handleCancel = () => {
     setIsInEditMode(false);
     setIsOpenEdit(false);
-    // 여기에서 initialOptions 기준으로 combinedItems를 리셋하는 로직을 일단 주석 처리합니다.
-    // 이렇게 하면 사용자가 '저장'하기 전까지 로컬 변경(isSelected 토글)이 유지됩니다.
-    // 만약 '취소' 시 명시적으로 초기 상태로 되돌리려면 이 주석을 해제하고,
-    // initialOptions가 마지막 저장 상태를 반영하도록 해야 합니다.
-    /*
-    const restoredCombined: CombinedOptionItem[] = initialOptions.map(option => ({
-        code: option.code, name: option.name, colorMain: option.colorMain, colorSub: option.colorSub || lightenColor(option.colorMain, 0.85), isSelected: option.isSelected || false, isNew: false,
-    }));
-    setCombinedItems(restoredCombined);
-    */
   };
 
   const handleToggleEditMode = () => {
@@ -64,15 +53,6 @@ const MultiSelection: React.FC<{
     } else { // 편집 모드 진입 시
       setIsInEditMode(true);
       setIsOpenEdit(false);
-      // 편집 모드 진입 시 combinedItems를 initialOptions로 리셋하는 로직도 일단 주석 처리합니다.
-      // useEffect가 이미 초기 설정을 담당했으므로, 여기서 리셋하면 이전 로컬 변경이 사라집니다.
-      // 만약 편집 모드 진입 시 항상 initialOptions 기준으로 새로고침해야 한다면 이 주석을 해제합니다.
-      /*
-      const currentCombined: CombinedOptionItem[] = initialOptions.map(option => ({
-        code: option.code, name: option.name, colorMain: option.colorMain, colorSub: option.colorSub || lightenColor(option.colorMain, 0.85), isSelected: option.isSelected || false, isNew: false,
-      }));
-      setCombinedItems(currentCombined);
-      */
     }
   };
 
@@ -88,7 +68,7 @@ const MultiSelection: React.FC<{
         colorSub: item.colorSub,
         isSelected: item.isSelected,
       }));
-    updateTask(taskId, { multiSelection: validOptionsToSave });
+    handleChangeAndNotify({ multiSelection: validOptionsToSave });
     if (isOpenEdit) {
       setIsOpenEdit(false);
     } else {
@@ -183,7 +163,7 @@ const MultiSelection: React.FC<{
                 </ul>
                 {isOwnerOrParticipant && (<div className="task-detail__detail-modal-field-edit-separator" />)}
               </div>
-              {isOwnerOrParticipant && (<FieldFooter title="옵션 수정" isPlusIcon={false} onClick={() => setIsOpenEdit(true)} isShowButton={true} onSave={handleSaveOptions} />)}
+              {isOwnerOrParticipant && (<FieldFooter title="옵션 수정" isPlusIcon={false} onClick={() => setIsOpenEdit(true)} handleCancel={handleCancel} isShowButton={true} onSave={handleSaveOptions} />)}
             </>
           )}
         </div>

@@ -1,11 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { Email } from "../../../../types/type";
+import { Email, Task } from "../../../../types/type";
 import FieldLabel from "./field-common/field-label";
 import useClickOutside from "../../../../hooks/use-click-outside";
 import FieldFooter from "./field-common/field-footer";
 import { generateUniqueId } from "../../../../utils/text-function";
 import { isValidEmailFormat } from "../../../../utils/valid-function";
-import useTaskStore from "../../../../store/task-store";
 import UrlEmailEditableList from "./field-common/url-email-editable-list";
 
 interface CombinedEmailItem {
@@ -14,9 +13,9 @@ interface CombinedEmailItem {
   email: string;
   isNew: boolean;
 }
-
-const EmailField: React.FC<{ emails?: Email[], taskId: string, isOwnerOrParticipant: boolean }> = ({ emails: initialEmails = [], taskId, isOwnerOrParticipant }) => {
-  const updateTask = useTaskStore(state => state.updateTask);
+const EmailField: React.FC<{
+  emails?: Email[], isOwnerOrParticipant: boolean, handleChangeAndNotify: (updates: Partial<Task>) => void
+}> = ({ emails: initialEmails = [], isOwnerOrParticipant, handleChangeAndNotify }) => {
 
   const [combinedItems, setCombinedItems] = useState<CombinedEmailItem[]>([]);
   const [errors, setErrors] = useState<Record<string | number, string[]>>({});
@@ -165,7 +164,7 @@ const EmailField: React.FC<{ emails?: Email[], taskId: string, isOwnerOrParticip
         return null;
       }).filter(Boolean) as Email[];
 
-    updateTask(taskId, { emails: finalEmailsToSave });
+    handleChangeAndNotify({ emails: finalEmailsToSave });
 
     const reinitializedCombined: CombinedEmailItem[] = finalEmailsToSave.map(e => ({
       id: e.id, nickname: e.nickname, email: e.email, isNew: false,
@@ -215,7 +214,7 @@ const EmailField: React.FC<{ emails?: Email[], taskId: string, isOwnerOrParticip
             <>
               <div className="task-detail__detail-modal-field-edit-list-wrapper">
                 <ul
-                  className="kanban-scrollbar-y task-detail__detail-modal-field-edit-list">
+                  className="gantt-scrollbar-y task-detail__detail-modal-field-edit-list">
                   {initialEmails.map(email => (
                     <li key={email.id} className="task-detail__detail-modal-field-edit-item task-detail__detail-modal-field-edit-item--email">
                       <div className="task-detail__detail-modal-field-edit-item--email--nickname">{email.nickname}</div>

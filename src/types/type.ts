@@ -148,7 +148,7 @@ export type Task = {
   /** 담당자(주, 부) */
   participants: Participant[]
   /** 작업 그래프 색 */
-  color: string
+  color?: string
   /** 정렬순서(섹션별) */
   sectionOrder: number;
   /** 정렬순서(상태별) */

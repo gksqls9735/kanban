@@ -1,11 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { SelectableOption } from "../../../../types/type";
+import { SelectableOption, Task } from "../../../../types/type";
 import OptionItem from "../../common/option-item"; // OptionItem 경로가 맞는지 확인해주세요.
 import FieldLabel from "./field-common/field-label";
 import useClickOutside from "../../../../hooks/use-click-outside";
 import { lightenColor } from "../../../../utils/color-function";
 import FieldFooter from "./field-common/field-footer";
-import useTaskStore from "../../../../store/task-store";
 import { generateUniqueId } from "../../../../utils/text-function";
 import OptionList from "./field-common/option/option-list";
 
@@ -17,8 +16,10 @@ export interface CombinedOptionItem {
   isSelected: boolean;
 }
 
-const SingleSelection: React.FC<{ options?: SelectableOption[], taskId: string, isOwnerOrParticipant: boolean }> = ({ options: initialOptions = [], taskId, isOwnerOrParticipant }) => {
-  const updateTask = useTaskStore(state => state.updateTask);
+
+const SingleSelection: React.FC<{
+  options?: SelectableOption[], isOwnerOrParticipant: boolean, handleChangeAndNotify: (updates: Partial<Task>) => void
+}> = ({ options: initialOptions = [], isOwnerOrParticipant, handleChangeAndNotify }) => {
 
   // initialOptions가 비어있거나 isSelected인 항목이 없을 경우 null로 초기화
   const getInitialSelectedOption = (options: SelectableOption[]): SelectableOption | null => {
@@ -91,7 +92,7 @@ const SingleSelection: React.FC<{ options?: SelectableOption[], taskId: string, 
         ...opt,
         isSelected: opt.code === currentOption.code,
       }));
-      updateTask(taskId, { singleSelection: updatedOptions }); // `singleSelection` 필드명 확인 필요
+      handleChangeAndNotify({ singleSelection: updatedOptions }); // `singleSelection` 필드명 확인 필요
 
       setPersistedOption(currentOption);
       setCombinedItems(updatedOptions); // 반영된 옵션 목록으로 업데이트
@@ -105,7 +106,7 @@ const SingleSelection: React.FC<{ options?: SelectableOption[], taskId: string, 
         ...opt,
         isSelected: false,
       }));
-      updateTask(taskId, { singleSelection: deselectedOptions });
+      handleChangeAndNotify({ singleSelection: deselectedOptions });
       setPersistedOption(null);
       setCombinedItems(deselectedOptions);
       setIsInEditMode(false);
@@ -115,7 +116,7 @@ const SingleSelection: React.FC<{ options?: SelectableOption[], taskId: string, 
 
   const handleSaveOptions = () => {
     const filterOptions = combinedItems.filter(item => item.name && item.name.trim() !== '');
-    updateTask(taskId, { singleSelection: filterOptions });
+    handleChangeAndNotify({ singleSelection: filterOptions });
     setIsOpenEdit(false);
   };
 
@@ -148,7 +149,6 @@ const SingleSelection: React.FC<{ options?: SelectableOption[], taskId: string, 
   const handleOrderChange = (newOrderedItems: CombinedOptionItem[]) => {
     setCombinedItems(newOrderedItems);
   };
-
   return (
     <li className="task-detail__detail-modal-field-item">
       <FieldLabel fieldName="단일선택" onClick={handleToggleEditMode} />

@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import CardContent from "./card-content";
 import { Task } from '../../../types/type';
 import UpdateCard from './update-card';
-import { useTaskSelection } from '../../../context/task-action-context';
+import { useKanbanActions } from '../../../context/task-action-context';
 
 const CardWrapper: React.FC<{
   task: Task;
@@ -12,7 +12,7 @@ const CardWrapper: React.FC<{
   isOverlay?: boolean;
   onOpenDetailModal?: (taskId: string) => void;
 }> = ({ task, sectionName, isOverlay, onOpenDetailModal }) => {
-  const { onSelectTaskId } = useTaskSelection();
+  const { onSelectTaskId } = useKanbanActions();
 
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [isAnyModalOpen, setIsAnyModalOpen] = useState<boolean>(false);

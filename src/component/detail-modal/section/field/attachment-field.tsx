@@ -1,15 +1,15 @@
 import { useRef, useState } from "react";
-import { FileAttachment } from "../../../../types/type";
+import { FileAttachment, Task } from "../../../../types/type";
 import { getFileTypeInfo } from "../../common/file-icon";
 import ExpandToggle from "../../common/expand-toggle";
 import FieldLabel from "./field-common/field-label";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import useClickOutside from "../../../../hooks/use-click-outside";
-import useTaskStore from "../../../../store/task-store";
 
-const AttachmentField: React.FC<{ attachments?: FileAttachment[], taskId: string, isOwnerOrParticipant: boolean }> = ({ attachments = [], taskId, isOwnerOrParticipant }) => {
-  const updateTask = useTaskStore(state => state.updateTask);
+const AttachmentField: React.FC<{
+  attachments?: FileAttachment[], isOwnerOrParticipant: boolean, handleChangeAndNotify: (updates: Partial<Task>) => void
+}> = ({ attachments = [], isOwnerOrParticipant, handleChangeAndNotify }) => {
 
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
 
@@ -44,7 +44,7 @@ const AttachmentField: React.FC<{ attachments?: FileAttachment[], taskId: string
 
   const handleDeleteFile = (fileId: string) => {
     const updatedFiles = attachments.filter(file => file.fileId !== fileId);
-    updateTask(taskId, { taskAttachments: updatedFiles });
+    handleChangeAndNotify({ taskAttachments: updatedFiles });
   };
 
   return (

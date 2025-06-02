@@ -14,6 +14,7 @@ import useUserStore from "../../../store/user-store";
 import DetailModal from "../../detail-modal/detail-modal";
 import DeleteModal from "../delete-modal";
 import SortableColumn from "./sortable-column";
+import { useKanbanActions } from "../../../context/task-action-context";
 
 const ColumnList: React.FC<{
   getSectionName: (sectionId: string) => string;
@@ -29,6 +30,7 @@ const ColumnList: React.FC<{
   const viewMode = useViewModeStore(state => state.viewMode);
   const tasks = useTaskStore(state => state.allTasks);
   const deleteTask = useTaskStore(state => state.deleteTask);
+  const { onTasksDelete, onStatusesChange, onSectionsChange } = useKanbanActions();
 
   const statusList = useStatusesStore(state => state.statusList);
   const addStatus = useStatusesStore(state => state.addStatus);
@@ -57,6 +59,7 @@ const ColumnList: React.FC<{
   const confirmDeleteTask = () => {
     if (detailedTask) {
       deleteTask(detailedTask.taskId);
+      if (onTasksDelete) onTasksDelete(detailedTask.taskId);
       showToast('작업이 성공적으로 삭제되었습니다.');
       handleCloseDetailModal();
       setIsDeleteConfirmationOpen(false);
@@ -117,6 +120,7 @@ const ColumnList: React.FC<{
         const isExistStatusName = statusList.some(status => status.name === trimmedName);
         if (!isExistStatusName) {
           addStatus({ name: trimmedName, colorMain: color, colorSub: lightenColor(color, 0.85) });
+          handleAddStatus();
           showToast('상태가 등록 되었습니다.');
         } else {
           showToast('동일한 이름의 상태가 존재합니다.');
@@ -126,6 +130,7 @@ const ColumnList: React.FC<{
         const isExistSectionName = sections.some(sec => sec.sectionName === trimmedName);
         if (!isExistSectionName) {
           addSection(trimmedName);
+          handleAddSection();
           showToast('섹션이 추가 되었습니다.')
         } else {
           showToast('동일한 이름의 섹션이 존재합니다.');
@@ -143,6 +148,7 @@ const ColumnList: React.FC<{
   const handleAddBefore = useCallback((targetColumnId: string) => {
     if (viewMode === ViewModes.SECTION) {
       insertSection(targetColumnId, 'before');
+      handleAddSection();
     } else if (viewMode === ViewModes.STATUS) {
       const newColor = colors[0];
       const newStatusData: SelectOption = {
@@ -152,12 +158,14 @@ const ColumnList: React.FC<{
         colorSub: lightenColor(newColor, 0.85),
       }
       insertStatus(targetColumnId, newStatusData, 'before');
+      handleAddStatus();
     }
   }, [viewMode, insertSection, insertStatus]);
 
   const handleAddAfter = useCallback((targetColumnId: string) => {
     if (viewMode === ViewModes.SECTION) {
       insertSection(targetColumnId, 'after');
+      handleAddSection();
     } else if (viewMode === ViewModes.STATUS) {
       const newColor = colors[0];
       const newStatusData: SelectOption = {
@@ -167,8 +175,24 @@ const ColumnList: React.FC<{
         colorSub: lightenColor(newColor, 0.85),
       }
       insertStatus(targetColumnId, newStatusData, 'after');
+      handleAddStatus();
     }
   }, [viewMode, insertSection, insertStatus]);
+
+  const handleAddSection = () => {
+    if (onSectionsChange) {
+      const newSections = useSectionsStore.getState().sections;
+      onSectionsChange(newSections);
+    }
+  };
+
+  const handleAddStatus = () => {
+    if (onStatusesChange) {
+      const newStatusList = useStatusesStore.getState().statusList;
+      onStatusesChange(newStatusList);
+    }
+  };
+
 
   return (
     <>

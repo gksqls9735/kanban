@@ -1,10 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { UrlData } from "../../../../types/type";
+import { Task, UrlData } from "../../../../types/type";
 import ExpandToggle from "../../common/expand-toggle";
 import FieldLabel from "./field-common/field-label";
 import useClickOutside from "../../../../hooks/use-click-outside";
 import FieldFooter from "./field-common/field-footer";
-import useTaskStore from "../../../../store/task-store";
 import { generateUniqueId } from "../../../../utils/text-function";
 import { isValidUrlFormat } from "../../../../utils/valid-function";
 import ImgFallback from "./field-common/img-fallback";
@@ -23,8 +22,10 @@ const FallbackIcon = (
   </svg>
 );
 
-const UrlField: React.FC<{ urls?: UrlData[], taskId: string, isOwnerOrParticipant: boolean }> = ({ urls: initialUrls = [], taskId, isOwnerOrParticipant }) => {
-  const updateTask = useTaskStore(state => state.updateTask);
+
+const UrlField: React.FC<{
+  urls?: UrlData[], isOwnerOrParticipant: boolean, handleChangeAndNotify: (updates: Partial<Task>) => void
+}> = ({ urls: initialUrls = [], isOwnerOrParticipant, handleChangeAndNotify }) => {
 
   const [combinedItems, setCombinedItems] = useState<CombinedUrlItem[]>([]);
   const [errors, setErrors] = useState<Record<string | number, string[]>>({});
@@ -169,7 +170,7 @@ const UrlField: React.FC<{ urls?: UrlData[], taskId: string, isOwnerOrParticipan
         return null;
       }).filter(Boolean) as UrlData[];
 
-    updateTask(taskId, { urls: finalUrlsToSave });
+    handleChangeAndNotify({ urls: finalUrlsToSave });
 
     const reinitializedCombined: CombinedUrlItem[] = finalUrlsToSave.map(u => ({
       id: u.urlId, title: u.title, requestedUrl: u.requestedUrl, isNew: false,

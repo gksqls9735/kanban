@@ -13,7 +13,7 @@ import CardWrapper from "../component/kanban/card/card-wrapper";
 import useUserStore from "../store/user-store";
 import { ToastProvider } from "../context/toast-context";
 import useChatStore from "../store/chat-store";
-import TaskSelectionContext from "../context/task-action-context";
+import { useKanbanActions } from "../context/task-action-context";
 
 export interface KanbanProps {
   tasks: Task[];
@@ -23,12 +23,6 @@ export interface KanbanProps {
   userlist: User[];
   isSideMenuOpen: "expanded" | "collapsed" | "hidden";
   chatlist: Chat[];
-
-  onTasksChange?: (tasks: Task[]) => void;
-  onSectionsChange?: (sections: Section[]) => void;
-  onChatlistChange?: (chats: Chat[]) => void;
-  onStatusChange?: (statusList: SelectOption[]) => void;
-  onSelectTaskId?: (taskId: string) => void;
 }
 
 const Kanban: React.FC<KanbanProps> = ({
@@ -39,27 +33,21 @@ const Kanban: React.FC<KanbanProps> = ({
   userlist: initialUserlist,
   isSideMenuOpen,
   chatlist,
-  onTasksChange, onSectionsChange, onChatlistChange, onStatusChange, onSelectTaskId
 }) => {
-  const taskSelectionContextValue = {
-    onSelectTaskId: onSelectTaskId // KanbanProps로 받은 함수를 그대로 전달
-  };
-
   const { viewMode, setViewMode } = useViewModeStore();
   const setTasks = useTaskStore(state => state.setTasks);
-  const allTasks = useTaskStore(state => state.allTasks);
   const sections = useSectionsStore(state => state.sections);
   const setSections = useSectionsStore(state => state.setSections);
   const setStatusList = useStatusesStore(state => state.setStatusList);
   const sectionsLoaded = useSectionsStore(state => state.sections.length > 0);
 
-  const statusList = useStatusesStore(state => state.statusList);
   const statusesLoaded = useStatusesStore(state => state.statusList.length > 0);
 
   const setCurrentUser = useUserStore(state => state.setCurrentUser);
   const setUserlist = useUserStore(state => state.setUserlist);
 
   const chatsByTask = useChatStore(state => state.chatsByTask);
+  const { onChatlistChange } = useKanbanActions();
   const setAllTaskChats = useChatStore(state => state.setAllTaskChats);
 
   const {
@@ -72,9 +60,7 @@ const Kanban: React.FC<KanbanProps> = ({
       setTasks(sortedTasks);
     }
   }, [initialTasks, setTasks]);
-  useEffect(() => {
-    if (onTasksChange) onTasksChange(allTasks);
-  }, [allTasks]);
+
 
   useEffect(() => {
     if (!sectionsLoaded) {
@@ -82,18 +68,14 @@ const Kanban: React.FC<KanbanProps> = ({
       setSections(sortedSections);
     }
   }, [initialSections, setSections, sectionsLoaded]);
-  useEffect(() => {
-    if (onSectionsChange) { onSectionsChange(sections); }
-  }, [sections]);
+
 
   useEffect(() => {
     if (!statusesLoaded) {
       setStatusList(initialStatusList);
     }
   }, [initialStatusList, setStatusList, statusesLoaded]);
-  useEffect(() => {
-    if (onStatusChange) onStatusChange(statusList);
-  }, [statusList]);
+
 
   useEffect(() => {
     if (initialCurrentUser) {
@@ -163,27 +145,25 @@ const Kanban: React.FC<KanbanProps> = ({
           onDragEnd={handleDragEnd}
           onDragCancel={handleDragCancel}
         >
-          <TaskSelectionContext.Provider value={taskSelectionContextValue}>
-            <div className='kanban kanban-scrollbar-x' style={{ width: '100%', overflowX: 'auto', minWidth: 0, }}>
-              <ColumnList getSectionName={getSectionName} placeholderData={placeholderData} />
-              <DragOverlay>
-                {activeTask ? (
-                  <CardWrapper task={activeTask} sectionName={getSectionName(activeTask.sectionId)} isOverlay={true} />
-                ) : activeColumn ? (
-                  <DroppableColumn
-                    columnId={activeColumn.id}
-                    title={activeColumn.title}
-                    tasks={activeColumn.tasks}
-                    getSectionName={activeColumn.getSectionName}
-                    colorMain={activeColumn.colorMain}
-                    colorSub={activeColumn.colorSub}
-                    isOverlay={true}
-                    placeholderData={null}
-                  />
-                ) : null}
-              </DragOverlay>
-            </div>
-          </TaskSelectionContext.Provider>
+          <div className='kanban kanban-scrollbar-x' style={{ width: '100%', overflowX: 'auto', minWidth: 0, }}>
+            <ColumnList getSectionName={getSectionName} placeholderData={placeholderData} />
+            <DragOverlay>
+              {activeTask ? (
+                <CardWrapper task={activeTask} sectionName={getSectionName(activeTask.sectionId)} isOverlay={true} />
+              ) : activeColumn ? (
+                <DroppableColumn
+                  columnId={activeColumn.id}
+                  title={activeColumn.title}
+                  tasks={activeColumn.tasks}
+                  getSectionName={activeColumn.getSectionName}
+                  colorMain={activeColumn.colorMain}
+                  colorSub={activeColumn.colorSub}
+                  isOverlay={true}
+                  placeholderData={null}
+                />
+              ) : null}
+            </DragOverlay>
+          </div>
         </DndContext>
       </div>
     </ToastProvider>

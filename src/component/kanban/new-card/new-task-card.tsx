@@ -15,6 +15,7 @@ import { generateUniqueId, getInitial } from "../../../utils/text-function";
 import useUserStore from "../../../store/user-store";
 import ParticipantSelector from "../../participant-select/participant-selector";
 import { useToast } from "../../../context/toast-context";
+import { useKanbanActions } from "../../../context/task-action-context";
 
 const NewTaskCard: React.FC<{
   columnId: string;
@@ -33,6 +34,7 @@ const NewTaskCard: React.FC<{
   const [isOpenParticipantModal, setIsOpenParticipantModal] = useState<boolean>(false);
 
   const { showToast } = useToast();
+  const { onTaskAdd } = useKanbanActions();
 
   const [selectedSection, setSelectedSection] = useState<Section>(() => {
     if (viewMode === ViewModes.STATUS) {
@@ -75,7 +77,12 @@ const NewTaskCard: React.FC<{
     const taskNameCheck = inputRef.current?.value.trim();
     if (taskNameCheck && startDate && endDate && currentUser) {
       const filteredTodos = todos.filter(todo => todo.todoTxt && todo.todoTxt.trim() !== '');
-      const newTask: Omit<Task, 'sectionOrder' | 'color' | 'statusOrder'> & { id?: string; } = {
+      const targetSectionLength = useTaskStore.getState().allTasks.filter(t => t.sectionId === selectedSection.sectionId).length;
+      const sectionOrder = targetSectionLength > 0 ? targetSectionLength + 1 : 0;
+
+      const targetStatusLength = useTaskStore.getState().allTasks.filter(t => t.status.code === selectedStatus.code).length;
+      const statusOrder = targetStatusLength > 0 ? targetStatusLength + 1 : 0;
+      const newTask: Omit<Task, 'color'> & { id?: string; } = {
         sectionId: selectedSection.sectionId,
         taskId: newTaskId,
         taskName: taskNameCheck,
@@ -89,8 +96,10 @@ const NewTaskCard: React.FC<{
         todoList: filteredTodos,
         dependencies: [],
         participants: participants,
+        sectionOrder, statusOrder,
       }
-      addTask(newTask as Task);
+      addTask(newTask);
+      if (onTaskAdd) onTaskAdd(newTask);
       showToast('작업이 추가 되었습니다.')
       onClose(newCardId);
     }

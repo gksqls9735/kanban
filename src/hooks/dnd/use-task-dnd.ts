@@ -9,6 +9,7 @@ import useSectionsStore from "../../store/sections-store"; // 실제 경로로 �
 import useStatusesStore from "../../store/statuses-store"; // 실제 경로로 수정 필요
 import useUserStore from "../../store/user-store"; // 실제 경로로 수정 필요
 import { Task } from "../../types/type";
+import { useKanbanActions } from "../../context/task-action-context";
 
 export interface ActiveColumnData {
   id: string;
@@ -34,6 +35,8 @@ export const useKanbanDnd = () => {
 
   const [placeholderData, setPlaceholderData] = useState<{ columnId: string; index: number } | null>(null);
   const [draggedItemOriginalColumnId, setDraggedItemOriginalColumnId] = useState<string | null>(null);
+
+  const { onTasksChange, onSectionsChange, onStatusesChange } = useKanbanActions();
 
   const currentUser = useUserStore(state => state.currentUser);
 
@@ -221,18 +224,19 @@ export const useKanbanDnd = () => {
       if (viewMode === ViewModes.STATUS) {
         const oldIndex = statusList.findIndex(s => s.code === activeId);
         let newIndex = statusList.findIndex(s => s.code === overId);
-        
+
         if (oldIndex !== -1 && newIndex !== -1) {
           const isTargetColumnWaiting = statusList[newIndex]?.name === '대기'; // null 체크 추가
           const isActiveColumnWaiting = statusList[oldIndex]?.name === '대기'; // null 체크 추가
 
           if (isTargetColumnWaiting && newIndex !== 0) newIndex = 1;
           if (!isActiveColumnWaiting && newIndex === 0 && statusList[0]?.name === '대기') newIndex = 1; // null 체크 추가
-          
+
           if (isActiveColumnWaiting && newIndex !== 0) return;
 
           const movedList = arrayMove(statusList, oldIndex, newIndex);
           setStatusList(movedList);
+          if (onStatusesChange) onStatusesChange(movedList);
         }
       } else { // ViewModes.SECTION
         const oldIndex = sections.findIndex(sec => sec.sectionId === activeId);
@@ -244,6 +248,7 @@ export const useKanbanDnd = () => {
             order: index,
           }));
           setSections(orderedSections);
+          if (onSectionsChange) onSectionsChange(orderedSections);
         }
       }
       return;
@@ -273,7 +278,7 @@ export const useKanbanDnd = () => {
             if (viewMode === ViewModes.STATUS) return (a.statusOrder ?? 0) - (b.statusOrder ?? 0);
             return (a.sectionOrder ?? 0) - (b.sectionOrder ?? 0);
           });
-        
+
         const overTaskIndex = tasksCurrentlyInTarget.findIndex(t => t.taskId === overTaskData.taskId);
         if (overTaskIndex !== -1) {
           visualIndexInTargetColumn = overTaskIndex;
@@ -320,7 +325,7 @@ export const useKanbanDnd = () => {
             if (viewMode === ViewModes.STATUS) return (a.statusOrder ?? 0) - (b.statusOrder ?? 0);
             return (a.sectionOrder ?? 0) - (b.sectionOrder ?? 0);
           });
-        
+
         tasksInOriginal.forEach((task, index) => {
           if (viewMode === ViewModes.STATUS) {
             task.statusOrder = index;
@@ -346,8 +351,10 @@ export const useKanbanDnd = () => {
           finalTasksMap.set(task.taskId, task);
         });
       }
-      
-      setTasks(Array.from(finalTasksMap.values()));
+
+      const finalTasks = Array.from(finalTasksMap.values())
+      setTasks(finalTasks);
+      if (onTasksChange) onTasksChange(finalTasks);
     }
   };
 

@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Todo } from "../../../types/type";
+import { Task, Todo } from "../../../types/type";
 import { faCaretDown } from "@fortawesome/free-solid-svg-icons";
 import { closestCenter, DndContext, DragEndEvent, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { useState } from "react";
@@ -7,6 +7,7 @@ import useTaskStore from "../../../store/task-store";
 import { arrayMove, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { restrictToFirstScrollableAncestor, restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import DraggableTodo from "./draggable-todo";
+import { useKanbanActions } from "../../../context/task-action-context";
 
 const TodoList: React.FC<{
   taskId: string;
@@ -15,6 +16,15 @@ const TodoList: React.FC<{
 }> = ({ taskId, todoList, isOwnerOrParticipant }) => {
   const updateTask = useTaskStore(state => state.updateTask);
   const [showTodo, setShowTodo] = useState<boolean>(false);
+  const { onTasksChange } = useKanbanActions();
+
+  const handleTodoExtenal = (updates: Partial<Task>) => {
+    updateTask(taskId, updates);
+    if (onTasksChange) {
+      const updatedTask = useTaskStore.getState().allTasks.find(t => t.taskId === taskId);
+      if (updatedTask) onTasksChange([updatedTask]);
+    }
+  }
 
   const handleDragEnd = (e: DragEndEvent) => {
     const { active, over } = e;
@@ -27,7 +37,7 @@ const TodoList: React.FC<{
       ...todo, order: index,
     }));
 
-    updateTask(taskId, { 'todoList': newTodoList });
+    handleTodoExtenal({ todoList: newTodoList });
   };
 
   const sensors = useSensors(
@@ -45,13 +55,13 @@ const TodoList: React.FC<{
         if (items.todoId === todoId) return { ...items, isCompleted: !items.isCompleted };
         return items;
       });
-      updateTask(taskId, { 'todoList': updatedTodoList });
+      handleTodoExtenal({ todoList: updatedTodoList });
     }
   };
 
   const handleDeleteTodo = (todoId: string) => {
     const updatedTodoList = todoList.filter(todo => todo.todoId !== todoId);
-    updateTask(taskId, { 'todoList': updatedTodoList });
+    handleTodoExtenal({ todoList: updatedTodoList });
   };
 
   return (
