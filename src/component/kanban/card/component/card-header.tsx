@@ -21,12 +21,21 @@ const CardHeader: React.FC<{
   const deleteTask = useTaskStore(state => state.deleteTask);
   const copyTask = useTaskStore(state => state.copyTask);
   const { showToast } = useToast();
-  const { onTasksDelete } = useKanbanActions();
+  const { onTasksDelete, onTasksChange, onTaskAdd } = useKanbanActions();
 
   const handleCopy = (e: React.MouseEvent) => {
     e.stopPropagation();
-    copyTask(task);
+    const result = copyTask(task);
     setIsOpen(false);
+
+    if (result && result.copiedTask) {
+      if (onTaskAdd) onTaskAdd(result.copiedTask);
+
+      if (onTasksChange && result.shiftedTasks && result.shiftedTasks.length > 0) onTasksChange(result.shiftedTasks);
+      showToast('작업이 성공적으로 복사되었습니다.');
+    } else {
+      showToast('작업 복사에 실패했습니다.');
+    }
   };
 
   const handleDeleteConfirm = () => {

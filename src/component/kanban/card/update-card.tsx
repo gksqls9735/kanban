@@ -93,12 +93,8 @@ const UpdateCard: React.FC<{
     const taskNameCheck = inputRef.current?.value.trim();
     if (taskNameCheck && startDate && endDate) {
       const filteredTodos = todos.filter(todo => todo.todoTxt && todo.todoTxt.trim() !== '');
-      const targetSectionLength = allTasks.filter(t => t.sectionId === selectedSection.sectionId).length;
-      const sectionOrder = targetSectionLength > 0 ? targetSectionLength + 1 : 0;
-
-      const targetStatusLength = allTasks.filter(t => t.status.code === selectedStatus.code).length;
-      const statusOrder = targetStatusLength > 0 ? targetStatusLength + 1 : 0;
-      updateTask(currentTask.taskId, {
+      
+      const updatedTasks = updateTask(currentTask.taskId, {
         sectionId: selectedSection.sectionId,
         taskName: taskNameCheck,
         start: startDate,
@@ -107,11 +103,9 @@ const UpdateCard: React.FC<{
         status: selectedStatus,
         todoList: filteredTodos,
         participants: participants,
-        sectionOrder, statusOrder,
       });
-      if (onTasksChange) {
-        const updatedTask = useTaskStore.getState().allTasks.find(t => t.taskId === currentTask.taskId);
-        if (updatedTask) onTasksChange([updatedTask]);
+      if (onTasksChange && updatedTasks.length > 0) {
+        if (updatedTasks) onTasksChange(updatedTasks);
       }
       onClose();
     } else {

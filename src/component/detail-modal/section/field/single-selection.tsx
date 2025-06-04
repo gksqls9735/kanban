@@ -7,6 +7,7 @@ import { lightenColor } from "../../../../utils/color-function";
 import FieldFooter from "./field-common/field-footer";
 import { generateUniqueId } from "../../../../utils/text-function";
 import OptionList from "./field-common/option/option-list";
+import { useToast } from "../../../../context/toast-context";
 
 export interface CombinedOptionItem {
   code: string;
@@ -15,7 +16,6 @@ export interface CombinedOptionItem {
   colorSub: string;
   isSelected: boolean;
 }
-
 
 const SingleSelection: React.FC<{
   options?: SelectableOption[], isOwnerOrParticipant: boolean, handleChangeAndNotify: (updates: Partial<Task>) => void
@@ -40,6 +40,8 @@ const SingleSelection: React.FC<{
   const [isOpenEdit, setIsOpenEdit] = useState<boolean>(false);
 
   const editContainerRef = useRef<HTMLDivElement>(null);
+
+  const { showToast } = useToast();
 
   useEffect(() => {
     const newlyPersistedSelected = getInitialSelectedOption(initialOptions);
@@ -115,9 +117,30 @@ const SingleSelection: React.FC<{
   };
 
   const handleSaveOptions = () => {
-    const filterOptions = combinedItems.filter(item => item.name && item.name.trim() !== '');
-    handleChangeAndNotify({ singleSelection: filterOptions });
-    setIsOpenEdit(false);
+    const validOptions = combinedItems.filter(item => item.name && item.name.trim() !== '');
+
+    const names = validOptions.map(item => item.name.trim());
+    const uniqueNames = new Set(names);
+    if (names.length !== uniqueNames.size) {
+      showToast('동일한 이름의 옵션이 존재합니다.');
+      return;
+    }
+
+    const optionsToSave = validOptions.map(item => ({
+      code: item.code,
+      name: item.name.trim(),
+      colorMain: item.colorMain,
+      colorSub: item.colorSub,
+      isSelected: item.isSelected,
+    }));
+
+    handleChangeAndNotify({ singleSelection: optionsToSave });
+    if (isOpenEdit) {
+      setIsOpenEdit(false);
+    } else {
+      setIsInEditMode(false);
+      setIsOpenEdit(false);
+    }
   };
 
   const handleDeleteOption = (code: string) => {

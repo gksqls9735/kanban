@@ -9,6 +9,7 @@ import FieldFooter from "./field-common/field-footer";
 import { CombinedOptionItem } from "./single-selection";
 import { generateUniqueId } from "../../../../utils/text-function";
 import OptionList from "./field-common/option/option-list";
+import { useToast } from "../../../../context/toast-context";
 
 
 const MultiSelection: React.FC<{
@@ -30,6 +31,8 @@ const MultiSelection: React.FC<{
 
   const editContainerRef = useRef<HTMLDivElement>(null);
 
+  const { showToast } = useToast();
+
   useEffect(() => {
     const initialCombined: CombinedOptionItem[] = initialOptions.map(option => ({
       code: option.code,
@@ -40,11 +43,15 @@ const MultiSelection: React.FC<{
       isNew: false,
     }));
     setCombinedItems(initialCombined);
-  }, []); // 마운트 시에만 initialOptions로 combinedItems 초기화
+  }, []);
 
   const handleCancel = () => {
     setIsInEditMode(false);
     setIsOpenEdit(false);
+    const initialCombined: CombinedOptionItem[] = initialOptions.map(option => ({
+      code: option.code, name: option.name, colorMain: option.colorMain, colorSub: option.colorSub || lightenColor(option.colorMain, 0.85), isSelected: option.isSelected,
+    }));
+    setCombinedItems(initialCombined); // 옵션 목록 원복 (만약 옵션 목록 자체를 수정하는 기능이 있다면)
   };
 
   const handleToggleEditMode = () => {
@@ -59,16 +66,25 @@ const MultiSelection: React.FC<{
   useClickOutside(editContainerRef, handleCancel, isInEditMode);
 
   const handleSaveOptions = () => {
-    const validOptionsToSave = combinedItems
-      .filter(item => item.name && item.name.trim() !== '')
-      .map(item => ({
-        code: item.code,
-        name: item.name,
-        colorMain: item.colorMain,
-        colorSub: item.colorSub,
-        isSelected: item.isSelected,
-      }));
-    handleChangeAndNotify({ multiSelection: validOptionsToSave });
+    const validOptions = combinedItems.filter(item => item.name && item.name.trim() !== '');
+
+    const names = validOptions.map(item => item.name.trim());
+    const uniqueNames = new Set(names);
+    if (names.length !== uniqueNames.size) {
+      showToast('동일한 이름의 옵션이 존재합니다.');
+      return;
+    }
+
+    const optionsToSave = validOptions.map(item => ({
+      code: item.code,
+      name: item.name.trim(), // 저장 시 앞뒤 공백 제거
+      colorMain: item.colorMain,
+      colorSub: item.colorSub,
+      isSelected: item.isSelected,
+    }));
+
+    handleChangeAndNotify({ multiSelection: optionsToSave });
+    setCombinedItems(optionsToSave);
     if (isOpenEdit) {
       setIsOpenEdit(false);
     } else {

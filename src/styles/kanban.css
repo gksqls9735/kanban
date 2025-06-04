@@ -736,6 +736,9 @@
 .kanban .todo-item__action.todo-item__action--delete {
   border-radius: 999px;
   background-color: rgba(238, 241, 246, 1);
+  padding: 4px;
+  box-sizing: border-box;
+  cursor: pointer;
 }
 
 .kanban .todo-item__action.todo-item__action--drag-handle {
@@ -929,6 +932,7 @@
 .kanban .card-datepicker-text {
   font-size: 13px;
   color: #7d8998;
+  white-space: nowrap;
 }
 
 .kanban .datepicker-dropdown-panel {

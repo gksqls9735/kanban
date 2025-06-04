@@ -42,7 +42,7 @@ const DetailTodoItem: React.FC<{
             checked={item.isCompleted}
             onChange={() => onCompleteChange(item.todoId)}
           />
-          <label htmlFor={checkboxId} className="task-detail__checkbox--visual" />
+          <label htmlFor={checkboxId} className="task-detail__checkbox--visual" style={{ cursor: isOwnerOrParticipant ? 'pointer' : 'default', }} />
         </div>
       </div>
       <div className="task-detail__detail-modal-todo-item-content">

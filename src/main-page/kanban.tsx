@@ -14,6 +14,7 @@ import useUserStore from "../store/user-store";
 import { ToastProvider } from "../context/toast-context";
 import useChatStore from "../store/chat-store";
 import { useKanbanActions } from "../context/task-action-context";
+import { statusSelect } from "../mocks/select-option-mock";
 
 export interface KanbanProps {
   tasks: Task[];
@@ -39,9 +40,8 @@ const Kanban: React.FC<KanbanProps> = ({
   const sections = useSectionsStore(state => state.sections);
   const setSections = useSectionsStore(state => state.setSections);
   const setStatusList = useStatusesStore(state => state.setStatusList);
-  const sectionsLoaded = useSectionsStore(state => state.sections.length > 0);
-
-  const statusesLoaded = useStatusesStore(state => state.statusList.length > 0);
+  // const sectionsLoaded = useSectionsStore(state => state.sections.length > 0);
+  // const statusesLoaded = useStatusesStore(state => state.statusList.length > 0);
 
   const setCurrentUser = useUserStore(state => state.setCurrentUser);
   const setUserlist = useUserStore(state => state.setUserlist);
@@ -63,18 +63,18 @@ const Kanban: React.FC<KanbanProps> = ({
 
 
   useEffect(() => {
-    if (!sectionsLoaded) {
-      const sortedSections = initialSections.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-      setSections(sortedSections);
-    }
-  }, [initialSections, setSections, sectionsLoaded]);
+    const sortedSections = initialSections.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+    setSections(sortedSections);
+  }, [initialSections, setSections]);
 
 
   useEffect(() => {
-    if (!statusesLoaded) {
+    if (initialStatusList && initialStatusList.length > 0) {
       setStatusList(initialStatusList);
+    } else {
+      setStatusList(statusSelect);
     }
-  }, [initialStatusList, setStatusList, statusesLoaded]);
+  }, [initialStatusList, setStatusList]);
 
 
   useEffect(() => {
@@ -106,6 +106,7 @@ const Kanban: React.FC<KanbanProps> = ({
       setAllTaskChats({});
     }
   }, [chatlist, setAllTaskChats]);
+  
   useEffect(() => {
     const allChats = Object.values(chatsByTask).flat();
     onChatlistChange?.(allChats);

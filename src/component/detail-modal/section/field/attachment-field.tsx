@@ -47,6 +47,29 @@ const AttachmentField: React.FC<{
     handleChangeAndNotify({ taskAttachments: updatedFiles });
   };
 
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) {
+      return;
+    }
+
+    const newAttachments: FileAttachment[] = Array.from(files).map(file => ({
+      fileId: crypto.randomUUID(), // Generate a unique temporary ID
+      fileName: file.name,
+      fileUrl: URL.createObjectURL(file), // Create a temporary URL for the file
+      fileType: file.type,
+    }));
+
+    const updatedAttachments = [...attachments, ...newAttachments];
+    handleChangeAndNotify({ taskAttachments: updatedAttachments });
+
+    // Clear the file input value to allow selecting the same file again
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+
   return (
     <li className="task-detail__detail-modal-field-item">
       <FieldLabel fieldName="첨부파일" onClick={handleToggleEditMode} />
@@ -113,12 +136,13 @@ const AttachmentField: React.FC<{
             {isOwnerOrParticipant && (<div className="task-detail__detail-modal-field-edit-separator" />)}
           </div>
           {isOwnerOrParticipant && (
-            <div className="task-detail__detail-modal-field-edit-footer" onClick={handleIconClick}>
+            <div className="task-detail__detail-modal-field-edit-footer task-detail__detail-modal-field-edit-footer--attachment" onClick={handleIconClick}>
               <input
                 type="file"
                 ref={fileInputRef}
                 multiple
                 style={{ display: 'none' }}
+                onChange={handleFileChange}
               />
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#414D5C" className="bi bi-plus-lg" viewBox="0 0 16 16">
                 <path fillRule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2" />

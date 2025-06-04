@@ -150,9 +150,8 @@ const DetailModal: React.FC<{
   // 값 업데이트
   const handleChangeAndNotify = (updates: Partial<Task>) => {
     if (!currentTask) return;
-    updateTask(currentTask.taskId, { ...updates });
-    const taskToSendToParent = { ...currentTask, ...updates };
-    if (onTasksChange) onTasksChange([taskToSendToParent]);
+    const updatedTask = updateTask(currentTask.taskId, { ...updates });
+    if (onTasksChange && updatedTask && updatedTask.length > 0) onTasksChange(updatedTask);
   };
 
   const handleSectionChange = (section: Section) => handleChangeAndNotify({ sectionId: section.sectionId });

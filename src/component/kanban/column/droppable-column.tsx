@@ -84,23 +84,24 @@ const DroppableColumn: React.FC<{
     }, [colorMain, colorSub, isOverlay]);
 
     const handleDeleteSection = () => {
-      deleteSection(columnId);
-      deleteTasksBySection(columnId);
+      const sectionId = columnId;
+      deleteSection(sectionId);
+      deleteTasksBySection(sectionId);
       setIsDeleteModalOpen(false);
-      if (onSectionDelete) onSectionDelete(columnId);
+      if (onSectionDelete) onSectionDelete(sectionId);
       showToast(`섹션 ${title}이/가 성공적으로 삭제되었습니다.`)
     }
 
     const handleDeleteStatus = () => {
-      deleteStatus(columnId);
-      updateTasksByStatus(columnId);
+      const statusCode = columnId;
+      deleteStatus(statusCode);
+      const updatedTasks = updateTasksByStatus(statusCode);
       setIsDeleteModalOpen(false);
-      if (onStatusesChange && onTasksChange) {
+      if (onStatusesChange) {
         const updatedStatuses = useStatusesStore.getState().statusList;
         onStatusesChange(updatedStatuses);
-        const updatedTasks = useTaskStore.getState().allTasks.filter(t => t.status.code === columnId);
-        onTasksChange(updatedTasks);
       }
+      if (onTasksChange) onTasksChange(updatedTasks);
       showToast(`상태 ${title}이/가 성공적으로 삭제되었습니다.`)
     };
 

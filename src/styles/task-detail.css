@@ -595,6 +595,11 @@
   color: #16B364
 }
 
+.kanban .task-detail__detail-modal-field-edit-footer--attachment {
+  cursor: pointer;
+  width: fit-content;
+}
+
 .kanban .task-detail__detail-modal-field-edit-list-wrapper {
   display: flex;
   flex-direction: column;

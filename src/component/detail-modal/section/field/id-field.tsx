@@ -95,7 +95,7 @@ const IdField: React.FC<{
         <FieldLabel fieldName="ID" onClick={handleToggleEditMode} />
         <ul className="task-detail__detail-modal-field-content-list">
           {/* 실제 ID는 prefix와 taskId의 조합. taskId가 길 경우 일부만 표시 (예: 뒤 6자리) */}
-          <li className="task-detail__detail-modal-field-value-item--id">{`${initialPrefix}-${taskId.slice(-6)}`}</li>
+          <li className="task-detail__detail-modal-field-value-item--id">{`${initialPrefix}-${taskId}`}</li>
         </ul>
       </li>
     );
@@ -132,7 +132,7 @@ const IdField: React.FC<{
       <FieldLabel fieldName="ID" onClick={handleToggleEditMode} />
       <ul className="task-detail__detail-modal-field-content-list">
         {initialPrefix ? (
-          <li className="task-detail__detail-modal-field-value-item--id">{`${initialPrefix}-${taskId.slice(-6)}`}</li>
+          <li className="task-detail__detail-modal-field-value-item--id">{`${initialPrefix}-${taskId}`}</li>
         ) : (
           <li className="task-detail__detail-modal-field-edit-item--no-message">
             표시할 ID가 없습니다.
@@ -190,7 +190,7 @@ const IdField: React.FC<{
                   <div className="task-detail__detail-modal-field-edit-id-view-input-wrapper">
                     <input
                       type="text"
-                      value={`${initialPrefix}-${taskId.slice(-6)}`} // 현재 설정된 ID 표시
+                      value={`${initialPrefix}-${taskId}`} // 현재 설정된 ID 표시
                       className="task-detail__detail-modal-field-edit-input--id-view" // 읽기 전용 스타일 적용 필요
                       readOnly
                     />
