@@ -13,6 +13,7 @@ import { generateUniqueId, getInitial } from "../../../utils/text-function";
 import ParticipantSelector from "../../participant-select/participant-selector";
 import { calcMinStart } from "../../../utils/date-function";
 import { useKanbanActions } from "../../../context/task-action-context";
+import { useToast } from "../../../context/toast-context";
 
 const UpdateCard: React.FC<{
   onClose: () => void;
@@ -25,6 +26,8 @@ const UpdateCard: React.FC<{
   const sections = useSectionsStore(state => state.sections);
 
   const allTasks = useTaskStore(state => state.allTasks);
+
+  const { showToast } = useToast();
   const { onTasksChange } = useKanbanActions();
 
   const getMinStartDateForTask = (task: Task): Date | null => {
@@ -90,13 +93,17 @@ const UpdateCard: React.FC<{
   }, [currentTask.taskName]);
 
   const handleUpdateTask = () => {
-    const taskNameCheck = inputRef.current?.value.trim();
-    if (taskNameCheck && startDate && endDate) {
+    if (!inputRef.current) return;
+
+    let processedName = inputRef.current?.value.trim();
+    processedName = processedName.replace(/\s{2,}/g, ' ');
+
+    if (processedName && startDate && endDate) {
       const filteredTodos = todos.filter(todo => todo.todoTxt && todo.todoTxt.trim() !== '');
-      
+
       const updatedTasks = updateTask(currentTask.taskId, {
         sectionId: selectedSection.sectionId,
-        taskName: taskNameCheck,
+        taskName: processedName,
         start: startDate,
         end: endDate,
         priority: selectedPriority,
@@ -109,7 +116,10 @@ const UpdateCard: React.FC<{
       }
       onClose();
     } else {
-      if (!taskNameCheck) inputRef.current?.focus();
+      if (!processedName) {
+        showToast('작업명을 입력해주세요.');
+        inputRef.current?.focus();
+      }
     }
   };
 

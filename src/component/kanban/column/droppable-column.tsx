@@ -47,7 +47,7 @@ const DroppableColumn: React.FC<{
   placeholderData,
   listeners
 }) => {
-    const [isEdting, setIsEditing] = useState<boolean>(false);
+    const [isEditing, setIsEditing] = useState<boolean>(false);
 
     const viewMode = useViewModeStore(state => state.viewMode);
     const deleteTasksBySection = useTaskStore(state => state.deleteTasksBySection);
@@ -112,9 +112,11 @@ const DroppableColumn: React.FC<{
 
 
     const handleUpdate = (name: string, color?: string) => {
-      const trimmedName = name.trim();
-      if (!trimmedName) {
-        showToast('이름을 입력해주세요.');
+      let processedName = name.trim(); 
+      processedName = processedName.replace(/\s{2,}/g, ' ');
+
+      if (!processedName) {
+        showToast('상태/섹션 이름을 입력해주세요.');
         return;
       }
 
@@ -126,7 +128,7 @@ const DroppableColumn: React.FC<{
         }
 
         // 시나리오 1: 이름과 색상 모두 변경되지 않은 경우
-        if (trimmedName === originalStatus.name && color === originalStatus.colorMain) {
+        if (processedName === originalStatus.name && color === originalStatus.colorMain) {
           showToast('변경된 내용이 없습니다.');
           setIsEditing(false);
           return;
@@ -134,9 +136,9 @@ const DroppableColumn: React.FC<{
 
         // 시나리오 2: 이름 또는 색상 중 하나라도 변경된 경우
         // 먼저, 이름이 변경되었다면 다른 상태와 중복되는지 확인
-        if (trimmedName !== originalStatus.name) {
+        if (processedName !== originalStatus.name) {
           const isDuplicateNameWithOthers = statusList.some(
-            status => status.code !== columnId && status.name === trimmedName
+            status => status.code !== columnId && status.name === processedName
           );
           if (isDuplicateNameWithOthers) {
             showToast('동일한 이름의 다른 상태가 이미 존재합니다.');
@@ -145,7 +147,7 @@ const DroppableColumn: React.FC<{
         }
 
         const statusUpdates: Partial<SelectOption> = {
-          name: trimmedName,
+          name: processedName,
           colorMain: color,
           colorSub: lightenColor(color, 0.85),
         };
@@ -157,7 +159,7 @@ const DroppableColumn: React.FC<{
 
         const newStatusDataForTasks: SelectOption = {
           code: columnId,
-          name: trimmedName,
+          name: processedName,
           colorMain: color,
           colorSub: lightenColor(color, 0.85),
         };
@@ -175,14 +177,14 @@ const DroppableColumn: React.FC<{
           return;
         }
 
-        if (trimmedName === originalSection.sectionName) {
+        if (processedName === originalSection.sectionName) {
           showToast('변경된 내용이 없습니다.');
           setIsEditing(false);
           return;
         }
 
         const isDuplicateWithOthers = sections.some(
-          sec => sec.sectionId !== columnId && sec.sectionName === trimmedName
+          sec => sec.sectionId !== columnId && sec.sectionName === processedName
         );
 
         if (isDuplicateWithOthers) {
@@ -190,7 +192,7 @@ const DroppableColumn: React.FC<{
           return;
         }
 
-        updateSection(columnId, { sectionName: trimmedName });
+        updateSection(columnId, { sectionName: processedName });
         if (onSectionsChange) {
           const updatedSections = useSectionsStore.getState().sections;
           onSectionsChange(updatedSections);
@@ -227,9 +229,9 @@ const DroppableColumn: React.FC<{
             onAddBefore={onAddBefore} onAddAfter={onAddAfter}
           />
         </div>
-        {isEdting && (
+        {isEditing && (
           <ColumnEdit
-            viewMode={viewMode} isEdting={isEdting} toggle={toggle} onUpdate={handleUpdate} colorMain={colorMain} columnTitle={title} />
+            viewMode={viewMode} isEditing={isEditing} toggle={toggle} onUpdate={handleUpdate} colorMain={colorMain} columnTitle={title} />
         )}
         <div className="section-content">
           <SortableContext items={tasksId} strategy={verticalListSortingStrategy}>

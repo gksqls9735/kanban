@@ -13,7 +13,7 @@ const ColumnCreate: React.FC<{
   toggle: () => void;
   onAdd: (name: string, color?: string) => void;
 }> = ({ viewMode, isAdd, toggle, onAdd }) => {
-  const { 
+  const {
     inputRef, selectedColor, placeholderTxt,
     handleConfirmClick, handleInputKeyDown, handleColorSelect,
   } = useColumnInput({ isActive: isAdd, viewMode: viewMode, onSubmit: onAdd, onToggle: toggle, })

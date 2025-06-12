@@ -74,8 +74,16 @@ const NewTaskCard: React.FC<{
   const handleParticipants = (participants: Participant[]) => setParticipants(participants);
 
   const handleAddTask = () => {
-    const taskNameCheck = inputRef.current?.value.trim();
-    if (taskNameCheck && startDate && endDate && currentUser) {
+    if (!inputRef.current) return;
+    let processedName = inputRef.current?.value.trim();
+    processedName = processedName.replace(/\s{2,}/g, ' ');
+
+    if (!processedName) {
+      showToast('작업명을 입력해주세요.');
+      return;
+    }
+
+    if (processedName && startDate && endDate && currentUser) {
       const filteredTodos = todos.filter(todo => todo.todoTxt && todo.todoTxt.trim() !== '');
       const targetSectionLength = useTaskStore.getState().allTasks.filter(t => t.sectionId === selectedSection.sectionId).length;
       const sectionOrder = targetSectionLength > 0 ? targetSectionLength + 1 : 0;
@@ -85,8 +93,8 @@ const NewTaskCard: React.FC<{
       const newTask: Omit<Task, 'color'> & { id?: string; } = {
         sectionId: selectedSection.sectionId,
         taskId: newTaskId,
-        taskName: taskNameCheck,
-        taskOwner: currentUser, // 실제 사용자로 변경
+        taskName: processedName,
+        taskOwner: currentUser,
         start: startDate,
         end: endDate,
         priority: selectedPriority,

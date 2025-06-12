@@ -114,12 +114,19 @@ const ColumnList: React.FC<{
   const allColumnIds = useMemo(() => baseColumns.map(col => col.id), [baseColumns]);
 
   const handleAddNewItem = (name: string, color?: string) => {
-    const trimmedName = name.trim();
-    if (trimmedName) {
+    let processedName = name.trim();
+    processedName = processedName.replace(/\s{2,}/g, ' ');
+
+    if (!processedName) {
+      showToast('상태/섹션 이름을 입력해주세요.');
+      return;
+    }
+
+    if (processedName) {
       if (viewMode === ViewModes.STATUS && color) {
-        const isExistStatusName = statusList.some(status => status.name === trimmedName);
+        const isExistStatusName = statusList.some(status => status.name === processedName);
         if (!isExistStatusName) {
-          addStatus({ name: trimmedName, colorMain: color, colorSub: lightenColor(color, 0.85) });
+          addStatus({ name: processedName, colorMain: color, colorSub: lightenColor(color, 0.85) });
           handleAddStatus();
           showToast('상태가 등록 되었습니다.');
         } else {
@@ -127,9 +134,9 @@ const ColumnList: React.FC<{
           return;
         }
       } else if (viewMode === ViewModes.SECTION) {
-        const isExistSectionName = sections.some(sec => sec.sectionName === trimmedName);
+        const isExistSectionName = sections.some(sec => sec.sectionName === processedName);
         if (!isExistSectionName) {
-          addSection(trimmedName);
+          addSection(processedName);
           handleAddSection();
           showToast('섹션이 추가 되었습니다.')
         } else {
@@ -153,7 +160,7 @@ const ColumnList: React.FC<{
       const newColor = colors[0];
       const newStatusData: SelectOption = {
         code: generateUniqueId('status'),
-        name: '제목 없는 상태',
+        name: '이름름 없는 상태',
         colorMain: newColor,
         colorSub: lightenColor(newColor, 0.85),
       }
@@ -170,7 +177,7 @@ const ColumnList: React.FC<{
       const newColor = colors[0];
       const newStatusData: SelectOption = {
         code: generateUniqueId('status'),
-        name: '제목 없는 상태',
+        name: '이름름 없는 상태',
         colorMain: newColor,
         colorSub: lightenColor(newColor, 0.85),
       }

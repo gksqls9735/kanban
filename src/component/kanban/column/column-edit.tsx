@@ -9,26 +9,26 @@ const CheckIcon = () => (
 
 const ColumnEdit: React.FC<{
   viewMode: string;
-  isEdting: boolean;
+  isEditing: boolean;
   toggle: () => void;
   onUpdate: (name: string, color?: string) => void;
   colorMain?: string;
   columnTitle: string
-}> = ({ viewMode, isEdting, toggle, onUpdate, colorMain, columnTitle }) => {
+}> = ({ viewMode, isEditing, toggle, onUpdate, colorMain, columnTitle }) => {
   const {
     inputRef, selectedColor, placeholderTxt,
     handleConfirmClick, handleInputKeyDown, handleColorSelect,
   } = useColumnInput({
-    isActive: isEdting, viewMode: viewMode, initialName: columnTitle, initialColor: colorMain, onSubmit: onUpdate, onToggle: toggle,
+    isActive: isEditing, viewMode: viewMode, initialName: columnTitle, initialColor: colorMain, onSubmit: onUpdate, onToggle: toggle,
   })
 
-  if (!isEdting) return null;
+  if (!isEditing) return null;
 
   return (
     <>
       <div>
         <div className="new-section">
-          <input ref={inputRef} type="text" placeholder={placeholderTxt} onKeyDown={handleInputKeyDown} />
+          <input ref={inputRef} type="text" placeholder={placeholderTxt} onKeyDown={handleInputKeyDown}/>
           <div className="create-confirm-button" onClick={handleConfirmClick}>확인</div>
         </div>
         {viewMode === ViewModes.STATUS && (
