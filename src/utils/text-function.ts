@@ -20,3 +20,9 @@ export const getInitial = (name: string): string => {
 export const generateUniqueId = (type: string): string => {
   return `${type}-${Date.now()}-${Math.random().toString(36).substring(7)}`;
 }
+
+export function extractLastTeamName(teamString: string): string {
+  if (!teamString) return '';
+  const segments = teamString.split('/');
+  return segments[segments.length - 1];
+}

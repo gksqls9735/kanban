@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import useDropdown from "../../../../hooks/use-dropdown";
 import { Participant } from "../../../../types/type";
-import { getInitial } from "../../../../utils/text-function";
+import { extractLastTeamName, getInitial } from "../../../../utils/text-function";
 import AvatarItem from "../../../avatar/avatar";
 import AvatarGroup from "../../../avatar/avatar-group";
 
@@ -18,7 +18,7 @@ const CardParticipants: React.FC<{
   const sortedParticipants = useMemo(() => {
     if (!taskParticipants || taskParticipants.length === 0) return [];
 
-    return [...taskParticipants].sort((a,b) => {
+    return [...taskParticipants].sort((a, b) => {
       if (a.isMain && !b.isMain) return -1;
       if (!a.isMain && b.isMain) return 1;
       return 0;
@@ -29,7 +29,7 @@ const CardParticipants: React.FC<{
     e.stopPropagation();
     toggle();
   };
-  
+
   return (
     <div ref={wrapperRef} className="card-participant">
       <div onClick={handleToggle}>
@@ -56,12 +56,12 @@ const CardParticipants: React.FC<{
                   >
                     {getInitial(user.username)}
                   </AvatarItem>
-                  <div className="participant-popover__info">
+                  <div className={`participant-popover__info ${user.isMain ? 'participant-popover__info--main' : ''}`}>
                     <div className="participant-popover__name-line">
                       <div className="participant-popover__username">{user.username}</div>
                       {user.isMain && (<div className="participant-main-badge">주</div>)}
                     </div>
-                    <span className="participant-popover__team">{user.team}</span>
+                    <span className="participant-popover__team">{extractLastTeamName(user.team)}</span>
                   </div>
                 </div>
               ))

@@ -3,7 +3,7 @@ import { Participant } from "../../../types/type";
 import AvatarItem from "../../avatar/avatar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCaretDown } from "@fortawesome/free-solid-svg-icons";
-import { getInitial } from "../../../utils/text-function";
+import { extractLastTeamName, getInitial } from "../../../utils/text-function";
 
 interface SelectedUserItemProps {
   participant: Participant;
@@ -19,7 +19,7 @@ const SelectedUserItem = forwardRef<HTMLDivElement, SelectedUserItemProps>(
           <AvatarItem size={40} src={participant.icon}>{getInitial(participant.username)}</AvatarItem>
           <div className="participant-modal__selected-item-text">
             <span className="participant-modal__selected-item-username" >{participant.username}</span>
-            <span className="participant-modal__selected-item-team" >{participant.team}</span>
+            <span className="participant-modal__selected-item-team" >{extractLastTeamName(participant.team)}</span>
           </div>
         </div>
         <div className="participant-modal__selected-item-actions" >

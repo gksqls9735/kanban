@@ -1,5 +1,5 @@
 import { User } from "../../../../types/type";
-import { getInitial } from "../../../../utils/text-function";
+import { extractLastTeamName, getInitial } from "../../../../utils/text-function";
 import AvatarItem from "../../../avatar/avatar";
 
 const UserItem: React.FC<{
@@ -28,7 +28,7 @@ const UserItem: React.FC<{
         <div className="participant-modal__user-item-text">
           <div className="participant-modal__user-item-name-line">
             <span className="participant-modal__user-item-username">{user.username}</span>
-            <span className="participant-modal__user-item-team">{user.team}</span>
+            <span className="participant-modal__user-item-team">{extractLastTeamName(user.team)}</span>
           </div>
           <span className="participant-modal__user-item-description truncate">{user.tagline}</span>
         </div>

@@ -543,8 +543,13 @@
 .kanban .participant-popover__info {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 6px;
 }
+
+.kanban .participant-popover__info--main {
+  gap: 2px
+}
+
 
 .kanban .participant-popover__name-line {
   display: flex;
