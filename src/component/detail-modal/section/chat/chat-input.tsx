@@ -2,13 +2,13 @@
 
 import { faPaperclip } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import AvatarItem from "../../../avatar/avatar";
 import { generateUniqueId, getInitial } from "../../../../utils/text-function";
 import { Chat, FileAttachment } from "../../../../types/type";
 import { ChangeEvent, useRef, useState, KeyboardEvent, useEffect } from "react"; // KeyboardEvent 임포트
 import useChatStore from "../../../../store/chat-store";
 import useUserStore from "../../../../store/user-store";
 import { getFileTypeInfo } from "../../common/file-icon";
+import AvatarItem from "../../../common/avatar/avatar";
 
 // 임시 파일 업로드 함수 (실제로는 서버 API 호출)
 const uploadFileToServer = async (file: File): Promise<FileAttachment> => {

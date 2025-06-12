@@ -1,6 +1,6 @@
 import { Participant } from "../../../../types/type";
 import { getInitial } from "../../../../utils/text-function";
-import AvatarItem from "../../../avatar/avatar";
+import AvatarItem from "../../../common/avatar/avatar";
 
 const ParticipantsField: React.FC<{
   participants: Participant[];

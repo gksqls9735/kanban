@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { Participant, Task } from "../../../../types/type";
 import { getInitial } from "../../../../utils/text-function";
-import AvatarItem from "../../../avatar/avatar";
+import AvatarItem from "../../../common/avatar/avatar";
 import FieldLabel from "./field-common/field-label";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";

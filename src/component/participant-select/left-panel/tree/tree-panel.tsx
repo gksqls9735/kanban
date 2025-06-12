@@ -1,6 +1,6 @@
 import { ReactNode, useMemo, useState } from "react";
 import { User } from "../../../../types/type";
-import AvatarItem from "../../../avatar/avatar";
+import AvatarItem from "../../../common/avatar/avatar";
 import { getInitial } from "../../../../utils/text-function";
 
 const ICON_ARROW_DOWN = "https://works.bizbee.co.kr/assets/doc-arrow-down.8bd3b059.svg";

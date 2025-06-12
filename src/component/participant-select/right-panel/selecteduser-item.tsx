@@ -1,6 +1,6 @@
 import { forwardRef } from "react";
 import { Participant } from "../../../types/type";
-import AvatarItem from "../../avatar/avatar";
+import AvatarItem from "../../common/avatar/avatar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCaretDown } from "@fortawesome/free-solid-svg-icons";
 import { extractLastTeamName, getInitial } from "../../../utils/text-function";

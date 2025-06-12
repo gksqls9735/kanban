@@ -8,7 +8,7 @@ import SectionSelector from "../new-card/section-selector";
 import DatePickerTrigger from "../new-card/datepicker-trigger";
 import OptionSelector from "../new-card/option-selector";
 import TodoListEditor from "../new-card/todolist-editor";
-import AvatarItem from "../../avatar/avatar";
+import AvatarItem from "../../common/avatar/avatar";
 import { generateUniqueId, getInitial } from "../../../utils/text-function";
 import ParticipantSelector from "../../participant-select/participant-selector";
 import { calcMinStart } from "../../../utils/date-function";

@@ -1,5 +1,5 @@
 import { getInitial } from "../../../../utils/text-function"
-import AvatarItem from "../../../avatar/avatar"
+import AvatarItem from "../../../common/avatar/avatar"
 
 const ReporterField: React.FC<{ userIcon: string | null, userName: string }> = ({ userIcon, userName }) => {
   return (

@@ -1,5 +1,5 @@
-import { Participant } from "../../types/type";
-import { getInitial } from "../../utils/text-function";
+import { Participant } from "../../../types/type";
+import { getInitial } from "../../../utils/text-function";
 import AvatarItem from "./avatar";
 
 const groupStyle: React.CSSProperties = {

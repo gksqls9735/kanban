@@ -10,7 +10,7 @@ import TodoListEditor from "./todolist-editor";
 import OptionSelector from "./option-selector";
 import DatePickerTrigger from "./datepicker-trigger";
 import SectionSelector from "./section-selector";
-import AvatarItem from "../../avatar/avatar";
+import AvatarItem from "../../common/avatar/avatar";
 import { generateUniqueId, getInitial } from "../../../utils/text-function";
 import useUserStore from "../../../store/user-store";
 import ParticipantSelector from "../../participant-select/participant-selector";

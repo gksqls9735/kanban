@@ -2,8 +2,8 @@ import { useMemo } from "react";
 import useDropdown from "../../../../hooks/use-dropdown";
 import { Participant } from "../../../../types/type";
 import { extractLastTeamName, getInitial } from "../../../../utils/text-function";
-import AvatarItem from "../../../avatar/avatar";
-import AvatarGroup from "../../../avatar/avatar-group";
+import AvatarGroup from "../../../common/avatar/avatar-group";
+import AvatarItem from "../../../common/avatar/avatar";
 
 const CardParticipants: React.FC<{
   taskParticipants: Participant[];
@@ -31,7 +31,7 @@ const CardParticipants: React.FC<{
   };
 
   return (
-    <div ref={wrapperRef} className="card-participant">
+    <div ref={wrapperRef} className="card-participant" onClick={e => e.stopPropagation()}>
       <div onClick={handleToggle}>
         <AvatarGroup list={sortedParticipants} maxVisible={3} />
       </div>

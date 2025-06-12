@@ -1,6 +1,6 @@
 import { User } from "../../../../types/type";
 import { extractLastTeamName, getInitial } from "../../../../utils/text-function";
-import AvatarItem from "../../../avatar/avatar";
+import AvatarItem from "../../../common/avatar/avatar";
 
 const UserItem: React.FC<{
   user: User;
