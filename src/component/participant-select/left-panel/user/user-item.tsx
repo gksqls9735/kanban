@@ -30,7 +30,7 @@ const UserItem: React.FC<{
             <span className="participant-modal__user-item-username">{user.username}</span>
             <span className="participant-modal__user-item-team">{user.team}</span>
           </div>
-          <span className="participant-modal__user-item-description">사용자 지정 설명</span>
+          <span className="participant-modal__user-item-description truncate">{user.tagline}</span>
         </div>
       </div>
       <div className="participant-modal__checkbox-area" onClick={handleCheckboxAreaClick}>

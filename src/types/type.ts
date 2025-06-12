@@ -62,6 +62,8 @@ export type User = {
   icon: string | null
   /** 팀 명 */
   team: string
+  /** 소개 */
+  tagline?: string;
 }
 
 /** 담당자 */
