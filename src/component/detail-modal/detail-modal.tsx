@@ -1,11 +1,11 @@
 import { Chat, Participant, Section, SelectOption, Task, Todo } from "../../types/type";
 import { useMemo, useRef, useState } from "react";
 import useSectionsStore from "../../store/sections-store";
-import SectionSelector from "../kanban/new-card/section-selector";
+import SectionSelector from "../common/selector/section-selector";
 import ParticipantSelector from "../participant-select/participant-selector";
 import { priorityMedium, prioritySelect } from "../../mocks/select-option-mock";
 import useStatusesStore from "../../store/statuses-store";
-import OptionSelector from "../kanban/new-card/option-selector";
+import OptionSelector from "../common/selector/option-selector";
 import useUserStore from "../../store/user-store";
 import DetailHeader from "./detail-header";
 import ReporterField from "./section/info-field/reporter-field";
