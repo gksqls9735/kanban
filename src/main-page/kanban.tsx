@@ -106,7 +106,7 @@ const Kanban: React.FC<KanbanProps> = ({
       setAllTaskChats({});
     }
   }, [chatlist, setAllTaskChats]);
-  
+
   useEffect(() => {
     const allChats = Object.values(chatsByTask).flat();
     onChatlistChange?.(allChats);
@@ -119,25 +119,16 @@ const Kanban: React.FC<KanbanProps> = ({
   const toggleViewMode = () => {
     setViewMode(viewMode === ViewModes.STATUS ? ViewModes.SECTION : ViewModes.STATUS);
   };
+
   return (
     <ToastProvider>
       <div className="kanban-wrapper"
         style={{
-          display: 'flex',
-          margin: '0 auto',
-          flexDirection: 'column',
           paddingLeft: `${isSideMenuOpen === 'hidden' ? '' : isSideMenuOpen === 'expanded' ? '260px' : '86px'}`,
           width: `${isSideMenuOpen === 'hidden' ? '100%' : isSideMenuOpen === 'expanded' ? 'calc(100vw - 260px)' : 'calc(100vw - 86px)'}`,
-          boxSizing: 'border-box',
-          transition: 'padding-left 0.3s ease, width 0.3s ease',
-          overflow: 'hidden',
         }}
       >
-        <div onClick={toggleViewMode} style={{
-          width: 'fit-content', cursor: 'pointer', marginBottom: '1rem', padding: '8px', border: '1px solid #ccc', display: 'inline-block'
-        }}>
-          {viewMode === ViewModes.STATUS ? '섹션별로 보기' : '상태별로 보기'}
-        </div>
+        <div onClick={toggleViewMode} className="view-toggle">{viewMode === ViewModes.STATUS ? '섹션별로 보기' : '상태별로 보기'}</div>
         <DndContext
           sensors={sensors}
           collisionDetection={rectIntersection}
