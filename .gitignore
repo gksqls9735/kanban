@@ -27,3 +27,4 @@ dist-wc
 # ignore
 .env
 src/test
+/public/files

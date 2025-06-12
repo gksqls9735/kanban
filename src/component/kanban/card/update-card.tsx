@@ -174,6 +174,7 @@ const UpdateCard: React.FC<{
           <AvatarItem
             key={user.id}
             size={24}
+            src={user.icon}
           >
             {getInitial(user.username)}
           </AvatarItem>

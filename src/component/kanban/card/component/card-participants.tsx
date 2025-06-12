@@ -52,6 +52,7 @@ const CardParticipants: React.FC<{
                   <AvatarItem
                     key={user.id}
                     size={32}
+                    src={user.icon}
                   >
                     {getInitial(user.username)}
                   </AvatarItem>

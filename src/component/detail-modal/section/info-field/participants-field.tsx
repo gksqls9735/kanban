@@ -14,7 +14,7 @@ const ParticipantsField: React.FC<{
       <div className="task-detail__detail-modal-info-value--participants">
         {participants.map(u =>
           <div key={u.id} className="task-detail__detail-modal-participant-item">
-            <AvatarItem size={24}>{getInitial(u.username)}</AvatarItem>
+            <AvatarItem size={24} src={u.icon}>{getInitial(u.username)}</AvatarItem>
             <div className="task-detail__detail-modal-participant-name">{u.username}</div>
             {u.isMain && (<div className="participant-main-badge">주</div>)}
             {isOwnerOrParticipant && (

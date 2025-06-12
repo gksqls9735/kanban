@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
-import { User } from "../../../types/type";
 import UserItem from "./user-item";
+import { User } from "../../../../types/type";
 
 const UserListPanel: React.FC<{
   users: User[];
@@ -29,7 +29,7 @@ const UserListPanel: React.FC<{
   };
 
   return (
-    <div className="participant-modal__user-list-panel">
+    <div className="participant-modal__left-panel">
       <div className="participant-modal__search-container">
         <div className="participant-modal__search-bar">
           <input

@@ -189,7 +189,11 @@ const ChatInput: React.FC<{
         </div>
       )}
       <div className="task-detail__detail-modal-chat-input--content">
-        <AvatarItem fontSize={22} isOverflow={true} size={40} isFirst={false}>{getInitial(currentUser.username)}</AvatarItem>
+        {currentUser.icon ? (
+          <AvatarItem fontSize={22} size={40} isFirst={false} src={currentUser.icon}>{getInitial(currentUser.username)}</AvatarItem>
+        ) : (
+          <AvatarItem fontSize={22} isOverflow={true} size={40} isFirst={false}>{getInitial(currentUser.username)}</AvatarItem>
+        )}
         <div className="task-detail__detail-modal-chat-input-wrapper">
           <textarea // input에서 textarea로 변경
             ref={textInputRef}

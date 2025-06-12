@@ -3,8 +3,9 @@ import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
 import ReactDOM from "react-dom";
 import RoleDropdown from "./role-dropdown";
 import SelectedUsersPanel from "./right-panel/selectedusers-panel";
-import UserListPanel from "./left-panel/userlist-panel";
 import useUserStore from "../../store/user-store";
+import UserListPanel from "./left-panel/user/userlist-panel";
+import TreePanel from "./left-panel/tree/tree-panel";
 
 const ParticipantSelector: React.FC<{
   initialParticipants: Participant[];
@@ -127,6 +128,11 @@ const ParticipantSelector: React.FC<{
 
   const portalElement = typeof window !== 'undefined' ? document.getElementById('portal-root') : null;
 
+  /**
+   *                   <img src="https://works.bizbee.co.kr/assets/doc-arrow-down.8bd3b059.svg" style={{ width: 16, height: 16 }} />
+                  <img src="https://works.bizbee.co.kr/assets/doc-arrow-right.a8f55779.svg" style={{ width: 16, height: 16 }} />
+   */
+
   return (
     <div className="participant-modal__overlay" onClick={onClose}>
       <div className="participant-modal__container" onClick={e => e.stopPropagation()}>
@@ -163,9 +169,7 @@ const ParticipantSelector: React.FC<{
               />
             ) : (
               <>
-                <div className="participant-modal__user-list-panel">
-                  조직도
-                </div>
+                <TreePanel users={userlist} selectedParticipantIds={selectedParticipantIds} onSelectUser={handleSelectUser}/>
               </>
             )}
             <SelectedUsersPanel

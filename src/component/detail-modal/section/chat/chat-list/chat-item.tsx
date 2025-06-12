@@ -63,7 +63,7 @@ const ChatItem: React.FC<{
   return (
     <>
       <div className="task-detail__detail-modal-chat-item" style={itemStyle}>
-        <AvatarItem size={40}>{getInitial(chat.user.username)}</AvatarItem>
+        <AvatarItem size={40} src={chat.user.icon}>{getInitial(chat.user.username)}</AvatarItem>
         <div className="task-detail__detail-modal-chat-content">
           <div className="task-detail__detail-modal-chat-header">
             <div className="task-detail__detail-modal-chat-user-info">

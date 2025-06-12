@@ -16,7 +16,7 @@ const SelectedUserItem = forwardRef<HTMLDivElement, SelectedUserItemProps>(
     return (
       <div key={participant.id} className="participant-modal__selected-item">
         <div className="participant-modal__selected-item-info">
-          <AvatarItem size={40}>{getInitial(participant.username)}</AvatarItem>
+          <AvatarItem size={40} src={participant.icon}>{getInitial(participant.username)}</AvatarItem>
           <div className="participant-modal__selected-item-text">
             <span className="participant-modal__selected-item-username" >{participant.username}</span>
             <span className="participant-modal__selected-item-team" >{participant.team}</span>

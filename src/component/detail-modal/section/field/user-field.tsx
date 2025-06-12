@@ -48,7 +48,7 @@ const UserField: React.FC<{
         <ul className="task-detail__detail-modal-field-content-list task-detail__detail-modal-field-content-list--user">
           {users.map(user => (
             <li key={user.id} className="task-detail__detail-modal-field-value-item--user">
-              <AvatarItem size={24}>{getInitial(user.username)}</AvatarItem>
+              <AvatarItem size={24} src={user.icon}>{getInitial(user.username)}</AvatarItem>
               <div>{user.username}</div>
             </li>
           ))}
@@ -62,7 +62,7 @@ const UserField: React.FC<{
                 {users.map(u => (
                   <li key={u.id} className="task-detail__detail-modal-field-edit-item task-detail__detail-modal-field-edit-item--user">
                     <div className="task-detail__detail-modal-field-edit-user-info">
-                      <AvatarItem size={24}>{getInitial(u.username)}</AvatarItem>
+                      <AvatarItem size={24} src={u.icon}>{getInitial(u.username)}</AvatarItem>
                       <div className="task-detail__detail-modal-field-edit-user-name">{u.username}</div>
                     </div>
                     {isOwnerOrParticipant && (

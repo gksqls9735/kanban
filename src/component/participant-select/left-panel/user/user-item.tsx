@@ -1,6 +1,6 @@
-import { User } from "../../../types/type";
-import { getInitial } from "../../../utils/text-function";
-import AvatarItem from "../../avatar/avatar";
+import { User } from "../../../../types/type";
+import { getInitial } from "../../../../utils/text-function";
+import AvatarItem from "../../../avatar/avatar";
 
 const UserItem: React.FC<{
   user: User;
@@ -24,7 +24,7 @@ const UserItem: React.FC<{
       onClick={handleChange}
     >
       <div className="participant-modal__user-item-info">
-        <AvatarItem size={40}>{getInitial(user.username)}</AvatarItem>
+        <AvatarItem size={40} src={user.icon}>{getInitial(user.username)}</AvatarItem>
         <div className="participant-modal__user-item-text">
           <div className="participant-modal__user-item-name-line">
             <span className="participant-modal__user-item-username">{user.username}</span>
