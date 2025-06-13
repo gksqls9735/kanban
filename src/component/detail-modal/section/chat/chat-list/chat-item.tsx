@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Chat } from "../../../../../types/type";
+import { Chat, Participant, User } from "../../../../../types/type";
 import { formatTimeToHHMM } from "../../../../../utils/date-function";
 import { getInitial } from "../../../../../utils/text-function";
 import AvatarItem from "../../../../common/avatar/avatar";
@@ -16,7 +16,8 @@ const ChatItem: React.FC<{
   taskId: string;
   handleReplyId: (parentId: string, username: string) => void;
   onStartEdit: (chatToEdit: Chat) => void;
-}> = ({ chat, isLikedByCurrentUser, onUpdate, currentUserId, depth = 0, taskId, handleReplyId, onStartEdit }) => {
+  onClick: (e: React.MouseEvent, user: Participant | User | null) => void;
+}> = ({ chat, isLikedByCurrentUser, onUpdate, currentUserId, depth = 0, taskId, handleReplyId, onStartEdit, onClick }) => {
   const deleteChat = useChatStore(state => state.deleteChat);
 
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
@@ -63,7 +64,9 @@ const ChatItem: React.FC<{
   return (
     <>
       <div className="task-detail__detail-modal-chat-item" style={itemStyle}>
-        <AvatarItem size={40} src={chat.user.icon}>{getInitial(chat.user.username)}</AvatarItem>
+        <div onClick={e => onClick(e, chat.user)}>
+          <AvatarItem size={40} src={chat.user.icon}>{getInitial(chat.user.username)}</AvatarItem>
+        </div>
         <div className="task-detail__detail-modal-chat-content">
           <div className="task-detail__detail-modal-chat-header">
             <div className="task-detail__detail-modal-chat-user-info">
@@ -111,6 +114,7 @@ const ChatItem: React.FC<{
               taskId={taskId}
               handleReplyId={handleReplyId}
               onStartEdit={onStartEdit}
+              onClick={onClick}
             />
           ))}
         </div>)}

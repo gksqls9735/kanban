@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { Participant, Task } from "../../../../types/type";
+import { Participant, Task, User } from "../../../../types/type";
 import { getInitial } from "../../../../utils/text-function";
 import AvatarItem from "../../../common/avatar/avatar";
 import FieldLabel from "./field-common/field-label";
@@ -10,8 +10,10 @@ import useClickOutside from "../../../../hooks/use-click-outside";
 import FieldFooter from "./field-common/field-footer";
 
 const UserField: React.FC<{
-  users: Participant[], isOwnerOrParticipant: boolean, handleChangeAndNotify: (updates: Partial<Task>) => void
-}> = ({ users, isOwnerOrParticipant, handleChangeAndNotify }) => {
+  users: Participant[], isOwnerOrParticipant: boolean,
+  handleChangeAndNotify: (updates: Partial<Task>) => void,
+  onClick: (e: React.MouseEvent, user: Participant | User | null) => void;
+}> = ({ users, isOwnerOrParticipant, handleChangeAndNotify, onClick }) => {
 
   const [isInEditMode, setIsInEditMode] = useState<boolean>(false);
   const [isOpenEdit, setIsOpenEdit] = useState<boolean>(false);
@@ -47,7 +49,7 @@ const UserField: React.FC<{
         <FieldLabel fieldName="사용자" onClick={handleToggleEditMode} />
         <ul className="task-detail__detail-modal-field-content-list task-detail__detail-modal-field-content-list--user">
           {users.map(user => (
-            <li key={user.id} className="task-detail__detail-modal-field-value-item--user">
+            <li key={user.id} className="task-detail__detail-modal-field-value-item--user" onClick={e => onClick(e, user)}>
               <AvatarItem size={24} src={user.icon}>{getInitial(user.username)}</AvatarItem>
               <div>{user.username}</div>
             </li>
@@ -61,7 +63,7 @@ const UserField: React.FC<{
                 className="gantt-scrollbar-y task-detail__detail-modal-field-edit-list">
                 {users.map(u => (
                   <li key={u.id} className="task-detail__detail-modal-field-edit-item task-detail__detail-modal-field-edit-item--user">
-                    <div className="task-detail__detail-modal-field-edit-user-info">
+                    <div className="task-detail__detail-modal-field-edit-user-info" onClick={e => onClick(e, u)}>
                       <AvatarItem size={24} src={u.icon}>{getInitial(u.username)}</AvatarItem>
                       <div className="task-detail__detail-modal-field-edit-user-name">{u.username}</div>
                     </div>

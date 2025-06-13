@@ -64,6 +64,10 @@ export type User = {
   team: string
   /** 소개 */
   tagline?: string;
+  /** 연락처 */
+  phoneNumber?: string;
+  /** 이메일 */
+  userEmail?: string;
 }
 
 /** 담당자 */
@@ -176,8 +180,6 @@ export type Task = {
 
   /** 작업 상세 내용 */
   memo?: string
-  /**  */
-  depth?: number
   /**  */
   isNew?: boolean
 }

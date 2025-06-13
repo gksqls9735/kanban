@@ -26,3 +26,9 @@ export function extractLastTeamName(teamString: string): string {
   const segments = teamString.split('/');
   return segments[segments.length - 1];
 }
+
+export function extractFirstTeamName(teamString: string): string {
+  if (!teamString) return '';
+  const segments = teamString.split('/');
+  return segments[0];
+}

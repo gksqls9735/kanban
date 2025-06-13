@@ -1,5 +1,5 @@
 import useChatStore from "../../../../../store/chat-store";
-import { Chat, User } from "../../../../../types/type"
+import { Chat, Participant, User } from "../../../../../types/type"
 import ChatItem from "./chat-item";
 
 const EMPTY_CHATS: Chat[] = [];
@@ -9,7 +9,8 @@ const ChatList: React.FC<{
   taskId: string;
   handleReplyId: (parentId: string, username: string) => void;
   onStartEditComment: (chatToEdit: Chat) => void;
-}> = ({ currentUser, taskId, handleReplyId, onStartEditComment }) => {
+  onClick: (e: React.MouseEvent, user: Participant | User | null) => void;
+}> = ({ currentUser, taskId, handleReplyId, onStartEditComment, onClick }) => {
   const isLikedByCurrentUser = (chatLikeList: string[]) => chatLikeList.includes(currentUser.id);
 
   const chats = useChatStore(s => s.chatsByTask[taskId] || EMPTY_CHATS);
@@ -34,6 +35,7 @@ const ChatList: React.FC<{
                 taskId={taskId}
                 handleReplyId={handleReplyId}
                 onStartEdit={onStartEditComment}
+                onClick={onClick}
               />
             ))}
           </div>

@@ -1,24 +1,25 @@
-import { Participant } from "../../../../types/type";
+import { Participant, User } from "../../../../types/type";
 import { getInitial } from "../../../../utils/text-function";
 import AvatarItem from "../../../common/avatar/avatar";
 
 const ParticipantsField: React.FC<{
   participants: Participant[];
-  onDeleteParticipant: (userId: string | number) => void;
+  onDeleteParticipant: (userId: string | number, e: React.MouseEvent) => void;
   onAddParticipantClick: () => void;
   isOwnerOrParticipant: boolean;
-}> = ({ participants, onDeleteParticipant, onAddParticipantClick, isOwnerOrParticipant }) => {
+  onClick: (e: React.MouseEvent, user: Participant | User | null) => void;
+}> = ({ participants, onDeleteParticipant, onAddParticipantClick, isOwnerOrParticipant, onClick }) => {
   return (
     <div className="task-detail__detail-modal-info-row">
       <div className="task-detail__detail-modal-info-label">담당자</div>
       <div className="task-detail__detail-modal-info-value--participants">
         {participants.map(u =>
-          <div key={u.id} className="task-detail__detail-modal-participant-item">
+          <div key={u.id} className="task-detail__detail-modal-participant-item" onClick={e => onClick(e, u)}>
             <AvatarItem size={24} src={u.icon}>{getInitial(u.username)}</AvatarItem>
             <div className="task-detail__detail-modal-participant-name">{u.username}</div>
             {u.isMain && (<div className="participant-main-badge">주</div>)}
             {isOwnerOrParticipant && (
-              <div onClick={() => onDeleteParticipant(u.id)} className="task-detail__detail-modal-participant-delete">
+              <div onClick={e => onDeleteParticipant(u.id, e)} className="task-detail__detail-modal-participant-delete">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="-0.5 -0.5 16 16" fill="#7D8998" stroke="#000000" strokeLinecap="round" strokeLinejoin="round" className="feather feather-x" id="X--Streamline-Feather" height="16" width="16">
                   <desc>X Streamline Icon: https://streamlinehq.com</desc>
                   <path d="M11.25 3.75 3.75 11.25" strokeWidth="1"></path>

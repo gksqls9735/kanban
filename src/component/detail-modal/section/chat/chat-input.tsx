@@ -3,7 +3,7 @@
 import { faPaperclip } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { generateUniqueId, getInitial } from "../../../../utils/text-function";
-import { Chat, FileAttachment } from "../../../../types/type";
+import { Chat, FileAttachment, Participant, User } from "../../../../types/type";
 import { ChangeEvent, useRef, useState, KeyboardEvent, useEffect } from "react"; // KeyboardEvent 임포트
 import useChatStore from "../../../../store/chat-store";
 import useUserStore from "../../../../store/user-store";
@@ -27,7 +27,8 @@ const ChatInput: React.FC<{
   onClose?: () => void;
   editingChat?: { chatId: string, content: string, parentChatId: string | null } | null;
   onFinishEdit?: () => void;
-}> = ({ taskId, parentChat, onClose, editingChat, onFinishEdit }) => {
+  onClick: (e: React.MouseEvent, user: Participant | User | null) => void;
+}> = ({ taskId, parentChat, onClose, editingChat, onFinishEdit, onClick }) => {
   const addChatToTask = useChatStore(state => state.addChatToTask);
   const updateChat = useChatStore(state => state.updateChat);
   const currentUser = useUserStore(state => state.currentUser)!;
@@ -189,11 +190,13 @@ const ChatInput: React.FC<{
         </div>
       )}
       <div className="task-detail__detail-modal-chat-input--content">
-        {currentUser.icon ? (
-          <AvatarItem fontSize={22} size={40} isFirst={false} src={currentUser.icon}>{getInitial(currentUser.username)}</AvatarItem>
-        ) : (
-          <AvatarItem fontSize={22} isOverflow={true} size={40} isFirst={false}>{getInitial(currentUser.username)}</AvatarItem>
-        )}
+        <div onClick={e => onClick(e, currentUser)}>
+          {currentUser.icon ? (
+            <AvatarItem fontSize={22} size={40} isFirst={false} src={currentUser.icon}>{getInitial(currentUser.username)}</AvatarItem>
+          ) : (
+            <AvatarItem fontSize={22} isOverflow={true} size={40} isFirst={false}>{getInitial(currentUser.username)}</AvatarItem>
+          )}
+        </div>
         <div className="task-detail__detail-modal-chat-input-wrapper">
           <textarea // input에서 textarea로 변경
             ref={textInputRef}

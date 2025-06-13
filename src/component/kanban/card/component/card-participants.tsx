@@ -1,14 +1,22 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import useDropdown from "../../../../hooks/use-dropdown";
 import { Participant } from "../../../../types/type";
 import { extractLastTeamName, getInitial } from "../../../../utils/text-function";
 import AvatarGroup from "../../../common/avatar/avatar-group";
 import AvatarItem from "../../../common/avatar/avatar";
+import UserProfile from "../../../common/profile/user-profile";
 
 const CardParticipants: React.FC<{
   taskParticipants: Participant[];
-}> = ({ taskParticipants }) => {
+  onModalStateChange: (isOpen: boolean) => void;
+}> = ({ taskParticipants, onModalStateChange }) => {
+  const [openProfile, setOpenProfile] = useState<Participant | null>(null);
+
   const { isOpen, setIsOpen, wrapperRef, dropdownRef, toggle } = useDropdown();
+
+  useEffect(() => {
+    onModalStateChange(isOpen || !!openProfile); // 팝오버가 열렸거나, 프로필 모달이 열렸을 때 true
+  }, [isOpen, openProfile, onModalStateChange]);
 
   const handleClosePopover = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -30,6 +38,11 @@ const CardParticipants: React.FC<{
     toggle();
   };
 
+  const handleOpenProfile = (e: React.MouseEvent, user: Participant) => {
+    e.stopPropagation();
+    setOpenProfile(user);
+  };
+
   return (
     <div ref={wrapperRef} className="card-participant" onClick={e => e.stopPropagation()}>
       <div onClick={handleToggle}>
@@ -48,7 +61,7 @@ const CardParticipants: React.FC<{
           <div className="participant-popover__list kanban-scrollbar-y">
             {sortedParticipants.length > 0 && (
               sortedParticipants.map((user) => (
-                <div key={user.id} className="participant-popover__item">
+                <div key={user.id} className="participant-popover__item" onClick={(e) => handleOpenProfile(e, user)}>
                   <AvatarItem
                     key={user.id}
                     size={32}
@@ -69,24 +82,9 @@ const CardParticipants: React.FC<{
           </div>
         </div>
       )}
+      {openProfile && (<UserProfile user={openProfile} onClose={() => setOpenProfile(null)} />)}
     </div>
   );
 };
-
-// const areParticipantsPropsEqual = (prevProps: any, nextProps: any) => {
-//   const prevParticipants = prevProps.taskParticipants || [];
-//   const nextParticipants = nextProps.taskParticipants || [];
-
-//   if (prevParticipants.length !== nextParticipants.length) {
-//     return false;
-//   }
-//   for (let i = 0; i < prevParticipants.length; i++) {
-//     if (prevParticipants[i].id !== nextParticipants[i].id) {
-//       return false;
-//     }
-//   }
-//   return true;
-// };
-
 
 export default CardParticipants;

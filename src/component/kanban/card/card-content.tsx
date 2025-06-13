@@ -30,7 +30,7 @@ const CardContent: React.FC<{
         {formatDateToYyyyMmDd(task.start)} - {formatDateToYyyyMmDd(task.end)}</div>
       <div className="card-meta">
         <CardMeta taskPriority={task.priority} taskStatus={task.status} />
-        <CardParticipants taskParticipants={task.participants} />
+        <CardParticipants taskParticipants={task.participants} onModalStateChange={onModalStateChange}/>
       </div>
       {task.todoList.length > 0 && (
         <>
