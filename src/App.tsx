@@ -28,6 +28,30 @@ function App() {
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
 
 
+  useEffect(() => {
+    if (selectedTaskId) {
+      const chatsForSelectedTask = globalChatlist.filter(chat => chat.taskId === selectedTaskId);
+      setCurrentTaskChatList(chatsForSelectedTask);
+    } else {
+      setCurrentTaskChatList([]);
+    }
+  }, [selectedTaskId, globalChatlist]);
+
+  useEffect(() => {
+    const kanbanElement = kanbanRef.current;
+    if (!kanbanElement) return;
+
+    kanbanElement.currentUser = user1;
+    kanbanElement.userlist = userlist;
+    kanbanElement.tasks = appTasks;
+    kanbanElement.sections = appSections;
+    kanbanElement.statusList = appStatusList;
+    kanbanElement.chatlist = currentTaskChatList;
+
+    kanbanElement.setAttribute("issidemenuopen", isSideMenuOpen);
+    kanbanElement.setAttribute('detailmodaltoppx', '0');
+  }, [appTasks, appSections, appStatusList, currentTaskChatList, isSideMenuOpen, kanbanRef]);
+
   // 작업 이벤트
   const onKanbanTaskAdded = useCallback((e: CustomEvent<{ task: Task }>) => {
     console.log("WC Evene: kanban-task-added", e.detail.task);
@@ -79,14 +103,13 @@ function App() {
   // 채팅
   const onKanbanTaskChatsUpdated = useCallback((e: CustomEvent<{ chats: Chat[] }>) => {
     const updatedChatsForCurrentTask = e.detail.chats;
-    console.log("Chats updated for current task from WC:", updatedChatsForCurrentTask);
+    console.warn("Chats updated for current task from WC:", updatedChatsForCurrentTask);
 
     if (selectedTaskId) {
-      const otherTasksChats = globalChatlist.filter(chat => chat.taskId !== selectedTaskId);
-      const newGlobalChatlist = [...otherTasksChats, ...updatedChatsForCurrentTask];
-      setGlobalChatlist(newGlobalChatlist);
-
-      setCurrentTaskChatList(updatedChatsForCurrentTask);
+      setGlobalChatlist(prev => {
+        const otherTasksChats = prev.filter(chat => chat.taskId !== selectedTaskId);
+        return [...otherTasksChats, ...updatedChatsForCurrentTask];
+      });
     }
   }, [selectedTaskId]);
 
@@ -127,32 +150,19 @@ function App() {
     onKanbanTaskChatsUpdated, onKanbanTaskSelected,
   ]);
 
-  // selectedTaskId가 변경되면 currentTaskChatList를 업데이트하는 useEffect (선택적 개선)
-  useEffect(() => {
-    if (selectedTaskId) {
-      const chatsForSelectedTask = globalChatlist.filter(chat => chat.taskId === selectedTaskId);
-      setCurrentTaskChatList(chatsForSelectedTask);
-    } else {
-      setCurrentTaskChatList([]); // 선택된 태스크가 없으면 빈 배열
-    }
-  }, [selectedTaskId, globalChatlist]);
-
   return (
     <>
       <BrowserRouter>
         <Routes>
           <Route
             path="/"
-            element={React.createElement("kanban-board", {
-              ref: kanbanRef,
-              tasks: JSON.stringify(appTasks),
-              sections: JSON.stringify(appSections),
-              statuslist: JSON.stringify(appStatusList),
-              currentUser: JSON.stringify(user1),
-              userlist: JSON.stringify(userlist),
-              isSideMenuOpen: 'hidden',
-              chatlist: JSON.stringify(currentTaskChatList),
-            })}
+            element={
+              <kanban-board
+                ref={kanbanRef}
+                isSideMenuOpen={isSideMenuOpen}
+                detailModalTopPx={0}
+              />
+            }
           />
         </Routes>
       </BrowserRouter>

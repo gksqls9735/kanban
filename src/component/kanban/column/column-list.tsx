@@ -19,7 +19,8 @@ import { useKanbanActions } from "../../../context/task-action-context";
 const ColumnList: React.FC<{
   getSectionName: (sectionId: string) => string;
   placeholderData: { columnId: string; index: number } | null;
-}> = ({ getSectionName, placeholderData }) => {
+  detailModalTopPx: number;
+}> = ({ getSectionName, placeholderData, detailModalTopPx }) => {
   const [isAddingSection, setIsAddingSection] = useState<boolean>(false);
   // 상세 보기 창
   const [detailedTask, setDetailedTask] = useState<Task | null>(null);
@@ -238,6 +239,7 @@ const ColumnList: React.FC<{
             e.stopPropagation();
             handleDeleteRequestFromDetail();
           }}
+          detailModalTopPx={detailModalTopPx}
         />
       )}
       {isDeleteConfirmationOpen && detailedTask && (

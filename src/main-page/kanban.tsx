@@ -17,23 +17,25 @@ import { useKanbanActions } from "../context/task-action-context";
 import { statusSelect } from "../mocks/select-option-mock";
 
 export interface KanbanProps {
+  currentUser: User | null;
+  userlist: User[];
   tasks: Task[];
   sections: Section[];
   statusList: SelectOption[];
-  currentUser: User | null;
-  userlist: User[];
   isSideMenuOpen: "expanded" | "collapsed" | "hidden";
   chatlist: Chat[];
+  detailModalTopPx?: number;
 }
 
 const Kanban: React.FC<KanbanProps> = ({
+  currentUser: initialCurrentUser,
+  userlist: initialUserlist,
   tasks: initialTasks,
   sections: initialSections,
   statusList: initialStatusList,
-  currentUser: initialCurrentUser,
-  userlist: initialUserlist,
   isSideMenuOpen,
   chatlist,
+  detailModalTopPx = 0,
 }) => {
   const { viewMode, setViewMode } = useViewModeStore();
   const setTasks = useTaskStore(state => state.setTasks);
@@ -138,7 +140,7 @@ const Kanban: React.FC<KanbanProps> = ({
           onDragCancel={handleDragCancel}
         >
           <div className='kanban kanban-scrollbar-x' style={{ width: '100%', overflowX: 'auto', minWidth: 0, }}>
-            <ColumnList getSectionName={getSectionName} placeholderData={placeholderData} />
+            <ColumnList getSectionName={getSectionName} placeholderData={placeholderData} detailModalTopPx={detailModalTopPx}/>
             <DragOverlay>
               {activeTask ? (
                 <CardWrapper task={activeTask} sectionName={getSectionName(activeTask.sectionId)} isOverlay={true} />

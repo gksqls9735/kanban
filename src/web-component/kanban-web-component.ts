@@ -15,14 +15,16 @@ class KanbanWebComponent extends HTMLElement {
   private root: ReactDOM.Root | null = null;
   private container: HTMLDivElement | null = null;
   private componentShadowRoot: ShadowRoot | null = null;
-  props: {   // 현재 props를 저장할 객체
+
+  _props: {   // 현재 _props를 저장할 객체
+    currentUser: User | null;
+    userlist: User[];
     tasks: Task[];
     sections: Section[];
     statusList: SelectOption[];
-    currentUser: User | null;
-    userlist: User[];
     isSideMenuOpen: "expanded" | "collapsed" | "hidden";
     chatlist: Chat[];
+    detailModalTopPx: number;
   } = {
       tasks: [],
       sections: [],
@@ -31,6 +33,7 @@ class KanbanWebComponent extends HTMLElement {
       userlist: [],
       isSideMenuOpen: "hidden",
       chatlist: [],
+      detailModalTopPx: 0,
     };
 
   constructor() {
@@ -39,13 +42,63 @@ class KanbanWebComponent extends HTMLElement {
   //https://cdn-minio.bizbee.co.kr/common/kanban/
 
   static get observedAttributes() {
-    return ['tasks', 'sections', 'statuslist', 'currentuser', 'userlist', 'issidemenuopen', 'chatlist'];
+    return ['issidemenuopen', 'detailmodaltoppx'];
   }
+
+  set currentUser(value: User | null) {
+    if (this._props.currentUser !== value) {
+      this._props.currentUser = value;
+      this._render();
+    }
+  }
+  get currentUser(): User | null { return this._props.currentUser; }
+
+  set userlist(value: User[]) {
+    if (this._props.userlist !== value) {
+      this._props.userlist = value;
+      this._render();
+    }
+  }
+  get userlist(): User[] { return this._props.userlist; }
+
+  set tasks(value: Task[]) {
+    if (this._props.tasks !== value) {
+      this._props.tasks = value;
+      this._render();
+    }
+  }
+  get tasks(): Task[] { return this._props.tasks; }
+
+  set sections(value: Section[]) {
+    if (this._props.sections !== value) {
+      this._props.sections = value;
+      this._render();
+    }
+  }
+  get sections(): Section[] { return this._props.sections; }
+
+  set statusList(value: SelectOption[]) {
+    if (this._props.statusList !== value) {
+      this._props.statusList = value;
+      this._render();
+    }
+  }
+  get statusList(): SelectOption[] { return this._props.statusList; }
+
+  set chatlist(value: Chat[]) {
+    if (this._props.chatlist !== value) {
+      this._props.chatlist = value;
+      this._render();
+    }
+  }
+  get chatlist(): Chat[] { return this._props.chatlist; }
+
 
   async connectedCallback() {
     if (!this.container) {
       this.container = document.createElement("div");
       this.componentShadowRoot = this.attachShadow({ mode: 'open' });
+      this.componentShadowRoot.appendChild(this.container);
 
       try {
         const localCssPromises = [
@@ -69,15 +122,50 @@ class KanbanWebComponent extends HTMLElement {
       }
       this.componentShadowRoot.appendChild(this.container);
     }
-    this._updateProps();
+    this._updatePropsFromAttributes();
     this._render();
   }
 
-  // attribute 변경 시 호출될 콜백
-  attributeChangedCallback(_name: string, oldValue: string | null, newValue: string | null) {
+  attributeChangedCallback(name: string, oldValue: string | null, newValue: string | null) {
     if (oldValue === newValue) return;
-    this._updateProps();
+
+    if (name === 'issidemenuopen') {
+      const sideMenu = newValue as "expanded" | "collapsed" | "hidden";
+      this._props.isSideMenuOpen = ["expanded", "collapsed", "hidden"].includes(sideMenu) ? sideMenu : "hidden";
+    }
+
+    if (name === 'detailmodaltoppx') {
+      const parsedValue = newValue ? parseInt(newValue, 10) : 0;
+      this._props.detailModalTopPx = isNaN(parsedValue) ? 0 : parsedValue;
+      if (isNaN(parsedValue) && newValue !== null && newValue !== "") {
+        console.warn(`Invalid detailmodaltoppx value: '${newValue}'. Defaulting to 0.`);
+      }
+    }
+
     this._render();
+  }
+
+  _updatePropsFromAttributes() {
+    const sideMenu = this.getAttribute("issidemenuopen") as any;
+    this._props.isSideMenuOpen = ["expanded", "collapsed", "hidden"].includes(sideMenu) ? sideMenu : "hidden";
+
+    const topPx = this.getAttribute("detailmodaltoppx");
+    const parsedTopPx = topPx ? parseInt(topPx, 10) : 0;
+    this._props.detailModalTopPx = isNaN(parsedTopPx) ? 0 : parsedTopPx;
+    if (isNaN(parsedTopPx) && topPx !== null && topPx !== "") {
+      console.warn(`Invalid initial detailmodaltoppx value: '${topPx}'. Defaulting to 0.`);
+    }
+  }
+
+  _parseAttr(attr: string, defaultValue: any) {
+    try {
+      const value = this.getAttribute(attr);
+      const parsedValue = value ? JSON.parse(value) : defaultValue;
+      return parsedValue;
+    } catch (error) {
+      console.error(`_parseAttr: Failed to parse attribute '${attr}':`, error);
+      return defaultValue;
+    }
   }
 
   dispatchUpdateEvent(eventName: string, data: any) {
@@ -90,48 +178,26 @@ class KanbanWebComponent extends HTMLElement {
     );
   }
 
-  // props 파싱 및 업데이트 로직
-  _updateProps() {
-    this.props.tasks = JSON.parse(this.getAttribute("tasks") || "[]");
-    this.props.sections = JSON.parse(this.getAttribute("sections") || "[]");
-    this.props.statusList = JSON.parse(this.getAttribute("statuslist") || "[]");
-    this.props.userlist = JSON.parse(this.getAttribute("userlist") || "[]");
-    this.props.chatlist = JSON.parse(this.getAttribute("chatlist") || "[]");
-
-    const currentUserAttr = this.getAttribute("currentuser");
-    if (currentUserAttr && currentUserAttr !== "{}") {
-      try {
-        this.props.currentUser = JSON.parse(currentUserAttr) as User;
-      } catch (e) {
-        console.error("Failed to parse currentUser attribute: ", e);
-        this.props.currentUser = null;
-      }
-    } else {
-      this.props.currentUser = null;
-    }
-
-    const sideMenuAttr = this.getAttribute("issidemenuopen");
-    if (sideMenuAttr === "expanded" || sideMenuAttr === "collapsed" || sideMenuAttr === "hidden") {
-      this.props.isSideMenuOpen = sideMenuAttr;
-    } else {
-      this.props.isSideMenuOpen = "hidden";
-    }
-  }
-
   // React 컴포넌트 랜더링 로직
   _render() {
     // 아직 container나 shadowRoot가 준비되지 않았음
     if (!this.container || !this.componentShadowRoot) return;
-
-    const sectionTasksWithDates = this.props.tasks.map((t: Task) => ({
+    const sectionTasksWithDates = this._props.tasks.map((t: Task) => ({
       ...t,
-      start: new Date(t.start),
-      end: new Date(t.end),
+      start: t.start instanceof Date ? t.start : new Date(t.start),
+      end: t.end instanceof Date ? t.end : new Date(t.end),
     }));
 
-    const chatListWithDates = this.props.chatlist.map((chat: Chat) => ({
-      ...chat, createdAt: new Date(chat.createdAt),
+    const chatListWithDates = this._props.chatlist.map((chat: Chat) => ({
+      ...chat,
+      createdAt: chat.createdAt instanceof Date ? chat.createdAt : new Date(chat.createdAt),
     }));
+
+    console.log('KanbanWebComponent: _render called with _props:', this._props);
+    console.log('KanbanWebComponent: sectionTasksWithDates (final check before render):', sectionTasksWithDates);
+    console.log('KanbanWebComponent: chatListWithDates (final check before render):', chatListWithDates);
+    console.log('KanbanWebComponent: sectionTasksWithDates.length:', sectionTasksWithDates.length);
+
 
     if (!this.root) this.root = ReactDOM.createRoot(this.container);
 
@@ -148,21 +214,18 @@ class KanbanWebComponent extends HTMLElement {
 
 
     this.root.render(
-      React.createElement(
-        ShadowRootContext.Provider,
-        { value: this.componentShadowRoot },
-        React.createElement(
-          StyleSheetManager,
-          { target: this.componentShadowRoot },
+      React.createElement(ShadowRootContext.Provider, { value: this.componentShadowRoot },
+        React.createElement(StyleSheetManager, { target: this.componentShadowRoot },
           React.createElement(KanbanActionsContext.Provider, { value: taskActionContextValue },
             React.createElement(Kanban, {
+              currentUser: this._props.currentUser,
+              userlist: this._props.userlist,
               tasks: sectionTasksWithDates,
-              sections: this.props.sections,
-              statusList: this.props.statusList,
-              currentUser: this.props.currentUser,
-              userlist: this.props.userlist,
-              isSideMenuOpen: this.props.isSideMenuOpen,
+              sections: this._props.sections,
+              statusList: this._props.statusList,
+              isSideMenuOpen: this._props.isSideMenuOpen,
               chatlist: chatListWithDates,
+              detailModalTopPx: this._props.detailModalTopPx,
             })
           )
         )
@@ -179,5 +242,3 @@ class KanbanWebComponent extends HTMLElement {
 }
 
 customElements.define("kanban-board", KanbanWebComponent);
-
-export { };
