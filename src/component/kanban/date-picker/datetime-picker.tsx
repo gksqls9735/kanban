@@ -137,39 +137,54 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
   };
 
   // 날짜 클릭
-  const handleDateClick = (day: Date) => {
-    const clickedDateWithTime = includeTime
-      ? setMinutes(setHours(day, startDate ? getHours(startDate) : 0), startDate ? getMinutes(startDate) : 0)
-      : startOfDay(day);
+const handleDateClick = (day: Date) => {
+  let newClickedDateWithTime = includeTime
+    ? setMinutes(setHours(day, startDate ? getHours(startDate) : 0), startDate ? getMinutes(startDate) : 0)
+    : startOfDay(day);
 
-    if (!showDeadline) {
-      // 마감일 미사용
-      setStartDate(clickedDateWithTime);
-      setEndDate(null);
+  // minStart와 같은 날짜를 선택했고, 시간이 minStart보다 이전이면 minStart 시간으로 조정
+  if (minStart && isValid(minStart) && isSameDay(newClickedDateWithTime, minStart) && isBefore(newClickedDateWithTime, minStart)) {
+    newClickedDateWithTime = minStart;
+  }
+
+  // --- 여기에 showDeadline 로직 추가 ---
+  if (!showDeadline) { // 마감일 기능을 사용하지 않는 경우 (단일 날짜 선택)
+    setStartDate(newClickedDateWithTime);
+    setEndDate(null);
+    return; // 단일 날짜 선택 모드에서는 여기서 로직 종료
+  }
+  // --- showDeadline 로직 끝 ---
+
+  // 마감일 기능 사용 시 (아래는 두 번째 로직의 범위 선택 부분)
+  if (startDate && endDate) {
+    if (isBefore(newClickedDateWithTime, endDate)) {
+      setStartDate(newClickedDateWithTime);
     } else {
-      // 마감일 사용 시: 범위 설정 로직
-      if (!startDate || (startDate && endDate)) {
-        // 시작일이 없거나 시작일과 종료일 모두 있으면 새로 시작일 설정
-        setStartDate(clickedDateWithTime);
-        setEndDate(null);
-      } else {
-        // 시작일만 있고 종료일이 없는 경우
-        const startDateWithoutTime = startOfDay(startDate);
-        const clickedDayWithoutTime = startOfDay(day);
-
-        if (isBefore(clickedDayWithoutTime, startDateWithoutTime)) {
-          // 클릭한 날짜가 시작일보다 이전일 시 시작일 변경
-          setStartDate(clickedDateWithTime);
-        } else {
-          // 클릭한 날짜가 시작일 이후 이거나 같으면 종료일로 설정
-          const endDateWithTime = includeTime
-            ? setMinutes(setHours(day, endDate ? getHours(endDate) : 0), endDate ? getMinutes(endDate) : 0)
-            : startOfDay(day);
-          setEndDate(endDateWithTime);
-        }
-      }
+      setStartDate(newClickedDateWithTime);
+      setEndDate(null);
     }
-  };
+  } else if (startDate && !endDate) {
+    const startDateWithoutTime = startOfDay(startDate);
+    const clickedDayWithoutTime = startOfDay(day);
+
+    if (isBefore(clickedDayWithoutTime, startDateWithoutTime)) {
+      setStartDate(newClickedDateWithTime);
+    } else {
+      let endDateWithTime = includeTime
+        ? setMinutes(setHours(day, endDate ? getHours(endDate) : (includeTime && startDate ? getHours(startDate) : 0)), endDate ? getMinutes(endDate) : (includeTime && startDate ? getMinutes(startDate) : 0))
+        : startOfDay(day);
+
+      if (startDate && isValid(startDate) && isBefore(endDateWithTime, startDate)) {
+        console.warn("마감 시간은 시작 시간보다 이전일 수 없습니다. 시작 시간으로 조정합니다.");
+        endDateWithTime = startDate;
+      }
+      setEndDate(endDateWithTime);
+    }
+  } else {
+    setStartDate(newClickedDateWithTime);
+    setEndDate(null);
+  }
+};
 
   // 월 이동
   // 이전 달 이동
