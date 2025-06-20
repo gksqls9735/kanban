@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import ColumnList from "../component/kanban/column/column-list";
 import { Chat, Section, SelectOption, Task, User } from "../types/type";
 import { DndContext, DragOverlay, rectIntersection } from "@dnd-kit/core";
@@ -15,6 +15,7 @@ import { ToastProvider } from "../context/toast-context";
 import useChatStore from "../store/chat-store";
 import { useKanbanActions } from "../context/task-action-context";
 import { statusSelect } from "../mocks/select-option-mock";
+import isEqual from "lodash.isequal";
 
 export interface KanbanProps {
   currentUser: User | null;
@@ -91,6 +92,7 @@ const Kanban: React.FC<KanbanProps> = ({
     }
   }, [initialUserlist, setUserlist]);
 
+  // 채팅
   useEffect(() => {
     if (chatlist && chatlist.length > 0) {
       const chatsByTaskData: Record<string, Chat[]> = {};
@@ -109,9 +111,16 @@ const Kanban: React.FC<KanbanProps> = ({
     }
   }, [chatlist, setAllTaskChats]);
 
+  const prevChatsRef = useRef<Chat[]>([]);
+
   useEffect(() => {
     const allChats = Object.values(chatsByTask).flat();
-    onChatlistChange?.(allChats);
+
+    // 깊은 비교로 변경 여부 감지
+    if (!isEqual(prevChatsRef.current, allChats)) {
+      prevChatsRef.current = allChats;
+      onChatlistChange?.(allChats); // 변경 시만 외부 전달
+    }
   }, [chatsByTask]);
 
   const getSectionName = (sectionId: string): string => {
@@ -140,7 +149,7 @@ const Kanban: React.FC<KanbanProps> = ({
           onDragCancel={handleDragCancel}
         >
           <div className='kanban kanban-scrollbar-x' style={{ width: '100%', overflowX: 'auto', minWidth: 0, }}>
-            <ColumnList getSectionName={getSectionName} placeholderData={placeholderData} detailModalTopPx={detailModalTopPx}/>
+            <ColumnList getSectionName={getSectionName} placeholderData={placeholderData} detailModalTopPx={detailModalTopPx} />
             <DragOverlay>
               {activeTask ? (
                 <CardWrapper task={activeTask} sectionName={getSectionName(activeTask.sectionId)} isOverlay={true} />

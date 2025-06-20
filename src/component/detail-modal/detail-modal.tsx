@@ -197,7 +197,7 @@ const DetailModal: React.FC<{
           onMouseDown={handleMouseDown}
         />
         <DetailHeader onClose={onClose} openDeleteModal={openDeleteModal} isOwnerOrParticipant={isOwnerOrParticipant} />
-        <div className="task-detail__detail-modal-content gantt-scrollbar-y">
+        <div className="task-detail__detail-modal-content kanban-scrollbar-y">
 
           {/** 작업 설명(TITLE) */}
           <div className="task-detail__detail-modal-section">
