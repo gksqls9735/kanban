@@ -85,11 +85,17 @@ const NewTaskCard: React.FC<{
 
     if (processedName && startDate && endDate && currentUser) {
       const filteredTodos = todos.filter(todo => todo.todoTxt && todo.todoTxt.trim() !== '');
-      const targetSectionLength = useTaskStore.getState().allTasks.filter(t => t.sectionId === selectedSection.sectionId).length;
-      const sectionOrder = targetSectionLength > 0 ? targetSectionLength + 1 : 0;
+      
+      const currentAllTasks = useTaskStore.getState().allTasks;
 
-      const targetStatusLength = useTaskStore.getState().allTasks.filter(t => t.status.code === selectedStatus.code).length;
-      const statusOrder = targetStatusLength > 0 ? targetStatusLength + 1 : 0;
+      const sectionOrder = currentAllTasks
+        .filter(t => t.sectionId === selectedSection.sectionId)
+        .reduce((max, task) => Math.max(max, task.sectionOrder), 0) + 1;
+
+      const statusOrder = currentAllTasks
+        .filter(t => t.status.code === selectedStatus.code)
+        .reduce((max, task) => Math.max(max, task.statusOrder), 0) + 1;
+
       const newTask: Omit<Task, 'color'> & { id?: string; } = {
         sectionId: selectedSection.sectionId,
         taskId: newTaskId,
