@@ -179,7 +179,6 @@
   font-weight: 400;
   padding-left: 12px;
   padding-right: 7px;
-  cursor: pointer;
 }
 
 .kanban .participant-modal__select-all-row label:first-child {
@@ -214,6 +213,7 @@
   transition: background-color 0.2s, border-color 0.2s;
   vertical-align: middle;
   flex-shrink: 0;
+  cursor: pointer;
 }
 
 /* 3. 실제 체크박스가 체크됐을 때 가짜 체크박스 스타일 변경 */

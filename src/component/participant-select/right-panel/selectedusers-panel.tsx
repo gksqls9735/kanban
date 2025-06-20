@@ -10,25 +10,25 @@ const SelectedUsersPanel: React.FC<{
 }> = ({ participants, onRemoveParticipant, onRemoveAll, onToggleDropdown, setTriggerRef }) => {
   return (
     <div className="participant-modal__selected-panel">
-    <div className="participant-modal__selected-header">
-      <span className="participant-modal__selected-count">회원 {participants.length}명 선택</span>
-      <span 
-        className="participant-modal__remove-all"
-        onClick={onRemoveAll}
-      >모두 삭제</span>
+      <div className="participant-modal__selected-header">
+        <span className="participant-modal__selected-count">회원 {participants.length}명 선택</span>
+        <span
+          className="participant-modal__remove-all"
+          onClick={onRemoveAll}
+        >모두 삭제</span>
+      </div>
+      <div className="participant-modal__selected-list gantt-scrollbar-y">
+        {participants.map(p => (
+          <SelectedUserItem
+            key={p.id}
+            ref={(el: HTMLDivElement | null) => { setTriggerRef(p.id, el) }}
+            participant={p}
+            onToggleDropdown={onToggleDropdown}
+            onRemove={onRemoveParticipant}
+          />
+        ))}
+      </div>
     </div>
-    <div className="participant-modal__selected-list kanban-scrollbar-y">
-      {participants.map(p => (
-        <SelectedUserItem
-          key={p.id}
-          ref={(el: HTMLDivElement | null) => { setTriggerRef(p.id, el) }}
-          participant={p}
-          onToggleDropdown={onToggleDropdown}
-          onRemove={onRemoveParticipant}
-        />
-      ))}
-    </div>
-  </div>
   );
 };
 

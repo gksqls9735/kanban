@@ -24,21 +24,25 @@ const ParticipantSelector: React.FC<{
   const triggerRefs = useRef<{ [key: string | number]: HTMLDivElement | null }>({});
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // SelectedUserPanel에 전달할 ref 설정 함수
   const handleSetTriggerRef = useCallback((id: string | number, el: HTMLDivElement | null) => {
     triggerRefs.current[id] = el;
   }, []);
 
-  // 선택된 사용자 ID Set
   const selectedParticipantIds = useMemo(() => {
     return new Set(participants.map(p => p.id));
   }, [participants]);
 
-  // 핸들러 함수
   const handleCloseDropdown = useCallback(() => {
     setOpenDropdownId(null);
     setDropdownPosition(null);
   }, []);
+
+  const handleSetRole = (isMain: boolean) => {
+    setParticipants(prev =>
+      prev.map(p => (p.id === openDropdownId ? { ...p, isMain } : { ...p, isMain: false }))
+    );
+    handleCloseDropdown();
+  };
 
   const handleDropdownToggle = useCallback((id: string | number) => {
     if (openDropdownId === id) {
@@ -59,14 +63,6 @@ const ParticipantSelector: React.FC<{
     }
   }, [openDropdownId, handleCloseDropdown]);
 
-  const handleSetRole = (isMain: boolean) => {
-    setParticipants(prev =>
-      prev.map(p => (p.id === openDropdownId ? { ...p, isMain } : { ...p, isMain: false }))
-    );
-    handleCloseDropdown();
-  };
-
-  // 사용자 선택/해제
   const handleSelectUser = useCallback((userId: string | number, select: boolean) => {
     setParticipants(prev => {
       if (select) {
@@ -80,15 +76,21 @@ const ParticipantSelector: React.FC<{
   }, [userlist]);
 
   const handleSelectAllUsers = useCallback((select: boolean, filteredUsers: User[]) => {
-    if (select) {
-      const newParticipants = filteredUsers
-        .filter(u => !participants.some(p => p.id === u.id))
-        .map(u => ({ ...u, isMain: false }));
-      setParticipants(prev => [...prev, ...newParticipants]);
-    } else {
-      setParticipants([]);
-    }
-  }, [userlist, participants]);
+    setParticipants(prev => {
+      let newParticipants = [...prev];
+
+      if (select) {
+        const usersToAdd = filteredUsers
+          .filter(u => !newParticipants.some(p => p.id === u.id))
+          .map(u => ({ ...u, isMain: false }));
+        newParticipants.push(...usersToAdd);
+      } else {
+        const filteredUserIds = new Set(filteredUsers.map(u => u.id));
+        newParticipants = newParticipants.filter(p => !filteredUserIds.has(p.id));
+      }
+      return newParticipants;
+    });
+  }, []);
 
   const handleRemoveParticipant = useCallback((id: string | number) => {
     setParticipants(prev => prev.filter(p => p.id !== id));
@@ -169,7 +171,7 @@ const ParticipantSelector: React.FC<{
               />
             ) : (
               <>
-                <TreePanel users={userlist} selectedParticipantIds={selectedParticipantIds} onSelectUser={handleSelectUser}/>
+                <TreePanel users={userlist} selectedParticipantIds={selectedParticipantIds} onSelectUser={handleSelectUser} />
               </>
             )}
             <SelectedUsersPanel
@@ -195,6 +197,7 @@ const ParticipantSelector: React.FC<{
             />, portalElement
           )
         )}
+
       </div>
     </div>
   );

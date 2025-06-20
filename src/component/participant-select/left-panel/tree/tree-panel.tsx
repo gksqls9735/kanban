@@ -1,226 +1,248 @@
-import { ReactNode, useMemo, useState } from "react";
+import { ReactNode, useEffect, useMemo, useState } from "react";
 import { User } from "../../../../types/type";
 import AvatarItem from "../../../common/avatar/avatar";
 import { getInitial } from "../../../../utils/text-function";
 
+// 아이콘 URL 정의
 const ICON_ARROW_DOWN = "https://works.bizbee.co.kr/assets/doc-arrow-down.8bd3b059.svg";
 const ICON_ARROW_RIGHT = "https://works.bizbee.co.kr/assets/doc-arrow-right.a8f55779.svg";
 const ICON_FOLDER = "https://works.bizbee.co.kr/assets/doc-folder-grey.0c6e4658.svg";
 
-/** 
- * 트리의 각 노드를 위한 타입
- */
-// 모든 노드가 공통으로 가지는 기본 속성
+const TreePanel: React.FC<{
+  users: User[];
+  selectedParticipantIds: Set<string | number>;
+  onSelectUser: (userId: string | number, select: boolean) => void;
+}> = ({
+  users,
+  selectedParticipantIds,
+  onSelectUser,
+}) => {
+    const [searchTerm, setSearchTerm] = useState<string>('');
+    const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
+
+    // 검색어에 따라 필터링된 사용자 목록을 반환하는 새로운 useMemo
+    const usersToDisplay = useMemo(() => {
+      if (!searchTerm) return users; // 검색어가 없으면 전체 사용자
+
+      const lowerCaseSearchTerm = searchTerm.toLowerCase();
+      // 검색어에 일치하는 사용자들만 필터링
+      return users.filter(u =>
+        u.username.toLowerCase().includes(lowerCaseSearchTerm) ||
+        (u.team && u.team.toLowerCase().includes(lowerCaseSearchTerm))
+      );
+    }, [users, searchTerm]);
+
+    const { treeData, nodesToExpandInitially } = useMemo(() => {
+      const builtTree = buildOrganizationalTree(usersToDisplay);
+
+      const nodesToExpand = new Set<string>();
+
+      if (searchTerm) {
+        usersToDisplay.forEach(user => {
+          const pathSegments = user.team.split('/');
+          let currentPath = '';
+          pathSegments.forEach(segment => {
+            currentPath = currentPath ? `${currentPath}/${segment}` : segment;
+            const nodeId = pathSegments[0] === segment ? segment : pathSegments.slice(0, pathSegments.indexOf(segment) + 1).join('/');
+            nodesToExpand.add(nodeId);
+          });
+        });
+      }
+      return { treeData: builtTree, nodesToExpandInitially: nodesToExpand };
+    }, [usersToDisplay, searchTerm]); // usersToDisplay가 변경될 때마다 재계산
+
+    // 검색어가 변경될 때마다 확장 노드 상태를 업데이트
+    // 이 useEffect는 useMemo가 계산된 후에 실행
+    useEffect(() => {
+      if (searchTerm) {
+        setExpandedNodes(nodesToExpandInitially);
+      } else {
+        // 검색어가 없으면 모든 확장 상태 초기화 (원한다면)
+        setExpandedNodes(new Set());
+      }
+    }, [searchTerm, nodesToExpandInitially]); // nodesToExpandInitially 추가
+
+    const toggleNodeExpansion = (nodeId: string) => {
+      setExpandedNodes(prev => {
+        const newSet = new Set(prev);
+        if (newSet.has(nodeId)) {
+          newSet.delete(nodeId);
+        } else {
+          newSet.add(nodeId);
+        }
+        return newSet;
+      });
+    };
+
+
+    const renderTreeNode = (node: TreeNode): ReactNode | null => {
+      const basePadding = 10;
+      const depthPadding = 28;
+      const paddingLeft = basePadding + node.depth * depthPadding;
+
+      if (node.type === 'group') {
+        const isExpanded = expandedNodes.has(node.id);
+
+        // 검색어가 있을 때, 해당 그룹이 검색 결과에 포함된 사용자를 가지고 있는지 확인
+        // 이 부분은 treeData가 이미 필터링된 경우에만 의미가 있음
+        const shouldRenderGroup = searchTerm
+          ? node.children.some(child => child.type === 'user' || (child.type === 'group' && child.childrenCount > 0))
+          : true;
+
+        if (!shouldRenderGroup && searchTerm) return null; // 검색 결과에 없는 그룹은 렌더링하지 않음
+
+        return (
+          <div key={node.id}>
+            <div
+              className="participant-modal__tree-node--group"
+              style={{ paddingLeft: `${paddingLeft}px` }}
+              onClick={() => toggleNodeExpansion(node.id)}
+            >
+              {node.children && node.children.length > 0 && (
+                <img
+                  src={isExpanded ? ICON_ARROW_DOWN : ICON_ARROW_RIGHT}
+                  className="participant-modal__group-toggle-icon"
+                  alt={isExpanded ? "축소" : "확장"}
+                />
+              )}
+              {!(node.children && node.children.length > 0) && ( /* 자식이 없으면 빈 공간 차지 */
+                <div className="participant-modal__group-toggle-icon"></div>
+              )}
+              <img src={ICON_FOLDER} className="participant-modal__group-folder-icon" alt="폴더" />
+              <span>{node.name} ({node.childrenCount})</span>
+            </div>
+            {isExpanded && node.children.map(childNode => renderTreeNode(childNode))}
+          </div>
+        );
+      } else if (node.type === 'user') {
+        const user = node.originalUser;
+        const isSelected = selectedParticipantIds.has(user.id);
+        return (
+          <div
+            key={user.id}
+            style={{ paddingLeft: `${paddingLeft}px` }}
+            onClick={() => onSelectUser(user.id, !isSelected)}
+            className={`participant-modal__tree-node--user ${isSelected ? 'participant-modal__tree-node--user-selected' : ''}`}
+          >
+            <AvatarItem size={24} src={user.icon}>{getInitial(user.username)}</AvatarItem >
+            <span>{user.username}</span>
+          </div>
+        );
+      }
+      return null;
+    };
+
+    return (
+      <div className="participant-modal__left-panel">
+        <div className="participant-modal__search-container">
+          <div className="participant-modal__search-bar">
+            <input
+              className="participant-modal__search-input"
+              placeholder="이름, 직위로 찾기"
+              type="text"
+              onChange={e => setSearchTerm(e.target.value)}
+              value={searchTerm}
+            />
+            <svg className="participant-modal__search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="-0.5 -0.5 16 16" fill="none" stroke="#000000" strokeLinecap="round" strokeLinejoin="round" id="Search--Streamline-Lucide" height="16" width="16">
+              <desc>Search Streamline Icon: https://streamlinehq.com</desc>
+              <path d="M1.875 6.875a5 5 0 1 0 10 0 5 5 0 1 0 -10 0" strokeWidth="1"></path><path d="m13.125 13.125 -2.6875 -2.6875" strokeWidth="1"></path>
+            </svg>
+          </div>
+        </div>
+        <div className="participant-modal__user-list gantt-scrollbar-y">
+          {treeData.length > 0 ? treeData.map(rootNode => renderTreeNode(rootNode)) : (
+            <div style={{ textAlign: 'center', padding: 20, fontSize: 13, color: '#888' }}>
+              {searchTerm ? '검색 결과가 없습니다.' : '사용자가 없습니다.'}
+            </div>
+          )}
+        </div>
+      </div>
+    )
+  };
+
+export default TreePanel;
+
+
+
+// 트리의 각 노드를 위한 타입
 interface BaseNode {
-  id: string; // 각 노드의 고유 ID
+  id: string; // 각 노드의 고유 ID (예: "회사A", "회사A/본부B", "user_123")
   name: string; // 화면에 표시될 이름
-  depth: number;  // 트리의 깊이
+  depth: number; // 트리의 깊이 (스타일링에 사용)
 }
 
 interface GroupNode extends BaseNode {
-  type: 'group';  // 노드 타입: 그룹
-  children: TreeNode[]; // 자식 노드들(다른 그룹 또는 사용자)
-  childrenCount: number; // 이 그룹의 직접적인 자식 노드 수
+  type: 'group'; // 회사, 본부, 팀과 같은 그룹 노드
+  children: TreeNode[]; // 자식 노드들 (다른 그룹 또는 사용자)
+  // '하위조직개수'는 자식 노드의 수로 표현하거나, 모든 하위 사용자 수로 계산할 수 있습니다.
+  // 여기서는 직접적인 자식 노드의 수로 간단히 표현합니다.
+  childrenCount: number;
 }
 
 interface UserTreeNode extends BaseNode {
-  type: 'user';   // 노트 타입: 사용자
-  originalUser: User; // 이 노드에 해당하는 원본 User 데이터
+  type: 'user';
+  originalUser: User; // 원본 User 데이터
 }
 
 type TreeNode = GroupNode | UserTreeNode;
 
-/**
- * 사용자 목록으로부터 계층적 트리 데이터를 생성하는 함수
- * @param users - 모든 사용자 목록
- * @param rootDepth - 루트 노드의 시작 깊이 (기본값 0)
- * @returns 계층적으로 구성된 최상위 그룹 노드들의 배열
- */
-export const buildOrganizationalTree = (users: User[], rootDepth: number = 0): GroupNode[] => {
-  // 트리를 만들기 위한 임시 루트 헬퍼 노드
-  const rootHelper: GroupNode = {
-    id: 'root', // 임시 루트 ID
-    name: 'Organizations', // 이름 (실제 렌더링에는 사용되지 않음)
+// TreePanel.tsx 또는 helpers.ts
+
+// 사용자 목록으로부터 계층적 트리 데이터를 생성하는 함수
+function buildOrganizationalTree(users: User[], rootDepth: number = 0): GroupNode[] {
+  const rootHelper: GroupNode = { // 임시 루트 노드 (계층 생성을 돕기 위함)
+    id: 'root',
+    name: 'Organizations',
     type: 'group',
-    depth: rootDepth - 1, // 실제 최상위 그룹보다 한 단계 위 (들여쓰기 계산 편의)
-    children: [], // 최상위 그룹 노드들이 여기에 추가
+    depth: rootDepth - 1, // 실제 루트보다 한 단계 위
+    children: [],
     childrenCount: 0,
   };
 
-  // 모든 사용자를 순회하며 트리 구조에 추가
-  users.forEach(u => {
-    // 슬래시를 기준으로 분리
-    const pathSegments = u.team.split('/');
-    let currentNode: GroupNode = rootHelper;  // 현재 처리 중인 부모 노트
+  users.forEach(user => {
+    // user.team이 "회사/본부/팀" 형식의 경로라고 가정합니다.
+    // 만약 user.team이 단순 팀 이름이라면, pathSegments는 [user.team]이 됩니다.
+    const pathSegments = user.team.split('/');
+    let currentNode = rootHelper;
 
-
-    // 경로의 각 세그먼트를 순회하며 그룹 노드를 찾거나 생성
-    pathSegments.forEach(segName => {
-      // 현재 세그먼트의 고유 ID (부보 ID + 세그먼트 이름)
-      const segtId = `${currentNode.id === 'root' ? '' : currentNode.id + '/'}${segName}`;
-
-      // 현재 노드의 자식들 중 해당 세그먼트 이름과 일치하는 그룹 노드 탐색
-      let childGroupNode = currentNode.children.find(child =>
-        child.type === 'group' && child.name === segName
+    pathSegments.forEach((segmentName, index) => {
+      const segmentId = `${currentNode.id === 'root' ? '' : currentNode.id + '/'}${segmentName}`;
+      let childGroupNode = currentNode.children.find(
+        child => child.type === 'group' && child.name === segmentName
       ) as GroupNode | undefined;
 
-      // 만약 해당 그룹 노드가 없으면 새로 생성하여 현재 노드의 자식으로 추가
       if (!childGroupNode) {
         childGroupNode = {
-          id: segtId,
-          name: segName,
+          id: segmentId,
+          name: segmentName,
           type: 'group',
-          depth: currentNode.depth + 1, // 깊이 증가
-          children: [], // 새로운 그룹이므로 자식 배열 초기화
-          childrenCount: 0,
+          depth: currentNode.depth + 1,
+          children: [],
+          childrenCount: 0, // 나중에 업데이트 또는 동적 계산
         };
-        currentNode.children.push(childGroupNode); // 현재 부모 노드의 자식으로 추가
+        currentNode.children.push(childGroupNode);
       }
       currentNode = childGroupNode;
     });
 
-    // 모든 팀/조직 경로를 따라가서 마지막 그룹(팀) 노드에 사용자 추가
+    // 사용자를 마지막 그룹(팀) 노드에 추가
     currentNode.children.push({
-      id: `user-${u.id}`, // 사용자 노드의 고유 ID (충돌 방지를 위해 "user-" 접두사)
-      name: u.username, // 사용자 이름
-      type: 'user', // 노드 타입: 사용자
-      depth: currentNode.depth + 1, // 사용자 노드의 깊이
-      originalUser: u, // 원본 User 객체 저장
+      id: `user-${user.id}`,
+      name: user.username,
+      type: 'user',
+      depth: currentNode.depth + 1,
+      originalUser: user,
     });
   });
 
-  // 각 그룹 노드의 childrenCount 속성을 업데이트하는 내부 함수(재귀적)
-  const updateChildrenCounts = (node: TreeNode) => {
+  // 각 그룹 노드의 childrenCount 업데이트 (직접적인 자식 수 기준)
+  function updateChildrenCounts(node: TreeNode): void {
     if (node.type === 'group') {
-      node.childrenCount = node.children.length;  // 직접적인 자식 노드의 개수
-      node.children.forEach(updateChildrenCounts);  // 자식 노드들에 대해서도 재귀적으로 호출
+      node.childrenCount = node.children.length;
+      node.children.forEach(updateChildrenCounts); // 재귀적으로 모든 하위 그룹 업데이트
     }
-  };
-
-  // 임시 루드 헬퍼의 자식들 (실제 최상위 조직 그룹들)에 대해 childCount 업데이트
+  }
   rootHelper.children.forEach(updateChildrenCounts);
 
-  // 실제 최상위 조직 목록(GroupNode 배열)을 반환
-  return rootHelper.children as GroupNode[];
+  return rootHelper.children as GroupNode[]; // 실제 최상위 조직 목록 반환
 }
-
-const TreePanel: React.FC<{
-  users: User[];
-  selectedParticipantIds: Set<string | number>; // 현재 선택된 참가자들의 ID Set (빠른 조회용)
-  onSelectUser: (userId: string | number, select: boolean) => void;
-}> = ({ users, selectedParticipantIds, onSelectUser }) => {
-  const [searchTerm, setSearchTerm] = useState<string>('');
-
-  // 확장된 그룹 노드들의 ID를 관리하는 Set
-  const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
-
-  const filteredUsers = useMemo(() => {
-    if (!searchTerm) return users;
-    return users.filter(u =>
-      u.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (u.team && u.team.toLowerCase().includes(searchTerm.toLowerCase()))
-    );
-  }, [users, searchTerm]);
-
-  // 필터링된 사용자 목록으로부터 트리 데이터를 메모이제이션
-  const treeData = useMemo(() => {
-    return buildOrganizationalTree(filteredUsers);
-  }, [filteredUsers]);
-
-  // 그룹 노드의 확장/축소 상태를 토글하는 함수
-  const toggleNodeExpansion = (nodeId: string) => {
-    setExpandedNodes(prev => {
-      const newSet = new Set(prev);
-
-      if (newSet.has(nodeId)) {
-        newSet.delete(nodeId);  // 이미 확장되어 있으면 축소
-      } else {
-        newSet.add(nodeId) // 축소되어 있으면 확장
-      }
-      return newSet;
-    });
-  };
-
-  /**
- * 트리의 개별 노드를 재귀적으로 렌더링하는 함수
- * @param node - 렌더링할 TreeNode 객체 (GroupNode 또는 UserTreeNode)
- * @returns 렌더링된 ReactNode 또는 null
- */
-  const renderTreeNode = (node: TreeNode): ReactNode | null => {
-    const basePadding = 10;
-    const depthPadding = 28;
-    const paddingLeft = basePadding + node.depth * depthPadding;
-
-    if (node.type === 'group') {
-      const isExpanded = expandedNodes.has(node.id);  // 현재 그룹이 확장되어 있는지 확인
-      return (
-        <div key={node.id}>
-          <div
-            className="participant-modal__tree-node--group"
-            style={{ paddingLeft: `${paddingLeft}px` }}
-            onClick={() => toggleNodeExpansion(node.id)}
-          >
-            {node.children && node.children.length > 0 && (
-              <img
-                src={isExpanded ? ICON_ARROW_DOWN : ICON_ARROW_RIGHT} // 확장 상태에 따라 아이콘 변경
-                className="participant-modal__group-toggle-icon"
-                alt={isExpanded ? "축소" : "확장"}
-              />
-            )}
-            {!(node.children && node.children.length > 0) && (
-              <div className="participant-modal__group-toggle-icon" />
-            )}
-            <img src={ICON_FOLDER} className="participant-modal__group-folder-icon" alt="폴더" />
-            <span>{node.name} ({node.childrenCount})</span>
-          </div>
-          {isExpanded && node.children.map(childNode => renderTreeNode(childNode))}
-        </div>
-      );
-    } else if (node.type === 'user') {
-      const user = node.originalUser;
-      const isSelected = selectedParticipantIds.has(user.id);
-
-      return (
-        <div
-          key={user.id}
-          style={{ paddingLeft: `${paddingLeft}px` }}
-          onClick={() => onSelectUser(user.id, !isSelected)}
-          className={`participant-modal__tree-node--user ${isSelected ? 'participant-modal__tree-node--user-selected' : ''}`}
-        >
-          <AvatarItem size={24} src={user.icon}>{getInitial(user.username)}</AvatarItem >
-          <span>{user.username}</span>
-        </div>
-      )
-    }
-
-    return null;
-  };
-
-  return (
-    <div className="participant-modal__left-panel">
-      <div className="participant-modal__search-container">
-        <div className="participant-modal__search-bar">
-          <input
-            className="participant-modal__search-input"
-            placeholder="이름, 직위로 찾기"
-            type="text"
-            onChange={e => setSearchTerm(e.target.value)}
-          />
-          <svg className="participant-modal__search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="-0.5 -0.5 16 16" fill="none" stroke="#000000" strokeLinecap="round" strokeLinejoin="round" id="Search--Streamline-Lucide" height="16" width="16">
-            <desc>Search Streamline Icon: https://streamlinehq.com</desc>
-            <path d="M1.875 6.875a5 5 0 1 0 10 0 5 5 0 1 0 -10 0" strokeWidth="1"></path><path d="m13.125 13.125 -2.6875 -2.6875" strokeWidth="1"></path>
-          </svg>
-        </div>
-      </div>
-      <div className="participant-modal__user-list kanban-scrollbar-y">
-        {treeData.length > 0 ? treeData.map(rootNode => renderTreeNode(rootNode)) : (
-          <div style={{ textAlign: 'center', padding: 20, fontSize: 13, color: '#888' }}>
-            {searchTerm ? '검색 결과가 없습니다.' : '사용자가 없습니다.'}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
-export default TreePanel;

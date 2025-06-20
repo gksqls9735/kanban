@@ -2,22 +2,19 @@ import { User } from "../../../../types/type";
 import { extractLastTeamName, getInitial } from "../../../../utils/text-function";
 import AvatarItem from "../../../common/avatar/avatar";
 
+
 const UserItem: React.FC<{
   user: User;
   isSelected: boolean;
   onSelect: (userId: string | number, select: boolean) => void;
 }> = ({ user, isSelected, onSelect }) => {
 
-  const handleChange = () => {
-    onSelect(user.id, !isSelected);
-  };
+  const handleChange = () => { onSelect(user.id, !isSelected); };
 
-  const handleCheckboxAreaClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-  };
+  const handleCheckboxAreaClick = (e: React.MouseEvent) => { e.stopPropagation(); };
 
   const checkboxId = `user-check-${user.id}`;
-  
+
   return (
     <div className="participant-modal__user-item"
       style={{ backgroundColor: `${isSelected ? '#D1FADF' : ''}` }}

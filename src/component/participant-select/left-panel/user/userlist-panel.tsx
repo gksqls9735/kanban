@@ -2,13 +2,13 @@ import { useMemo, useState } from "react";
 import UserItem from "./user-item";
 import { User } from "../../../../types/type";
 
+
 const UserListPanel: React.FC<{
   users: User[];
   selectedParticipantIds: Set<string | number>;
   onSelectUser: (userId: string | number, select: boolean) => void;
   onSelectAll: (select: boolean, filteredUsers: User[]) => void;
 }> = ({ users, selectedParticipantIds, onSelectUser, onSelectAll }) => {
-
   const [searchTerm, setSearchTerm] = useState<string>('');
 
   const filteredUsers = useMemo(() => {
@@ -24,9 +24,7 @@ const UserListPanel: React.FC<{
     return filteredUsers.every(u => selectedParticipantIds.has(u.id));
   }, [filteredUsers, selectedParticipantIds]);
 
-  const handleSelectAllChange = () => {
-    onSelectAll(!isAllFilteredSelected, filteredUsers);
-  };
+  const handleSelectAllChange = () => { onSelectAll(!isAllFilteredSelected, filteredUsers); };
 
   return (
     <div className="participant-modal__left-panel">
@@ -44,7 +42,7 @@ const UserListPanel: React.FC<{
           </svg>
         </div>
       </div>
-      <div className="participant-modal__user-list kanban-scrollbar-y">
+      <div className="participant-modal__user-list gantt-scrollbar-y">
         <div className="participant-modal__select-all-row">
           <label htmlFor="all-user-check">모두 선택</label>
           <div className="participant-modal__checkbox-area">
@@ -54,8 +52,14 @@ const UserListPanel: React.FC<{
               className="participant-modal__checkbox--native"
               id="all-user-check"
               onChange={handleSelectAllChange}
+              ref={input => {
+                if (input) {
+                  const anyFilteredSelected = filteredUsers.some(u => selectedParticipantIds.has(u.id));
+                  input.indeterminate = !isAllFilteredSelected && anyFilteredSelected;
+                }
+              }}
             />
-            <label htmlFor="all-user-check" className="participant-modal__checkbox--visual"/>
+            <label htmlFor="all-user-check" className="participant-modal__checkbox--visual" />
           </div>
         </div>
         {filteredUsers.map(u => (
