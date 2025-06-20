@@ -29,8 +29,7 @@ const useTaskStore = create<TaskState>((set, get) => ({
   setTasks: (tasks: Task[]) => set({ allTasks: tasks }),
 
   addTask: (newTask: Task) => set((state) => {
-    const orderedTask = { ...newTask, order: state.allTasks.length + 1 };
-    const newTasks = [...state.allTasks, orderedTask];
+    const newTasks = [...state.allTasks, newTask];
     return { allTasks: newTasks }
   }),
 
