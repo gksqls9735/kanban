@@ -1,12 +1,11 @@
 import { useMemo, useState } from "react";
-import { Chat, Participant, User } from "../../../../../types/type";
-import { formatTimeToHHMM } from "../../../../../utils/date-function";
-import { getInitial } from "../../../../../utils/text-function";
-import AvatarItem from "../../../../common/avatar/avatar";
 import ChatDropdownMenu from "./chat-dropdown-menu";
-import useChatStore from "../../../../../store/chat-store";
 import LinkPreview from "../../../common/link-preview";
-
+import { Chat, Participant, User } from "../../../../../types/type";
+import useChatStore from "../../../../../store/chat-store";
+import AvatarItem from "../../../../common/avatar/avatar";
+import { getInitial } from "../../../../../utils/text-function";
+import { formatTimeToHHMM } from "../../../../../utils/date-function";
 const ChatItem: React.FC<{
   chat: Chat;
   isLikedByCurrentUser: boolean;

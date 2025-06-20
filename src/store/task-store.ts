@@ -34,38 +34,38 @@ const useTaskStore = create<TaskState>((set, get) => ({
     return { allTasks: newTasks }
   }),
 
-  updateTask: (taskId: string, updated: Partial<Task>) => {
+  updateTask: (taskId: string, updated: Partial<Task>) => { // 기존 시그니처 유지
     const allEffectivelyModifiedTasks: Task[] = [];
 
     set((state) => {
-      // 1. 작업 객체 복사 및 Map 생성 (기존과 동일)
       const taskMap = new Map<string, Task>(
         state.allTasks.map(t => [
           t.taskId,
           {
             ...t,
-            start: new Date(t.start),
-            end: new Date(t.end),
+            start: t.start instanceof Date ? t.start : new Date(t.start),
+            end: t.end instanceof Date ? t.end : new Date(t.end),
             dependencies: t.dependencies ? [...t.dependencies] : [],
             todoList: t.todoList ? t.todoList.map(todo => ({ ...todo })) : [],
           },
         ])
       );
 
-      const targetTask = taskMap.get(taskId); // 수정 대상 작업 (복사본)
+      const targetTask = taskMap.get(taskId);
       if (!targetTask) {
         console.error("Update failed: Task not found with ID -", taskId);
         return state;
       }
 
-      // 원본 작업 (상태 변경 전) - sectionId, status.code 비교용
       const originalTaskFromState = state.allTasks.find(t => t.taskId === taskId);
-      if (!originalTaskFromState) return state; // 이론상 발생 안 함
+      if (!originalTaskFromState) {
+        console.error("Original task not found for ID -", taskId);
+        return state;
+      }
 
       const modifiedTasksCollector = new Map<string, Task>();
 
-      // 2. 페이로드의 날짜 객체화 (기존과 동일)
-      const updatedPayloadWithDates = { ...updated };
+      const updatedPayloadWithDates: Partial<Task> = { ...updated };
       if (updated.start && !(updated.start instanceof Date)) {
         updatedPayloadWithDates.start = new Date(updated.start);
       }
@@ -73,13 +73,12 @@ const useTaskStore = create<TaskState>((set, get) => ({
         updatedPayloadWithDates.end = new Date(updated.end);
       }
 
-      // 3. sectionOrder 및 statusOrder 조정 로직 추가
-      let finalPayload = { ...updatedPayloadWithDates };
+      let finalPayload: Partial<Task> = { ...updatedPayloadWithDates };
 
-      // 3a. sectionId가 변경되었는지 확인
+      // 섹션/상태 변경 로직은 그대로 유지
       if (updated.sectionId && updated.sectionId !== originalTaskFromState.sectionId) {
         const tasksInNewSection = state.allTasks.filter(
-          t => t.sectionId === updated.sectionId && t.taskId !== taskId // 자신은 제외하고 새 섹션의 기존 작업들
+          t => t.sectionId === updated.sectionId && t.taskId !== taskId
         );
         let nextSectionOrder = 0;
         if (tasksInNewSection.length > 0) {
@@ -93,10 +92,9 @@ const useTaskStore = create<TaskState>((set, get) => ({
         finalPayload.sectionOrder = nextSectionOrder;
       }
 
-      // 3b. status.code가 변경되었는지 확인
       if (updated.status && updated.status.code !== originalTaskFromState.status.code) {
         const tasksInNewStatus = state.allTasks.filter(
-          t => t.status.code === updated.status?.code && t.taskId !== taskId // 자신은 제외하고 새 상태의 기존 작업들
+          t => t.status.code === updated.status?.code && t.taskId !== taskId
         );
         let nextStatusOrder = 0;
         if (tasksInNewStatus.length > 0) {
@@ -110,86 +108,113 @@ const useTaskStore = create<TaskState>((set, get) => ({
         finalPayload.statusOrder = nextStatusOrder;
       }
 
-      // 4. 주 대상 작업 업데이트 (조정된 finalPayload 사용)
       const primarilyUpdatedTask = { ...targetTask, ...finalPayload };
       taskMap.set(taskId, primarilyUpdatedTask);
-      modifiedTasksCollector.set(primarilyUpdatedTask.taskId, primarilyUpdatedTask);
+      modifiedTasksCollector.set(primarilyUpdatedTask.taskId, primarilyUpdatedTask); // 변경된 작업 수집
 
-      // 5. 후행 작업 조정 로직 (기존과 동일 - endChanged 기반)
-      const originalTargetEndMs = targetTask.end?.getTime(); // 주의: targetTask는 finalPayload 적용 전 상태
+      const originalTargetEndMs = targetTask.end?.getTime();
       const newTargetEndMs = primarilyUpdatedTask.end?.getTime();
       const endChanged = newTargetEndMs !== undefined && newTargetEndMs !== originalTargetEndMs;
 
       if (endChanged && primarilyUpdatedTask.end && originalTargetEndMs !== undefined) {
         const deltaMs = newTargetEndMs - originalTargetEndMs;
-        const visitedInCurrentPropagation = new Set<string>();
+        const tasksToPropagate = [taskId]; // 큐: 전파 시작 작업부터
+        const visitedInCurrentPropagation = new Set<string>(); // 순환 참조 방지 및 중복 처리 방지
 
-        const updateSuccessors = (currentPredecessorId: string, delta: number) => {
-          // ... (기존 updateSuccessors 로직 동일) ...
+        // 기존 updateSuccessors를 재귀 함수 대신 큐 기반 반복문으로 변경 (move.ts와 유사하게)
+        while (tasksToPropagate.length > 0) {
+          const currentPredecessorId = tasksToPropagate.shift()!;
           if (visitedInCurrentPropagation.has(currentPredecessorId)) {
-            return;
+            continue;
           }
           visitedInCurrentPropagation.add(currentPredecessorId);
 
-          const currentTask = taskMap.get(currentPredecessorId);
-          if (!currentTask || !currentTask.end) return;
-          const currentPredecessorEndDate = currentTask.end;
+          const currentPredecessorTask = taskMap.get(currentPredecessorId);
+          if (!currentPredecessorTask || !currentPredecessorTask.end) continue;
+
           const successors = Array.from(taskMap.values()).filter(t => t.dependencies?.includes(currentPredecessorId));
 
           for (const succ of successors) {
-            const originalSuccessorStart = succ.start ? new Date(succ.start) : null;
-            const originalSuccessorEnd = succ.end ? new Date(succ.end) : null;
-            if (!originalSuccessorStart || !originalSuccessorEnd) continue;
-            const duration = originalSuccessorEnd.getTime() - originalSuccessorStart.getTime();
-            const successorOriginalHours = originalSuccessorStart.getHours();
-            const successorOriginalMinutes = originalSuccessorStart.getMinutes();
-            const successorOriginalSeconds = originalSuccessorStart.getSeconds();
-            const successorOriginalMilliseconds = originalSuccessorStart.getMilliseconds();
-            let shiftedStartDatePart = new Date(originalSuccessorStart.getTime() + delta);
-            shiftedStartDatePart.setHours(
-              successorOriginalHours,
-              successorOriginalMinutes,
-              successorOriginalSeconds,
-              successorOriginalMilliseconds
-            );
-            let finalShiftedStart = shiftedStartDatePart;
-            if (finalShiftedStart.getTime() < currentPredecessorEndDate.getTime()) {
-              const newStartDateForSuccessor = new Date(currentPredecessorEndDate.getTime());
-              newStartDateForSuccessor.setHours(
-                successorOriginalHours,
-                successorOriginalMinutes,
-                successorOriginalSeconds,
-                successorOriginalMilliseconds
+            const originalSuccessorFullData = state.allTasks.find(t => t.taskId === succ.taskId); // 원본 데이터에서 시간 정보 가져오기
+            if (!originalSuccessorFullData || !originalSuccessorFullData.start || !originalSuccessorFullData.end) continue;
+
+            const duration = originalSuccessorFullData.end.getTime() - originalSuccessorFullData.start.getTime();
+
+            // **이 부분이 핵심 수정: 모든 선행 작업을 고려하여 minStart 계산**
+            let effectiveMinStartForSuccessor: Date | null = null;
+            const allPredecessorsOfSuccessor = Array.from(taskMap.values()).filter(t => (succ.dependencies ?? []).includes(t.taskId)); // 현재 맵 기준으로 선행 작업 필터링
+
+            for (const predOfSucc of allPredecessorsOfSuccessor) {
+              // 선행 작업의 현재 (임시) 종료일을 가져옵니다.
+              // taskMap에서 가져온 것이 가장 최신 임시 상태입니다.
+              const predCurrentInfoInMap = taskMap.get(predOfSucc.taskId);
+              const predOriginalInfoFromState = state.allTasks.find(t => t.taskId === predOfSucc.taskId);
+
+              if (!predCurrentInfoInMap || !predCurrentInfoInMap.end || !predOriginalInfoFromState || !predOriginalInfoFromState.end) {
+                continue;
+              }
+
+              // 선행 작업의 원래 종료일과 후행 작업의 원래 시작일 사이의 간격 (lag time) 계산
+              const originalLagMs = originalSuccessorFullData.start.getTime() - predOriginalInfoFromState.end.getTime();
+
+              // 이 선행 작업에 의해 결정되는 후행 작업의 잠재적 시작일
+              const potentialStart = new Date(predCurrentInfoInMap.end.getTime() + originalLagMs);
+
+              // 시간 정보 유지 (후행 작업의 원래 시간을 따름)
+              potentialStart.setHours(
+                originalSuccessorFullData.start.getHours(),
+                originalSuccessorFullData.start.getMinutes(),
+                originalSuccessorFullData.start.getSeconds(),
+                originalSuccessorFullData.start.getMilliseconds()
               );
-              finalShiftedStart = newStartDateForSuccessor;
-              if (finalShiftedStart.getTime() < currentPredecessorEndDate.getTime())
-                finalShiftedStart = new Date(currentPredecessorEndDate.getTime());
+
+              if (!effectiveMinStartForSuccessor || potentialStart.getTime() > effectiveMinStartForSuccessor.getTime()) {
+                effectiveMinStartForSuccessor = potentialStart;
+              }
             }
-            let newEnd = new Date(finalShiftedStart.getTime() + duration);
-            if (newEnd.getTime() < finalShiftedStart.getTime()) newEnd = new Date(finalShiftedStart.getTime());
+
+            // 모든 선행 작업에 대한 계산을 마친 후 최종적인 새 시작일 결정
+            let newSuccessorStart: Date;
+            if (effectiveMinStartForSuccessor) {
+              newSuccessorStart = effectiveMinStartForSuccessor;
+            } else {
+              // 의존성이 없는 후행 작업이거나, 어떤 선행 작업도 유효하지 않은 경우
+              // 이 경우는 주 작업의 delta에 의해 밀리는 것이 일반적이므로
+              // 원래 시작일에 delta를 더하여 계산합니다.
+              newSuccessorStart = new Date(originalSuccessorFullData.start.getTime() + deltaMs);
+              newSuccessorStart.setHours(
+                originalSuccessorFullData.start.getHours(),
+                originalSuccessorFullData.start.getMinutes(),
+                originalSuccessorFullData.start.getSeconds(),
+                originalSuccessorFullData.start.getMilliseconds()
+              );
+            }
+
+            const newSuccessorEnd = new Date(newSuccessorStart.getTime() + duration);
+
             const successorDatesChanged =
-              (originalSuccessorStart.getTime() !== finalShiftedStart.getTime()) ||
-              (originalSuccessorEnd.getTime() !== newEnd.getTime());
+              (succ.start?.getTime() !== newSuccessorStart.getTime()) ||
+              (succ.end?.getTime() !== newSuccessorEnd.getTime());
+
             if (successorDatesChanged) {
-              succ.start = finalShiftedStart;
-              succ.end = newEnd;
-              taskMap.set(succ.taskId, succ);
-              modifiedTasksCollector.set(succ.taskId, succ);
-              updateSuccessors(succ.taskId, delta);
+              const updatedSucc = { ...succ, start: newSuccessorStart, end: newSuccessorEnd };
+              taskMap.set(succ.taskId, updatedSucc);
+              modifiedTasksCollector.set(updatedSucc.taskId, updatedSucc);
+              tasksToPropagate.push(succ.taskId); // 변경된 후행 작업을 큐에 추가하여 연쇄 전파
             }
           }
-        };
-        updateSuccessors(taskId, deltaMs);
+        }
       }
 
+      const newAllTasks = Array.from(taskMap.values());
       allEffectivelyModifiedTasks.push(...Array.from(modifiedTasksCollector.values()));
 
-      return { allTasks: Array.from(taskMap.values()) };
+      return { allTasks: newAllTasks };
     });
 
     return allEffectivelyModifiedTasks;
   },
-  
+
   deleteTask: (taskId: string) => set((state) => {
     const newList = state.allTasks.filter(t => t.taskId !== taskId);
 

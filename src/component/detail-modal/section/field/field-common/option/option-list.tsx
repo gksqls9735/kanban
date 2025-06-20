@@ -1,7 +1,7 @@
 import { closestCenter, DndContext, DragEndEvent, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
-import { CombinedOptionItem } from "../../single-selection";
 import OptionRow from "./option-row";
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { CombinedOptionItem } from "../../single-selection";
 
 const OptionList: React.FC<{
   options: CombinedOptionItem[],
@@ -39,10 +39,14 @@ const OptionList: React.FC<{
     return (
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <SortableContext items={dndItemIds} strategy={verticalListSortingStrategy}>
-          <ul className="kanban-scrollbar-y task-detail__detail-modal-field-edit-list">
+          <ul className="gantt-scrollbar-y task-detail__detail-modal-field-edit-list">
             {options.length > 0 ? (
-              options.map(option =>
-                <OptionRow key={option.code} option={option} onUpdate={onUpdate} onDelete={onDelete} onColorUpdate={onColorUpdate} onOrderChange={onOrderChange} />
+              options.map((option, index) =>
+                <OptionRow
+                  key={option.code} option={option}
+                  onUpdate={onUpdate} onDelete={onDelete} onColorUpdate={onColorUpdate} onOrderChange={onOrderChange}
+                  autoFocus={index === options.length - 1 && option.isNew === true}
+                />
               )
             ) : (
               <li className="task-detail__detail-modal-field-edit-item--no-message">

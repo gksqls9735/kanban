@@ -1,5 +1,5 @@
 import useChatStore from "../../../../../store/chat-store";
-import { Chat, Participant, User } from "../../../../../types/type"
+import { Chat, Participant, User } from "../../../../../types/type";
 import ChatItem from "./chat-item";
 
 const EMPTY_CHATS: Chat[] = [];

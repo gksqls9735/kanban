@@ -22,4 +22,4 @@ const useDropdown = () => {
   return { isOpen, setIsOpen, wrapperRef, dropdownRef, toggle };
 };
 
-export default useDropdown
+export default useDropdown;

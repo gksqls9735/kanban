@@ -1,24 +1,29 @@
-// NumericFieldComponent.tsx
 import { useEffect, useMemo, useRef, useState } from "react";
-import { MeasurementUnit, NumericField, Task } from "../../../../types/type"; // Adjust path as needed
 import FieldLabel from "./field-common/field-label";
-import useClickOutside from "../../../../hooks/use-click-outside";
-import FieldFooter from "./field-common/field-footer";
 import NumericDropdown from "./field-dropdown/numeric-dropdown";
+import FieldFooter from "./field-common/field-footer";
+import { MeasurementUnit, NumericField, Task } from "../../../../types/type";
+import useClickOutside from "../../../../hooks/use-click-outside";
+
 const DEFAULT_NUMERIC_FIELD_VALUE: NumericField = {
   value: 0,
   unit: "숫자",
   decimalPlaces: 0,
+  customLabel: "",
+  labelPosition: "right",
 };
 
 const PREVIEW_NUMBER = 1234.56789;
 
 const NumericFieldComponent: React.FC<{
-  numericField: NumericField | null | undefined, taskId: string, isOwnerOrParticipant: boolean, handleChangeAndNotify: (updates: Partial<Task>) => void
+  numericField: NumericField | null | undefined,
+  taskId: string, // taskId는 현재 코드에서 직접 사용되지 않지만 prop으로 유지
+  isOwnerOrParticipant: boolean,
+  handleChangeAndNotify: (updates: Partial<Task>) => void
 }> = ({ numericField, isOwnerOrParticipant, handleChangeAndNotify }) => {
 
   const [isInEditMode, setIsInEditMode] = useState<boolean>(false);
-  const [isOpenEdit, setIsOpenEdit] = useState<boolean>(false);
+  const [isOpenEdit, setIsOpenEdit] = useState<boolean>(false); // 옵션(형식, 소수점 등) 수정 UI 표시 여부
 
   const [editingUnit, setEditingUnit] = useState<MeasurementUnit>(
     DEFAULT_NUMERIC_FIELD_VALUE.unit
@@ -29,16 +34,27 @@ const NumericFieldComponent: React.FC<{
   const [editingValueString, setEditingValueString] = useState<string>(
     String(DEFAULT_NUMERIC_FIELD_VALUE.value)
   );
+  // 사용자 지정 레이블 및 위치 상태 추가
+  const [editingCustomLabel, setEditingCustomLabel] = useState<string>(
+    DEFAULT_NUMERIC_FIELD_VALUE.customLabel || ""
+  );
+  const [editingLabelPosition, setEditingLabelPosition] = useState<'left' | 'right'>(
+    DEFAULT_NUMERIC_FIELD_VALUE.labelPosition || "right"
+  );
 
   useEffect(() => {
     if (numericField) {
       setEditingUnit(numericField.unit);
       setEditingDecimalPlaces(numericField.decimalPlaces);
       setEditingValueString(String(numericField.value));
+      setEditingCustomLabel(numericField.customLabel || "");
+      setEditingLabelPosition(numericField.labelPosition || "right");
     } else {
       setEditingUnit(DEFAULT_NUMERIC_FIELD_VALUE.unit);
       setEditingDecimalPlaces(DEFAULT_NUMERIC_FIELD_VALUE.decimalPlaces);
       setEditingValueString(String(DEFAULT_NUMERIC_FIELD_VALUE.value));
+      setEditingCustomLabel(DEFAULT_NUMERIC_FIELD_VALUE.customLabel || "");
+      setEditingLabelPosition(DEFAULT_NUMERIC_FIELD_VALUE.labelPosition || "right");
     }
   }, [numericField]);
 
@@ -52,10 +68,14 @@ const NumericFieldComponent: React.FC<{
     const currentVal = numericField?.value ?? DEFAULT_NUMERIC_FIELD_VALUE.value;
     const currentUnit = numericField?.unit || DEFAULT_NUMERIC_FIELD_VALUE.unit;
     const currentDecimalPlaces = numericField?.decimalPlaces ?? DEFAULT_NUMERIC_FIELD_VALUE.decimalPlaces;
+    const currentCustomLabel = numericField?.customLabel || DEFAULT_NUMERIC_FIELD_VALUE.customLabel || "";
+    const currentLabelPosition = numericField?.labelPosition || DEFAULT_NUMERIC_FIELD_VALUE.labelPosition || "right";
 
     setEditingValueString(String(currentVal));
     setEditingUnit(currentUnit);
     setEditingDecimalPlaces(currentDecimalPlaces);
+    setEditingCustomLabel(currentCustomLabel);
+    setEditingLabelPosition(currentLabelPosition);
   };
 
   const handleCancel = () => {
@@ -69,7 +89,7 @@ const NumericFieldComponent: React.FC<{
       handleCancel();
     } else {
       setIsInEditMode(true);
-      setIsOpenEdit(false);
+      setIsOpenEdit(false); // 값 수정 모드로 먼저 진입
       resetEditingStatesToCurrentField();
     }
   };
@@ -82,9 +102,17 @@ const NumericFieldComponent: React.FC<{
       setEditingValueString("");
       return;
     }
-    const numericRegex = /^[0-9]*\.?[0-9]*$/;
+    // 소수점 하나만 허용, 숫자만 입력 가능
+    const numericRegex = /^-?[0-9]*\.?[0-9]*$/;
     if (numericRegex.test(val)) {
       setEditingValueString(val);
+    }
+  };
+
+  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleSave();
     }
   };
 
@@ -93,6 +121,7 @@ const NumericFieldComponent: React.FC<{
     const parsedValue = parseFloat(editingValueString);
 
     if (editingValueString.trim() === "" || isNaN(parsedValue)) {
+      // 입력값이 비어있거나 숫자가 아니면 기존 값 또는 기본값 사용
       finalValue = numericField?.value ?? DEFAULT_NUMERIC_FIELD_VALUE.value;
     } else {
       finalValue = parsedValue;
@@ -104,6 +133,8 @@ const NumericFieldComponent: React.FC<{
       value: finalValue,
       unit: editingUnit,
       decimalPlaces: applyDecimalPlaces ? editingDecimalPlaces : 0,
+      customLabel: editingUnit === "사용자 지정 테이블" ? editingCustomLabel : undefined,
+      labelPosition: editingUnit === "사용자 지정 테이블" ? editingLabelPosition : undefined,
     };
     handleChangeAndNotify({ numericField: updatedNumericField });
     setIsInEditMode(false);
@@ -112,46 +143,90 @@ const NumericFieldComponent: React.FC<{
 
   const CURRENCY_SYMBOL_MAP: Record<string, string> = {
     KRW: "₩", USD: "$", EUR: "€", JPY: "¥", CNY: "¥",
-    "숫자": "", "퍼센트": "%",
-    "사용자 지정 테이블": "",
-    "형식 없음": "",
+    "퍼센트": "%",
+    // "숫자", "형식 없음", "사용자 지정 테이블"은 심볼을 여기서 관리하지 않음
   };
 
   const previewValueFormatted = useMemo(() => {
     let valueStr: string;
-    let symbolToDisplay: string = "";
     const applyDecimalPlacesForPreview = ["숫자", "퍼센트", "사용자 지정 테이블"].includes(editingUnit);
     const effectiveDecimalPlaces = applyDecimalPlacesForPreview ? editingDecimalPlaces : 0;
 
     switch (editingUnit) {
-      case "숫자": valueStr = PREVIEW_NUMBER.toFixed(effectiveDecimalPlaces); break;
+      case "숫자":
+        return PREVIEW_NUMBER.toFixed(effectiveDecimalPlaces);
       case "퍼센트":
         valueStr = PREVIEW_NUMBER.toFixed(effectiveDecimalPlaces);
-        symbolToDisplay = CURRENCY_SYMBOL_MAP[editingUnit] || "%";
-        break;
+        return `${valueStr}${CURRENCY_SYMBOL_MAP[editingUnit] || "%"}`;
       case "KRW": case "USD": case "EUR": case "JPY": case "CNY":
-        valueStr = PREVIEW_NUMBER.toFixed(0);
-        symbolToDisplay = CURRENCY_SYMBOL_MAP[editingUnit] ? ` ${CURRENCY_SYMBOL_MAP[editingUnit]}` : ` ${editingUnit}`;
-        break;
-      case "형식 없음": valueStr = String(PREVIEW_NUMBER); break;
+        valueStr = PREVIEW_NUMBER.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }); // 통화 형식, 소수점 없음
+        return `${CURRENCY_SYMBOL_MAP[editingUnit] || editingUnit} ${valueStr}`; // 심볼 우선
+      case "형식 없음":
+        return String(PREVIEW_NUMBER);
       case "사용자 지정 테이블":
         valueStr = PREVIEW_NUMBER.toFixed(effectiveDecimalPlaces);
-        symbolToDisplay = " (사용자 지정)";
-        break;
+        if (editingCustomLabel) {
+          return editingLabelPosition === 'left'
+            ? `${editingCustomLabel} ${valueStr}`
+            : `${valueStr} ${editingCustomLabel}`;
+        }
+        return `${valueStr} (레이블 없음)`;
       default:
         valueStr = PREVIEW_NUMBER.toFixed(effectiveDecimalPlaces);
-        symbolToDisplay = ` ${editingUnit}`;
+        return `${valueStr} ${editingUnit}`;
     }
-    return `${valueStr}${symbolToDisplay}`;
-  }, [editingUnit, editingDecimalPlaces]);
+  }, [editingUnit, editingDecimalPlaces, editingCustomLabel, editingLabelPosition]);
 
-  const actualNumericField = numericField || DEFAULT_NUMERIC_FIELD_VALUE;
-  const displayDecimalPlaces = ["숫자", "퍼센트", "사용자 지정 테이블"].includes(actualNumericField.unit)
-    ? actualNumericField.decimalPlaces
-    : 0;
-  const currentDisplayValueFormatted = actualNumericField.value.toFixed(displayDecimalPlaces);
-  const currentDisplayUnitSymbol = CURRENCY_SYMBOL_MAP[actualNumericField.unit] ??
-    (actualNumericField.unit === "사용자 지정 테이블" ? " (사용자 지정)" : "");
+  const {
+    displayValue,
+    displaySymbol,
+    isCustomLabelBeforeValue,
+  } = useMemo(() => {
+    const field = numericField || DEFAULT_NUMERIC_FIELD_VALUE;
+    const { value, unit, decimalPlaces, customLabel, labelPosition } = field;
+
+    const effectiveDp = ["숫자", "퍼센트", "사용자 지정 테이블"].includes(unit) ? decimalPlaces : 0;
+
+    // toLocaleString으로 천단위 구분 기호 추가 및 소수 자릿수 처리
+    const valStr = value.toLocaleString(undefined, {
+      minimumFractionDigits: effectiveDp,
+      maximumFractionDigits: effectiveDp,
+    });
+
+    if (unit === "사용자 지정 테이블") {
+      if (customLabel) {
+        return {
+          displayValue: valStr,
+          displaySymbol: customLabel,
+          isCustomLabelBeforeValue: labelPosition === 'left',
+        };
+      }
+      return { displayValue: valStr, displaySymbol: null, isCustomLabelBeforeValue: false };
+    }
+
+    let symbol: string | null = CURRENCY_SYMBOL_MAP[unit] || null;
+    // "숫자", "형식 없음"은 심볼 없음
+    if (unit === "숫자" || unit === "형식 없음") symbol = null;
+
+    // 통화 기호는 값 앞에 오는 경우가 많으므로 (예: $1,234), 이를 위한 플래그 추가 가능
+    // 여기서는 간단히 뒤에 붙이는 것으로 통일하거나, CURRENCY_SYMBOL_MAP 수정
+    const isCurrencySymbolBefore = ["USD", "EUR", "JPY", "CNY"].includes(unit); // KRW는 보통 뒤
+
+    return {
+      displayValue: valStr,
+      displaySymbol: symbol,
+      isCustomLabelBeforeValue: isCurrencySymbolBefore && unit !== "KRW" // 사용자 정의 레이블 위치와 다른 개념
+    };
+  }, [numericField]);
+
+
+  const symbolForInputEditing = useMemo(() => {
+    const unitToUse = numericField?.unit || DEFAULT_NUMERIC_FIELD_VALUE.unit;
+    if (["숫자", "형식 없음", "사용자 지정 테이블"].includes(unitToUse)) {
+      return null;
+    }
+    return CURRENCY_SYMBOL_MAP[unitToUse] || unitToUse;
+  }, [numericField]);
 
 
   // Case 1: Not in Edit Mode - Displaying information or placeholder
@@ -159,7 +234,7 @@ const NumericFieldComponent: React.FC<{
     if (!numericField) {
       return (
         <li className="task-detail__detail-modal-field-item">
-          <FieldLabel fieldName="숫자" onClick={handleToggleEditMode} />
+          <FieldLabel fieldName="숫자" onClick={isOwnerOrParticipant ? handleToggleEditMode : () => { }} />
           <ul className="task-detail__detail-modal-field-content-list">
             <li className="task-detail__detail-modal-field-edit-item--no-message">
               표시할 옵션이 없습니다.
@@ -170,11 +245,12 @@ const NumericFieldComponent: React.FC<{
     }
     return (
       <li className="task-detail__detail-modal-field-item">
-        <FieldLabel fieldName="숫자" onClick={handleToggleEditMode} />
+        <FieldLabel fieldName="숫자" onClick={isOwnerOrParticipant ? handleToggleEditMode : () => { }} />
         <ul className="task-detail__detail-modal-field-content-list">
           <li className="task-detail__detail-modal-field-item--numeric">
-            <div>{currentDisplayValueFormatted}</div>
-            {currentDisplayUnitSymbol && <div>{currentDisplayUnitSymbol}</div>}
+            {isCustomLabelBeforeValue && displaySymbol && <div className="numeric-field__symbol numeric-field__symbol--before">{displaySymbol}</div>}
+            <div className="numeric-field__value">{displayValue}</div>
+            {!isCustomLabelBeforeValue && displaySymbol && <div className="numeric-field__symbol numeric-field__symbol--after">{displaySymbol}</div>}
           </li>
         </ul>
       </li>
@@ -188,15 +264,35 @@ const NumericFieldComponent: React.FC<{
         title="형식"
         currentValue={editingUnit}
         dropdownList={unitList}
-        onSelect={(unit) => setEditingUnit(unit)}
+        onSelect={(unit) => setEditingUnit(unit as MeasurementUnit)} // 타입 캐스팅
       />
       {["숫자", "퍼센트", "사용자 지정 테이블"].includes(editingUnit) && (
         <NumericDropdown
           title="소수 자릿수"
           currentValue={editingDecimalPlaces}
           dropdownList={decimalList}
-          onSelect={(places) => setEditingDecimalPlaces(places)}
+          onSelect={(places) => setEditingDecimalPlaces(places as number)} // 타입 캐스팅
         />
+      )}
+      {editingUnit === "사용자 지정 테이블" && (
+        <>
+          <NumericDropdown
+            title="레이블 입력"
+            currentValue="" // 이 prop은 사용되지 않음
+            dropdownList={[]} // 이 prop은 사용되지 않음
+            onSelect={() => { }} // 이 prop은 사용되지 않음
+            customInputValue={editingCustomLabel}
+            onCustomInputChange={setEditingCustomLabel}
+          />
+          <NumericDropdown
+            title="위치"
+            currentValue="" // 이 prop은 사용되지 않음
+            dropdownList={[]} // 이 prop은 사용되지 않음
+            onSelect={() => { }} // 이 prop은 사용되지 않음
+            labelPositionValue={editingLabelPosition}
+            onLabelPositionChange={setEditingLabelPosition}
+          />
+        </>
       )}
       <div className="task-detail__detail-modal-field-edit-numeric-row task-detail__detail-modal-field-edit-numeric-preview-row">
         <div className="task-detail__detail-modal-field-edit-numeric-label">미리보기</div>
@@ -209,111 +305,99 @@ const NumericFieldComponent: React.FC<{
 
   return (
     <li className="task-detail__detail-modal-field-item">
-      <FieldLabel fieldName="숫자" onClick={handleToggleEditMode} />
-      {numericField ? (
-        <ul className="task-detail__detail-modal-field-content-list">
-          <li className="task-detail__detail-modal-field-item--numeric">
-            <div>{currentDisplayValueFormatted}</div>
-            {currentDisplayUnitSymbol && <div>{currentDisplayUnitSymbol}</div>}
-          </li>
-        </ul>
-      ) : (
-        <ul className="task-detail__detail-modal-field-content-list">
-          <li className="task-detail__detail-modal-field-edit-item--no-message">
-            표시할 옵션이 없습니다.
-          </li>
-        </ul>
-      )}
+      <FieldLabel fieldName="숫자" onClick={isOwnerOrParticipant ? handleToggleEditMode : () => { }} />
+      {/* 편집 모드 진입 시 항상 편집 UI가 보이도록 수정 */}
+      {/* 기존 값 표시는 제거하고, 편집 UI만 표시하거나, 아니면 편집 UI가 열렸을때만 표시 */}
+      {/* 여기서는 isInEditMode가 true일 때 항상 editContainerRef 내부가 보이도록 함 */}
+
       <div ref={editContainerRef} className="task-detail__detail-modal-field-edit-container">
-        {!numericField ? (
-          // Case 2a: In Edit Mode - NO existing numericField (Creating new)
+        {!numericField && !isOpenEdit && !isOwnerOrParticipant && (
+          <ul className="task-detail__detail-modal-field-content-list">
+            <li className="task-detail__detail-modal-field-edit-item--no-message">
+              표시할 옵션이 없습니다.
+            </li>
+          </ul>
+        )}
+
+        {/* Case: No existing numericField (Creating new) OR Editing existing */}
+        {(!numericField && !isOpenEdit && isOwnerOrParticipant) && (
+          // 초기 상태: "옵션 추가" 버튼 (numericField 없고, 옵션 편집창 안 열렸을 때)
           <>
-            {!isOpenEdit ? (
-              // Initial state for new field: prompt to define format
-              <>
-                <div className="task-detail__detail-modal-field-edit-list-wrapper">
-                  <div className="task-detail__detail-modal-field-edit-item--no-message">
-                    표시할 옵션이 없습니다.
-                  </div>
-                  {isOwnerOrParticipant && <div className="task-detail__detail-modal-field-edit-separator" />}
-                </div>
-                {isOwnerOrParticipant && (
-                  <FieldFooter
-                    title="옵션 추가"
-                    isPlusIcon={false}
-                    onClick={() => setIsOpenEdit(true)}
-                    handleCancel={handleCancel}
-                    isShowButton={true}
-                  />
-                )}
-              </>
-            ) : (
-              // isOpenEdit is true: Show format definition UI for new field
-              <>
-                <div className="task-detail__detail-modal-field-edit-list-wrapper">
-                  {numericOptionsEditorUI}
-                  <div className="task-detail__detail-modal-field-edit-separator" />
-                </div>
-                <FieldFooter
-                  title="옵션 추가"
-                  isPlusIcon={true}
-                  onClick={handleSave}
-                  handleCancel={handleCancel} // Full cancel from this state
-                  isShowButton={true}
-                  onSave={handleSave}
-                />
-              </>
+            <div className="task-detail__detail-modal-field-edit-list-wrapper">
+              <div className="task-detail__detail-modal-field-edit-item--no-message">
+                표시할 옵션이 없습니다.
+              </div>
+              {isOwnerOrParticipant && <div className="task-detail__detail-modal-field-edit-separator" />}
+            </div>
+            {isOwnerOrParticipant && (
+              <FieldFooter
+                title="옵션 추가" // numericField가 없으므로 '옵션 추가'
+                isPlusIcon={false} // 최초에는 + 아이콘이 아님
+                onClick={() => {
+                  resetEditingStatesToCurrentField(); // 기본값으로 설정
+                  setIsOpenEdit(true);
+                }}
+                handleCancel={handleCancel} // 전체 편집 모드 취소
+                isShowButton={true}
+              />
             )}
           </>
-        ) : (
-          // Case 2b: In Edit Mode - existing numericField
+        )}
+
+        {isOpenEdit && (
+          // 옵션 편집 UI (형식, 소수점, 레이블 등)
           <>
-            {isOpenEdit ? (
-              // Editing options (unit, decimal places) for existing field
-              <>
-                <div className="task-detail__detail-modal-field-edit-list-wrapper">
-                  {numericOptionsEditorUI}
-                  <div className="task-detail__detail-modal-field-edit-separator" />
-                </div>
-                <FieldFooter
-                  title="옵션 저장"
-                  isPlusIcon={false}
-                  onClick={handleSave}
-                  handleCancel={() => {
+            <div className="task-detail__detail-modal-field-edit-list-wrapper">
+              {numericOptionsEditorUI}
+              {isOwnerOrParticipant && <div className="task-detail__detail-modal-field-edit-separator" />}
+            </div>
+            {isOwnerOrParticipant && (
+              <FieldFooter
+                title={numericField ? "옵션 저장" : "옵션 추가"} // 상황에 맞는 버튼 텍스트
+                isPlusIcon={!numericField} // 새 필드면 +, 기존 필드면 저장 아이콘 (CSS로 처리 필요)
+                onClick={handleSave} // 옵션 저장
+                handleCancel={() => { // 옵션 편집만 취소, 값 입력 모드로 돌아가거나 전체 취소
+                  if (numericField) {
                     setIsOpenEdit(false);
-                    resetEditingStatesToCurrentField();
-                  }}
-                  isShowButton={true}
-                  onSave={handleSave}
+                    resetEditingStatesToCurrentField(); // 이전 상태로 복원
+                  } else {
+                    handleCancel(); // 새 필드 추가 중 옵션 설정 취소 시 전체 취소
+                  }
+                }}
+                isShowButton={true}
+                onSave={handleSave}
+              />
+            )}
+          </>
+        )}
+
+        {!isOpenEdit && numericField && (
+          // 값 편집 UI (기존 필드가 있고, 옵션 편집창이 닫혔을 때)
+          <>
+            <div className="task-detail__detail-modal-field-edit-list-wrapper" style={{ display: 'flex', alignItems: 'center' }}>
+              <div className="task-detail__detail-modal-field-edit-numeric-view-input-wrapper">
+                <input
+                  type="text" // Firefox 등에서 number 타입의 스타일링 이슈 및 소수점 입력 편의를 위해 text 사용
+                  value={editingValueString}
+                  onChange={handleValueInputChange}
+                  onKeyDown={handleInputKeyDown}
+                  placeholder="숫자 입력"
+                  disabled={!isOwnerOrParticipant}
+                  className="numeric-field__input"
                 />
-              </>
-            ) : (
-              // Editing value for existing field
-              <>
-                <div className="task-detail__detail-modal-field-edit-list-wrapper" style={{ display: 'flex', alignItems: 'center' }}>
-                  <div className="task-detail__detail-modal-field-edit-numeric-view-input-wrapper">
-                    <input
-                      type="text"
-                      value={editingValueString}
-                      onChange={handleValueInputChange}
-                      placeholder="숫자 입력"
-                      disabled={!isOwnerOrParticipant}
-                    />
-                    {currentDisplayUnitSymbol && <div>&nbsp;{currentDisplayUnitSymbol}</div>}
-                  </div>
-                  {isOwnerOrParticipant && <div className="task-detail__detail-modal-field-edit-separator" />}
-                </div>
-                {isOwnerOrParticipant && (
-                  <FieldFooter
-                    title="옵션 수정"
-                    isPlusIcon={false}
-                    onClick={() => setIsOpenEdit(true)}
-                    handleCancel={handleCancel}
-                    isShowButton={true}
-                    onSave={handleSave}
-                  />
-                )}
-              </>
+                {symbolForInputEditing && <div className="numeric-field__input-symbol">&nbsp;{symbolForInputEditing}</div>}
+              </div>
+              {isOwnerOrParticipant && <div className="task-detail__detail-modal-field-edit-separator" />}
+            </div>
+            {isOwnerOrParticipant && (
+              <FieldFooter
+                title="옵션 수정"
+                isPlusIcon={false}
+                onClick={() => setIsOpenEdit(true)} // 옵션 편집 UI 열기
+                handleCancel={handleCancel} // 전체 편집 모드 취소
+                isShowButton={true}
+                onSave={handleSave} // 값 저장
+              />
             )}
           </>
         )}

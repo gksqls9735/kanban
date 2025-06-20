@@ -1,13 +1,11 @@
-// ChatInput.tsx
-
 import { faPaperclip } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { generateUniqueId, getInitial } from "../../../../utils/text-function";
+import { ChangeEvent, KeyboardEvent, useEffect, useRef, useState } from "react";
+import { getFileTypeInfo } from "../../common/file-icon";
 import { Chat, FileAttachment, Participant, User } from "../../../../types/type";
-import { ChangeEvent, useRef, useState, KeyboardEvent, useEffect } from "react"; // KeyboardEvent 임포트
+import { generateUniqueId, getInitial } from "../../../../utils/text-function";
 import useChatStore from "../../../../store/chat-store";
 import useUserStore from "../../../../store/user-store";
-import { getFileTypeInfo } from "../../common/file-icon";
 import AvatarItem from "../../../common/avatar/avatar";
 
 // 임시 파일 업로드 함수 (실제로는 서버 API 호출)

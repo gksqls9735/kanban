@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from "react";
-import { SelectableOption, Task } from "../../../../types/type";
-import OptionItem from "../../common/option-item"; // OptionItem 경로가 맞는지 확인해주세요.
+import OptionItem from "../../common/option-item";
 import FieldLabel from "./field-common/field-label";
-import useClickOutside from "../../../../hooks/use-click-outside";
-import { lightenColor } from "../../../../utils/color-function";
 import FieldFooter from "./field-common/field-footer";
-import { generateUniqueId } from "../../../../utils/text-function";
 import OptionList from "./field-common/option/option-list";
+import { SelectableOption, Task } from "../../../../types/type";
 import { useToast } from "../../../../context/toast-context";
+import { lightenColor } from "../../../../utils/color-function";
+import useClickOutside from "../../../../hooks/use-click-outside";
+import { generateUniqueId } from "../../../../utils/text-function";
 
 export interface CombinedOptionItem {
   code: string;
@@ -15,6 +15,7 @@ export interface CombinedOptionItem {
   colorMain: string;
   colorSub: string;
   isSelected: boolean;
+  isNew: boolean;
 }
 
 const SingleSelection: React.FC<{
@@ -49,7 +50,7 @@ const SingleSelection: React.FC<{
     setCurrentOption(newlyPersistedSelected); // currentOption도 함께 업데이트
 
     const initialCombined: CombinedOptionItem[] = initialOptions.map(option => ({
-      code: option.code, name: option.name, colorMain: option.colorMain, colorSub: option.colorSub || lightenColor(option.colorMain, 0.85), isSelected: option.isSelected,
+      code: option.code, name: option.name, colorMain: option.colorMain, colorSub: option.colorSub || lightenColor(option.colorMain, 0.85), isSelected: option.isSelected, isNew: false
     }));
 
     setCombinedItems(initialCombined);
@@ -59,7 +60,7 @@ const SingleSelection: React.FC<{
     setIsInEditMode(false);
     setIsOpenEdit(false);
     const initialCombined: CombinedOptionItem[] = initialOptions.map(option => ({
-      code: option.code, name: option.name, colorMain: option.colorMain, colorSub: option.colorSub || lightenColor(option.colorMain, 0.85), isSelected: option.isSelected,
+      code: option.code, name: option.name, colorMain: option.colorMain, colorSub: option.colorSub || lightenColor(option.colorMain, 0.85), isSelected: option.isSelected, isNew: false
     }));
     setCombinedItems(initialCombined); // 옵션 목록 원복 (만약 옵션 목록 자체를 수정하는 기능이 있다면)
     setCurrentOption(persistedOption); // 현재 선택된 옵션을 저장된 옵션으로 원복
@@ -72,7 +73,7 @@ const SingleSelection: React.FC<{
       setCurrentOption(persistedOption); // 편집 모드 진입 시, 현재 선택 상태를 저장된 상태로 설정
 
       const initialCombined: CombinedOptionItem[] = initialOptions.map(option => ({
-        code: option.code, name: option.name, colorMain: option.colorMain, colorSub: option.colorSub || lightenColor(option.colorMain, 0.85), isSelected: option.isSelected,
+        code: option.code, name: option.name, colorMain: option.colorMain, colorSub: option.colorSub || lightenColor(option.colorMain, 0.85), isSelected: option.isSelected, isNew: false,
       }));
       setCombinedItems(initialCombined); // 편집 모드 진입 시, 옵션 목록을 초기 상태로 설정
       setIsInEditMode(true);
@@ -152,7 +153,7 @@ const SingleSelection: React.FC<{
   const handleAddNewForm = () => {
     const tempCode = generateUniqueId('new-option');
     const newFormItem: CombinedOptionItem = {
-      code: tempCode, name: "", colorMain: '#FFE6EB', colorSub: '#FFEFF2', isSelected: false
+      code: tempCode, name: "", colorMain: '#FFE6EB', colorSub: '#FFEFF2', isSelected: false, isNew: true,
     };
     setCombinedItems(prev => [...prev, newFormItem]);
   };
@@ -172,6 +173,7 @@ const SingleSelection: React.FC<{
   const handleOrderChange = (newOrderedItems: CombinedOptionItem[]) => {
     setCombinedItems(newOrderedItems);
   };
+
   return (
     <li className="task-detail__detail-modal-field-item">
       <FieldLabel fieldName="단일선택" onClick={handleToggleEditMode} />
@@ -197,7 +199,7 @@ const SingleSelection: React.FC<{
           ) : (
             <>
               <div className="task-detail__detail-modal-field-edit-list-wrapper">
-                <ul className="kanban-scrollbar-y task-detail__detail-modal-field-edit-list">
+                <ul className="gantt-scrollbar-y task-detail__detail-modal-field-edit-list">
                   {combinedItems.length > 0 ? (
                     combinedItems.map(option => (
                       <li key={option.code} className="task-detail__detail-modal-field-edit-item" onClick={() => handleOption(option)}>

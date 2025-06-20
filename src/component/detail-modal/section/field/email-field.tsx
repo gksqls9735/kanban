@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import { Email, Task } from "../../../../types/type";
-import FieldLabel from "./field-common/field-label";
-import useClickOutside from "../../../../hooks/use-click-outside";
+import UrlEmailEditableList from "./field-common/url-email-editable-list";
 import FieldFooter from "./field-common/field-footer";
+import FieldLabel from "./field-common/field-label";
+import { Email, Task } from "../../../../types/type";
+import useClickOutside from "../../../../hooks/use-click-outside";
 import { generateUniqueId } from "../../../../utils/text-function";
 import { isValidEmailFormat } from "../../../../utils/valid-function";
-import UrlEmailEditableList from "./field-common/url-email-editable-list";
 
 interface CombinedEmailItem {
   id: string | number;
@@ -13,6 +13,7 @@ interface CombinedEmailItem {
   email: string;
   isNew: boolean;
 }
+
 const EmailField: React.FC<{
   emails?: Email[], isOwnerOrParticipant: boolean, handleChangeAndNotify: (updates: Partial<Task>) => void
 }> = ({ emails: initialEmails = [], isOwnerOrParticipant, handleChangeAndNotify }) => {

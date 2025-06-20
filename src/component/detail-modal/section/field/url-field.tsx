@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from "react";
-import { Task, UrlData } from "../../../../types/type";
 import ExpandToggle from "../../common/expand-toggle";
 import FieldLabel from "./field-common/field-label";
-import useClickOutside from "../../../../hooks/use-click-outside";
-import FieldFooter from "./field-common/field-footer";
-import { generateUniqueId } from "../../../../utils/text-function";
-import { isValidUrlFormat } from "../../../../utils/valid-function";
 import ImgFallback from "./field-common/img-fallback";
 import UrlEmailEditableList from "./field-common/url-email-editable-list";
+import FieldFooter from "./field-common/field-footer";
+import { Task, UrlData } from "../../../../types/type";
+import useClickOutside from "../../../../hooks/use-click-outside";
+import { generateUniqueId } from "../../../../utils/text-function";
+import { isValidUrlFormat } from "../../../../utils/valid-function";
 
 interface CombinedUrlItem {
   id: string | number;
@@ -22,10 +22,9 @@ const FallbackIcon = (
   </svg>
 );
 
-
 const UrlField: React.FC<{
   urls?: UrlData[], isOwnerOrParticipant: boolean, handleChangeAndNotify: (updates: Partial<Task>) => void
-}> = ({ urls: initialUrls = [], isOwnerOrParticipant, handleChangeAndNotify }) => {
+}> = ({ urls: initialUrls = [], isOwnerOrParticipant,handleChangeAndNotify }) => {
 
   const [combinedItems, setCombinedItems] = useState<CombinedUrlItem[]>([]);
   const [errors, setErrors] = useState<Record<string | number, string[]>>({});
@@ -133,7 +132,7 @@ const UrlField: React.FC<{
           hasAnyError = true;
         }
         if (urlRequestedUrlCounts[itemRUrl] > 1) {
-          currentItemErrors.push('URL명이 동일합니다.');
+          currentItemErrors.push('URL이 동일합니다.');
           hasAnyError = true;
         }
       } else if (!item.isNew && !itemRUrl && itemTitle) {
@@ -225,7 +224,7 @@ const UrlField: React.FC<{
               <>
                 <div className="task-detail__detail-modal-field-edit-list-wrapper">
                   <ul
-                    className="kanban-scrollbar-y task-detail__detail-modal-field-edit-list">
+                    className="gantt-scrollbar-y task-detail__detail-modal-field-edit-list">
                     {initialUrls.map(url => (
                       <li key={url.urlId} className="task-detail__detail-modal-field-edit-item" style={{ alignItems: 'center' }}>
                         <ImgFallback src={`https://www.google.com/s2/favicons?sz=256&domain_url=${url.requestedUrl}`} fallback={FallbackIcon} />

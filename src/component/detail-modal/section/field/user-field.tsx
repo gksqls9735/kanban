@@ -1,16 +1,17 @@
 import { useRef, useState } from "react";
-import { Participant, Task, User } from "../../../../types/type";
-import { getInitial } from "../../../../utils/text-function";
-import AvatarItem from "../../../common/avatar/avatar";
-import FieldLabel from "./field-common/field-label";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
-import ParticipantSelector from "../../../participant-select/participant-selector";
-import useClickOutside from "../../../../hooks/use-click-outside";
+import FieldLabel from "./field-common/field-label";
 import FieldFooter from "./field-common/field-footer";
+import { Participant, Task, User } from "../../../../types/type";
+import useClickOutside from "../../../../hooks/use-click-outside";
+import AvatarItem from "../../../common/avatar/avatar";
+import { getInitial } from "../../../../utils/text-function";
+import ParticipantSelector from "../../../participant-select/participant-selector";
 
 const UserField: React.FC<{
-  users: Participant[], isOwnerOrParticipant: boolean,
+  users: Participant[],
+  isOwnerOrParticipant: boolean,
   handleChangeAndNotify: (updates: Partial<Task>) => void,
   onClick: (e: React.MouseEvent, user: Participant | User | null) => void;
 }> = ({ users, isOwnerOrParticipant, handleChangeAndNotify, onClick }) => {

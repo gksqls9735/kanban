@@ -1,10 +1,10 @@
 import { useRef, useState } from "react";
-import { FileAttachment, Task } from "../../../../types/type";
 import { getFileTypeInfo } from "../../common/file-icon";
 import ExpandToggle from "../../common/expand-toggle";
-import FieldLabel from "./field-common/field-label";
-import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTimes } from "@fortawesome/free-solid-svg-icons";
+import FieldLabel from "./field-common/field-label";
+import { FileAttachment, Task } from "../../../../types/type";
 import useClickOutside from "../../../../hooks/use-click-outside";
 
 const AttachmentField: React.FC<{
@@ -69,7 +69,6 @@ const AttachmentField: React.FC<{
     }
   };
 
-
   return (
     <li className="task-detail__detail-modal-field-item">
       <FieldLabel fieldName="첨부파일" onClick={handleToggleEditMode} />
@@ -103,7 +102,7 @@ const AttachmentField: React.FC<{
         <div ref={editContainerRef} className="task-detail__detail-modal-field-edit-container">
           <div className="task-detail__detail-modal-field-edit-list-wrapper">
             <ul
-              className="kanban-scrollbar-y task-detail__detail-modal-field-edit-url-list">
+              className="gantt-scrollbar-y task-detail__detail-modal-field-edit-url-list">
               {attachments.map(file => {
                 const { icon } = getFileTypeInfo(file.fileName, 24);
                 return (
@@ -116,11 +115,11 @@ const AttachmentField: React.FC<{
                         style={{ fontWeight: 400, fontSize: 13, color: '#0F1B2A' }}
                       >{file.fileName}</div>
                       <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-                        <div className="task-detail__detail-modal-field-value-item-attachment-download">
+                        <a className="task-detail__detail-modal-field-value-item-attachment-download" href={file.fileUrl} download={file.fileName} target="_blank" rel="noopener noreferrer">
                           <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="#5F6B7A">
                             <path d="M160-120v-80h640v80H160Zm320-160L280-480l56-56 104 104v-408h80v408l104-104 56 56-200 200Z" />
                           </svg>
-                        </div>
+                        </a>
                         {isOwnerOrParticipant && (
                           <div className="todo-item__action todo-item__action--delete" style={{ backgroundColor: '#CDD3DD' }} onClick={() => handleDeleteFile(file.fileId)}>
                             <FontAwesomeIcon icon={faTimes} style={{ width: 12, height: 12, color: '#FFFFFF', }} />

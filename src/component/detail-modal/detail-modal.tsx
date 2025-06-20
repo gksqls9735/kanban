@@ -1,12 +1,5 @@
-import { Chat, Participant, Section, SelectOption, Task, Todo, User } from "../../types/type";
 import { useMemo, useRef, useState } from "react";
-import useSectionsStore from "../../store/sections-store";
-import SectionSelector from "../common/selector/section-selector";
-import ParticipantSelector from "../participant-select/participant-selector";
-import { priorityMedium, prioritySelect } from "../../mocks/select-option-mock";
-import useStatusesStore from "../../store/statuses-store";
-import OptionSelector from "../common/selector/option-selector";
-import useUserStore from "../../store/user-store";
+
 import DetailHeader from "./detail-header";
 import ReporterField from "./section/info-field/reporter-field";
 import ParticipantsField from "./section/info-field/participants-field";
@@ -22,17 +15,26 @@ import IdField from "./section/field/id-field";
 import EmailField from "./section/field/email-field";
 import UserField from "./section/field/user-field";
 import DetailTodoList from "./section/detail-todo/detail-todo-list";
-import useTaskStore from "../../store/task-store";
 import ChatList from "./section/chat/chat-list/chat-list";
 import ChatInput from "./section/chat/chat-input";
+import { Chat, Participant, Section, SelectOption, Task, Todo, User } from "../../types/type";
+import useSectionsStore from "../../store/sections-store";
+import useStatusesStore from "../../store/statuses-store";
+import useUserStore from "../../store/user-store";
+import useTaskStore from "../../store/task-store";
 import { useKanbanActions } from "../../context/task-action-context";
+import { priorityMedium, prioritySelect } from "../../mocks/select-option-mock";
+import SectionSelector from "../common/selector/section-selector";
+import OptionSelector from "../common/selector/option-selector";
+import ParticipantSelector from "../participant-select/participant-selector";
 import UserProfile from "../common/profile/user-profile";
 
 const DetailModal: React.FC<{
   task: Task;
   onClose: (e: React.MouseEvent) => void;
   openDeleteModal: (e: React.MouseEvent) => void;
-}> = ({ task: initialTaskFromProp, onClose, openDeleteModal }) => {
+  detailModalTopPx: number;
+}> = ({ task: initialTaskFromProp, onClose, openDeleteModal, detailModalTopPx }) => {
   // 리사이즈 설정
   const [modalWidth, setModalWidth] = useState(720);
   const isResizing = useRef<boolean>(false);
@@ -69,7 +71,6 @@ const DetailModal: React.FC<{
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('mouseup', handleMouseUp);
   };
-
 
   const sections = useSectionsStore(state => state.sections);
   const statusList = useStatusesStore(state => state.statusList);
@@ -154,7 +155,6 @@ const DetailModal: React.FC<{
     setEditingChatInfo(null);
   };
 
-
   // 값 업데이트
   const handleChangeAndNotify = (updates: Partial<Task>) => {
     if (!currentTask) return;
@@ -180,24 +180,24 @@ const DetailModal: React.FC<{
       <MultiSelection key="multi" options={currentTask.multiSelection} isOwnerOrParticipant={isOwnerOrParticipant} handleChangeAndNotify={handleChangeAndNotify} />,
       <AttachmentField key="attach" attachments={currentTask.taskAttachments} isOwnerOrParticipant={isOwnerOrParticipant} handleChangeAndNotify={handleChangeAndNotify} />,
       <SingleSelection key="single" options={currentTask.singleSelection} isOwnerOrParticipant={isOwnerOrParticipant} handleChangeAndNotify={handleChangeAndNotify} />,
-      <TextField key="text" text={currentTask.memo} isOwnerOrParticipant={isOwnerOrParticipant} />,
+      <TextField key="text" text={currentTask.memo} isOwnerOrParticipant={isOwnerOrParticipant} handleChangeAndNotify={handleChangeAndNotify} />,
       <NumericFieldComponent key="num" numericField={currentTask.numericField} taskId={currentTask.taskId} isOwnerOrParticipant={isOwnerOrParticipant} handleChangeAndNotify={handleChangeAndNotify} />,
       <IdField key="id" prefix={currentTask.prefix} taskId={currentTask.taskId} isOwnerOrParticipant={isOwnerOrParticipant} handleChangeAndNotify={handleChangeAndNotify} />,
       <EmailField key="email" emails={currentTask.emails} isOwnerOrParticipant={isOwnerOrParticipant} handleChangeAndNotify={handleChangeAndNotify} />,
-      <UserField key="user" users={currentTask.participants} isOwnerOrParticipant={isOwnerOrParticipant} handleChangeAndNotify={handleChangeAndNotify} onClick={handleOpenProfile} />,
+      <UserField key="user" users={currentTask.participants} isOwnerOrParticipant={isOwnerOrParticipant} handleChangeAndNotify={handleChangeAndNotify} onClick={handleOpenProfile}/>,
     ].filter(Boolean);
     return isExpanded ? allFields : allFields.slice(0, 3);
   }, [currentTask, isExpanded, isOpenParticipantModal]);
 
   return (
     <div role="dialog" aria-modal="true" aria-labelledby="modal-title">
-      <div className="task-detail__detail-modal-wrapper" onClick={(e) => e.stopPropagation()} style={{ width: modalWidth }}>
+      <div className="task-detail__detail-modal-wrapper" onClick={(e) => e.stopPropagation()} style={{ width: modalWidth, top: detailModalTopPx }}>
         <div
           className="task-detail__detail-modal-resizer"
           onMouseDown={handleMouseDown}
         />
         <DetailHeader onClose={onClose} openDeleteModal={openDeleteModal} isOwnerOrParticipant={isOwnerOrParticipant} />
-        <div className="task-detail__detail-modal-content kanban-scrollbar-y">
+        <div className="task-detail__detail-modal-content gantt-scrollbar-y">
 
           {/** 작업 설명(TITLE) */}
           <div className="task-detail__detail-modal-section">
@@ -208,7 +208,7 @@ const DetailModal: React.FC<{
 
           {/** 작업 정보 */}
           <div className="task-detail__detail-modal-section">
-            <ReporterField userIcon={currentUser!.icon} userName={currentUser!.username} onClick={(e) => handleOpenProfile(e, currentUser!)} />
+            <ReporterField userIcon={currentUser!.icon} userName={currentUser!.username} onClick={(e) => handleOpenProfile(e, currentUser!)}/>
 
             <ParticipantsField
               participants={sortedParticipants}
@@ -253,8 +253,8 @@ const DetailModal: React.FC<{
           {/** 작업 할 일 목록 */}
           <DetailTodoList initialTodoList={currentTask.todoList || []} onTodoListUpdate={handleTodoListUpdate} taskId={currentTask.taskId} isOwnerOrParticipant={isOwnerOrParticipant} />
 
-          {/** 채팅팅 */}
-          <ChatList currentUser={currentUser!} taskId={currentTask.taskId} handleReplyId={handleReplyId} onStartEditComment={handleStartEditComment} onClick={handleOpenProfile}/>
+          {/** 채팅 */}
+          <ChatList currentUser={currentUser!} taskId={currentTask.taskId} handleReplyId={handleReplyId} onStartEditComment={handleStartEditComment} onClick={handleOpenProfile} />
         </div>
         <ChatInput
           taskId={currentTask.taskId} parentChat={reply} onClose={handleCancelReply}

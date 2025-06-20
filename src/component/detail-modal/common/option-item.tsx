@@ -1,4 +1,4 @@
-import { SelectableOption } from "../../../types/type";
+import { SelectableOption } from "../../../../types/type";
 
 const OptionItem: React.FC<{ option: SelectableOption }> = ({ option }) => {
   return (

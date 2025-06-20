@@ -18,6 +18,7 @@ const ImportanceField: React.FC<{
     if (isOwnerOrParticipant && newValue !== initialValue) parentOnChange(newValue);
   };
 
+
   const { onMouseDownHandler: hookMouseDownHandler, isDragging } = useImportanceSlider({
     trackRef,
     value: currentValue,

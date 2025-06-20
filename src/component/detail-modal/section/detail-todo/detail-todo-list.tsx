@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import { Todo } from "../../../../types/type";
 import DetailTodoItem from "./detail-todo-item/detail-todo-item";
-import { generateUniqueId } from "../../../../utils/text-function";
-import useUserStore from "../../../../store/user-store";
+import DetailTodoAdd from "./detail-todo-item/detail-todo-add";
 import { closestCenter, DndContext, DragEndEvent, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { restrictToFirstScrollableAncestor, restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { arrayMove, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import DetailTodoAdd from "./detail-todo-item/detail-todo-add";
+import { Todo } from "../../../../types/type";
+import useUserStore from "../../../../store/user-store";
+import { generateUniqueId } from "../../../../utils/text-function";
 
 export interface CombinedTodoItem { // 인터페이스 정의
   todoId: string;
@@ -140,6 +140,13 @@ const DetailTodoList: React.FC<{
     );
   };
 
+  const handleUpdateExistingTodoTxt = (todoId: string, newTodoTxt: string) => {
+    if (!isOwnerOrParticipant) return;
+    onTodoListUpdate(
+      initialTodoList.map(todo => todo.todoId === todoId ? { ...todo, todoTxt: newTodoTxt } : todo)
+    );
+  };
+
   const sortableItemIds = combinedItems.filter(item => !item.isNew).map(item => item.todoId);
 
   return (
@@ -155,7 +162,14 @@ const DetailTodoList: React.FC<{
           <SortableContext items={sortableItemIds} strategy={verticalListSortingStrategy}>
             {combinedItems.map(item => (
               !item.isNew ? (
-                <DetailTodoItem key={item.todoId} item={item} onDelete={handleDeleteExistingTodo} onCompleteChange={handleCompleteExistingTodo} isOwnerOrParticipant={isOwnerOrParticipant} />
+                <DetailTodoItem
+                  key={item.todoId}
+                  item={item}
+                  onDelete={handleDeleteExistingTodo}
+                  onCompleteChange={handleCompleteExistingTodo}
+                  isOwnerOrParticipant={isOwnerOrParticipant}
+                  onUpdateTodoTxt={handleUpdateExistingTodoTxt}
+                />
               ) : (
                 <DetailTodoAdd key={item.todoId} item={item} onSave={handleSaveNewItem} onCancel={handleCancelNewItem} />
               )))}

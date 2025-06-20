@@ -19,9 +19,14 @@ export type MeasurementUnit =
 
 export interface NumericField {
   value: number;
-  unit: MeasurementUnit; // <--- 여기를 string에서 MeasurementUnit으로 변경
+  unit: MeasurementUnit;
   decimalPlaces: number;
+  /** 사용자 지정 레이블 */
+  customLabel?: string;
+  /** 레이블 위치 */
+  labelPosition?: 'left' | 'right';
 }
+
 export type Email = {
   id: string;
   email: string;
