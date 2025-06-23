@@ -10,11 +10,12 @@ import './styles/task-detail.css';
 import './styles/participant-selector.css';
 import './styles/kanban.css';
 import { Chat, Section, SelectOption, Task } from './types/type';
+import { KanbanWebComponentElement } from './global';
 
 function App() {
   const [isSideMenuOpen, setIsSideMenuOpen] = useState<"expanded" | "collapsed" | "hidden">("hidden");
 
-  const kanbanRef = useRef<any>(null);
+  const kanbanRef = useRef<KanbanWebComponentElement>(null);
 
   const [appTasks, setAppTasks] = useState<Task[]>(sectionTasks);
   const [appSections, setAppSections] = useState<Section[]>(sections);

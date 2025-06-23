@@ -233,7 +233,7 @@ const DroppableColumn: React.FC<{
           <ColumnEdit
             viewMode={viewMode} isEditing={isEditing} toggle={toggle} onUpdate={handleUpdate} colorMain={colorMain} columnTitle={title} />
         )}
-        <div className="section-content">
+        <div className="section-content kanban-scrollbar-y">
           <SortableContext items={tasksId} strategy={verticalListSortingStrategy}>
             {tasks.map((t, index) => (
               <React.Fragment key={t.taskId}>
