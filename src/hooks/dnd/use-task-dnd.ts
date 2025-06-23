@@ -285,13 +285,37 @@ export const useKanbanDnd = () => {
         return;
       }
 
+      const originalColumnId = getColumnId(draggedTaskOriginal);
+
+      // 기존 위치에 드롭
+      if (originalColumnId === targetColumnId) {
+        const tasksInOriginalColumn = allTasks
+          .filter(t => getColumnId(t) === originalColumnId)
+          .sort((a, b) => {
+            if (viewMode === ViewModes.STATUS) return (a.statusOrder ?? 0) - (b.statusOrder ?? 0);
+            return (a.sectionOrder ?? 0) - (b.sectionOrder ?? 0);
+          });
+        const originalIndexInColumn = tasksInOriginalColumn.findIndex(t => t.taskId === activeId);
+
+        let expectedNewIndex: number;
+        if (over.data.current?.type === 'Task' && over.data.current?.task) {
+          const overTaskData = over.data.current.task as Task;
+          expectedNewIndex = tasksInOriginalColumn.findIndex(t => t.taskId === overTaskData.taskId);
+
+          if (originalIndexInColumn < expectedNewIndex) expectedNewIndex--;
+          if (expectedNewIndex === -1) expectedNewIndex = tasksInOriginalColumn.length - 1;
+        } else {
+          expectedNewIndex = tasksInOriginalColumn.length - 1;
+        }
+        if (originalIndexInColumn === expectedNewIndex) return;
+      }
+
       let tempTasks = allTasks.filter(t => t.taskId !== activeId);
       const updatedDraggedTask = { ...draggedTaskOriginal };
 
       if (viewMode === ViewModes.STATUS) {
         const targetStatus = statusList.find(s => s.code === targetColumnId);
         if (!targetStatus) return;
-
         updatedDraggedTask.status = targetStatus;
       } else {
         updatedDraggedTask.sectionId = targetColumnId;
@@ -307,51 +331,48 @@ export const useKanbanDnd = () => {
       visualIndexInTargetColumn = Math.max(0, Math.min(visualIndexInTargetColumn, tasksInTarget.length));
       tasksInTarget.splice(visualIndexInTargetColumn, 0, updatedDraggedTask);
 
-      tasksInTarget.forEach((task, index) => {
+      tasksInTarget.forEach((t, index) => {
         if (viewMode === ViewModes.STATUS) {
-          task.statusOrder = index;
+          t.statusOrder = index;
         } else {
-          task.sectionOrder = index;
+          t.sectionOrder = index;
         }
       });
 
-      const originalColumnId = getColumnId(draggedTaskOriginal);
+      const originalColumnIdAfterUpdate = getColumnId(draggedTaskOriginal);
       let tasksInOriginal: Task[] = [];
-      if (originalColumnId !== targetColumnId) {
+
+      if (originalColumnIdAfterUpdate !== targetColumnId) {
         tasksInOriginal = tempTasks
-          .filter(t => getColumnId(t) === originalColumnId)
+          .filter(t => getColumnId(t) === originalColumnIdAfterUpdate)
           .sort((a, b) => {
             if (viewMode === ViewModes.STATUS) return (a.statusOrder ?? 0) - (b.statusOrder ?? 0);
             return (a.sectionOrder ?? 0) - (b.sectionOrder ?? 0);
           });
 
-        tasksInOriginal.forEach((task, index) => {
+        tasksInOriginal.forEach((t, index) => {
           if (viewMode === ViewModes.STATUS) {
-            task.statusOrder = index;
+            t.statusOrder = index;
           } else {
-            task.sectionOrder = index;
+            t.sectionOrder = index;
           }
         });
       }
 
       const finalTasksMap = new Map<string, Task>();
-      allTasks.forEach(task => {
-        if (task.taskId !== activeId && getColumnId(task) !== targetColumnId && getColumnId(task) !== originalColumnId) {
-          finalTasksMap.set(task.taskId, task);
+      allTasks.forEach(t => {
+        if (t.taskId !== activeId && getColumnId(t) !== targetColumnId && getColumnId(t) !== originalColumnIdAfterUpdate) {
+          finalTasksMap.set(t.taskId, t);
         }
       });
 
-      tasksInTarget.forEach(task => {
-        finalTasksMap.set(task.taskId, task);
-      });
+      tasksInTarget.forEach(t => finalTasksMap.set(t.taskId, t));
 
-      if (originalColumnId !== targetColumnId) {
-        tasksInOriginal.forEach(task => {
-          finalTasksMap.set(task.taskId, task);
-        });
+      if (originalColumnIdAfterUpdate !== targetColumnId) {
+        tasksInOriginal.forEach(t => finalTasksMap.set(t.taskId, t));
       }
 
-      const finalTasks = Array.from(finalTasksMap.values())
+      const finalTasks = Array.from(finalTasksMap.values());
       setTasks(finalTasks);
       if (onTasksChange) onTasksChange(finalTasks);
     }
