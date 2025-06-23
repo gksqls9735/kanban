@@ -79,7 +79,7 @@ const NewTaskCard: React.FC<{
     processedName = processedName.replace(/\s{2,}/g, ' ');
 
     if (!processedName) {
-      showToast('작업명을 입력해주세요.');
+     // showToast('작업명을 입력해주세요.');
       return;
     }
 
