@@ -1,13 +1,13 @@
 import { useMemo, useState } from "react";
-import useTaskStore from "../../store/task-store"; // 실제 경로로 수정 필요
-import useViewModeStore from "../../store/viewmode-store"; // 실제 경로로 수정 필요
+import useTaskStore from "../../store/task-store";
+import useViewModeStore from "../../store/viewmode-store";
 import { DragEndEvent, DragOverEvent, DragStartEvent, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
-import { ViewModes } from "../../constants"; // 실제 경로로 수정 필요
-import { lightenColor } from "../../utils/color-function"; // 실제 경로로 수정 필요
-import useSectionsStore from "../../store/sections-store"; // 실제 경로로 수정 필요
-import useStatusesStore from "../../store/statuses-store"; // 실제 경로로 수정 필요
-import useUserStore from "../../store/user-store"; // 실제 경로로 수정 필요
+import { ViewModes } from "../../constants";
+import { lightenColor } from "../../utils/color-function";
+import useSectionsStore from "../../store/sections-store";
+import useStatusesStore from "../../store/statuses-store";
+import useUserStore from "../../store/user-store";
 import { Task } from "../../types/type";
 import { useKanbanActions } from "../../context/task-action-context";
 
@@ -21,11 +21,10 @@ export interface ActiveColumnData {
   getSectionName: (sectionId: string) => string;
 }
 
-
 export const useKanbanDnd = () => {
   const { viewMode } = useViewModeStore();
   const allTasks = useTaskStore(state => state.allTasks);
-  const setTasks = useTaskStore(state => state.setTasks); // Zustand 스토어의 setTasks 액션
+  const setTasks = useTaskStore(state => state.setTasks);
 
   const { sections, setSections } = useSectionsStore();
   const { statusList, setStatusList } = useStatusesStore();
@@ -41,7 +40,7 @@ export const useKanbanDnd = () => {
   const currentUser = useUserStore(state => state.currentUser);
 
   const isOnwerOrParticipant = useMemo(() => {
-    if (!currentUser) return false; // currentUser가 없으면 참여자가 아님
+    if (!currentUser) return false;
     const allIds = allTasks.flatMap(t => {
       const ownerId = t.taskOwner ? [t.taskOwner.id] : [];
       const participantIds = t.participants ? t.participants.map(p => p.id) : [];
@@ -55,23 +54,21 @@ export const useKanbanDnd = () => {
     useSensor(PointerSensor, {
       activationConstraint: { distance: 8, }
     }),
-    useSensor(KeyboardSensor) // sortableKeyboardCoordinates는 @dnd-kit/sortable과 함께 사용 시 필요
+    useSensor(KeyboardSensor)
   );
 
   const getColumnId = (task: Task): string => {
-    // Task 타입에 status.code와 sectionId가 있다고 가정
     return viewMode === ViewModes.STATUS ? (task.status?.code || '') : (task.sectionId || '');
   };
 
-  // --- 수정된 getTasksForColumn ---
   const getTasksForColumn = (columnId: string): Task[] => {
     return allTasks
       .filter(t => (viewMode === ViewModes.STATUS ? (t.status?.code || '') : (t.sectionId || '')) === columnId)
       .sort((a, b) => {
         if (viewMode === ViewModes.STATUS) {
-          return (a.statusOrder ?? 0) - (b.statusOrder ?? 0); // STATUS 모드일 때는 statusOrder로 정렬
-        } else { // ViewModes.SECTION
-          return (a.sectionOrder ?? 0) - (b.sectionOrder ?? 0); // SECTION 모드일 때는 sectionOrder로 정렬
+          return (a.statusOrder ?? 0) - (b.statusOrder ?? 0);
+        } else {
+          return (a.sectionOrder ?? 0) - (b.sectionOrder ?? 0);
         }
       });
   };
@@ -82,7 +79,7 @@ export const useKanbanDnd = () => {
 
   const handleDragStart = (e: DragStartEvent) => {
     const { active } = e;
-    const type = active.data.current?.type as string; // 타입 명시
+    const type = active.data.current?.type as string;
 
     if (type === 'Task') {
       const taskId = active.id as string;
@@ -108,7 +105,7 @@ export const useKanbanDnd = () => {
             getSectionName
           };
         }
-      } else { // ViewModes.SECTION
+      } else {
         const section = sections.find(s => s.sectionId === columnId);
         if (section) {
           columnData = {
@@ -188,7 +185,6 @@ export const useKanbanDnd = () => {
     setDraggedItemOriginalColumnId(null);
   };
 
-  // --- 수정된 handleDragEnd ---
   const handleDragEnd = (e: DragEndEvent) => {
     if (!isOnwerOrParticipant) {
       handleDragCancel();
@@ -208,8 +204,8 @@ export const useKanbanDnd = () => {
     let originalOverId = over.id as string;
     let overId = originalOverId;
 
-    const activeType = active.data.current?.type as string; // 타입 명시
-    const overType = over.data.current?.type as string; // 타입 명시
+    const activeType = active.data.current?.type as string;
+    const overType = over.data.current?.type as string;
 
     if (activeType === 'Column') {
       if (overType === 'Task' && over.data.current?.task) {
@@ -226,11 +222,11 @@ export const useKanbanDnd = () => {
         let newIndex = statusList.findIndex(s => s.code === overId);
 
         if (oldIndex !== -1 && newIndex !== -1) {
-          const isTargetColumnWaiting = statusList[newIndex]?.name === '대기'; // null 체크 추가
-          const isActiveColumnWaiting = statusList[oldIndex]?.name === '대기'; // null 체크 추가
+          const isTargetColumnWaiting = statusList[newIndex]?.name === '대기';
+          const isActiveColumnWaiting = statusList[oldIndex]?.name === '대기';
 
           if (isTargetColumnWaiting && newIndex !== 0) newIndex = 1;
-          if (!isActiveColumnWaiting && newIndex === 0 && statusList[0]?.name === '대기') newIndex = 1; // null 체크 추가
+          if (!isActiveColumnWaiting && newIndex === 0 && statusList[0]?.name === '대기') newIndex = 1;
 
           if (isActiveColumnWaiting && newIndex !== 0) return;
 
@@ -238,7 +234,7 @@ export const useKanbanDnd = () => {
           setStatusList(movedList);
           if (onStatusesChange) onStatusesChange(movedList);
         }
-      } else { // ViewModes.SECTION
+      } else {
         const oldIndex = sections.findIndex(sec => sec.sectionId === activeId);
         const newIndex = sections.findIndex(sec => sec.sectionId === overId);
         if (oldIndex !== -1 && newIndex !== -1) {
@@ -297,7 +293,7 @@ export const useKanbanDnd = () => {
         if (!targetStatus) return;
 
         updatedDraggedTask.status = targetStatus;
-      } else { // ViewModes.SECTION
+      } else {
         updatedDraggedTask.sectionId = targetColumnId;
       }
 
@@ -314,7 +310,7 @@ export const useKanbanDnd = () => {
       tasksInTarget.forEach((task, index) => {
         if (viewMode === ViewModes.STATUS) {
           task.statusOrder = index;
-        } else { // ViewModes.SECTION
+        } else {
           task.sectionOrder = index;
         }
       });
@@ -332,7 +328,7 @@ export const useKanbanDnd = () => {
         tasksInOriginal.forEach((task, index) => {
           if (viewMode === ViewModes.STATUS) {
             task.statusOrder = index;
-          } else { // ViewModes.SECTION
+          } else {
             task.sectionOrder = index;
           }
         });
