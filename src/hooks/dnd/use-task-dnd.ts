@@ -61,16 +61,16 @@ export const useKanbanDnd = () => {
     return viewMode === ViewModes.STATUS ? (task.status?.code || '') : (task.sectionId || '');
   };
 
-  const getTasksForColumn = (columnId: string): Task[] => {
+  const getTasksForColumn = (columnId: string, excludeTaskId?: string): Task[] => {
     return allTasks
-      .filter(t => (viewMode === ViewModes.STATUS ? (t.status?.code || '') : (t.sectionId || '')) === columnId)
-      .sort((a, b) => {
-        if (viewMode === ViewModes.STATUS) {
-          return (a.statusOrder ?? 0) - (b.statusOrder ?? 0);
-        } else {
-          return (a.sectionOrder ?? 0) - (b.sectionOrder ?? 0);
-        }
-      });
+    .filter(t => {
+      const matchesColumn = (viewMode === ViewModes.STATUS ? (t.status?.code || '') : (t.sectionId || '')) === columnId;
+      return matchesColumn && t.taskId !== excludeTaskId;
+    })
+    .sort((a,b) => {
+      if(viewMode === ViewModes.STATUS) return (a.statusOrder ?? 0) - (b.statusOrder ?? 0);
+      return (a.sectionOrder ?? 0) - (b.sectionOrder ?? 0);
+    });
   };
 
   const getSectionName = (sectionId: string): string => {
@@ -160,7 +160,7 @@ export const useKanbanDnd = () => {
       return;
     }
 
-    const tasksInTargetColumn = getTasksForColumn(targetColumnId);
+    const tasksInTargetColumn = getTasksForColumn(targetColumnId, active.id as string);
     let newIndex: number;
 
     if (overIsTask && over.data.current?.task) {
@@ -193,56 +193,50 @@ export const useKanbanDnd = () => {
 
     const { active, over } = e;
 
-    setActiveTask(null);
-    setActiveColumn(null);
-    setPlaceholderData(null);
-    setDraggedItemOriginalColumnId(null);
+    handleDragCancel();
 
     if (!over) return;
 
     const activeId = active.id as string;
-    let originalOverId = over.id as string;
-    let overId = originalOverId;
-
     const activeType = active.data.current?.type as string;
     const overType = over.data.current?.type as string;
 
     if (activeType === 'Column') {
+      let overColumnId: string;
       if (overType === 'Task' && over.data.current?.task) {
         const overTask = over.data.current.task as Task;
-        overId = getColumnId(overTask);
-      } else if (overType !== 'Column') {
+        overColumnId = getColumnId(overTask);
+      } else if (overType === 'Column') {
+        overColumnId = over.id as string;
+      } else {
         return;
       }
 
-      if (activeId === overId) return;
+      if (activeId === overColumnId) return;
 
       if (viewMode === ViewModes.STATUS) {
-        const oldIndex = statusList.findIndex(s => s.code === activeId);
-        let newIndex = statusList.findIndex(s => s.code === overId);
+        const oldIdx = statusList.findIndex(s => s.code === activeId);
+        let newIdx = statusList.findIndex(s => s.code === overColumnId);
 
-        if (oldIndex !== -1 && newIndex !== -1) {
-          const isTargetColumnWaiting = statusList[newIndex]?.name === '대기';
-          const isActiveColumnWaiting = statusList[oldIndex]?.name === '대기';
+        if (oldIdx !== -1 && newIdx !== -1) {
+          const isTargetColumnWaiting = statusList[newIdx]?.name === '대기';
+          const isActiveColumnWaiting = statusList[oldIdx]?.name === '대기';
 
-          if (isTargetColumnWaiting && newIndex !== 0) newIndex = 1;
-          if (!isActiveColumnWaiting && newIndex === 0 && statusList[0]?.name === '대기') newIndex = 1;
+          if (isTargetColumnWaiting && newIdx !== 0) newIdx = 1;
+          if (!isActiveColumnWaiting && newIdx === 0 && statusList[0]?.name === '대기') newIdx = 1;
 
-          if (isActiveColumnWaiting && newIndex !== 0) return;
+          if (isActiveColumnWaiting && newIdx !== 0) return;
 
-          const movedList = arrayMove(statusList, oldIndex, newIndex);
+          const movedList = arrayMove(statusList, oldIdx, newIdx);
           setStatusList(movedList);
           if (onStatusesChange) onStatusesChange(movedList);
         }
       } else {
-        const oldIndex = sections.findIndex(sec => sec.sectionId === activeId);
-        const newIndex = sections.findIndex(sec => sec.sectionId === overId);
-        if (oldIndex !== -1 && newIndex !== -1) {
-          const movedList = arrayMove(sections, oldIndex, newIndex);
-          const orderedSections = movedList.map((sec, index) => ({
-            ...sec,
-            order: index,
-          }));
+        const oldIdx = sections.findIndex(sec => sec.sectionId === activeId);
+        const newIdx = sections.findIndex(sec => sec.sectionId === overColumnId);
+        if (oldIdx !== -1 && newIdx !== -1) {
+          const movedList = arrayMove(sections, oldIdx, newIdx);
+          const orderedSections = movedList.map((sec, idx) => ({ ...sec, order: idx, }));
           setSections(orderedSections);
           if (onSectionsChange) onSectionsChange(orderedSections);
         }
@@ -257,124 +251,145 @@ export const useKanbanDnd = () => {
         return;
       }
 
+      const prevAllTasks = [...allTasks];
+      const originalColumnId = getColumnId(draggedTaskOriginal);
+
       let targetColumnId: string;
-      let visualIndexInTargetColumn: number;
+      let finalInsertIdx: number;
 
       if (over.data.current?.type === 'Column') {
         targetColumnId = over.id as string;
-        const tasksInTarget = allTasks.filter(t => getColumnId(t) === targetColumnId && t.taskId !== activeId);
-        visualIndexInTargetColumn = tasksInTarget.length;
+        // 컬럼에 드롭 시, 'placeholderData'가 있다면 해당 인덱스 사용, 없으면 맨 뒤;
+        finalInsertIdx = placeholderData?.columnId === targetColumnId ? placeholderData.index : getTasksForColumn(targetColumnId).length;
       } else if (over.data.current?.type === 'Task' && over.data.current?.task) {
         const overTaskData = over.data.current.task as Task;
         targetColumnId = getColumnId(overTaskData);
+        // 작업에 드롭 시, 'placeholderData'가 있다면 해당 인덱스 사용
+        finalInsertIdx = placeholderData?.columnId === targetColumnId ? placeholderData.index : getTasksForColumn(targetColumnId).findIndex(t => t.taskId === overTaskData.taskId);
+        if (finalInsertIdx === -1) finalInsertIdx = getTasksForColumn(targetColumnId).length;
+      } else {
+        return;
+      }
 
-        const tasksCurrentlyInTarget = allTasks
+      // 최종적으로 업데이트될 allTasks 배열을 만들기 위한 Map
+      const nextAllTasksMap = new Map<string, Task>();
+
+      // 같은 컬럼 내에서 드롭하는 경우
+      if (originalColumnId === targetColumnId) {
+        const tasksInCurrentColumn = getTasksForColumn(originalColumnId); // 현재 컬럼의 정렬된 작업들
+        const oldIdxInColumn = tasksInCurrentColumn.findIndex(t => t.taskId === activeId);
+
+        const updatedTasksInColumn = arrayMove(tasksInCurrentColumn, oldIdxInColumn, finalInsertIdx);
+
+        // 순서 업데이트
+        updatedTasksInColumn.forEach((t, idx) => {
+          const updatedTask = { ...t };
+          if (viewMode === ViewModes.STATUS) {
+            updatedTask.statusOrder = idx;
+          } else {
+            updatedTask.sectionOrder = idx;
+          }
+          nextAllTasksMap.set(updatedTask.taskId, updatedTask);
+        });
+
+        prevAllTasks.filter(t => getColumnId(t) !== originalColumnId)
+          .forEach(t => nextAllTasksMap.set(t.taskId, t));
+      } else {
+        // 다른 컬럼으로 이동하는 경우
+        const updatedDraggedTask = { ...draggedTaskOriginal };
+
+        if (viewMode === ViewModes.STATUS) {
+          const targetStatus = statusList.find(s => s.code === targetColumnId);
+          if (!targetStatus) return;
+          updatedDraggedTask.status = targetStatus;
+        } else {
+          updatedDraggedTask.sectionId = targetColumnId;
+        }
+
+        // 원래 컬럼의 작업을 순서 업데이트
+        let tasksInOriginalAfterMove = prevAllTasks
+          .filter(t => getColumnId(t) === originalColumnId && t.taskId !== activeId)
+          .sort((a, b) => {
+            if (viewMode === ViewModes.STATUS) return (a.statusOrder ?? 0) - (b.statusOrder ?? 0);
+            return (a.sectionOrder ?? 0) - (b.sectionOrder ?? 0);
+          });
+        tasksInOriginalAfterMove.forEach((t, idx) => {
+          const updatedTask = { ...t };
+          if (viewMode === ViewModes.STATUS) {
+            updatedTask.statusOrder = idx;
+          } else {
+            updatedTask.sectionOrder = idx;
+          }
+          nextAllTasksMap.set(updatedTask.taskId, updatedTask);
+        });
+
+        let tasksInTargetBeforeInsert = prevAllTasks
           .filter(t => getColumnId(t) === targetColumnId && t.taskId !== activeId)
           .sort((a, b) => {
             if (viewMode === ViewModes.STATUS) return (a.statusOrder ?? 0) - (b.statusOrder ?? 0);
             return (a.sectionOrder ?? 0) - (b.sectionOrder ?? 0);
           });
 
-        const overTaskIndex = tasksCurrentlyInTarget.findIndex(t => t.taskId === overTaskData.taskId);
-        if (overTaskIndex !== -1) {
-          visualIndexInTargetColumn = overTaskIndex;
-        } else {
-          visualIndexInTargetColumn = tasksCurrentlyInTarget.length;
-        }
-      } else {
-        return;
-      }
+        finalInsertIdx = Math.max(0, Math.min(finalInsertIdx, tasksInTargetBeforeInsert.length));
+        tasksInTargetBeforeInsert.splice(finalInsertIdx, 0, updatedDraggedTask);
 
-      const originalColumnId = getColumnId(draggedTaskOriginal);
-
-      // 기존 위치에 드롭
-      if (originalColumnId === targetColumnId) {
-        const tasksInOriginalColumn = allTasks
-          .filter(t => getColumnId(t) === originalColumnId)
-          .sort((a, b) => {
-            if (viewMode === ViewModes.STATUS) return (a.statusOrder ?? 0) - (b.statusOrder ?? 0);
-            return (a.sectionOrder ?? 0) - (b.sectionOrder ?? 0);
-          });
-        const originalIndexInColumn = tasksInOriginalColumn.findIndex(t => t.taskId === activeId);
-
-        let expectedNewIndex: number;
-        if (over.data.current?.type === 'Task' && over.data.current?.task) {
-          const overTaskData = over.data.current.task as Task;
-          expectedNewIndex = tasksInOriginalColumn.findIndex(t => t.taskId === overTaskData.taskId);
-
-          if (originalIndexInColumn < expectedNewIndex) expectedNewIndex--;
-          if (expectedNewIndex === -1) expectedNewIndex = tasksInOriginalColumn.length - 1;
-        } else {
-          expectedNewIndex = tasksInOriginalColumn.length - 1;
-        }
-        if (originalIndexInColumn === expectedNewIndex) return;
-      }
-
-      let tempTasks = allTasks.filter(t => t.taskId !== activeId);
-      const updatedDraggedTask = { ...draggedTaskOriginal };
-
-      if (viewMode === ViewModes.STATUS) {
-        const targetStatus = statusList.find(s => s.code === targetColumnId);
-        if (!targetStatus) return;
-        updatedDraggedTask.status = targetStatus;
-      } else {
-        updatedDraggedTask.sectionId = targetColumnId;
-      }
-
-      let tasksInTarget = tempTasks
-        .filter(t => getColumnId(t) === targetColumnId)
-        .sort((a, b) => {
-          if (viewMode === ViewModes.STATUS) return (a.statusOrder ?? 0) - (b.statusOrder ?? 0);
-          return (a.sectionOrder ?? 0) - (b.sectionOrder ?? 0);
+        tasksInTargetBeforeInsert.forEach((t, idx) => {
+          const updatedTask = { ...t };
+          if (viewMode === ViewModes.STATUS) {
+            updatedTask.statusOrder = idx;
+          } else {
+            updatedTask.sectionOrder = idx;
+          }
+          nextAllTasksMap.set(updatedTask.taskId, updatedTask);
         });
 
-      visualIndexInTargetColumn = Math.max(0, Math.min(visualIndexInTargetColumn, tasksInTarget.length));
-      tasksInTarget.splice(visualIndexInTargetColumn, 0, updatedDraggedTask);
+        prevAllTasks.filter(t => getColumnId(t) !== originalColumnId && getColumnId(t) !== targetColumnId)
+          .forEach(t => nextAllTasksMap.set(t.taskId, t));
+      }
 
-      tasksInTarget.forEach((t, index) => {
-        if (viewMode === ViewModes.STATUS) {
-          t.statusOrder = index;
-        } else {
-          t.sectionOrder = index;
-        }
-      });
+      const finalTasks = Array.from(nextAllTasksMap.values());
+      setTasks(finalTasks);
 
-      const originalColumnIdAfterUpdate = getColumnId(draggedTaskOriginal);
-      let tasksInOriginal: Task[] = [];
+      if (onTasksChange) {
+        const changedTasks: Task[] = [];
+        const finalTaskMap = new Map(finalTasks.map(t => [t.taskId, t]));
 
-      if (originalColumnIdAfterUpdate !== targetColumnId) {
-        tasksInOriginal = tempTasks
-          .filter(t => getColumnId(t) === originalColumnIdAfterUpdate)
-          .sort((a, b) => {
-            if (viewMode === ViewModes.STATUS) return (a.statusOrder ?? 0) - (b.statusOrder ?? 0);
-            return (a.sectionOrder ?? 0) - (b.sectionOrder ?? 0);
-          });
+        prevAllTasks.forEach(t => {
+          const currentTask = finalTaskMap.get(t.taskId);
+          if (currentTask) {
+            let isChanged = false;
 
-        tasksInOriginal.forEach((t, index) => {
-          if (viewMode === ViewModes.STATUS) {
-            t.statusOrder = index;
-          } else {
-            t.sectionOrder = index;
+            if (viewMode === ViewModes.STATUS) {
+              if (t.statusOrder !== currentTask.statusOrder || t.status?.code !== currentTask.status?.code) {
+                isChanged = true;
+              }
+            } else { // ViewModes.SECTION
+              if (t.sectionOrder !== currentTask.sectionOrder || t.sectionId !== currentTask.sectionId) {
+                isChanged = true;
+              }
+            }
+            if (isChanged) changedTasks.push(currentTask);
           }
         });
-      }
 
-      const finalTasksMap = new Map<string, Task>();
-      allTasks.forEach(t => {
-        if (t.taskId !== activeId && getColumnId(t) !== targetColumnId && getColumnId(t) !== originalColumnIdAfterUpdate) {
-          finalTasksMap.set(t.taskId, t);
+        const activeTaskFinal = finalTaskMap.get(activeId);
+        if (activeTaskFinal && !changedTasks.some(t => t.taskId === activeId)) {
+          const originalActiveTask = prevAllTasks.find(t => t.taskId === activeId);
+          if (originalActiveTask) {
+            let isColumnMoved = false;
+            if (viewMode === ViewModes.STATUS && originalActiveTask.status?.code !== activeTaskFinal.status?.code) isColumnMoved = true;
+            if (viewMode === ViewModes.SECTION && originalActiveTask.sectionId !== activeTaskFinal.sectionId) isColumnMoved = true;
+
+            let orderChanged = false;
+            if (viewMode === ViewModes.STATUS && originalActiveTask.statusOrder !== activeTaskFinal.statusOrder) orderChanged = true;
+            if (viewMode === ViewModes.SECTION && originalActiveTask.sectionOrder !== activeTaskFinal.sectionOrder) orderChanged = true;
+
+            if (isColumnMoved || orderChanged) changedTasks.push(activeTaskFinal);
+          }
         }
-      });
 
-      tasksInTarget.forEach(t => finalTasksMap.set(t.taskId, t));
-
-      if (originalColumnIdAfterUpdate !== targetColumnId) {
-        tasksInOriginal.forEach(t => finalTasksMap.set(t.taskId, t));
+        if (changedTasks.length > 0) onTasksChange(changedTasks);
       }
-
-      const finalTasks = Array.from(finalTasksMap.values());
-      setTasks(finalTasks);
-      if (onTasksChange) onTasksChange(finalTasks);
     }
   };
 
