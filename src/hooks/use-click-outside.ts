@@ -14,10 +14,6 @@ const useClickOutside = <T extends HTMLElement = HTMLElement>(
 
       if (!el || el.contains(target) || e.composedPath().includes(el)) return;
 
-      const portalRootEl = document.getElementById('portal-root');
-
-      if (portalRootEl && (portalRootEl.contains(target) || (e.composedPath && e.composedPath().includes(portalRootEl)))) return;
-
       handler(e);
     }
 

@@ -63,13 +63,12 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     };
   }, []);
 
-  const portalElement = typeof window !== 'undefined' ? document.getElementById('portal-root') : null;
 
   return (
     <ToastContext.Provider value={{ showToast }}>
       {children}
-      {isToastVisible && portalElement ? ReactDOM.createPortal(
-        <Toast msg={toastMsg} />, portalElement
+      {isToastVisible ? ReactDOM.createPortal(
+        <Toast msg={toastMsg} />, document.body
       ) : isToastVisible ? (
         <Toast msg={toastMsg} />
       ) : null}

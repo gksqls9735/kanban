@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import "./web-component/kanban-web-component";
 import { sections, sectionTasks } from './mocks/task-mock';

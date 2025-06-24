@@ -10,7 +10,6 @@ const SelectionDropdown: React.FC<{
 }> = ({ onUpdate, code }) => {
   const { isOpen, wrapperRef, dropdownRef, toggle } = useDropdown();
   const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number, width?: number, } | null>(null);
-  const portalElement = typeof window !== 'undefined' ? document.getElementById('portal-root') : null;
   const [hovered, setHovered] = useState<string>("");
 
   useEffect(() => {
@@ -40,7 +39,7 @@ const SelectionDropdown: React.FC<{
           <path d="M480-160q-33 0-56.5-23.5T400-240q0-33 23.5-56.5T480-320q33 0 56.5 23.5T560-240q0 33-23.5 56.5T480-160Zm0-240q-33 0-56.5-23.5T400-480q0-33 23.5-56.5T480-560q33 0 56.5 23.5T560-480q0 33-23.5 56.5T480-400Zm0-240q-33 0-56.5-23.5T400-720q0-33 23.5-56.5T480-800q33 0 56.5 23.5T560-720q0 33-23.5 56.5T480-640Z" />
         </svg>
       </div>
-      {isOpen && portalElement && dropdownPosition && (
+      {isOpen && dropdownPosition && (
         ReactDOM.createPortal(
           <div ref={dropdownRef} style={{
             position: 'absolute', top: `${dropdownPosition.top}px`, left: `${dropdownPosition.left}px`,
@@ -63,7 +62,7 @@ const SelectionDropdown: React.FC<{
                 <div style={{ fontSize: 13, fontWeight: 400, whiteSpace: 'nowrap', }}>{color.colorName}</div>
               </div>
             ))}
-          </div>, portalElement
+          </div>, document.body
         )
       )}
     </div>

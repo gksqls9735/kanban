@@ -128,7 +128,6 @@ const ParticipantSelector: React.FC<{
     return () => { document.removeEventListener('mousedown', handleClickOutside) };
   }, [openDropdownId, handleCloseDropdown]);
 
-  const portalElement = typeof window !== 'undefined' ? document.getElementById('portal-root') : null;
 
   /**
    *                   <img src="https://works.bizbee.co.kr/assets/doc-arrow-down.8bd3b059.svg" style={{ width: 16, height: 16 }} />
@@ -188,13 +187,13 @@ const ParticipantSelector: React.FC<{
           <button className="participant-modal__button participant-modal__button--confirm" onClick={handleConfirm}>추가하기</button>
         </div>
 
-        {openDropdownId !== null && dropdownPosition && portalElement && (
+        {openDropdownId !== null && dropdownPosition && (
           ReactDOM.createPortal(
             <RoleDropdown
               ref={dropdownRef}
               position={dropdownPosition}
               onClick={handleSetRole}
-            />, portalElement
+            />, document.body
           )
         )}
 
