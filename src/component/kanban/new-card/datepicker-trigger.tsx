@@ -19,7 +19,7 @@ const DatePickerTrigger: React.FC<{
   const { isOpen, wrapperRef, dropdownRef, toggle } = useDropdown();
   const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number } | null>(null);
 
-  const handleDateChange = (start: Date | null, end: Date | null) => {
+  const handleDateUnmount = (start: Date | null, end: Date | null) => {
     onDateSelect(start, end);
   };
 
@@ -91,7 +91,7 @@ const DatePickerTrigger: React.FC<{
           initialEndDate={endDate}
           initialShowDeadline={!!endDate}
           initialIncludeTime={startDate ? startDate.getHours() !== 0 || startDate.getMinutes() !== 0 : false}
-          onChange={handleDateChange}
+          onUnmount={handleDateUnmount}
           minStart={minStart}
         />
       </div>
