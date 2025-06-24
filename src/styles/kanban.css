@@ -201,7 +201,7 @@
 }
 
 /* 헤더 드롭다운 메뉴 */
-.kanban .header-dropdown-menu {
+/* .kanban .header-dropdown-menu {
   position: absolute;
   border: 1px solid #E4E8EE;
   padding: 8px 0px;
@@ -224,7 +224,7 @@
 
 .kanban .header-dropdown-item:hover {
   background-color: rgb(241, 241, 241);
-}
+} */
 
 .kanban .section-header__dropdown-menu {
   left: 290px;
