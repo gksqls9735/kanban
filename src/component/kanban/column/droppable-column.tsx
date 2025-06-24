@@ -112,7 +112,7 @@ const DroppableColumn: React.FC<{
 
 
     const handleUpdate = (name: string, color?: string) => {
-      let processedName = name.trim(); 
+      let processedName = name.trim();
       processedName = processedName.replace(/\s{2,}/g, ' ');
 
       if (!processedName) {
@@ -233,31 +233,48 @@ const DroppableColumn: React.FC<{
           <ColumnEdit
             viewMode={viewMode} isEditing={isEditing} toggle={toggle} onUpdate={handleUpdate} colorMain={colorMain} columnTitle={title} />
         )}
-        <div className="section-content kanban-scrollbar-y">
-          <SortableContext items={tasksId} strategy={verticalListSortingStrategy}>
-            {tasks.map((t, index) => (
-              <React.Fragment key={t.taskId}>
-                {placeholderData && (
-                  placeholderData.columnId === columnId &&
-                  placeholderData.index === index && <div key="dnd-kit-placeholder" className="kanban-task-placeholder" />
+        <div className="section-content">
+          <div className="section-scroll-inner kanban-scrollbar-y">
+            <SortableContext items={tasksId} strategy={verticalListSortingStrategy}>
+              {tasks.map((t, index) => (
+                <React.Fragment key={t.taskId}>
+                  {placeholderData &&
+                    placeholderData.columnId === columnId &&
+                    placeholderData.index === index && (
+                      <div key="dnd-kit-placeholder" className="kanban-task-placeholder" />
+                    )}
+                  <CardWrapper
+                    task={t}
+                    sectionName={getSectionName(t.sectionId)}
+                    onOpenDetailModal={onOpenDetailModal}
+                  />
+                </React.Fragment>
+              ))}
+
+              {/* 리스트 맨 마지막에 플레이스홀더가 와야 하는 경우 */}
+              {placeholderData &&
+                placeholderData.columnId === columnId &&
+                placeholderData.index === tasks.length && (
+                  <div key="dnd-kit-placeholder" className="kanban-task-placeholder" />
                 )}
-                <CardWrapper task={t} sectionName={getSectionName(t.sectionId)} onOpenDetailModal={onOpenDetailModal} />
-              </React.Fragment>
+            </SortableContext>
+
+            {newCardList.map((newCardId) => (
+              <NewTaskCard
+                key={`new-card-${newCardId}`}
+                columnId={columnId}
+                onClose={handleClose}
+                newCardId={newCardId}
+              />
             ))}
-            {/* 리스트 맨 마지막에 플레이스홀더가 와야 하는 경우 */}
-            {placeholderData && (
-              placeholderData.columnId === columnId &&
-              placeholderData.index === tasks.length && <div key="dnd-kit-placeholder" className="kanban-task-placeholder" />
-            )}
-          </SortableContext>
-          {newCardList.map(newCardId => (
-            <NewTaskCard key={`new-card-${newCardId}`} columnId={columnId} onClose={handleClose} newCardId={newCardId} />
-          ))}
-          <div className="task-add" onClick={handleAddNewTask}>
-            <FontAwesomeIcon icon={faPlus} style={{ width: 13, height: 13 }} />
-            <div>작업 추가</div>
+
+            <div className="task-add" onClick={handleAddNewTask}>
+              <FontAwesomeIcon icon={faPlus} style={{ width: 13, height: 13 }} />
+              <div>작업 추가</div>
+            </div>
           </div>
         </div>
+
         {isDeleteModalOpen && (
           <DeleteModal
             title={deleteModalTitle}
