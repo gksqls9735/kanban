@@ -22,7 +22,7 @@ const SectionSelector: React.FC<{
     <div className="relative">
       {isOwnerOrParticipant ? (
         <>
-          <div ref={wrapperRef} className="card-current-section update-card-current-section" onClick={toggle}>
+          <div ref={wrapperRef} className="card-current-section update-card-current-section" onClick={toggle} style={{cursor: 'pointer'}}>
             {truncateText(selectedSection.sectionName, 10)}
             <FontAwesomeIcon icon={faCaretDown} style={{ width: 12, height: 12 }} />
           </div>
