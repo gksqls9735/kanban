@@ -27,6 +27,8 @@ const UpdateCard: React.FC<{
 
   const allTasks = useTaskStore(state => state.allTasks);
 
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+
   const { showToast } = useToast();
   const { onTasksChange } = useKanbanActions();
 
@@ -125,7 +127,7 @@ const UpdateCard: React.FC<{
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (isOpenParticipantModal) return;
+      if (isOpenParticipantModal || isDatePickerOpen) return;
       const path = e.composedPath();
       if (cardRef.current && !path.includes(cardRef.current)) {
         handleUpdateTask();
@@ -133,7 +135,7 @@ const UpdateCard: React.FC<{
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [handleUpdateTask]);
+  }, [handleUpdateTask, isOpenParticipantModal, isDatePickerOpen]);
 
   // 작업 값 변경
   const handleDateSelect = (start: Date | null, end: Date | null) => {
@@ -170,7 +172,7 @@ const UpdateCard: React.FC<{
         onKeyDown={handleInputSubmit}
       />
 
-      <DatePickerTrigger startDate={startDate} endDate={endDate} onDateSelect={handleDateSelect} minStart={minStart} />
+      <DatePickerTrigger startDate={startDate} endDate={endDate} onDateSelect={handleDateSelect} minStart={minStart} onToggle={setIsDatePickerOpen}/>
 
       <div className="card-meta">
         <div className="card-priority-status">
