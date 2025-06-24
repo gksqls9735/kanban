@@ -335,3 +335,97 @@
   border-radius: 12px;
   box-shadow: 0px 0px 4px 0px #00000029;
 }
+
+
+.datetime-picker-container .custom-time-select-container {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  flex-grow: 1;
+  box-sizing: border-box;
+}
+
+.datetime-picker-container .custom-select-trigger {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 8px;
+  border: 1px solid rgba(228, 232, 238, 1);
+  border-radius: 4px;
+  font-size: 13px;
+  background-color: #fff;
+  height: 36px;
+  cursor: pointer;
+  color: #0F1B2A;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.datetime-picker-container .custom-select-trigger .custom-select-arrow-icon {
+  width: 10px;
+  height: 6px;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2210%22%20height%3D%226%22%20viewBox%3D%220%200%2010%206%22%3E%3Cpolyline%20points%3D%221%2C1%205%2C5%209%2C1%22%20stroke%3D%22%23666666%22%20stroke-width%3D%221.5%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  margin-left: 8px;
+}
+
+.datetime-picker-container .custom-select-options {
+  position: absolute;
+  top: 50%;
+  left: 90%;
+  width: 152px;
+  max-height: 196px;
+  overflow-y: auto;
+  border-radius: 4px;
+  padding: 8px 0px;
+  background-color: #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+.datetime-picker-container .custom-select-options ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.datetime-picker-container .custom-select-options li {
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #0F1B2A;
+}
+
+.datetime-picker-container .custom-select-options li:hover {
+  background-color: #f0f0f0;
+}
+
+.datetime-picker-container .custom-select-options li.selected {
+  background-color: #ECFDF3;
+}
+
+.datetime-picker-container .custom-select-options::-webkit-scrollbar {
+  width: 5px;
+  height: 0px;
+}
+
+.datetime-picker-container .custom-select-options::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+.datetime-picker-container .custom-select-options::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.datetime-picker-container .custom-select-options::-webkit-scrollbar-track {
+  background-color: transparent;
+  border-radius: 10px;
+}
+
+.datetime-picker-container .custom-select-options::-webkit-scrollbar-button {
+  display: none;
+}

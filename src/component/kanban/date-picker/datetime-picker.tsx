@@ -9,6 +9,7 @@ import {
 import { ko } from "date-fns/locale";
 import { useEffect, useState } from "react";
 import DateInput from "./date-input";
+import CustomTimeSelect from "./custom-time-select";
 
 interface DateTimePickerProps {
   initialStartDate?: Date | null;
@@ -137,54 +138,54 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
   };
 
   // 날짜 클릭
-const handleDateClick = (day: Date) => {
-  let newClickedDateWithTime = includeTime
-    ? setMinutes(setHours(day, startDate ? getHours(startDate) : 0), startDate ? getMinutes(startDate) : 0)
-    : startOfDay(day);
+  const handleDateClick = (day: Date) => {
+    let newClickedDateWithTime = includeTime
+      ? setMinutes(setHours(day, startDate ? getHours(startDate) : 0), startDate ? getMinutes(startDate) : 0)
+      : startOfDay(day);
 
-  // minStart와 같은 날짜를 선택했고, 시간이 minStart보다 이전이면 minStart 시간으로 조정
-  if (minStart && isValid(minStart) && isSameDay(newClickedDateWithTime, minStart) && isBefore(newClickedDateWithTime, minStart)) {
-    newClickedDateWithTime = minStart;
-  }
+    // minStart와 같은 날짜를 선택했고, 시간이 minStart보다 이전이면 minStart 시간으로 조정
+    if (minStart && isValid(minStart) && isSameDay(newClickedDateWithTime, minStart) && isBefore(newClickedDateWithTime, minStart)) {
+      newClickedDateWithTime = minStart;
+    }
 
-  // --- 여기에 showDeadline 로직 추가 ---
-  if (!showDeadline) { // 마감일 기능을 사용하지 않는 경우 (단일 날짜 선택)
-    setStartDate(newClickedDateWithTime);
-    setEndDate(null);
-    return; // 단일 날짜 선택 모드에서는 여기서 로직 종료
-  }
-  // --- showDeadline 로직 끝 ---
-
-  // 마감일 기능 사용 시 (아래는 두 번째 로직의 범위 선택 부분)
-  if (startDate && endDate) {
-    if (isBefore(newClickedDateWithTime, endDate)) {
+    // --- 여기에 showDeadline 로직 추가 ---
+    if (!showDeadline) { // 마감일 기능을 사용하지 않는 경우 (단일 날짜 선택)
       setStartDate(newClickedDateWithTime);
+      setEndDate(null);
+      return; // 단일 날짜 선택 모드에서는 여기서 로직 종료
+    }
+    // --- showDeadline 로직 끝 ---
+
+    // 마감일 기능 사용 시 (아래는 두 번째 로직의 범위 선택 부분)
+    if (startDate && endDate) {
+      if (isBefore(newClickedDateWithTime, endDate)) {
+        setStartDate(newClickedDateWithTime);
+      } else {
+        setStartDate(newClickedDateWithTime);
+        setEndDate(null);
+      }
+    } else if (startDate && !endDate) {
+      const startDateWithoutTime = startOfDay(startDate);
+      const clickedDayWithoutTime = startOfDay(day);
+
+      if (isBefore(clickedDayWithoutTime, startDateWithoutTime)) {
+        setStartDate(newClickedDateWithTime);
+      } else {
+        let endDateWithTime = includeTime
+          ? setMinutes(setHours(day, endDate ? getHours(endDate) : (includeTime && startDate ? getHours(startDate) : 0)), endDate ? getMinutes(endDate) : (includeTime && startDate ? getMinutes(startDate) : 0))
+          : startOfDay(day);
+
+        if (startDate && isValid(startDate) && isBefore(endDateWithTime, startDate)) {
+          console.warn("마감 시간은 시작 시간보다 이전일 수 없습니다. 시작 시간으로 조정합니다.");
+          endDateWithTime = startDate;
+        }
+        setEndDate(endDateWithTime);
+      }
     } else {
       setStartDate(newClickedDateWithTime);
       setEndDate(null);
     }
-  } else if (startDate && !endDate) {
-    const startDateWithoutTime = startOfDay(startDate);
-    const clickedDayWithoutTime = startOfDay(day);
-
-    if (isBefore(clickedDayWithoutTime, startDateWithoutTime)) {
-      setStartDate(newClickedDateWithTime);
-    } else {
-      let endDateWithTime = includeTime
-        ? setMinutes(setHours(day, endDate ? getHours(endDate) : (includeTime && startDate ? getHours(startDate) : 0)), endDate ? getMinutes(endDate) : (includeTime && startDate ? getMinutes(startDate) : 0))
-        : startOfDay(day);
-
-      if (startDate && isValid(startDate) && isBefore(endDateWithTime, startDate)) {
-        console.warn("마감 시간은 시작 시간보다 이전일 수 없습니다. 시작 시간으로 조정합니다.");
-        endDateWithTime = startDate;
-      }
-      setEndDate(endDateWithTime);
-    }
-  } else {
-    setStartDate(newClickedDateWithTime);
-    setEndDate(null);
-  }
-};
+  };
 
   // 월 이동
   // 이전 달 이동
@@ -233,10 +234,28 @@ const handleDateClick = (day: Date) => {
   const renderSingleTimeSelect = (type: 'start' | 'end') => {
     if (!includeTime) return null;
     const targetDate = type === 'start' ? startDate : endDate;
-    if (!targetDate || !isValid(targetDate) || (type === 'end' && !showDeadline)) return null;
+    if (!targetDate || !isValid(targetDate)) return null;
 
     const currentTimeValue = format(targetDate, 'HH:mm');
-    const timeOptions = generateTimeOptions(10);
+    let timeOptions = generateTimeOptions();
+
+    // minStart 시간 제약 (시작 시간 드롭다운에만 적용)
+    if (type === 'start' && minStart && isValid(minStart) && isSameDay(targetDate, minStart)) {
+      timeOptions = timeOptions.filter(option => {
+        const [optionHour, optionMinute] = option.value.split(':').map(Number);
+        const optionDateTime = setMinutes(setHours(startOfDay(targetDate), optionHour), optionMinute);
+        return !isBefore(optionDateTime, minStart);
+      });
+    }
+
+    // 마감 시간은 시작 시간보다 이전일 수 없음 (마감 시간 드롭다운에만 적용, 동일 날짜에만 유효)
+    if (type === 'end' && startDate && isValid(startDate) && isSameDay(targetDate, startDate)) {
+      timeOptions = timeOptions.filter(option => {
+        const [optionHour, optionMinute] = option.value.split(':').map(Number);
+        const optionDateTime = setMinutes(setHours(startOfDay(targetDate), optionHour), optionMinute);
+        return !isBefore(optionDateTime, startDate);
+      });
+    }
 
     const handleSingleTimeChange = (timeValue: string) => {
       if (!targetDate || !isValid(targetDate)) return;
@@ -245,29 +264,37 @@ const handleDateClick = (day: Date) => {
       let newDate = setMinutes(setHours(targetDate, hour), minute);
 
       if (type === 'start') {
+        // minStart 시간 검사
+        if (minStart && isValid(minStart) && isBefore(newDate, minStart)) {
+          console.warn("시작 시간은 최소 시작 가능 시간보다 이전일 수 없습니다.");
+          return; // 변경을 막고 경고
+        }
         setStartDate(newDate);
-        if (showDeadline && endDate && isValid(endDate) && newDate > endDate) setEndDate(newDate);
-      } else {
-        if (startDate && isValid(startDate) && newDate < startDate) {
+        // 시작 시간이 마감 시간보다 늦어지면 마감 시간도 시작 시간으로 조정
+        if (endDate && isValid(endDate) && isAfter(newDate, endDate)) {
+          setEndDate(newDate);
+        }
+      } else { // type === 'end'
+        // 마감 시간이 시작 시간보다 이전일 수 없음
+        if (startDate && isValid(startDate) && isBefore(newDate, startDate)) {
           console.warn("마감 시간은 시작 시간보다 이전일 수 없습니다.");
-          // setEndDate(startDate); // 시작 시간으로 강제 설정
-          return;
+          return; // 변경을 막고 경고
         }
         setEndDate(newDate);
       }
     };
     return (
-      <select
-        value={currentTimeValue}
-        onChange={e => handleSingleTimeChange(e.target.value)}
-        className="time-select-combined"
-      >
-        {timeOptions.map(option => (
-          <option key={`${type}-${option.value}`} value={option.value}>{option.label}</option>
-        ))}
-      </select>
+      <CustomTimeSelect
+        currentTimeValue={currentTimeValue}
+        handleSingleTimeChange={handleSingleTimeChange}
+        timeOptions={timeOptions}
+        targetDate={targetDate}
+        type={type}
+      />
     );
+
   };
+
 
   return (
     <>
