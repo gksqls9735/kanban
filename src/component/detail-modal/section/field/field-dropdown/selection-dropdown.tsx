@@ -1,23 +1,57 @@
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import SelectionCheckBox from "../field-common/selection-checkbox";
 import useDropdown from "../../../../../hooks/use-dropdown";
+
+const SELECTION_DROPDOWN_WIDTH = 82;
+const SELECTION_DROPDOWN_HEIGHT = 374;
+const SCREEN_EDGE_PADDING = 10;
 
 const SelectionDropdown: React.FC<{
   onUpdate: (code: string, colorMain: string, colorSub: string) => void;
   code: string;
 }> = ({ onUpdate, code }) => {
-  const { isOpen, wrapperRef, dropdownRef, toggle } = useDropdown();
+  const { isOpen, setIsOpen, wrapperRef, dropdownRef, toggle } = useDropdown();
   const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number, width?: number, } | null>(null);
-  const [hovered, setHovered] = useState<string>("");
+
+  const calcDropdownPosition = useCallback(() => {
+    if (wrapperRef.current) {
+      const rect = wrapperRef.current.getBoundingClientRect();
+      let newLeft: number;
+      let newTop: number;
+
+      newLeft = rect.right + window.scrollX;
+      newTop = rect.bottom + window.scrollY;
+
+      if (newLeft + SELECTION_DROPDOWN_WIDTH + SCREEN_EDGE_PADDING > window.innerWidth + window.scrollX) {
+        newLeft = rect.left + window.scrollX - SELECTION_DROPDOWN_WIDTH;
+        if (newLeft < window.scrollX + SCREEN_EDGE_PADDING) newLeft = window.scrollX + SCREEN_EDGE_PADDING;
+      }
+
+      if (newTop + SELECTION_DROPDOWN_HEIGHT + SCREEN_EDGE_PADDING > window.innerHeight + window.scrollY) {
+        newTop = rect.top + window.scrollY - SELECTION_DROPDOWN_HEIGHT;
+        if (newTop < window.scrollY + SCREEN_EDGE_PADDING) newTop = window.scrollY + SCREEN_EDGE_PADDING;
+      }
+      setDropdownPosition({ top: newTop, left: newLeft });
+    }
+  }, [wrapperRef]);
 
   useEffect(() => {
-    if (isOpen && wrapperRef.current) {
-      const rect = wrapperRef.current.getBoundingClientRect();
-      setDropdownPosition({ top: rect.bottom + window.scrollY, left: rect.left + window.scrollX - 70 });
+    if (isOpen) {
+      const timer = setTimeout(() => {
+        calcDropdownPosition();
+      }, 0);
+
+      window.addEventListener('resize', calcDropdownPosition);
+      return () => {
+        clearTimeout(timer);
+        window.removeEventListener('resize', calcDropdownPosition);
+      };
+    } else {
+      setDropdownPosition(null);
     }
-  }, [isOpen]);
+  }, [isOpen, calcDropdownPosition]);
 
   const colorList = [
     { colorMain: '#FFE6EB', colorSub: '#FFEFF2', colorName: '분홍색' },
@@ -31,6 +65,12 @@ const SelectionDropdown: React.FC<{
     { colorMain: '#E1DDFE', colorSub: '#EDE9FE', colorName: '보라색' },
     { colorMain: '#EFE8D3', colorSub: '#F5F3EA', colorName: '황토색' },
   ]
+
+  const handleOptionClick = (colorMain: string, colorSub: string) => (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onUpdate(code, colorMain, colorSub);
+    setIsOpen(false);
+  };
 
   return (
     <div className="selection-dropdown">
@@ -48,9 +88,9 @@ const SelectionDropdown: React.FC<{
               {colorList.map(color => (
                 <div
                   key={color.colorName}
-                  onClick={() => onUpdate(code, color.colorMain, color.colorSub)}
+                  onClick={handleOptionClick(color.colorMain, color.colorSub)}
                   className="selection-dropdown__color-option"
-                  >
+                >
                   <SelectionCheckBox width={16} height={16} borderColor={color.colorMain} backgroundColor={color.colorSub} />
                   <div className="selection-dropdown__color-option-name">{color.colorName}</div>
                 </div>
