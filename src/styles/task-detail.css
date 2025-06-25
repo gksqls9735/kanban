@@ -958,6 +958,7 @@
   border-radius: 4px;
   flex-grow: 1;
   padding: 0px 10px;
+  cursor: pointer;
 }
 
 .kanban .task-detail__numeric-dropdown-current-value {
