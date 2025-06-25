@@ -33,7 +33,7 @@ const OptionSelector: React.FC<{
               {options.map(option => (
                 <div key={option.code} className="select-dropdown-item truncate" onClick={() => handleSelect(option)}
                   style={{
-                    color: option.colorMain, backgroundColor: selectedOption.code === option.code ? (option.colorSub || lightenColor(option.colorMain, 0.85)) : '#fff',
+                    color: option.colorMain, backgroundColor: selectedOption.code === option.code ? (option.colorSub || lightenColor(option.colorMain, 0.85)) : undefined,
                   }}
                 >
                   {option.name}

@@ -33,36 +33,30 @@ const SelectionDropdown: React.FC<{
   ]
 
   return (
-    <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-      <div ref={wrapperRef} onClick={toggle} style={{ width: 16, height: 16, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+    <div className="selection-dropdown">
+      <div ref={wrapperRef} onClick={toggle} className="selection-dropdown__toggle-button">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="#7D8998" >
           <path d="M480-160q-33 0-56.5-23.5T400-240q0-33 23.5-56.5T480-320q33 0 56.5 23.5T560-240q0 33-23.5 56.5T480-160Zm0-240q-33 0-56.5-23.5T400-480q0-33 23.5-56.5T480-560q33 0 56.5 23.5T560-480q0 33-23.5 56.5T480-400Zm0-240q-33 0-56.5-23.5T400-720q0-33 23.5-56.5T480-800q33 0 56.5 23.5T560-720q0 33-23.5 56.5T480-640Z" />
         </svg>
       </div>
       {isOpen && dropdownPosition && (
         ReactDOM.createPortal(
-          <div ref={dropdownRef} style={{
-            position: 'absolute', top: `${dropdownPosition.top}px`, left: `${dropdownPosition.left}px`,
-            width: 80, padding: '8px 0px', display: 'flex', flexDirection: 'column',
-            border: '1px solid #E4E8EE', borderRadius: 4, boxShadow: '0px 0px 16px 0px #00000014',
-            backgroundColor: 'white', zIndex: 20000,
-          }}>
-            <div style={{ fontWeight: 600, fontSize: 13, color: '#0F1B2A', height: 36, padding: '0px 12px', display: 'flex', alignItems: 'center' }}>컬러 선택</div>
-            {colorList.map(color => (
-              <div
-                key={color.colorName}
-                onClick={() => onUpdate(code, color.colorMain, color.colorSub)}
-                onMouseEnter={() => setHovered(color.colorName)} onMouseLeave={() => setHovered('')}
-                style={{
-                  height: 32, gap: 8, boxSizing: 'border-box', display: 'flex', alignItems: 'center', flexWrap: 'nowrap', padding: '0px 8px',
-                  backgroundColor: `${hovered === color.colorName ? '#ECFDF3' : ''}`, cursor: 'pointer'
-                }}
-              >
-                <SelectionCheckBox width={16} height={16} borderColor={color.colorMain} backgroundColor={color.colorSub} />
-                <div style={{ fontSize: 13, fontWeight: 400, whiteSpace: 'nowrap', }}>{color.colorName}</div>
-              </div>
-            ))}
-          </div>, document.body
+          <>
+            <style>{style}</style>
+            <div ref={dropdownRef} className="selection-dropdown__menu" style={{ top: `${dropdownPosition.top}px`, left: `${dropdownPosition.left}px` }}>
+              <div className="selection-dropdown__menu-title">컬러 선택</div>
+              {colorList.map(color => (
+                <div
+                  key={color.colorName}
+                  onClick={() => onUpdate(code, color.colorMain, color.colorSub)}
+                  className="selection-dropdown__color-option"
+                  >
+                  <SelectionCheckBox width={16} height={16} borderColor={color.colorMain} backgroundColor={color.colorSub} />
+                  <div className="selection-dropdown__color-option-name">{color.colorName}</div>
+                </div>
+              ))}
+            </div>
+          </>, document.body
         )
       )}
     </div>
@@ -70,3 +64,58 @@ const SelectionDropdown: React.FC<{
 };
 
 export default SelectionDropdown;
+
+const style = `
+.selection-dropdown__menu {
+  position: absolute;
+  width: 80px;
+  padding: 8px 0px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #E4E8EE;
+  border-radius: 4px;
+  box-shadow: 0px 0px 16px 0px #00000014;
+  background-color: white;
+  z-index: 20000;
+}
+
+.selection-dropdown__menu .selection-dropdown__menu-title {
+  display: flex;
+  align-items: center;
+  padding: 0px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #0F1B2A;
+  height: 36px;
+}
+
+.selection-dropdown__menu .selection-dropdown__color-option {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 8px;
+  padding: 0px 8px;
+  box-sizing: border-box;
+  height: 32px;
+  cursor: pointer;
+}
+
+.selection-dropdown__menu .selection-dropdown__color-option:hover {
+  background-color: #ECFDF3;
+}
+
+.selection-dropdown__menu .selection-dropdown__color-option-name {
+  font-size: 13px;
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+.selection-dropdown__menu .selection-checkbox {
+  border-radius: 4px;
+  border-width: 1px;
+  border-style: solid;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  margin-right: 4px;
+}
+`

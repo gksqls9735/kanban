@@ -1100,6 +1100,11 @@
   color: '#0F1B2A';
 }
 
+.kanban .select-dropdown-item:hover {
+  background-color: #ececec;
+}
+
+
 /* 작업명 입력 input */
 .kanban .new-task-name-input {
   font-size: 16px;

@@ -10,9 +10,15 @@ const useClickOutside = <T extends HTMLElement = HTMLElement>(
 
     const listener = (e: MouseEvent | TouchEvent) => {
       const el = ref.current;
-      const target = e.target as Node;
+      const target = e.target as HTMLElement;
 
-      if (!el || el.contains(target) || e.composedPath().includes(el)) return;
+      const isClickInsideSelectionDropdownMenu = target.closest('.selection-dropdown__menu');
+
+      if (!el ||
+        el.contains(target) ||
+        e.composedPath().includes(el) ||
+        isClickInsideSelectionDropdownMenu
+      ) return;
 
       handler(e);
     }
