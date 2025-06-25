@@ -26,7 +26,8 @@ const ChatInput: React.FC<{
   editingChat?: { chatId: string, content: string, parentChatId: string | null } | null;
   onFinishEdit?: () => void;
   onClick: (e: React.MouseEvent, user: Participant | User | null) => void;
-}> = ({ taskId, parentChat, onClose, editingChat, onFinishEdit, onClick }) => {
+  onChatSent?: () => void;
+}> = ({ taskId, parentChat, onClose, editingChat, onFinishEdit, onClick, onChatSent }) => {
   const addChatToTask = useChatStore(state => state.addChatToTask);
   const updateChat = useChatStore(state => state.updateChat);
   const currentUser = useUserStore(state => state.currentUser)!;
@@ -46,9 +47,11 @@ const ChatInput: React.FC<{
       textInputRef.current.focus();
     } else if (!editingChat && textInputRef.current) {
       textInputRef.current.value = "";
+      handleTextAreaInput({ currentTarget: textInputRef.current } as React.FormEvent<HTMLTextAreaElement>);
     }
   }, [editingChat]);
 
+  // 답글 모드일 때 textarea 포커스
   useEffect(() => {
     if (parentChat && textInputRef.current) textInputRef.current.focus();
   }, [parentChat]);
@@ -64,110 +67,104 @@ const ChatInput: React.FC<{
     }
   };
 
-
   const handleSubmit = async (
     e: KeyboardEvent<HTMLTextAreaElement> | React.MouseEvent<HTMLButtonElement>
   ) => {
     if (isSubmitting) return; // 이미 제출 중이면 반환
 
-    const processSubmit = async () => {
-      setIsSubmitting(true);
-      const chatContent = textInputRef.current?.value ?? "";
+    const isKeyboardEvent = e.type === 'keydown';
+    const keyboardEvent = isKeyboardEvent ? (e as KeyboardEvent<HTMLTextAreaElement>) : null;
 
-      // 수정 모드가 아니고, 내용과 파일 모두 없을 때 (새 댓글)
-      if (!editingChat && !chatContent && selectedFilesForUpload.length === 0) {
-        setIsSubmitting(false);
-        return;
-      }
-      // 수정 모드이고, 내용과 파일 모두 없을 때 (기존 내용 다 지우고 파일도 없을 때)
-      // 이 경우는 허용할 수도, 막을 수도 있음 (정책에 따라)
-      // 여기서는 일단 내용이 있어야 수정 가능하다고 가정 (파일은 선택사항)
-      if (editingChat && !chatContent && selectedFilesForUpload.length === 0) {
-        setIsSubmitting(false);
-        if (textInputRef.current) textInputRef.current.focus();
-        return;
-      }
+    // 1. 한글 조합 중이거나, Shift + Enter (줄바꿈)일 경우 즉시 반환
+    if (isKeyboardEvent) {
+      // 조합 중일 때는 어떤 키 입력도 무시
+      if (keyboardEvent?.nativeEvent.isComposing) return;
+      // Shift + Enter는 줄바꿈, 제출 아님
+      if (keyboardEvent?.key === 'Enter' && keyboardEvent?.shiftKey) return;
+    }
 
+    // 2. 제출을 트리거하는 조건 (Enter 키 또는 클릭 이벤트)
+    const shouldSubmit =
+      (isKeyboardEvent && keyboardEvent?.key === 'Enter') ||
+      e.type === 'click';
 
-      let uploadedAttachments: FileAttachment[] = [];
-      if (selectedFilesForUpload.length > 0) {
-        // 파일 업로드는 수정 시에도 새로 추가되는 파일에 대해서만 처리
-        // 기존 첨부파일을 유지/삭제하는 로직은 더 복잡해지므로 여기서는 새 파일 추가만 고려
-        for (const file of selectedFilesForUpload) {
-          try {
-            const attachment = await uploadFileToServer(file);
-            uploadedAttachments.push(attachment);
-          } catch (error) {
-            console.error("File upload failed:", error);
-          }
-        }
-      }
+    // 제출 조건이 아니라면 즉시 반환 (스페이스바 등)
+    if (!shouldSubmit) return;
 
-      if (editingChat) {
-        // 수정 모드
-        const updatePayload: Partial<Chat> = { chatContent };
-        if (uploadedAttachments.length > 0) {
-          // 기존 첨부파일에 새 첨부파일을 추가하는 방식 (정책에 따라 다를 수 있음)
-          // Chat 타입에 attachments가 FileAttachment[] | undefined 등으로 되어있어야 함
-          // updatePayload.attachments = [...(chatToEdit.attachments || []), ...uploadedAttachments];
-          // 여기서는 간단하게 새로 업로드된 파일만 반영 (기존 파일은 유지된다고 가정, 스토어 로직에서 처리)
-          updatePayload.attachments = uploadedAttachments; // 또는 기존것과 합치는 로직
-        }
-        updateChat(taskId, editingChat.chatId, updatePayload);
-        if (onFinishEdit) {
-          onFinishEdit();
-        }
-      } else {
-        // 새 댓글 모드
-        const newChat: Chat = {
-          chatId: generateUniqueId('chat'),
-          taskId: taskId,
-          parentChatId: parentChat?.parentId ?? null,
-          chatContent: chatContent,
-          user: currentUser,
-          createdAt: new Date(),
-          likedUserIds: [],
-          attachments: uploadedAttachments,
-          replies: [],
-        };
-        addChatToTask(taskId, newChat);
-        if (parentChat?.parentId && onClose) {
-          onClose(); // 답글 입력창 닫기
-        }
-      }
-
-      // 입력 필드 초기화
-      if (textInputRef.current) {
-        textInputRef.current.value = "";
-        textInputRef.current.style.height = 'auto';
-      }
-      setSelectedFilesForUpload([]);
-      setIsSubmitting(false);
-    };
-
-
-    if (e.type === 'keydown') {
-      const keyboardEvent = e as KeyboardEvent<HTMLTextAreaElement>;
-      if (keyboardEvent.nativeEvent.isComposing) {
-        setIsSubmitting(false);
-        return;
-      }
-      if (keyboardEvent.key === 'Enter' && !keyboardEvent.shiftKey) {
-        e.preventDefault();
-        await processSubmit();
-      } else if (keyboardEvent.key === 'Enter' && keyboardEvent.shiftKey) {
-        setIsSubmitting(false);
-        return;
-      } else if (keyboardEvent.key !== 'Enter') {
-        setIsSubmitting(false);
-        return;
-      }
-    } else if (e.type === 'click') {
+    // 3. 제출이 맞다면 기본 이벤트 방지
+    if (shouldSubmit && isKeyboardEvent && keyboardEvent?.key === 'Enter') {
+      e.preventDefault(); // Enter 키로 인한 기본 폼 제출 방지
+    } else if (shouldSubmit && e.type === 'click') {
       e.preventDefault();
-      await processSubmit();
+    }
+
+    // 이 아래부터는 제출 로직 시작
+    setIsSubmitting(true);
+
+    const chatContent = textInputRef.current?.value ?? "";
+
+    // 유효성 검사 (내용과 첨부파일이 모두 없을 때 제출 방지)
+    if (!chatContent.trim() && selectedFilesForUpload.length === 0) {
+      setIsSubmitting(false); // 제출 상태 해제
+      if (textInputRef.current) textInputRef.current.focus();
+      return;
+    }
+
+    let uploadedAttachments: FileAttachment[] = [];
+    if (selectedFilesForUpload.length > 0) {
+      for (const file of selectedFilesForUpload) {
+        try {
+          const attachment = await uploadFileToServer(file);
+          uploadedAttachments.push(attachment);
+        } catch (error) {
+          console.error("File upload failed: ", error);
+          // 파일 업로드 실패 시 사용자에게 알리거나, 해당 파일만 제외하고 진행할지 결정
+        }
+      }
+    }
+
+    if (editingChat) {
+      // 수정 모드
+      const updatePayload: Partial<Chat> = { chatContent };
+      if (uploadedAttachments.length > 0) {
+        updatePayload.attachments = uploadedAttachments;
+      }
+      updateChat(taskId, editingChat.chatId, updatePayload);
+      if (onFinishEdit) {
+        onFinishEdit(); // 수정 모드 종료
+      }
+    } else {
+      // 새 댓글 또는 답글 모드
+      const newChat: Chat = {
+        chatId: generateUniqueId('chat'), // 고유 ID 생성
+        taskId: taskId,
+        parentChatId: parentChat?.parentId ?? null, // 답글인 경우 부모 ID 설정
+        chatContent: chatContent,
+        user: currentUser,
+        createdAt: new Date(), // ISO 문자열 형식으로 저장 (일관성을 위해)
+        likedUserIds: [],
+        attachments: uploadedAttachments, // 첨부 파일 추가
+        replies: [], // 초기 답글 배열은 비워둠
+      };
+      addChatToTask(taskId, newChat); // Store에 새 채팅/답글 추가
+      if (parentChat?.parentId && onClose) {
+        onClose(); // 답글 입력창 닫기 (답글 모드일 경우)
+      }
+    }
+
+    // 입력 필드 초기화
+    if (textInputRef.current) {
+      textInputRef.current.value = "";
+      textInputRef.current.style.height = 'auto'; // 높이 초기화
+    }
+    setSelectedFilesForUpload([]); // 선택된 파일 초기화
+    setIsSubmitting(false); // 제출 상태 해제
+
+    // 채팅 전송 또는 편집 완료 후, 부모 컴포넌트 (DetailModal)에 스크롤 요청
+    if (onChatSent) {
+      onChatSent();
     }
   };
-
 
   const handleDeleteFile = (name: string) => { // 함수 이름 변경
     setSelectedFilesForUpload(prev => prev.filter(file => file.name !== name));
@@ -196,13 +193,13 @@ const ChatInput: React.FC<{
           )}
         </div>
         <div className="task-detail__detail-modal-chat-input-wrapper">
-          <textarea // input에서 textarea로 변경
+          <textarea
             ref={textInputRef}
             placeholder="댓글을 입력하세요... (줄바꿈 Shift + Enter / 입력 Enter 입니다)"
-            onKeyDown={handleSubmit} // Enter 키 및 Shift+Enter 처리
-            onInput={handleTextAreaInput} // 내용 입력 시 높이 자동 조절 (선택 사항)
-            rows={1} // 초기 줄 수 (CSS로 min-height 설정하는 것이 더 좋을 수 있음)
-            style={{ overflowY: 'hidden' }} // 내용이 적을 때 스크롤바 숨김 (선택 사항)
+            onKeyDown={handleSubmit}
+            onInput={handleTextAreaInput}
+            rows={1}
+            style={{ overflowY: 'hidden' }}
           />
           {editingChat && (<div className="task-detail__detail-modal-chat-input--content-cancel" onClick={onFinishEdit}>취소</div>)}
           <input
@@ -211,9 +208,7 @@ const ChatInput: React.FC<{
             multiple
             onChange={handleFileChange}
           />
-          {/* 아이콘 위치 조정을 위해 wrapper div를 사용하거나 flex-end 등으로 정렬 필요할 수 있음 */}
           <FontAwesomeIcon icon={faPaperclip} className="task-detail__detail-modal-chat-input-attach-icon" onClick={handleIconClick} />
-          {/* <button onClick={handleSubmit}>전송</button> */}
         </div>
       </div>
       {selectedFilesForUpload.length > 0 && (

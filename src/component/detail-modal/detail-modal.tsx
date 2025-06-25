@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import DetailHeader from "./detail-header";
 import ReporterField from "./section/info-field/reporter-field";
@@ -28,6 +28,7 @@ import SectionSelector from "../common/selector/section-selector";
 import OptionSelector from "../common/selector/option-selector";
 import ParticipantSelector from "../participant-select/participant-selector";
 import UserProfile from "../common/profile/user-profile";
+import useChatStore from "../../store/chat-store";
 
 const DetailModal: React.FC<{
   task: Task;
@@ -79,6 +80,12 @@ const DetailModal: React.FC<{
   const updateTask = useTaskStore(state => state.updateTask);
   const { onTasksChange } = useKanbanActions();
 
+  // 채팅
+  const { chatsByTask } = useChatStore();
+  const chatScrollContainerRef = useRef<HTMLDivElement>(null);  // 채팅 스크롤 영역을 위한 ref
+  const prevChatsCountRef = useRef<number>(0) // 이전 채팅 개수를 추적 (다른 사용자 메시지/답글 감시용)
+  const hasScrolledOnLoadRef = useRef<boolean>(false);  // 모달 로그 시 스크롤을 한 번만 수행했는지 여부
+
   const currentTask = useMemo(() => {
     const taskFromStore = tasksFromStore.find(t => t.taskId === initialTaskFromProp.taskId);
     const taskToUse = taskFromStore || initialTaskFromProp;
@@ -120,7 +127,6 @@ const DetailModal: React.FC<{
   }, [statusList, currentTask.status]);
 
 
-  // 어차피 메인은 한명이기 때문에 다 sort로 하는것보다는 isMain하나만 앞에 두고 나머지를 뒤에 추가하는게?
   const sortedParticipants = useMemo(() => {
     if (!currentTask.participants || currentTask.participants.length === 0) return [];
     return [...currentTask.participants].sort((a, b) => {
@@ -184,10 +190,66 @@ const DetailModal: React.FC<{
       <NumericFieldComponent key="num" numericField={currentTask.numericField} taskId={currentTask.taskId} isOwnerOrParticipant={isOwnerOrParticipant} handleChangeAndNotify={handleChangeAndNotify} />,
       <IdField key="id" prefix={currentTask.prefix} taskId={currentTask.taskId} isOwnerOrParticipant={isOwnerOrParticipant} handleChangeAndNotify={handleChangeAndNotify} />,
       <EmailField key="email" emails={currentTask.emails} isOwnerOrParticipant={isOwnerOrParticipant} handleChangeAndNotify={handleChangeAndNotify} />,
-      <UserField key="user" users={currentTask.participants} isOwnerOrParticipant={isOwnerOrParticipant} handleChangeAndNotify={handleChangeAndNotify} onClick={handleOpenProfile}/>,
+      <UserField key="user" users={currentTask.participants} isOwnerOrParticipant={isOwnerOrParticipant} handleChangeAndNotify={handleChangeAndNotify} onClick={handleOpenProfile} />,
     ].filter(Boolean);
     return isExpanded ? allFields : allFields.slice(0, 3);
-  }, [currentTask, isExpanded, isOpenParticipantModal]);
+  }, [currentTask, isExpanded, isOpenParticipantModal, isOwnerOrParticipant, handleChangeAndNotify, handleOpenProfile]);
+
+
+  // 스크롤 함수 정의
+  // 특정 요소가 스크롤 영역 안에 보이도록 스크롤하기
+  const scrollToElement = useCallback((element: HTMLElement | null) => {
+    if (element && chatScrollContainerRef.current)
+      element.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, []);
+
+  // 채팅 목록의 맨 아래로 스크롤하는 함수
+  const scrollToBottom = useCallback(() => {
+    if (chatScrollContainerRef.current)
+      chatScrollContainerRef.current.scrollTop = chatScrollContainerRef.current.scrollHeight;
+  }, []);
+
+  // --- 채팅 데이터 변경 감지 및 자동 스크롤 로직 ---
+  useEffect(() => {
+    // currentTask.taskId의 값이 유효한지 확인
+    if (!currentTask.taskId) return;
+
+    const currentTaskChats = chatsByTask[currentTask.taskId] || [];
+    // 현재 작업의 모든 채팅과 답글의 총 개수를 계산
+    const currentTotalChatCount = currentTaskChats.length + currentTaskChats.reduce((acc, chat) => acc + (chat.replies?.length || 0), 0);
+
+    if (chatScrollContainerRef.current) {
+      const { scrollHeight, clientHeight, scrollTop } = chatScrollContainerRef.current;
+      const scrollTolerance = 150;
+      const isUserAtBottom = (scrollHeight - scrollTop) <= (clientHeight + scrollTolerance);
+
+      // 1. 모달이 열린 후 첫 로딩 시 (해당 태스크의 채팅이 처음 로드될 때) 맨 아래로 스크롤
+      if (!hasScrolledOnLoadRef.current && currentTotalChatCount > 0) {
+        requestAnimationFrame(() => {
+          //  scrollToBottom();
+          hasScrolledOnLoadRef.current = true;
+        });
+      }
+      // 2. 새로운 채팅/답글이 추가된 경우 (다른 사용자 또는 내가 작성한 후)
+      else if (currentTotalChatCount > prevChatsCountRef.current) {
+        if (isUserAtBottom) {
+          requestAnimationFrame(() => {
+            scrollToBottom();
+          });
+        }
+      }
+    }
+    prevChatsCountRef.current = currentTotalChatCount;
+  }, [chatsByTask, currentTask.taskId, scrollToBottom]);
+
+  useEffect(() => {
+    hasScrolledOnLoadRef.current = false;
+    prevChatsCountRef.current = 0;
+  }, [currentTask.taskId]);
+
+  const handleChatSent = useCallback(() => {
+    scrollToBottom();
+  }, [scrollToBottom]);
 
   return (
     <div role="dialog" aria-modal="true" aria-labelledby="modal-title">
@@ -197,7 +259,7 @@ const DetailModal: React.FC<{
           onMouseDown={handleMouseDown}
         />
         <DetailHeader onClose={onClose} openDeleteModal={openDeleteModal} isOwnerOrParticipant={isOwnerOrParticipant} />
-        <div className="task-detail__detail-modal-content kanban-scrollbar-y">
+        <div className="task-detail__detail-modal-content kanban-scrollbar-y" ref={chatScrollContainerRef}>
 
           {/** 작업 설명(TITLE) */}
           <div className="task-detail__detail-modal-section">
@@ -208,7 +270,7 @@ const DetailModal: React.FC<{
 
           {/** 작업 정보 */}
           <div className="task-detail__detail-modal-section">
-            <ReporterField userIcon={currentUser!.icon} userName={currentUser!.username} onClick={(e) => handleOpenProfile(e, currentUser!)}/>
+            <ReporterField userIcon={currentUser!.icon} userName={currentUser!.username} onClick={(e) => handleOpenProfile(e, currentUser!)} />
 
             <ParticipantsField
               participants={sortedParticipants}
@@ -254,11 +316,18 @@ const DetailModal: React.FC<{
           <DetailTodoList initialTodoList={currentTask.todoList || []} onTodoListUpdate={handleTodoListUpdate} taskId={currentTask.taskId} isOwnerOrParticipant={isOwnerOrParticipant} />
 
           {/** 채팅 */}
-          <ChatList currentUser={currentUser!} taskId={currentTask.taskId} handleReplyId={handleReplyId} onStartEditComment={handleStartEditComment} onClick={handleOpenProfile} />
+          <ChatList
+            currentUser={currentUser!}
+            taskId={currentTask.taskId}
+            handleReplyId={handleReplyId}
+            onStartEditComment={handleStartEditComment}
+            onClick={handleOpenProfile}
+            scrollToElement={scrollToElement}
+          />
         </div>
         <ChatInput
           taskId={currentTask.taskId} parentChat={reply} onClose={handleCancelReply}
-          editingChat={editingChatInfo} onFinishEdit={handleChatEditFinish} onClick={handleOpenProfile} />
+          editingChat={editingChatInfo} onFinishEdit={handleChatEditFinish} onClick={handleOpenProfile} onChatSent={handleChatSent} />
       </div>
       {
         isOpenParticipantModal && (
