@@ -80,7 +80,7 @@ const ChatItem: React.FC<{
 
   return (
     <>
-      <div className="task-detail__detail-modal-chat-item" style={itemStyle}>
+      <div className="task-detail__detail-modal-chat-item" style={itemStyle} data-chat-id={chat.chatId}>
         <div onClick={e => onClick(e, chat.user)}>
           <AvatarItem size={40} src={chat.user.icon}>{getInitial(chat.user.username)}</AvatarItem>
         </div>

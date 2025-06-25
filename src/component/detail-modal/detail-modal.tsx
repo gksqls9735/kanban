@@ -84,7 +84,7 @@ const DetailModal: React.FC<{
   const { chatsByTask } = useChatStore();
   const chatScrollContainerRef = useRef<HTMLDivElement>(null);  // 채팅 스크롤 영역을 위한 ref
   const prevChatsCountRef = useRef<number>(0) // 이전 채팅 개수를 추적 (다른 사용자 메시지/답글 감시용)
-  const hasScrolledOnLoadRef = useRef<boolean>(false);  // 모달 로그 시 스크롤을 한 번만 수행했는지 여부
+  //const hasScrolledOnLoadRef = useRef<boolean>(false);  // 모달 로그 시 스크롤을 한 번만 수행했는지 여부
 
   const currentTask = useMemo(() => {
     const taskFromStore = tasksFromStore.find(t => t.taskId === initialTaskFromProp.taskId);
@@ -198,58 +198,59 @@ const DetailModal: React.FC<{
 
   // 스크롤 함수 정의
   // 특정 요소가 스크롤 영역 안에 보이도록 스크롤하기
-  const scrollToElement = useCallback((element: HTMLElement | null) => {
-    if (element && chatScrollContainerRef.current)
-      element.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  const scrollToElement = useCallback((elementOrChatId: HTMLElement | null | string) => {
+    let targetElement: HTMLElement | null = null;
+    if (typeof elementOrChatId === 'string') {
+      targetElement = document.querySelector(`[data-chat-id="${elementOrChatId}"]`);
+    } else {
+      targetElement = elementOrChatId;
+    }
+
+    if (targetElement && chatScrollContainerRef.current) {
+      requestAnimationFrame(() => {
+        if (chatScrollContainerRef.current) targetElement!.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      });
+    } else {
+      console.warn("scrollToElement: Target element or scroll container not found for ID/element:", elementOrChatId, chatScrollContainerRef.current);
+    }
   }, []);
 
   // 채팅 목록의 맨 아래로 스크롤하는 함수
   const scrollToBottom = useCallback(() => {
-    if (chatScrollContainerRef.current)
-      chatScrollContainerRef.current.scrollTop = chatScrollContainerRef.current.scrollHeight;
+    if (chatScrollContainerRef.current) {
+      requestAnimationFrame(() => {
+        if (chatScrollContainerRef.current) {
+          chatScrollContainerRef.current.scrollTop = chatScrollContainerRef.current.scrollHeight;
+        }
+      });
+    }
   }, []);
 
-  // --- 채팅 데이터 변경 감지 및 자동 스크롤 로직 ---
+  // --- 채팅 데이터 변경 감지 로직 (자동 스크롤 트리거 제거) ---
   useEffect(() => {
-    // currentTask.taskId의 값이 유효한지 확인
     if (!currentTask.taskId) return;
 
     const currentTaskChats = chatsByTask[currentTask.taskId] || [];
-    // 현재 작업의 모든 채팅과 답글의 총 개수를 계산
     const currentTotalChatCount = currentTaskChats.length + currentTaskChats.reduce((acc, chat) => acc + (chat.replies?.length || 0), 0);
 
-    if (chatScrollContainerRef.current) {
-      const { scrollHeight, clientHeight, scrollTop } = chatScrollContainerRef.current;
-      const scrollTolerance = 150;
-      const isUserAtBottom = (scrollHeight - scrollTop) <= (clientHeight + scrollTolerance);
-
-      // 1. 모달이 열린 후 첫 로딩 시 (해당 태스크의 채팅이 처음 로드될 때) 맨 아래로 스크롤
-      if (!hasScrolledOnLoadRef.current && currentTotalChatCount > 0) {
-        requestAnimationFrame(() => {
-          //  scrollToBottom();
-          hasScrolledOnLoadRef.current = true;
-        });
-      }
-      // 2. 새로운 채팅/답글이 추가된 경우 (다른 사용자 또는 내가 작성한 후)
-      else if (currentTotalChatCount > prevChatsCountRef.current) {
-        if (isUserAtBottom) {
-          requestAnimationFrame(() => {
-            scrollToBottom();
-          });
-        }
-      }
-    }
     prevChatsCountRef.current = currentTotalChatCount;
-  }, [chatsByTask, currentTask.taskId, scrollToBottom]);
+  }, [chatsByTask, currentTask.taskId]);
 
   useEffect(() => {
-    hasScrolledOnLoadRef.current = false;
     prevChatsCountRef.current = 0;
   }, [currentTask.taskId]);
 
-  const handleChatSent = useCallback(() => {
-    scrollToBottom();
-  }, [scrollToBottom]);
+  const handleChatSent = useCallback((sentChatId: string, parentChatId: string | null, isNewCommentAdded: boolean) => { // <-- 인자 추가
+    requestAnimationFrame(() => {
+      if (isNewCommentAdded) {
+        if (parentChatId) {
+          scrollToElement(parentChatId);
+        } else {
+          scrollToBottom();
+        }
+      }
+    });
+  }, [scrollToBottom, scrollToElement]);
 
   return (
     <div role="dialog" aria-modal="true" aria-labelledby="modal-title">

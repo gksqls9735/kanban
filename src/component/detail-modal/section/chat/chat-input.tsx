@@ -26,7 +26,7 @@ const ChatInput: React.FC<{
   editingChat?: { chatId: string, content: string, parentChatId: string | null } | null;
   onFinishEdit?: () => void;
   onClick: (e: React.MouseEvent, user: Participant | User | null) => void;
-  onChatSent?: () => void;
+  onChatSent?: (sentChatId: string, parentChatId: string | null, isNewCommentAdded: boolean) => void;
 }> = ({ taskId, parentChat, onClose, editingChat, onFinishEdit, onClick, onChatSent }) => {
   const addChatToTask = useChatStore(state => state.addChatToTask);
   const updateChat = useChatStore(state => state.updateChat);
@@ -85,8 +85,7 @@ const ChatInput: React.FC<{
 
     // 2. 제출을 트리거하는 조건 (Enter 키 또는 클릭 이벤트)
     const shouldSubmit =
-      (isKeyboardEvent && keyboardEvent?.key === 'Enter') ||
-      e.type === 'click';
+      (isKeyboardEvent && keyboardEvent?.key === 'Enter') || e.type === 'click';
 
     // 제출 조건이 아니라면 즉시 반환 (스페이스바 등)
     if (!shouldSubmit) return;
@@ -123,18 +122,23 @@ const ChatInput: React.FC<{
       }
     }
 
+    let sentChatId: string;
+    let sentParentChatId: string | null = null;
+    let isNewCommentOrReply: boolean = false;
+
     if (editingChat) {
       // 수정 모드
       const updatePayload: Partial<Chat> = { chatContent };
       if (uploadedAttachments.length > 0) {
         updatePayload.attachments = uploadedAttachments;
       }
-      updateChat(taskId, editingChat.chatId, updatePayload);
-      if (onFinishEdit) {
-        onFinishEdit(); // 수정 모드 종료
-      }
+      await updateChat(taskId, editingChat.chatId, updatePayload);
+      sentChatId = editingChat.chatId;
+      sentParentChatId = editingChat.parentChatId;
+      if (onFinishEdit) onFinishEdit(); // 수정 모드 종료
     } else {
       // 새 댓글 또는 답글 모드
+      isNewCommentOrReply = true;
       const newChat: Chat = {
         chatId: generateUniqueId('chat'), // 고유 ID 생성
         taskId: taskId,
@@ -146,10 +150,10 @@ const ChatInput: React.FC<{
         attachments: uploadedAttachments, // 첨부 파일 추가
         replies: [], // 초기 답글 배열은 비워둠
       };
-      addChatToTask(taskId, newChat); // Store에 새 채팅/답글 추가
-      if (parentChat?.parentId && onClose) {
-        onClose(); // 답글 입력창 닫기 (답글 모드일 경우)
-      }
+      await addChatToTask(taskId, newChat);
+      sentChatId = newChat.chatId;
+      sentParentChatId = newChat.parentChatId;
+      if (parentChat?.parentId && onClose) onClose(); // 답글 입력창 닫기 (답글 모드일 경우)
     }
 
     // 입력 필드 초기화
@@ -161,9 +165,7 @@ const ChatInput: React.FC<{
     setIsSubmitting(false); // 제출 상태 해제
 
     // 채팅 전송 또는 편집 완료 후, 부모 컴포넌트 (DetailModal)에 스크롤 요청
-    if (onChatSent) {
-      onChatSent();
-    }
+    if (onChatSent) onChatSent(sentChatId, sentParentChatId, isNewCommentOrReply);
   };
 
   const handleDeleteFile = (name: string) => { // 함수 이름 변경
