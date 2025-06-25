@@ -17,28 +17,28 @@ export interface KanbanActionsContextType {
 // Provider 외부에서 호출될 경우를 대비하여 경고 메시지를 포함하거나 빈 함수를 넣을 수 있습니다.
 const KanbanActionsContext = createContext<KanbanActionsContextType>({
   onTaskAdd: (task) => {
-    console.warn('onTaskAdd function was called without a GanttActionsContext.Provider', task);
+    console.warn('onTaskAdd function was called without a KanbanActionsContext.Provider', task);
   },
   onTasksChange: (tasks) => {
-    console.warn('onTasksChange function was called without a GanttActionsContext.Provider', tasks);
+    console.warn('onTasksChange function was called without a KanbanActionsContext.Provider', tasks);
   },
   onTasksDelete: (taskId) => {
-    console.warn('onTasksDelete function was called without a GanttActionsContext.Provider', taskId);
+    console.warn('onTasksDelete function was called without a KanbanActionsContext.Provider', taskId);
   },
   onSectionsChange: (sections) => {
-    console.warn('onSectionsChange function was called without a GanttActionsContext.Provider', sections);
+    console.warn('onSectionsChange function was called without a KanbanActionsContext.Provider', sections);
   },
   onSectionDelete: (sectionId) => {
-    console.warn('onSectionDelete function was called without a GanttActionsContext.Provider', sectionId);
+    console.warn('onSectionDelete function was called without a KanbanActionsContext.Provider', sectionId);
   },
   onStatusesChange: (statusList) => {
-    console.warn('onStatusesChange function was called without a GanttActionsContext.Provider', statusList);
+    console.warn('onStatusesChange function was called without a KanbanActionsContext.Provider', statusList);
   },
   onChatlistChange: (chats) => {
-    console.warn('onChatlistChange function was called without a GanttActionsContext.Provider', chats);
+    console.warn('onChatlistChange function was called without a KanbanActionsContext.Provider', chats);
   },
   onSelectTaskId: (taskId) => {
-    console.warn('onSelectTaskId function was called without a GanttActionsContext.Provider', taskId);
+    console.warn('onSelectTaskId function was called without a KanbanActionsContext.Provider', taskId);
   }
 });
 

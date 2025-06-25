@@ -149,7 +149,7 @@ const TreePanel: React.FC<{
             </svg>
           </div>
         </div>
-        <div className="participant-modal__user-list gantt-scrollbar-y">
+        <div className="participant-modal__user-list kanban-scrollbar-y">
           {treeData.length > 0 ? treeData.map(rootNode => renderTreeNode(rootNode)) : (
             <div style={{ textAlign: 'center', padding: 20, fontSize: 13, color: '#888' }}>
               {searchTerm ? '검색 결과가 없습니다.' : '사용자가 없습니다.'}

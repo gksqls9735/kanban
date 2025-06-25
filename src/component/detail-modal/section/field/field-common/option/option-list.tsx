@@ -39,7 +39,7 @@ const OptionList: React.FC<{
     return (
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <SortableContext items={dndItemIds} strategy={verticalListSortingStrategy}>
-          <ul className="gantt-scrollbar-y task-detail__detail-modal-field-edit-list">
+          <ul className="kanban-scrollbar-y task-detail__detail-modal-field-edit-list">
             {options.length > 0 ? (
               options.map((option, index) =>
                 <OptionRow

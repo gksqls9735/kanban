@@ -224,7 +224,7 @@ const UrlField: React.FC<{
               <>
                 <div className="task-detail__detail-modal-field-edit-list-wrapper">
                   <ul
-                    className="gantt-scrollbar-y task-detail__detail-modal-field-edit-list">
+                    className="kanban-scrollbar-y task-detail__detail-modal-field-edit-list">
                     {initialUrls.map(url => (
                       <li key={url.urlId} className="task-detail__detail-modal-field-edit-item" style={{ alignItems: 'center' }}>
                         <ImgFallback src={`https://www.google.com/s2/favicons?sz=256&domain_url=${url.requestedUrl}`} fallback={FallbackIcon} />

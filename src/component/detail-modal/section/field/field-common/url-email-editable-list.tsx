@@ -55,7 +55,7 @@ const UrlEmailEditableList = <TItem extends GenericDndListItem>({
   return (
     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
       <SortableContext items={dndItemIds} strategy={verticalListSortingStrategy}>
-        <ul className="gantt-scrollbar-y task-detail__detail-modal-field-edit-list">
+        <ul className="kanban-scrollbar-y task-detail__detail-modal-field-edit-list">
           {items.map((item, index) => (
             <UrlEmailEditableItem
               key={item[itemIdKey] as React.Key}

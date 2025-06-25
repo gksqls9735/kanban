@@ -42,7 +42,7 @@ const UserListPanel: React.FC<{
           </svg>
         </div>
       </div>
-      <div className="participant-modal__user-list gantt-scrollbar-y">
+      <div className="participant-modal__user-list kanban-scrollbar-y">
         <div className="participant-modal__select-all-row">
           <label htmlFor="all-user-check">모두 선택</label>
           <div className="participant-modal__checkbox-area">

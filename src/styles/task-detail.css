@@ -650,6 +650,36 @@
   cursor: pointer;
 }
 
+/* 파일 첨부 */
+.kanban .task-detail__detail-modal-field-item__edit-file {
+  display: flex;
+  flex-direction: column;
+  padding: 0px 12px;
+  height: 40px;
+  box-sizing: border-box;
+}
+
+.kanban .task-detail__detail-modal-field-item__edit-file-info {
+  display: flex;
+  gap: 8px;
+  width: fit-content;
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid #EEF1F6;
+}
+
+.kanban .task-detail__detail-modal-field-item__edit-file-name {
+  font-size: 13px;
+  font-weight: 400;
+  color: #0F1B2A;
+}
+
+.kanban .task-detail__detail-modal-field-item__edit-file-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 /* url email 공통 */
 .kanban .task-detail__detail-modal-field-edit-item--url-email {
   gap: 12px;

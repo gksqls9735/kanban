@@ -102,19 +102,15 @@ const AttachmentField: React.FC<{
         <div ref={editContainerRef} className="task-detail__detail-modal-field-edit-container">
           <div className="task-detail__detail-modal-field-edit-list-wrapper">
             <ul
-              className="gantt-scrollbar-y task-detail__detail-modal-field-edit-url-list">
+              className="kanban-scrollbar-y task-detail__detail-modal-field-edit-list">
               {attachments.map(file => {
                 const { icon } = getFileTypeInfo(file.fileName, 24);
                 return (
-                  <li key={file.fileId} style={{ display: 'flex', flexDirection: 'column', padding: '0px 12px', height: 40, boxSizing: 'border-box' }}>
-                    <div style={{
-                      border: '1px solid #EEF1F6', borderRadius: 4, padding: '4px 8px', display: 'flex', gap: 8, width: 'fit-content',
-                    }}>
+                  <li key={file.fileId} className="task-detail__detail-modal-field-item__edit-file">
+                    <div className="task-detail__detail-modal-field-item__edit-file-info">
                       {icon}
-                      <div className="truncate"
-                        style={{ fontWeight: 400, fontSize: 13, color: '#0F1B2A' }}
-                      >{file.fileName}</div>
-                      <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                      <div className="truncate task-detail__detail-modal-field-item__edit-file-name">{file.fileName}</div>
+                      <div className="task-detail__detail-modal-field-item__edit-file-actions">
                         <a className="task-detail__detail-modal-field-value-item-attachment-download" href={file.fileUrl} download={file.fileName} target="_blank" rel="noopener noreferrer">
                           <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="#5F6B7A">
                             <path d="M160-120v-80h640v80H160Zm320-160L280-480l56-56 104 104v-408h80v408l104-104 56 56-200 200Z" />

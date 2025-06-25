@@ -215,7 +215,7 @@ const EmailField: React.FC<{
             <>
               <div className="task-detail__detail-modal-field-edit-list-wrapper">
                 <ul
-                  className="gantt-scrollbar-y task-detail__detail-modal-field-edit-list">
+                  className="kanban-scrollbar-y task-detail__detail-modal-field-edit-list">
                   {initialEmails.map(email => (
                     <li key={email.id} className="task-detail__detail-modal-field-edit-item task-detail__detail-modal-field-edit-item--email">
                       <div className="task-detail__detail-modal-field-edit-item--email--nickname">{email.nickname}</div>

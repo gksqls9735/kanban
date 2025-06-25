@@ -61,7 +61,7 @@ const UserField: React.FC<{
           <div ref={editContainerRef} className="task-detail__detail-modal-field-edit-container">
             <div className="task-detail__detail-modal-field-edit-list-wrapper">
               <ul
-                className="gantt-scrollbar-y task-detail__detail-modal-field-edit-list">
+                className="kanban-scrollbar-y task-detail__detail-modal-field-edit-list">
                 {users.map(u => (
                   <li key={u.id} className="task-detail__detail-modal-field-edit-item task-detail__detail-modal-field-edit-item--user">
                     <div className="task-detail__detail-modal-field-edit-user-info" onClick={e => onClick(e, u)}>

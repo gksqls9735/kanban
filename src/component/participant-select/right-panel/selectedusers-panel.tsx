@@ -17,7 +17,7 @@ const SelectedUsersPanel: React.FC<{
           onClick={onRemoveAll}
         >모두 삭제</span>
       </div>
-      <div className="participant-modal__selected-list gantt-scrollbar-y">
+      <div className="participant-modal__selected-list kanban-scrollbar-y">
         {participants.map(p => (
           <SelectedUserItem
             key={p.id}

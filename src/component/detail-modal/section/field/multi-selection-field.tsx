@@ -166,7 +166,7 @@ const MultiSelection: React.FC<{
             <>
               {/* 체크박스 리스트 (isOpenEdit이 false일 때) */}
               <div className="task-detail__detail-modal-field-edit-list-wrapper">
-                <ul className="gantt-scrollbar-y task-detail__detail-modal-field-edit-list">
+                <ul className="kanban-scrollbar-y task-detail__detail-modal-field-edit-list">
                   {combinedItems.map(option => (
                     <li key={option.code} className="task-detail__detail-modal-field-edit-item task-detail__detail-modal-field-edit-item--selection-view">
                       <div className="participant-modal__checkbox-area" style={{ alignItems: 'center' }}>
