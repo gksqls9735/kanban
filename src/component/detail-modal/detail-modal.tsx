@@ -323,7 +323,6 @@ const DetailModal: React.FC<{
             handleReplyId={handleReplyId}
             onStartEditComment={handleStartEditComment}
             onClick={handleOpenProfile}
-            scrollToElement={scrollToElement}
           />
         </div>
         <ChatInput

@@ -10,8 +10,7 @@ const ChatList: React.FC<{
   handleReplyId: (parentId: string, username: string) => void;
   onStartEditComment: (chatToEdit: Chat) => void;
   onClick: (e: React.MouseEvent, user: Participant | User | null) => void;
-  scrollToElement: (element: HTMLElement | null) => void;
-}> = ({ currentUser, taskId, handleReplyId, onStartEditComment, onClick, scrollToElement }) => {
+}> = ({ currentUser, taskId, handleReplyId, onStartEditComment, onClick }) => {
   const isLikedByCurrentUser = (chatLikeList: string[]) => chatLikeList.includes(currentUser.id);
 
   const chats = useChatStore(s => s.chatsByTask[taskId] || EMPTY_CHATS);
@@ -37,7 +36,6 @@ const ChatList: React.FC<{
                 handleReplyId={handleReplyId}
                 onStartEdit={onStartEditComment}
                 onClick={onClick}
-                scrollToElement={scrollToElement}
               />
             ))}
           </div>
