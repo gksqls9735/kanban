@@ -199,10 +199,7 @@ export type Chat = {
   createdAt: Date;
   likedUserIds: string[];
   attachments?: FileAttachment[];
-
-  replies?: Chat[]; // ✅ 재귀 구조로 자식들 포함
 };
-
 
 export type Tooltip = {
   x: number;

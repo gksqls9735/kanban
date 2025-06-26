@@ -1,3 +1,4 @@
+// DetailModal.tsx
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import DetailHeader from "./detail-header";
@@ -28,7 +29,7 @@ import SectionSelector from "../common/selector/section-selector";
 import OptionSelector from "../common/selector/option-selector";
 import ParticipantSelector from "../participant-select/participant-selector";
 import UserProfile from "../common/profile/user-profile";
-import useChatStore from "../../store/chat-store";
+import useChatStore from "../../store/chat-store"; // useChatStore 임포트
 
 const DetailModal: React.FC<{
   task: Task;
@@ -80,11 +81,12 @@ const DetailModal: React.FC<{
   const updateTask = useTaskStore(state => state.updateTask);
   const { onTasksChange } = useKanbanActions();
 
-  // 채팅
-  const { chatsByTask } = useChatStore();
-  const chatScrollContainerRef = useRef<HTMLDivElement>(null);  // 채팅 스크롤 영역을 위한 ref
-  const prevChatsCountRef = useRef<number>(0) // 이전 채팅 개수를 추적 (다른 사용자 메시지/답글 감시용)
-  //const hasScrolledOnLoadRef = useRef<boolean>(false);  // 모달 로그 시 스크롤을 한 번만 수행했는지 여부
+  // 채팅 관련 useChatStore 액션/셀렉터 가져오기
+  const addChat = useChatStore(state => state.addChat);
+  const updateChat = useChatStore(state => state.updateChat);
+  const deleteChat = useChatStore(state => state.deleteChat);
+
+  const chatScrollContainerRef = useRef<HTMLDivElement>(null);  // 채팅 스크롤 영역을 위한 ref
 
   const currentTask = useMemo(() => {
     const taskFromStore = tasksFromStore.find(t => t.taskId === initialTaskFromProp.taskId);
@@ -193,11 +195,10 @@ const DetailModal: React.FC<{
       <UserField key="user" users={currentTask.participants} isOwnerOrParticipant={isOwnerOrParticipant} handleChangeAndNotify={handleChangeAndNotify} onClick={handleOpenProfile} />,
     ].filter(Boolean);
     return isExpanded ? allFields : allFields.slice(0, 3);
-  }, [currentTask, isExpanded, isOpenParticipantModal, isOwnerOrParticipant, handleChangeAndNotify, handleOpenProfile]);
+  }, [currentTask, isExpanded, isOwnerOrParticipant, handleChangeAndNotify, handleOpenProfile]);
 
 
   // 스크롤 함수 정의
-  // 특정 요소가 스크롤 영역 안에 보이도록 스크롤하기
   const scrollToElement = useCallback((elementOrChatId: HTMLElement | null | string) => {
     let targetElement: HTMLElement | null = null;
     if (typeof elementOrChatId === 'string') {
@@ -226,28 +227,13 @@ const DetailModal: React.FC<{
     }
   }, []);
 
-  // --- 채팅 데이터 변경 감지 로직 (자동 스크롤 트리거 제거) ---
-  useEffect(() => {
-    if (!currentTask.taskId) return;
-
-    const currentTaskChats = chatsByTask[currentTask.taskId] || [];
-    const currentTotalChatCount = currentTaskChats.length + currentTaskChats.reduce((acc, chat) => acc + (chat.replies?.length || 0), 0);
-
-    prevChatsCountRef.current = currentTotalChatCount;
-  }, [chatsByTask, currentTask.taskId]);
-
-  useEffect(() => {
-    prevChatsCountRef.current = 0;
-  }, [currentTask.taskId]);
-
-  const handleChatSent = useCallback((sentChatId: string, parentChatId: string | null, isNewCommentAdded: boolean) => { // <-- 인자 추가
+  // 새로운 채팅이 전송되었을 때 호출되는 함수 (ChatInput에서 호출)
+  const handleChatSent = useCallback((sentChatId: string, parentChatId: string | null, isNewCommentAdded: boolean) => {
     requestAnimationFrame(() => {
       if (isNewCommentAdded) {
-        if (parentChatId) {
-          scrollToElement(parentChatId);
-        } else {
-          scrollToBottom();
-        }
+        scrollToBottom();
+      } else if (parentChatId) {
+        scrollToElement(parentChatId);
       }
     });
   }, [scrollToBottom, scrollToElement]);
@@ -260,6 +246,7 @@ const DetailModal: React.FC<{
           onMouseDown={handleMouseDown}
         />
         <DetailHeader onClose={onClose} openDeleteModal={openDeleteModal} isOwnerOrParticipant={isOwnerOrParticipant} />
+        {/* chatScrollContainerRef를 스크롤 가능한 컨테이너에 적용 */}
         <div className="task-detail__detail-modal-content kanban-scrollbar-y" ref={chatScrollContainerRef}>
 
           {/** 작업 설명(TITLE) */}
@@ -323,11 +310,22 @@ const DetailModal: React.FC<{
             handleReplyId={handleReplyId}
             onStartEditComment={handleStartEditComment}
             onClick={handleOpenProfile}
+            scrollToElement={scrollToElement} // scrollToElement prop 전달
+            onUpdate={updateChat} // useChatStore의 updateChat 액션 전달
+            onDelete={deleteChat} // useChatStore의 deleteChat 액션 전달
           />
         </div>
         <ChatInput
-          taskId={currentTask.taskId} parentChat={reply} onClose={handleCancelReply}
-          editingChat={editingChatInfo} onFinishEdit={handleChatEditFinish} onClick={handleOpenProfile} onChatSent={handleChatSent} />
+          taskId={currentTask.taskId}
+          parentChat={reply}
+          onClose={handleCancelReply}
+          editingChat={editingChatInfo}
+          onFinishEdit={handleChatEditFinish}
+          onClick={handleOpenProfile}
+          onChatSent={handleChatSent} // DetailModal의 handleChatSent 전달
+          addChat={addChat} // useChatStore의 addChat 액션 전달
+          updateChat={updateChat} // useChatStore의 updateChat 액션 전달
+        />
       </div>
       {
         isOpenParticipantModal && (

@@ -119,10 +119,6 @@ export const emails: Email[] = [
   { id: 'email09', email: "test@test.com", nickname: "테스터", order: 8 }
 ];
 
-
-
-
-
 // chatTask1_Root1의 답글의 답글
 const chatTask1_Reply1_SubReply1: Chat = {
   chatId: 'chat-003-task1-reply1-sub1',
@@ -146,7 +142,6 @@ const chatTask1_Reply1: Chat = {
   createdAt: new Date('2024-07-20T09:30:00Z'),
   likedUserIds: [user1.id],
   attachments: [],
-  replies: [chatTask1_Reply1_SubReply1], // 위에서 정의한 답글 포함
 };
 
 // chatTask1_Root1의 두 번째 답글
@@ -172,7 +167,6 @@ export const chatTask1_Root1: Chat = {
   createdAt: new Date('2024-07-20T09:00:00Z'),
   likedUserIds: [user2.id, user3.id],
   attachments: [exampleAttachments[1]],
-  replies: [chatTask1_Reply1, chatTask1_Reply2], // 위에서 정의한 답글들 포함
 };
 
 // Task 1의 두 번째 최상위 채팅 (답글 없음)
@@ -227,7 +221,6 @@ export const chatTask2_Root1: Chat = {
   createdAt: new Date('2024-07-22T11:00:00Z'),
   likedUserIds: [user1.id, user4.id],
   attachments: [exampleAttachments[1]],
-  replies: [chatTask2_Reply1, chatTask2_Reply2],
 };
 
 // chatTask2_Root2의 첫 번째 답글
@@ -253,10 +246,15 @@ export const chatTask2_Root2: Chat = {
   createdAt: new Date('2024-07-23T09:00:00Z'),
   likedUserIds: [],
   // attachments: [],
-  replies: [chatTask2_Root2_Reply1],
 };
 
 export const chatlist = [
   chatTask1_Root1, chatTask1_Root2,
   chatTask2_Root1, chatTask2_Root2,
+]
+
+
+export const globalChatlist = [
+  chatTask1_Reply1_SubReply1, chatTask1_Reply1, chatTask1_Reply2, chatTask1_Root1, chatTask1_Root2,
+  chatTask2_Reply1, chatTask2_Reply2, chatTask2_Root1, chatTask2_Root2_Reply1, chatTask2_Root2
 ]

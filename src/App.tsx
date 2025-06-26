@@ -4,7 +4,7 @@ import "./web-component/kanban-web-component";
 import { sections, sectionTasks } from './mocks/task-mock';
 import { statusSelect } from './mocks/select-option-mock';
 import { user1, userlist } from './mocks/user-mock';
-import { chatlist } from './mocks/task-detail-mock';
+import { globalChatlist as initialGlobalChatlist } from './mocks/task-detail-mock';
 import './styles/datetimepicker.css';
 import './styles/task-detail.css';
 import './styles/participant-selector.css';
@@ -22,7 +22,7 @@ function App() {
   const [appStatusList, setAppStatusList] = useState<SelectOption[]>(statusSelect);
 
   // 전체 채팅 목록을 관리하는 상태
-  const [globalChatlist, setGlobalChatlist] = useState<Chat[]>(chatlist);
+  const [globalChatlist, setGlobalChatlist] = useState<Chat[]>(initialGlobalChatlist);
   // 현재 상세보기 중인 태스크의 채팅 목록
   const [currentTaskChatList, setCurrentTaskChatList] = useState<Chat[]>([]);
   // 현재 상세보기 중인 태스크의 ID
@@ -32,6 +32,7 @@ function App() {
   useEffect(() => {
     if (selectedTaskId) {
       const chatsForSelectedTask = globalChatlist.filter(chat => chat.taskId === selectedTaskId);
+      console.warn("chatsForSelectedTask: ", chatsForSelectedTask)
       setCurrentTaskChatList(chatsForSelectedTask);
     } else {
       setCurrentTaskChatList([]);

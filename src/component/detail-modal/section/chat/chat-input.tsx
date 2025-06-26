@@ -1,11 +1,11 @@
+// ChatInput.tsx
 import { faPaperclip } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ChangeEvent, KeyboardEvent, useEffect, useRef, useState } from "react";
 import { getFileTypeInfo } from "../../common/file-icon";
-import { Chat, FileAttachment, Participant, User } from "../../../../types/type";
+import { Chat, FileAttachment, Participant, User } from "../../../../types/type"; // Chat 타입은 replies 제거된 상태
 import { generateUniqueId, getInitial } from "../../../../utils/text-function";
-import useChatStore from "../../../../store/chat-store";
-import useUserStore from "../../../../store/user-store";
+import useUserStore from "../../../../store/user-store"; // useUserStore 임포트 유지
 import AvatarItem from "../../../common/avatar/avatar";
 
 // 임시 파일 업로드 함수 (실제로는 서버 API 호출)
@@ -23,16 +23,16 @@ const ChatInput: React.FC<{
   taskId: string;
   parentChat?: { parentId: string, username: string } | null;
   onClose?: () => void;
-  editingChat?: { chatId: string, content: string, parentChatId: string | null } | null;
+  editingChat?: { chatId: string, content: string, parentChatId: string | null; taskId: string } | null;
   onFinishEdit?: () => void;
   onClick: (e: React.MouseEvent, user: Participant | User | null) => void;
-  onChatSent?: (sentChatId: string, parentChatId: string | null, isNewCommentAdded: boolean) => void;
-}> = ({ taskId, parentChat, onClose, editingChat, onFinishEdit, onClick, onChatSent }) => {
-  const addChatToTask = useChatStore(state => state.addChatToTask);
-  const updateChat = useChatStore(state => state.updateChat);
+  onChatSent?: (sentChatId: string, parentChatId: string | null, isNewCommentAdded: boolean) => void; // 기존 인자 타입 유지
+  addChat: (newChat: Chat) => void; // useChatStore의 addChat 액션을 prop으로 받음
+  updateChat: (targetChatId: string, patch: Partial<Chat>) => void; // useChatStore의 updateChat 액션을 prop으로 받음 (taskId 인자 제거됨)
+}> = ({ taskId, parentChat, onClose, editingChat, onFinishEdit, onClick, onChatSent, addChat, updateChat }) => {
   const currentUser = useUserStore(state => state.currentUser)!;
 
-  const textInputRef = useRef<HTMLTextAreaElement>(null); // HTMLTextAreaElement로 변경
+  const textInputRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFilesForUpload, setSelectedFilesForUpload] = useState<File[]>([]);
 
@@ -77,9 +77,7 @@ const ChatInput: React.FC<{
 
     // 1. 한글 조합 중이거나, Shift + Enter (줄바꿈)일 경우 즉시 반환
     if (isKeyboardEvent) {
-      // 조합 중일 때는 어떤 키 입력도 무시
       if (keyboardEvent?.nativeEvent.isComposing) return;
-      // Shift + Enter는 줄바꿈, 제출 아님
       if (keyboardEvent?.key === 'Enter' && keyboardEvent?.shiftKey) return;
     }
 
@@ -87,12 +85,12 @@ const ChatInput: React.FC<{
     const shouldSubmit =
       (isKeyboardEvent && keyboardEvent?.key === 'Enter') || e.type === 'click';
 
-    // 제출 조건이 아니라면 즉시 반환 (스페이스바 등)
+    // 제출 조건이 아니라면 즉시 반환
     if (!shouldSubmit) return;
 
     // 3. 제출이 맞다면 기본 이벤트 방지
     if (shouldSubmit && isKeyboardEvent && keyboardEvent?.key === 'Enter') {
-      e.preventDefault(); // Enter 키로 인한 기본 폼 제출 방지
+      e.preventDefault();
     } else if (shouldSubmit && e.type === 'click') {
       e.preventDefault();
     }
@@ -104,7 +102,7 @@ const ChatInput: React.FC<{
 
     // 유효성 검사 (내용과 첨부파일이 모두 없을 때 제출 방지)
     if (!chatContent.trim() && selectedFilesForUpload.length === 0) {
-      setIsSubmitting(false); // 제출 상태 해제
+      setIsSubmitting(false);
       if (textInputRef.current) textInputRef.current.focus();
       return;
     }
@@ -132,7 +130,9 @@ const ChatInput: React.FC<{
       if (uploadedAttachments.length > 0) {
         updatePayload.attachments = uploadedAttachments;
       }
-      await updateChat(taskId, editingChat.chatId, updatePayload);
+      
+      // updateChat prop 사용
+      await updateChat(editingChat.chatId, updatePayload);
       sentChatId = editingChat.chatId;
       sentParentChatId = editingChat.parentChatId;
       if (onFinishEdit) onFinishEdit(); // 수정 모드 종료
@@ -145,12 +145,14 @@ const ChatInput: React.FC<{
         parentChatId: parentChat?.parentId ?? null, // 답글인 경우 부모 ID 설정
         chatContent: chatContent,
         user: currentUser,
-        createdAt: new Date(), // ISO 문자열 형식으로 저장 (일관성을 위해)
+        createdAt: new Date(),
         likedUserIds: [],
-        attachments: uploadedAttachments, // 첨부 파일 추가
-        replies: [], // 초기 답글 배열은 비워둠
+        attachments: uploadedAttachments,
+        // replies: [], // ★★★ Chat 타입에서 replies 속성이 제거되었으므로, 이 줄은 삭제합니다.
       };
-      await addChatToTask(taskId, newChat);
+      
+      // addChat prop 사용
+      await addChat(newChat);
       sentChatId = newChat.chatId;
       sentParentChatId = newChat.parentChatId;
       if (parentChat?.parentId && onClose) onClose(); // 답글 입력창 닫기 (답글 모드일 경우)
@@ -168,7 +170,7 @@ const ChatInput: React.FC<{
     if (onChatSent) onChatSent(sentChatId, sentParentChatId, isNewCommentOrReply);
   };
 
-  const handleDeleteFile = (name: string) => { // 함수 이름 변경
+  const handleDeleteFile = (name: string) => {
     setSelectedFilesForUpload(prev => prev.filter(file => file.name !== name));
   }
 
@@ -225,8 +227,8 @@ const ChatInput: React.FC<{
                   <div className="task-detail__detail-modal-field-value-item-attachment-download" onClick={() => handleDeleteFile(file.name)} style={{ cursor: 'pointer' }}>
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="-0.5 -0.5 16 16" fill="#8D99A8" stroke="#000000" strokeLinecap="round" strokeLinejoin="round" className="feather feather-x" id="X--Streamline-Feather" height="16" width="16">
                       <desc>X Streamline Icon: https://streamlinehq.com</desc>
-                      <path d="M11.25 3.75 3.75 11.25" strokeWidth="1"></path>
-                      <path d="m3.75 3.75 7.5 7.5" strokeWidth="1"></path>
+                      <path d="M11.25 3.75 3.75 11.25"></path>
+                      <path d="m3.75 3.75 7.5 7.5"></path>
                     </svg>
                   </div>
                 </div>

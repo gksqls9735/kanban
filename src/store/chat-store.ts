@@ -1,151 +1,112 @@
+// store/chat-store.ts
 import { create } from "zustand";
-import { Chat } from "../types/type";
+import { Chat } from "../types/type"; // Chat 타입은 replies 속성이 없는 플랫한 타입이라고 가정
 
-interface ChatState {
-  chatsByTask: Record<string, Chat[]>;
-  setAllTaskChats: (allChatsData: Record<string, Chat[]>) => void;
-  setChatsForTask: (taskId: string, chats: Chat[]) => void;
-  addChatToTask: (taskId: string, chat: Chat) => void;
-  updateChat: (taskId: string, targetChatId: string, patch: Partial<Chat>) => void;
-  deleteChat: (taskId: string, chatId: string) => void;
+// UI 렌더링을 위해 임시로 replies 속성을 추가하는 Chat 타입
+// 이 타입은 ChatStore 내부와 ChatList/ChatItem에서 사용됩니다.
+export interface ChatForUI extends Chat {
+  replies?: ChatForUI[];
 }
 
-// 재귀적으로 부모 채팅을 찾아 답글을 추가하는 헬퍼 함수
-const addReplyToParent = (chats: Chat[], parentId: string, newReply: Chat): Chat[] => {
-  return chats.map(chat => {
-    if (chat.chatId === parentId) {
-      // 부모를 찾았으면, replies 배열을 복사하고 새 답글 추가
-      return {
-        ...chat,
-        replies: [...(chat.replies || []), newReply].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()), // 시간순 정렬 추가
-      };
-    }
-    if (chat.replies && chat.replies.length > 0) {
-      // 현재 채팅이 부모가 아니면, 자식 replies에서 재귀적으로 탐색
-      const updatedReplies = addReplyToParent(chat.replies, parentId, newReply);
-      // replies가 변경되었다면 (즉, 하위 어딘가에 추가되었다면) 현재 chat 객체도 새로 만들어야 함
-      if (updatedReplies !== chat.replies) {
-        return { ...chat, replies: updatedReplies };
-      }
-    }
-    return chat; // 변경 없으면 그대로 반환
-  });
+interface ChatState {
+  allChats: Chat[]; // 모든 채팅을 플랫하게 저장 (원본 데이터)
+  chatsById: Record<string, Chat>; // 성능을 위해 ID로 접근 가능한 맵 (원본 데이터)
+
+  setInitialChats: (initialChats: Chat[]) => void;
+  addChat: (newChat: Chat) => void;
+  updateChat: (targetChatId: string, patch: Partial<Chat>) => void; // taskId 제거
+  deleteChat: (chatIdToDelete: string) => void; // taskId 제거
+}
+
+// 모든 채팅을 플랫한 배열에서 받아, 특정 parentId를 가진 채팅들로 트리 구조를 재귀적으로 생성
+// 이 함수는 순수 함수로, 컴포넌트에서 useMemo를 통해 호출 결과를 캐싱합니다.
+export const buildChatTreeRecursive = (chats: Chat[], parentId: string | null = null): ChatForUI[] => {
+  const children = chats
+    .filter(chat => chat.parentChatId === parentId)
+    .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+
+  return children.map(chat => ({
+    ...chat,
+    replies: buildChatTreeRecursive(chats, chat.chatId)
+  }));
 };
 
-const useChatStore = create<ChatState>((set, _get) => ({
-  chatsByTask: {},
-  setAllTaskChats: (allChatsData) =>
-    set(() => ({ chatsByTask: allChatsData })),
-  setChatsForTask: (taskId, chats) =>
-    set((s) => ({ chatsByTask: { ...s.chatsByTask, [taskId]: chats } })),
-  addChatToTask: (taskId, newChat) => {
-    set(state => {
-      const currentTaskChats = state.chatsByTask[taskId] || [];
-      let updatedTaskChats;
 
-      if (newChat.parentChatId) {
-        // 답글인 경우
-        updatedTaskChats = addReplyToParent(currentTaskChats, newChat.parentChatId, newChat);
-      } else {
-        // 최상위 댓글인 경우
-        updatedTaskChats = [...currentTaskChats, newChat].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
-      }
+const useChatStore = create<ChatState>((set, get) => ({
+  allChats: [],
+  chatsById: {},
 
-      return {
-        chatsByTask: {
-          ...state.chatsByTask,
-          [taskId]: updatedTaskChats,
-        },
-      };
+  setInitialChats: (initialChats) => {
+    const newChatsById: Record<string, Chat> = {};
+    initialChats.forEach(chat => {
+      newChatsById[chat.chatId] = chat;
+    });
+
+    set({
+      allChats: initialChats,
+      chatsById: newChatsById,
     });
   },
 
-  updateChat: (taskId: string, targetChatId: string, patch: Partial<Chat>) =>
+  addChat: (newChat) => set((state) => {
+    const updatedAllChats = [...state.allChats, newChat];
+    const updatedChatsById = { ...state.chatsById, [newChat.chatId]: newChat };
+
+    return {
+      allChats: updatedAllChats,
+      chatsById: updatedChatsById,
+    };
+  }),
+
+  updateChat: (targetChatId: string, patch: Partial<Chat>) =>
     set((state) => {
-      const taskChats = state.chatsByTask[taskId];
-      if (!taskChats) return state;
+      const existingChat = state.chatsById[targetChatId];
+      if (!existingChat) {
+        console.warn(`Chat with ID ${targetChatId} not found for update.`);
+        return state;
+      }
 
-      const precessAndUpdateChats = (currentChats: Chat[], idToUpdate: string, patchData: Partial<Chat>,
-      ): { updatedChats: Chat[], changed: boolean } => {
-        let hasChangedInThisLevel = false;
+      const updatedChat = { ...existingChat, ...patch };
+      const updatedChatsById = { ...state.chatsById, [targetChatId]: updatedChat };
 
-        const mappedChats = currentChats.map(chat => {
-          if (chat.chatId === idToUpdate) {
-            hasChangedInThisLevel = true;
-            return { ...chat, ...patchData };
+      const updatedAllChats = state.allChats.map(chat =>
+        chat.chatId === targetChatId ? updatedChat : chat
+      );
+
+      return {
+        allChats: updatedAllChats,
+        chatsById: updatedChatsById,
+      };
+    }),
+
+  deleteChat: (chatIdToDelete: string) =>
+    set((state) => {
+      const chatsById = { ...state.chatsById };
+      const chatsToDelete: Set<string> = new Set();
+
+      const findChatsToDelete = (currentChatId: string) => {
+        chatsToDelete.add(currentChatId);
+        for (const chat of Object.values(chatsById)) {
+          if (chat.parentChatId === currentChatId) {
+            findChatsToDelete(chat.chatId);
           }
-
-          if (chat.replies && chat.replies.length > 0) {
-            const result = precessAndUpdateChats(chat.replies, idToUpdate, patchData);
-            if (result.changed) {
-              hasChangedInThisLevel = true;
-              return { ...chat, replies: result.updatedChats };
-            }
-          }
-
-          return chat;
-        });
-
-        if (hasChangedInThisLevel) {
-          return { updatedChats: mappedChats, changed: true };
-        } else {
-          return { updatedChats: currentChats, changed: false };
         }
       };
 
-      const result = precessAndUpdateChats(taskChats, targetChatId, patch);
-
-      if (result.changed) {
-        return {
-          chatsByTask: {
-            ...state.chatsByTask,
-            [taskId]: result.updatedChats,
-          }
-        };
+      if (chatsById[chatIdToDelete]) {
+        findChatsToDelete(chatIdToDelete);
+      } else {
+        console.warn(`Chat with ID ${chatIdToDelete} not found for deletion.`);
+        return state;
       }
 
-      return state;
-    }),
+      const updatedAllChats = state.allChats.filter(chat => !chatsToDelete.has(chat.chatId));
+      chatsToDelete.forEach(id => delete chatsById[id]);
 
-  deleteChat: (taskId, chatId) =>
-    set((state) => {
-      const taskChats = state.chatsByTask[taskId];
-      if (!taskChats) return state;
-
-      // 재귀적으로 채팅 삭제
-      // 삭제 대상이 아닌 경우 chat, 삭제 대상이면 null 반환
-      const transformOrRemoveRecursive = (chats: Chat[], idToDelete: string): Chat[] => {
-        return chats.map(chat => {
-          // 현재 chat이 삭제 대상인지 확인
-          if (chat.chatId === idToDelete) return null;
-
-          // 현재 chat이 삭제 대상이 아니고 답글이 있는 경우 답글 처리
-          if (chat.replies && chat.replies.length > 0) {
-            const updatedReplies = transformOrRemoveRecursive(chat.replies, idToDelete);
-
-            // 답글 목록에 변화 확인
-            if (updatedReplies.length !== (chat.replies).length ||
-              updatedReplies.some((reply, index) => reply !== (chat.replies as Chat[])[index])) {
-              return { ...chat, replies: updatedReplies };
-            }
-          }
-          return chat;
-        }).filter(chat => chat !== null) as Chat[];
+      return {
+        allChats: updatedAllChats,
+        chatsById: chatsById,
       };
-
-      const updatedTaskChats = transformOrRemoveRecursive(taskChats, chatId);
-
-      // 실제로 변경이 있었는지 확인 (선택적 최적화)
-      if (updatedTaskChats.length !== taskChats.length ||
-        updatedTaskChats.some((chat, index) => chat !== taskChats[index])) {
-        return {
-          chatsByTask: {
-            ...state.chatsByTask,
-            [taskId]: updatedTaskChats,
-          },
-        };
-      }
-      return state;
     }),
 }));
 
