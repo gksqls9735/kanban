@@ -31,7 +31,7 @@ const ChatInput: React.FC<{
 }> = ({ taskId, parentChat, onClose, editingChat, onFinishEdit, onClick, onChatSent, addChat, updateChat }) => {
   const currentUser = useUserStore(state => state.currentUser)!;
 
-  const textInputRef = useRef<HTMLTextAreaElement>(null); // HTMLTextAreaElement로 변경
+  const textInputRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFilesForUpload, setSelectedFilesForUpload] = useState<File[]>([]);
 
