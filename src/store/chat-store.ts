@@ -72,7 +72,7 @@ const useChatStore = create<ChatState>((set, _get) => ({
       if (chatsById[chatIdToDelete]) {
         findChatsToDelete(chatIdToDelete);
       } else {
-        console.warn(`Chat with ID ${chatIdToDelete} not found for  deletion.`);
+        console.warn(`Chat with ID ${chatIdToDelete} not found for deletion.`);
         return state;
       }
 
