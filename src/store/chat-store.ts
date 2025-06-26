@@ -1,61 +1,45 @@
-// store/chat-store.ts
 import { create } from "zustand";
-import { Chat } from "../types/type"; // Chat 타입은 replies 속성이 없는 플랫한 타입이라고 가정
+import { Chat } from "../types/type";
 
-// UI 렌더링을 위해 임시로 replies 속성을 추가하는 Chat 타입
-// 이 타입은 ChatStore 내부와 ChatList/ChatItem에서 사용됩니다.
 export interface ChatForUI extends Chat {
   replies?: ChatForUI[];
 }
 
 interface ChatState {
-  allChats: Chat[]; // 모든 채팅을 플랫하게 저장 (원본 데이터)
-  chatsById: Record<string, Chat>; // 성능을 위해 ID로 접근 가능한 맵 (원본 데이터)
+  allChats: Chat[];  // 모든 채팅을 플랫하게 저정(원본 데이터)
+  chatsById: Record<string, Chat>; // 성능을 위해 ID로 접근 가능한 맵
 
   setInitialChats: (initialChats: Chat[]) => void;
   addChat: (newChat: Chat) => void;
-  updateChat: (targetChatId: string, patch: Partial<Chat>) => void; // taskId 제거
-  deleteChat: (chatIdToDelete: string) => void; // taskId 제거
+  updateChat: (targetChatId: string, patch: Partial<Chat>) => void;
+  deleteChat: (chatIdToDelete: string) => void;
 }
 
 // 모든 채팅을 플랫한 배열에서 받아, 특정 parentId를 가진 채팅들로 트리 구조를 재귀적으로 생성
-// 이 함수는 순수 함수로, 컴포넌트에서 useMemo를 통해 호출 결과를 캐싱합니다.
 export const buildChatTreeRecursive = (chats: Chat[], parentId: string | null = null): ChatForUI[] => {
   const children = chats
     .filter(chat => chat.parentChatId === parentId)
     .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
 
   return children.map(chat => ({
-    ...chat,
-    replies: buildChatTreeRecursive(chats, chat.chatId)
+    ...chat, replies: buildChatTreeRecursive(chats, chat.chatId)
   }));
 };
 
-
-const useChatStore = create<ChatState>((set, get) => ({
+const useChatStore = create<ChatState>((set, _get) => ({
   allChats: [],
   chatsById: {},
 
   setInitialChats: (initialChats) => {
     const newChatsById: Record<string, Chat> = {};
-    initialChats.forEach(chat => {
-      newChatsById[chat.chatId] = chat;
-    });
-
-    set({
-      allChats: initialChats,
-      chatsById: newChatsById,
-    });
+    initialChats.forEach(chat => { newChatsById[chat.chatId] = chat });
+    set({ allChats: initialChats, chatsById: newChatsById });
   },
 
   addChat: (newChat) => set((state) => {
     const updatedAllChats = [...state.allChats, newChat];
     const updatedChatsById = { ...state.chatsById, [newChat.chatId]: newChat };
-
-    return {
-      allChats: updatedAllChats,
-      chatsById: updatedChatsById,
-    };
+    return { allChats: updatedAllChats, chatsById: updatedChatsById };
   }),
 
   updateChat: (targetChatId: string, patch: Partial<Chat>) =>
@@ -67,16 +51,10 @@ const useChatStore = create<ChatState>((set, get) => ({
       }
 
       const updatedChat = { ...existingChat, ...patch };
+      const updatedAllChats = state.allChats.map(chat => chat.chatId === targetChatId ? updatedChat : chat);
       const updatedChatsById = { ...state.chatsById, [targetChatId]: updatedChat };
 
-      const updatedAllChats = state.allChats.map(chat =>
-        chat.chatId === targetChatId ? updatedChat : chat
-      );
-
-      return {
-        allChats: updatedAllChats,
-        chatsById: updatedChatsById,
-      };
+      return { allChats: updatedAllChats, chatsById: updatedChatsById };
     }),
 
   deleteChat: (chatIdToDelete: string) =>
@@ -87,26 +65,21 @@ const useChatStore = create<ChatState>((set, get) => ({
       const findChatsToDelete = (currentChatId: string) => {
         chatsToDelete.add(currentChatId);
         for (const chat of Object.values(chatsById)) {
-          if (chat.parentChatId === currentChatId) {
-            findChatsToDelete(chat.chatId);
-          }
+          if (chat.parentChatId === currentChatId) findChatsToDelete(chat.chatId);
         }
       };
 
       if (chatsById[chatIdToDelete]) {
         findChatsToDelete(chatIdToDelete);
       } else {
-        console.warn(`Chat with ID ${chatIdToDelete} not found for deletion.`);
+        console.warn(`Chat with ID ${chatIdToDelete} not found for  deletion.`);
         return state;
       }
 
       const updatedAllChats = state.allChats.filter(chat => !chatsToDelete.has(chat.chatId));
       chatsToDelete.forEach(id => delete chatsById[id]);
 
-      return {
-        allChats: updatedAllChats,
-        chatsById: chatsById,
-      };
+      return { allChats: updatedAllChats, chatsById: chatsById };
     }),
 }));
 

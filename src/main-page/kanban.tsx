@@ -1,4 +1,3 @@
-// Kanban.tsx
 import { useEffect, useRef } from "react";
 import ColumnList from "../component/kanban/column/column-list";
 import { Chat, Section, SelectOption, Task, User } from "../types/type";
@@ -25,7 +24,7 @@ export interface KanbanProps {
   sections: Section[];
   statusList: SelectOption[];
   isSideMenuOpen: "expanded" | "collapsed" | "hidden";
-  chatlist: Chat[]; // Chat 타입은 replies 속성이 없는 플랫한 타입
+  chatlist: Chat[];
   detailModalTopPx?: number;
 }
 
@@ -36,22 +35,20 @@ const Kanban: React.FC<KanbanProps> = ({
   sections: initialSections,
   statusList: initialStatusList,
   isSideMenuOpen,
-  chatlist, // 이 chatlist는 이제 플랫한 배열로 넘어온다고 가정
+  chatlist,
   detailModalTopPx = 0,
 }) => {
-  useEffect(() => {
-    console.log("!!!!!!!!!!!!!!!!!!!!!!!chatlist: ", chatlist)
-  }, [chatlist]);
   const { viewMode, setViewMode } = useViewModeStore();
   const setTasks = useTaskStore(state => state.setTasks);
   const sections = useSectionsStore(state => state.sections);
   const setSections = useSectionsStore(state => state.setSections);
   const setStatusList = useStatusesStore(state => state.setStatusList);
+  // const sectionsLoaded = useSectionsStore(state => state.sections.length > 0);
+  // const statusesLoaded = useStatusesStore(state => state.statusList.length > 0);
 
   const setCurrentUser = useUserStore(state => state.setCurrentUser);
   const setUserlist = useUserStore(state => state.setUserlist);
 
-  // useChatStore에서 allChats (플랫한 모든 채팅 데이터)를 가져옵니다.
   const allChatsInStore = useChatStore(state => state.allChats);
   const setInitialChats = useChatStore(state => state.setInitialChats);
   const { onChatlistChange } = useKanbanActions();
@@ -67,10 +64,12 @@ const Kanban: React.FC<KanbanProps> = ({
     }
   }, [initialTasks, setTasks]);
 
+
   useEffect(() => {
     const sortedSections = initialSections.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
     setSections(sortedSections);
   }, [initialSections, setSections]);
+
 
   useEffect(() => {
     if (initialStatusList && initialStatusList.length > 0) {
@@ -79,6 +78,7 @@ const Kanban: React.FC<KanbanProps> = ({
       setStatusList(statusSelect);
     }
   }, [initialStatusList, setStatusList]);
+
 
   useEffect(() => {
     if (initialCurrentUser) {
@@ -92,37 +92,21 @@ const Kanban: React.FC<KanbanProps> = ({
     }
   }, [initialUserlist, setUserlist]);
 
-  // ★★★ 채팅: 외부에서 넘어온 초기 chatlist를 useChatStore에 설정합니다.
-  // 이 useEffect는 chatlist prop이 변경될 때마다 실행되도록 의존성 배열을 [chatlist]로 설정합니다.
+  // 채팅
   useEffect(() => {
-    console.log("DEBUG: Kanban -> Initial chatlist useEffect triggered.");
     if (chatlist && chatlist.length > 0) {
-      console.log("DEBUG: Kanban -> Calling setInitialChats with chatlist:", chatlist);
       setInitialChats(chatlist);
     } else {
-      console.log("DEBUG: Kanban -> Calling setInitialChats with empty array.");
       setInitialChats([]);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chatlist]); // ★★★ 의존성 배열을 [chatlist]로 변경합니다.
+  }, [chatlist]);
 
-  // ★★★ 채팅 데이터 변경 감지 로직 (기존 로직 유지, 감시대상만 변경)
-  // useChatStore의 allChats 상태를 감시하고, 변경 시 onChatlistChange를 호출합니다.
-  // isEqual을 사용하여 깊은 비교를 수행함으로써 불필요한 렌더링/루프를 방지합니다.
   const prevAllChatsRef = useRef<Chat[]>([]);
 
   useEffect(() => {
-    console.log("DEBUG: Kanban -> allChatsInStore change detection useEffect triggered.");
-    console.log("DEBUG: Kanban -> prevAllChatsRef.current:", prevAllChatsRef.current);
-    console.log("DEBUG: Kanban -> allChatsInStore (current from store):", allChatsInStore);
-
-    // allChatsInStore는 useChatStore의 플랫한 모든 채팅 데이터입니다.
     if (!isEqual(prevAllChatsRef.current, allChatsInStore)) {
-      console.log("DEBUG: Kanban -> allChatsInStore reference changed. Updating ref and calling onChatlistChange.");
       prevAllChatsRef.current = allChatsInStore;
-      onChatlistChange?.(allChatsInStore); // 변경 시 외부 전달
-    } else {
-      console.log("DEBUG: Kanban -> allChatsInStore reference is same. No update.");
+      if (onChatlistChange) onChatlistChange(allChatsInStore);
     }
   }, [allChatsInStore, onChatlistChange]);
 
