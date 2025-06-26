@@ -230,9 +230,11 @@ const DetailModal: React.FC<{
   const handleChatSent = useCallback((sentChatId: string, parentChatId: string | null, isNewCommentAdded: boolean) => {
     requestAnimationFrame(() => {
       if (isNewCommentAdded) {
-        scrollToBottom();
-      } else if (parentChatId) {
-        scrollToElement(parentChatId);
+        if (parentChatId === null) {
+          scrollToBottom();
+        } else {
+          scrollToElement(parentChatId);
+        }
       }
     });
   }, [scrollToBottom, scrollToElement]);
