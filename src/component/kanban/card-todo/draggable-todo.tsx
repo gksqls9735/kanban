@@ -45,7 +45,7 @@ const DraggableTodo: React.FC<{
           />
           <label onClick={() => onCompleteChange(todo.todoId)} htmlFor={`todo-${todo.todoId}`} className="todo-item__checkbox--visual"></label>
         </div>
-        <div className={`todo-item__text ${todo.isCompleted ? 'line-through' : ''}`} onClick={() => onCompleteChange(todo.todoId)}>
+        <div className={`todo-item__text ${todo.isCompleted ? 'line-through' : ''} truncate`} onClick={() => onCompleteChange(todo.todoId)}>
           {todo.todoTxt}
         </div>
       </div>

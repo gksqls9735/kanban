@@ -2,13 +2,14 @@ import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { KeyboardEvent, useEffect, useRef, useState } from "react";
 import { CombinedTodoItem } from "../detail-todo-list";
+import { normalizeSpaces } from "../../../../../utils/text-function";
 
 const DetailTodoAdd: React.FC<{
   item: CombinedTodoItem;
   onSave: (todoId: string, todoTxt: string, isCompleted: boolean) => void;
   onCancel: (todoId: string) => void;
 }> = ({ item, onSave, onCancel }) => {
-  const [todoTxt, setTodoTxt] = useState<string>(item.todoTxt);
+  const [todoTxt, setTodoTxt] = useState<string>(normalizeSpaces(item.todoTxt));
   const [isComplete, setIsComplete] = useState<boolean>(false);
   const textInputRef = useRef<HTMLInputElement>(null);
 
@@ -17,7 +18,8 @@ const DetailTodoAdd: React.FC<{
   }, []);
 
   const handleSave = () => {
-    if (todoTxt.trim() === "") {
+    const processedTodoTxt = normalizeSpaces(todoTxt);
+    if (processedTodoTxt === "") {
       onCancel(item.todoId);
       return;
     }

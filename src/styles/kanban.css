@@ -201,7 +201,7 @@
 }
 
 /* 헤더 드롭다운 메뉴 */
-/* .kanban .header-dropdown-menu {
+.kanban .header-dropdown-menu {
   position: absolute;
   border: 1px solid #E4E8EE;
   padding: 8px 0px;
@@ -224,7 +224,7 @@
 
 .kanban .header-dropdown-item:hover {
   background-color: rgb(241, 241, 241);
-} */
+}
 
 .kanban .section-header__dropdown-menu {
   left: 290px;
@@ -421,8 +421,8 @@
   border-radius: 16px;
   background-color: rgba(248, 249, 251, 1);
   border: 1px solid rgba(228, 232, 238, 1);
-  padding: 0; /* 패딩은 내부로 이동 */
-  overflow: hidden; /* 여기서 잘라줌 */
+  padding: 0;
+  overflow: hidden;
 }
 
 .kanban .section-scroll-inner {
@@ -437,6 +437,7 @@
 .kanban .section-scroll-inner::-webkit-scrollbar {
   width: 5px;
 }
+
 .kanban .section-scroll-inner::-webkit-scrollbar-thumb {
   background-color: rgba(0, 0, 0, 0.2);
   border-radius: 3px;
@@ -1183,10 +1184,14 @@
   flex-grow: 1;
   background-color: 'transparent';
   font-size: 14px;
-  color: #7D8998;
+  color: #0F1B2A;
   font-weight: 400;
   height: 24px;
   line-height: 24px;
   margin-right: 8px;
   box-sizing: border-box;
+}
+
+.kanban .todo-item__input::placeholder {
+  color: #7D8998;
 }

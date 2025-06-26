@@ -15,7 +15,7 @@ import ColumnHeader from "./column-header";
 import ColumnEdit from "./column-edit";
 import { lightenColor } from "../../../utils/color-function";
 import { useToast } from "../../../context/toast-context";
-import { generateUniqueId } from "../../../utils/text-function";
+import { generateUniqueId, normalizeSpaces } from "../../../utils/text-function";
 import { SyntheticListenerMap } from "@dnd-kit/core/dist/hooks/utilities";
 import { useKanbanActions } from "../../../context/task-action-context";
 
@@ -112,8 +112,7 @@ const DroppableColumn: React.FC<{
 
 
     const handleUpdate = (name: string, color?: string) => {
-      let processedName = name.trim();
-      processedName = processedName.replace(/\s{2,}/g, ' ');
+      let processedName = normalizeSpaces(name);
 
       if (!processedName) {
         showToast('상태/섹션 이름을 입력해주세요.');
@@ -127,8 +126,10 @@ const DroppableColumn: React.FC<{
           return;
         }
 
+        const normalizedOriginalStatusName = normalizeSpaces(originalStatus.name);
+
         // 시나리오 1: 이름과 색상 모두 변경되지 않은 경우
-        if (processedName === originalStatus.name && color === originalStatus.colorMain) {
+        if (processedName === normalizedOriginalStatusName && color === originalStatus.colorMain) {
           showToast('변경된 내용이 없습니다.');
           setIsEditing(false);
           return;
@@ -136,9 +137,9 @@ const DroppableColumn: React.FC<{
 
         // 시나리오 2: 이름 또는 색상 중 하나라도 변경된 경우
         // 먼저, 이름이 변경되었다면 다른 상태와 중복되는지 확인
-        if (processedName !== originalStatus.name) {
+        if (processedName !== normalizedOriginalStatusName) {
           const isDuplicateNameWithOthers = statusList.some(
-            status => status.code !== columnId && status.name === processedName
+            status => status.code !== columnId && normalizeSpaces(status.name) === processedName
           );
           if (isDuplicateNameWithOthers) {
             showToast('동일한 이름의 다른 상태가 이미 존재합니다.');
@@ -177,14 +178,16 @@ const DroppableColumn: React.FC<{
           return;
         }
 
-        if (processedName === originalSection.sectionName) {
+        const normalizedOriginalSectionName = normalizeSpaces(originalSection.sectionName);
+
+        if (processedName === normalizedOriginalSectionName) {
           showToast('변경된 내용이 없습니다.');
           setIsEditing(false);
           return;
         }
 
         const isDuplicateWithOthers = sections.some(
-          sec => sec.sectionId !== columnId && sec.sectionName === processedName
+          sec => sec.sectionId !== columnId && normalizeSpaces(sec.sectionName) === processedName
         );
 
         if (isDuplicateWithOthers) {

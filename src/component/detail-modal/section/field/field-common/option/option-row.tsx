@@ -19,7 +19,7 @@ const OptionRow: React.FC<{
   } = useSortable({ id: option.code })
 
   const style = {
-    transform: CSS.Transform.toString(transform),
+    transform: CSS.Transform.toString(transform ? { ...transform, x: 0 } : null),
     transition,
     opacity: isDragging ? 0.7 : 1,
     zIndex: isDragging ? 1 : 'auto',

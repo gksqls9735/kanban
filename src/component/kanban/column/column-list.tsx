@@ -9,7 +9,7 @@ import useSectionsStore from "../../../store/sections-store";
 import useStatusesStore from "../../../store/statuses-store";
 import ColumnCreate from "./column-create";
 import { useToast } from "../../../context/toast-context";
-import { generateUniqueId } from "../../../utils/text-function";
+import { generateUniqueId, normalizeSpaces } from "../../../utils/text-function";
 import useUserStore from "../../../store/user-store";
 import DetailModal from "../../detail-modal/detail-modal";
 import DeleteModal from "../delete-modal";
@@ -115,38 +115,35 @@ const ColumnList: React.FC<{
   const allColumnIds = useMemo(() => baseColumns.map(col => col.id), [baseColumns]);
 
   const handleAddNewItem = (name: string, color?: string) => {
-    let processedName = name.trim();
-    processedName = processedName.replace(/\s{2,}/g, ' ');
+    let processedName = normalizeSpaces(name);
 
     if (!processedName) {
       showToast('상태/섹션 이름을 입력해주세요.');
       return;
     }
 
-    if (processedName) {
-      if (viewMode === ViewModes.STATUS && color) {
-        const isExistStatusName = statusList.some(status => status.name === processedName);
-        if (!isExistStatusName) {
-          addStatus({ name: processedName, colorMain: color, colorSub: lightenColor(color, 0.85) });
-          handleAddStatus();
-          showToast('상태가 등록 되었습니다.');
-        } else {
-          showToast('동일한 이름의 상태가 존재합니다.');
-          return;
-        }
-      } else if (viewMode === ViewModes.SECTION) {
-        const isExistSectionName = sections.some(sec => sec.sectionName === processedName);
-        if (!isExistSectionName) {
-          addSection(processedName);
-          handleAddSection();
-          showToast('섹션이 추가 되었습니다.')
-        } else {
-          showToast('동일한 이름의 섹션이 존재합니다.');
-          return;
-        }
+    if (viewMode === ViewModes.STATUS && color) {
+      const isExistStatusName = statusList.some(status => normalizeSpaces(status.name) === processedName);
+      if (!isExistStatusName) {
+        addStatus({ name: processedName, colorMain: color, colorSub: lightenColor(color, 0.85) });
+        handleAddStatus();
+        showToast('상태가 등록 되었습니다.');
+      } else {
+        showToast('동일한 이름의 상태가 존재합니다.');
+        return;
       }
-      setIsAddingSection(false);
+    } else if (viewMode === ViewModes.SECTION) {
+      const isExistSectionName = sections.some(sec => normalizeSpaces(sec.sectionName) === processedName);
+      if (!isExistSectionName) {
+        addSection(processedName);
+        handleAddSection();
+        showToast('섹션이 추가 되었습니다.')
+      } else {
+        showToast('동일한 이름의 섹션이 존재합니다.');
+        return;
+      }
     }
+    setIsAddingSection(false);
   };
 
   const toggle = () => {
@@ -161,7 +158,7 @@ const ColumnList: React.FC<{
       const newColor = colors[0];
       const newStatusData: SelectOption = {
         code: generateUniqueId('status'),
-        name: '이름름 없는 상태',
+        name: normalizeSpaces('이름 없는 상태'),
         colorMain: newColor,
         colorSub: lightenColor(newColor, 0.85),
       }
@@ -178,7 +175,7 @@ const ColumnList: React.FC<{
       const newColor = colors[0];
       const newStatusData: SelectOption = {
         code: generateUniqueId('status'),
-        name: '이름름 없는 상태',
+        name: normalizeSpaces('이름 없는 상태'),
         colorMain: newColor,
         colorSub: lightenColor(newColor, 0.85),
       }

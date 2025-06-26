@@ -6,7 +6,7 @@ import UrlEmailEditableList from "./field-common/url-email-editable-list";
 import FieldFooter from "./field-common/field-footer";
 import { Task, UrlData } from "../../../../types/type";
 import useClickOutside from "../../../../hooks/use-click-outside";
-import { generateUniqueId } from "../../../../utils/text-function";
+import { generateUniqueId, normalizeSpaces } from "../../../../utils/text-function";
 import { isValidUrlFormat } from "../../../../utils/valid-function";
 
 interface CombinedUrlItem {
@@ -24,7 +24,7 @@ const FallbackIcon = (
 
 const UrlField: React.FC<{
   urls?: UrlData[], isOwnerOrParticipant: boolean, handleChangeAndNotify: (updates: Partial<Task>) => void
-}> = ({ urls: initialUrls = [], isOwnerOrParticipant,handleChangeAndNotify }) => {
+}> = ({ urls: initialUrls = [], isOwnerOrParticipant, handleChangeAndNotify }) => {
 
   const [combinedItems, setCombinedItems] = useState<CombinedUrlItem[]>([]);
   const [errors, setErrors] = useState<Record<string | number, string[]>>({});
@@ -107,16 +107,19 @@ const UrlField: React.FC<{
 
     // url 주소별 카운트 (중복 검사용)
     const urlRequestedUrlCounts: Record<string, number> = {};
+    const urlTitleCounts: Record<string, number> = {};
     combinedItems.forEach(item => {
-      const rUrl = item.requestedUrl.trim();
+      const rUrl = normalizeSpaces(item.requestedUrl);
+      const title = normalizeSpaces(item.title);
       if (rUrl) urlRequestedUrlCounts[rUrl] = (urlRequestedUrlCounts[rUrl] || 0) + 1;
+      if (title) urlTitleCounts[title] = (urlTitleCounts[title] || 0) + 1;
     });
 
     // 각 항목 유효성 검사
     combinedItems.forEach(item => {
       const itemId = item.id;
-      const itemRUrl = item.requestedUrl.trim();
-      const itemTitle = item.title.trim();
+      const itemRUrl = normalizeSpaces(item.requestedUrl);
+      const itemTitle = normalizeSpaces(item.title);
       const currentItemErrors: string[] = [];
 
       if (item.isNew) {
@@ -126,20 +129,25 @@ const UrlField: React.FC<{
         }
       }
 
-      if (itemRUrl) {
-        if (!isValidUrlFormat(itemRUrl)) {
-          currentItemErrors.push('URL은 https://가 포함 되어야 합니다.');
-          hasAnyError = true;
-        }
-        if (urlRequestedUrlCounts[itemRUrl] > 1) {
-          currentItemErrors.push('URL이 동일합니다.');
-          hasAnyError = true;
-        }
-      } else if (!item.isNew && !itemRUrl && itemTitle) {
+      const urlFormatError = isValidUrlFormat(itemRUrl);
+      if (urlFormatError) {
+        currentItemErrors.push(urlFormatError);
+        hasAnyError = true;
+      }
+
+      else if (itemRUrl && urlRequestedUrlCounts[itemRUrl] > 1) {
+        currentItemErrors.push('URL이 동일합니다.');
+        hasAnyError = true;
+      }
+
+      else if (!item.isNew && !itemRUrl && itemTitle) {
         currentItemErrors.push('URL을 입력해주세요.');
-      } else if (!item.isNew && itemTitle && !itemRUrl) {
-        if (!currentItemErrors.includes('새 URL의 이름과 주소를 모두 입력해주세요.')) {
-          currentItemErrors.push('새 URL의 주소를 입력해주세요.');
+        hasAnyError = true;
+      }
+
+      if (itemTitle) {
+        if (urlTitleCounts[itemTitle] > 1) {
+          currentItemErrors.push('이름이 동일합니다.');
           hasAnyError = true;
         }
       }
@@ -152,8 +160,8 @@ const UrlField: React.FC<{
 
     const finalUrlsToSave: UrlData[] = combinedItems
       .map((item, index) => {
-        const title = item.title.trim();
-        const requestedUrl = item.requestedUrl.trim();
+        const title = normalizeSpaces(item.title);
+        const requestedUrl = normalizeSpaces(item.requestedUrl);
 
         if (item.isNew) {
           if (title && requestedUrl) {

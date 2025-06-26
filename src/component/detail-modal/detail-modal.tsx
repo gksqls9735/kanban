@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import DetailHeader from "./detail-header";
 import ReporterField from "./section/info-field/reporter-field";
@@ -30,6 +30,8 @@ import ParticipantSelector from "../participant-select/participant-selector";
 import UserProfile from "../common/profile/user-profile";
 import useChatStore from "../../store/chat-store";
 
+const LOCAL_STORAGE_KEY = 'kanbanDetailModalWidth';
+
 const DetailModal: React.FC<{
   task: Task;
   onClose: (e: React.MouseEvent) => void;
@@ -37,7 +39,16 @@ const DetailModal: React.FC<{
   detailModalTopPx: number;
 }> = ({ task: initialTaskFromProp, onClose, openDeleteModal, detailModalTopPx }) => {
   // 리사이즈 설정
-  const [modalWidth, setModalWidth] = useState(720);
+  const [modalWidth, setModalWidth] = useState<number>(() => {
+    const savedModalWidthStr = localStorage.getItem(LOCAL_STORAGE_KEY);
+    let finalModalWidth: number = 720;
+    if (savedModalWidthStr) {
+      const savedModalWidth = parseFloat(savedModalWidthStr);
+      if (!isNaN(savedModalWidth)) finalModalWidth = savedModalWidth;
+    }
+    return finalModalWidth;
+  });
+
   const isResizing = useRef<boolean>(false);
 
   const [openProfile, setOpenProfile] = useState<Participant | User | null>(null);
@@ -46,6 +57,12 @@ const DetailModal: React.FC<{
     e.stopPropagation();
     setOpenProfile(user);
   };
+
+  // 리사이즈
+
+  useEffect(() => {
+    localStorage.setItem(LOCAL_STORAGE_KEY, modalWidth.toString());
+  }, [modalWidth]);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     isResizing.current = true;

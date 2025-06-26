@@ -9,7 +9,7 @@ import DatePickerTrigger from "../new-card/datepicker-trigger";
 import OptionSelector from "../../common/selector/option-selector";
 import TodoListEditor from "../new-card/todolist-editor";
 import AvatarItem from "../../common/avatar/avatar";
-import { generateUniqueId, getInitial } from "../../../utils/text-function";
+import { generateUniqueId, getInitial, normalizeSpaces } from "../../../utils/text-function";
 import ParticipantSelector from "../../participant-select/participant-selector";
 import { calcMinStart } from "../../../utils/date-function";
 import { useKanbanActions } from "../../../context/task-action-context";
@@ -97,11 +97,15 @@ const UpdateCard: React.FC<{
   const handleUpdateTask = () => {
     if (!inputRef.current) return;
 
-    let processedName = inputRef.current?.value.trim();
-    processedName = processedName.replace(/\s{2,}/g, ' ');
+    let processedName = inputRef.current?.value;
+    processedName = normalizeSpaces(processedName);
 
     if (processedName && startDate && endDate) {
-      const filteredTodos = todos.filter(todo => todo.todoTxt && todo.todoTxt.trim() !== '');
+      const updatedTodos = todos.map(todo => ({
+        ...todo, todoTxt: normalizeSpaces(todo.todoTxt),
+      }));
+
+      const filteredTodos = updatedTodos.filter(todo => todo.todoTxt !== '');
 
       const updatedTasks = updateTask(currentTask.taskId, {
         sectionId: selectedSection.sectionId,
@@ -172,7 +176,7 @@ const UpdateCard: React.FC<{
         onKeyDown={handleInputSubmit}
       />
 
-      <DatePickerTrigger startDate={startDate} endDate={endDate} onDateSelect={handleDateSelect} minStart={minStart} onToggle={setIsDatePickerOpen}/>
+      <DatePickerTrigger startDate={startDate} endDate={endDate} onDateSelect={handleDateSelect} minStart={minStart} onToggle={setIsDatePickerOpen} />
 
       <div className="card-meta">
         <div className="card-priority-status">

@@ -4,7 +4,7 @@ import FieldFooter from "./field-common/field-footer";
 import FieldLabel from "./field-common/field-label";
 import { Email, Task } from "../../../../types/type";
 import useClickOutside from "../../../../hooks/use-click-outside";
-import { generateUniqueId } from "../../../../utils/text-function";
+import { generateUniqueId, normalizeSpaces } from "../../../../utils/text-function";
 import { isValidEmailFormat } from "../../../../utils/valid-function";
 
 interface CombinedEmailItem {
@@ -101,26 +101,26 @@ const EmailField: React.FC<{
 
     // 이메일 주소별 카운트 (중복 검사용)
     const emailAddressCounts: Record<string, number> = {};
+    const emailNicknameCounts: Record<string, number> = {};
     combinedItems.forEach(item => {
-      const emailAddr = item.email.trim();
+      const emailAddr = normalizeSpaces(item.email);
+      const nickname = normalizeSpaces(item.nickname);
       if (emailAddr) emailAddressCounts[emailAddr] = (emailAddressCounts[emailAddr] || 0) + 1;
+      if (nickname) emailNicknameCounts[nickname] = (emailNicknameCounts[nickname] || 0) + 1;
     });
 
     // 각 항목 유효성 검사
     combinedItems.forEach(item => {
       const itemId = item.id;
-      const itemEmail = item.email.trim();
-      const itemNickname = item.nickname.trim();
+      const itemEmail = normalizeSpaces(item.email);
+      const itemNickname = normalizeSpaces(item.nickname);
       const currentItemErrors: string[] = [];
 
-      if (item.isNew) {
-        if ((itemNickname || itemEmail) && (!itemNickname || !itemEmail)) {
-          currentItemErrors.push('새 이메일의 이름과 주소를 모두 입력해주세요.');
-          hasAnyError = true;
-        }
+      if (item.isNew && ((itemNickname || itemEmail) && (!itemNickname || !itemEmail))) {
+        currentItemErrors.push('새 이메일의 이름과 주소를 모두 입력해주세요.');
+        hasAnyError = true;
       }
 
-      // 이메일 필드가 비어있지 않은 경우에만 형식 및 중복 검사
       if (itemEmail) {
         if (!isValidEmailFormat(itemEmail)) {
           currentItemErrors.push('이메일 형식이 맞지 않습니다.');
@@ -132,9 +132,17 @@ const EmailField: React.FC<{
         }
       } else if (!item.isNew && !itemEmail && itemNickname) {
         currentItemErrors.push("이메일 주소를 입력해주세요");
+        hasAnyError = true;
       } else if (!item.isNew && itemEmail && !itemNickname) {
         if (!currentItemErrors.includes('새 이메일의 이름과 주소를 모두 입력해주세요.')) {
           currentItemErrors.push('새 이메일의 주소를 입력해주세요.');
+          hasAnyError = true;
+        }
+      }
+
+      if (itemNickname) {
+        if (emailNicknameCounts[itemNickname] > 1) {
+          currentItemErrors.push('별칭이 동일합니다.');
           hasAnyError = true;
         }
       }
@@ -148,8 +156,8 @@ const EmailField: React.FC<{
     // 에러가 없을 시 실제 저장 로직 진행
     const finalEmailsToSave: Email[] = combinedItems
       .map((item, index) => {
-        const nickname = item.nickname.trim();
-        const email = item.email.trim();
+        const nickname = normalizeSpaces(item.nickname);
+        const email = normalizeSpaces(item.email);
 
         if (item.isNew) {
           if (nickname && email) {

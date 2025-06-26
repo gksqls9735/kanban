@@ -32,3 +32,8 @@ export function extractFirstTeamName(teamString: string): string {
   const segments = teamString.split('/');
   return segments[0];
 }
+
+export const normalizeSpaces = (str: string): string => {
+  if (typeof str !== 'string') return '';
+  return str.trim().replace(/\s\s+/g, ' ');
+};

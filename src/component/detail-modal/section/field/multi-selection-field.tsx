@@ -9,7 +9,7 @@ import { SelectableOption, Task } from "../../../../types/type";
 import { useToast } from "../../../../context/toast-context";
 import { lightenColor } from "../../../../utils/color-function";
 import useClickOutside from "../../../../hooks/use-click-outside";
-import { generateUniqueId } from "../../../../utils/text-function";
+import { generateUniqueId, normalizeSpaces } from "../../../../utils/text-function";
 
 
 const MultiSelection: React.FC<{
@@ -24,7 +24,7 @@ const MultiSelection: React.FC<{
   // 표시 로직: initialOptions 기반 (만약 실시간 반영 원하면 combinedItems 기반으로 변경 필요)
   const selectedOptionsFromInitial = initialOptions.filter(option => option.isSelected === true);
   const optionsToShow = isExpanded ? selectedOptionsFromInitial : selectedOptionsFromInitial.slice(0, 3);
-  const hiddenCount = selectedOptionsFromInitial.length > 3 && !isExpanded ? selectedOptionsFromInitial.length - 3 : 0;
+  const hiddenCount = selectedOptionsFromInitial.length - 3;
 
   const [isInEditMode, setIsInEditMode] = useState<boolean>(false);
   const [isOpenEdit, setIsOpenEdit] = useState<boolean>(false);
@@ -36,7 +36,7 @@ const MultiSelection: React.FC<{
   useEffect(() => {
     const initialCombined: CombinedOptionItem[] = initialOptions.map(option => ({
       code: option.code,
-      name: option.name,
+      name: normalizeSpaces(option.name),
       colorMain: option.colorMain,
       colorSub: option.colorSub || lightenColor(option.colorMain, 0.85),
       isSelected: option.isSelected || false,
@@ -49,7 +49,12 @@ const MultiSelection: React.FC<{
     setIsInEditMode(false);
     setIsOpenEdit(false);
     const initialCombined: CombinedOptionItem[] = initialOptions.map(option => ({
-      code: option.code, name: option.name, colorMain: option.colorMain, colorSub: option.colorSub || lightenColor(option.colorMain, 0.85), isSelected: option.isSelected, isNew: false,
+      code: option.code,
+      name: normalizeSpaces(option.name),
+      colorMain: option.colorMain,
+      colorSub: option.colorSub || lightenColor(option.colorMain, 0.85),
+      isSelected: option.isSelected,
+      isNew: false,
     }));
     setCombinedItems(initialCombined); // 옵션 목록 원복 (만약 옵션 목록 자체를 수정하는 기능이 있다면)
   };
@@ -60,31 +65,44 @@ const MultiSelection: React.FC<{
     } else { // 편집 모드 진입 시
       setIsInEditMode(true);
       setIsOpenEdit(false);
+      const currentCombined: CombinedOptionItem[] = initialOptions.map(option => ({
+        code: option.code,
+        name: normalizeSpaces(option.name),
+        colorMain: option.colorMain,
+        colorSub: option.colorSub || lightenColor(option.colorMain, 0.85),
+        isSelected: option.isSelected || false,
+        isNew: false,
+      }));
+      setCombinedItems(currentCombined);
     }
   };
 
   useClickOutside(editContainerRef, handleCancel, isInEditMode);
 
   const handleSaveOptions = () => {
-    const validOptions = combinedItems.filter(item => item.name && item.name.trim() !== '');
+    const names = combinedItems.map(item => normalizeSpaces(item.name));
 
-    const names = validOptions.map(item => item.name.trim());
-    const uniqueNames = new Set(names);
-    if (names.length !== uniqueNames.size) {
+    const validOptions = combinedItems.filter((item, index) => {
+      const normalizedName = names[index];
+      return normalizedName && normalizedName !== '';
+    });
+
+    const uniqueNames = new Set(names.filter(name => name !== ''));
+    if (validOptions.length > 0 && names.filter(name => name !== '').length !== uniqueNames.size) {
       showToast('동일한 이름의 옵션이 존재합니다.');
       return;
     }
 
     const optionsForNotify: SelectableOption[] = validOptions.map(item => ({
       code: item.code,
-      name: item.name.trim(),
+      name: normalizeSpaces(item.name),
       colorMain: item.colorMain,
       colorSub: item.colorSub,
       isSelected: item.isSelected,
     }));
     const optionsForSetState: CombinedOptionItem[] = validOptions.map(item => ({
       code: item.code,
-      name: item.name.trim(),
+      name: normalizeSpaces(item.name),
       colorMain: item.colorMain,
       colorSub: item.colorSub,
       isSelected: item.isSelected,
@@ -134,7 +152,7 @@ const MultiSelection: React.FC<{
     setCombinedItems(prevItems =>
       prevItems.map(item =>
         item.code === clickedOption.code
-          ? { ...item, isSelected: !item.isSelected } // 여기서 item은 prevItems의 각 항목입니다.
+          ? { ...item, isSelected: !item.isSelected }
           : item
       )
     );

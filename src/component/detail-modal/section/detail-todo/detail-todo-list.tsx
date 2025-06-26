@@ -6,7 +6,7 @@ import { restrictToFirstScrollableAncestor, restrictToVerticalAxis } from "@dnd-
 import { arrayMove, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { Todo } from "../../../../types/type";
 import useUserStore from "../../../../store/user-store";
-import { generateUniqueId } from "../../../../utils/text-function";
+import { generateUniqueId, normalizeSpaces } from "../../../../utils/text-function";
 
 export interface CombinedTodoItem { // 인터페이스 정의
   todoId: string;
@@ -26,16 +26,17 @@ const DetailTodoList: React.FC<{
   const [combinedItems, setCombinedItems] = useState<CombinedTodoItem[]>([]);
 
   useEffect(() => {
-    const newItemsInProgress = combinedItems.filter(item => item.isNew);
 
     const existingTodosAsCombined: CombinedTodoItem[] = initialTodoList.map((todo, index) => ({
       todoId: todo.todoId,
       isCompleted: todo.isCompleted,
-      todoTxt: todo.todoTxt,
+      todoTxt: normalizeSpaces(todo.todoTxt),
       todoDt: todo.todoDt,
       isNew: false,
       order: todo.order !== undefined ? todo.order : index,
     }));
+
+    const newItemsInProgress = combinedItems.filter(item => item.isNew);
 
     const allItems = [
       ...existingTodosAsCombined,
@@ -88,6 +89,9 @@ const DetailTodoList: React.FC<{
   const handleSaveNewItem = (tempTodoId: string, todoTxt: string, isCompleted: boolean) => {
     if (!currentUser) return;
 
+    const processedTodoTxt = normalizeSpaces(todoTxt);
+    if (processedTodoTxt === "") return;
+
     const newActualTodoId = generateUniqueId('todo');
     const newOrder = initialTodoList.length > 0 ? Math.max(...initialTodoList.map(item => item.order)) + 1 : 0;
 
@@ -96,13 +100,13 @@ const DetailTodoList: React.FC<{
       todoId: newActualTodoId,
       todoOwner: currentUser.username,
       isCompleted: isCompleted,
-      todoTxt: todoTxt,
+      todoTxt: processedTodoTxt,
       todoDt: null, // 또는 new Date()
       participants: [],
       order: newOrder,
     };
 
-    // 부모에게 전달달
+    // 부모에게 전달
     onTodoListUpdate([...initialTodoList, newTodo]);
 
     // isNew였던 임시 항복 제거 새로 추가된 Todo를 isNew: false인 combinedItems로 반영
@@ -142,8 +146,11 @@ const DetailTodoList: React.FC<{
 
   const handleUpdateExistingTodoTxt = (todoId: string, newTodoTxt: string) => {
     if (!isOwnerOrParticipant) return;
+    const processedTodoTxt = normalizeSpaces(newTodoTxt);
+    if (processedTodoTxt === "") return;
+
     onTodoListUpdate(
-      initialTodoList.map(todo => todo.todoId === todoId ? { ...todo, todoTxt: newTodoTxt } : todo)
+      initialTodoList.map(todo => todo.todoId === todoId ? { ...todo, todoTxt: processedTodoTxt } : todo)
     );
   };
 

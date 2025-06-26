@@ -37,7 +37,7 @@ const CardHeader: React.FC<{
     if (wrapperRef.current) {
       const rect = wrapperRef.current.getBoundingClientRect();
       let newLeft: number;
-      let newTop: number = rect.bottom + window.scrollY ;
+      let newTop: number = rect.bottom + window.scrollY;
 
       const currentDropdownWidth = DROPDOWN_MENU_WIDTH;
       const currentDropdownHeight = DROPDOWN_MENU_HEIGHT;
@@ -120,15 +120,15 @@ const CardHeader: React.FC<{
     return ReactDOM.createPortal(
       <>
         <style>{style}</style>
-        <div ref={dropdownRef} className="header-dropdown-menu card-header__dropdown-menu" style={{ top: dropdownPosition.top, left: dropdownPosition.left }}>
-          <div className="header-dropdown-item" onClick={handleCopy}>
+        <div ref={dropdownRef} className="card-header-dropdown-menu" style={{ top: dropdownPosition.top, left: dropdownPosition.left }}>
+          <div className="card-header-dropdown-item" onClick={handleCopy}>
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" className="bi bi-plus-square" viewBox="0 0 16 16">
               <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z" />
               <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
             </svg>
             작업 복사
           </div>
-          <div className="header-dropdown-item" onClick={openDeleteModal}>
+          <div className="card-header-dropdown-item" onClick={openDeleteModal}>
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" className="bi bi-trash3" viewBox="0 0 16 16">
               <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47M8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5" />
             </svg>
@@ -177,7 +177,7 @@ const CardHeader: React.FC<{
 export default CardHeader;
 
 const style = `
-.header-dropdown-menu {
+.card-header-dropdown-menu {
   position: absolute;
   border: 1px solid #E4E8EE;
   padding: 8px 0px;
@@ -190,7 +190,7 @@ const style = `
   z-index: 10;
 }
 
-.header-dropdown-item {
+.card-header-dropdown-item {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -199,7 +199,7 @@ const style = `
   cursor: pointer;
 }
 
-.header-dropdown-item:hover {
+.card-header-dropdown-item:hover {
   background-color: rgb(241, 241, 241);
 }
 `

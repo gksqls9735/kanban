@@ -11,7 +11,7 @@ import OptionSelector from "../../common/selector/option-selector";
 import DatePickerTrigger from "./datepicker-trigger";
 import SectionSelector from "../../common/selector/section-selector";
 import AvatarItem from "../../common/avatar/avatar";
-import { generateUniqueId, getInitial } from "../../../utils/text-function";
+import { generateUniqueId, getInitial, normalizeSpaces } from "../../../utils/text-function";
 import useUserStore from "../../../store/user-store";
 import ParticipantSelector from "../../participant-select/participant-selector";
 import { useToast } from "../../../context/toast-context";
@@ -75,16 +75,20 @@ const NewTaskCard: React.FC<{
 
   const handleAddTask = () => {
     if (!inputRef.current) return;
-    let processedName = inputRef.current?.value.trim();
-    processedName = processedName.replace(/\s{2,}/g, ' ');
+    let processedName = inputRef.current?.value;
+    processedName = normalizeSpaces(processedName);
 
     if (!processedName) {
-     // showToast('작업명을 입력해주세요.');
+      // showToast('작업명을 입력해주세요.');
       return;
     }
 
     if (processedName && startDate && endDate && currentUser) {
-      const filteredTodos = todos.filter(todo => todo.todoTxt && todo.todoTxt.trim() !== '');
+      const updatedTodos = todos.map(todo => ({
+        ...todo, todoTxt: normalizeSpaces(todo.todoTxt),
+      }));
+
+      const filteredTodos = updatedTodos.filter(todo => todo.todoTxt !== '');
 
       const currentAllTasks = useTaskStore.getState().allTasks;
 

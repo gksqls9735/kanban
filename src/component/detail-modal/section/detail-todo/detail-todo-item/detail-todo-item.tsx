@@ -6,6 +6,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { CombinedTodoItem } from "../detail-todo-list";
 import { useEffect, useRef, useState } from "react";
 import { formatDateToKoreanDeadline } from "../../../../../utils/date-function";
+import { normalizeSpaces } from "../../../../../utils/text-function";
 
 const DetailTodoItem: React.FC<{
   item: CombinedTodoItem;
@@ -15,12 +16,13 @@ const DetailTodoItem: React.FC<{
   onUpdateTodoTxt: (todoId: string, newTodoTxt: string) => void;
 }> = ({ item, onDelete, onCompleteChange, isOwnerOrParticipant, onUpdateTodoTxt }) => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
-  const [editedText, setEditedText] = useState<string>(item.todoTxt);
+  const [editedText, setEditedText] = useState<string>(normalizeSpaces(item.todoTxt));
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    setEditedText(normalizeSpaces(item.todoTxt));
     if (isEditing && inputRef.current) inputRef.current.focus();
-  }, [item.todoTxt]);
+  }, [item.todoTxt, isEditing]);
 
   useEffect(() => {
     if (isEditing && inputRef.current) inputRef.current.focus();
@@ -53,16 +55,18 @@ const DetailTodoItem: React.FC<{
   };
 
   const handleSaveEdit = () => {
-    if (editedText.trim() !== "" && editedText !== item.todoTxt) {
-      onUpdateTodoTxt(item.todoId, editedText.trim());
+    const processedText = normalizeSpaces(editedText);
+
+    if (processedText !== "" && processedText !== normalizeSpaces(item.todoTxt)) {
+      onUpdateTodoTxt(item.todoId, processedText);
     } else {
-      setEditedText(item.todoTxt);
+      setEditedText(normalizeSpaces(item.todoTxt));
     }
     setIsEditing(false);
   };
 
   const handleCancelEdit = () => {
-    setEditedText(item.todoTxt);
+    setEditedText(normalizeSpaces(item.todoTxt));
     setIsEditing(false);
   };
 

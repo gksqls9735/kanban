@@ -41,7 +41,7 @@ const UrlEmailEditableItem: React.FC<UrlEmailEditableListItemProps> = ({
   } = useSortable({ id: dndId })
 
   const style = {
-    transform: CSS.Transform.toString(transform),
+    transform: CSS.Transform.toString(transform ? { ...transform, x: 0 } : null),
     transition,
     opacity: isDragging ? 0.7 : 1,
     zIndex: isDragging ? 1 : 'auto',
@@ -58,7 +58,7 @@ const UrlEmailEditableItem: React.FC<UrlEmailEditableListItemProps> = ({
         {...attributes}
         {...listeners}
         className="task-detail__detail-modal-field-edit-item-drag-handle"
-        style={{cursor: `${isDragging ? 'grabbing' : 'grab'}`}}
+        style={{ cursor: `${isDragging ? 'grabbing' : 'grab'}` }}
       >⠿</div>
       <div className="task-detail__detail-modal-field-edit-item-inputs">
         <input type="text"
