@@ -61,7 +61,7 @@ const DetailTodoList: React.FC<{
     useSensor(KeyboardSensor)
   );
 
-  // 우선 isNew가 false인걸로 가정정
+  // 우선 isNew가 false인걸로 가정
   const handleDragEnd = (e: DragEndEvent) => {
     if (!isOwnerOrParticipant) return;
     const { active, over } = e;
