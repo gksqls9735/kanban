@@ -154,6 +154,12 @@ const DetailTodoList: React.FC<{
     );
   };
 
+  const handleUpdateExistingTodoDt = (todoId: string, newTodoDt: Date | null) => {
+    onTodoListUpdate(
+      initialTodoList.map(todo => todo.todoId === todoId ? { ...todo, todoDt: newTodoDt } : todo)
+    );
+  };
+
   const sortableItemIds = combinedItems.filter(item => !item.isNew).map(item => item.todoId);
 
   return (
@@ -176,6 +182,7 @@ const DetailTodoList: React.FC<{
                   onCompleteChange={handleCompleteExistingTodo}
                   isOwnerOrParticipant={isOwnerOrParticipant}
                   onUpdateTodoTxt={handleUpdateExistingTodoTxt}
+                  onUpdateTodoDt={handleUpdateExistingTodoDt}
                 />
               ) : (
                 <DetailTodoAdd key={item.todoId} item={item} onSave={handleSaveNewItem} onCancel={handleCancelNewItem} />
