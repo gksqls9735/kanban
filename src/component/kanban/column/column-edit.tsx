@@ -11,12 +11,12 @@ const ColumnEdit: React.FC<{
   viewMode: string;
   isEditing: boolean;
   toggle: () => void;
-  onUpdate: (name: string, color?: string) => void;
+  onUpdate: (name: string, color?: string) => boolean;
   colorMain?: string;
   columnTitle: string
 }> = ({ viewMode, isEditing, toggle, onUpdate, colorMain, columnTitle }) => {
   const {
-    inputRef, selectedColor, placeholderTxt,
+    inputRef, selectedColor, placeholderTxt, containerRef,
     handleConfirmClick, handleInputKeyDown, handleColorSelect,
   } = useColumnInput({
     isActive: isEditing, viewMode: viewMode, initialName: columnTitle, initialColor: colorMain, onSubmit: onUpdate, onToggle: toggle,
@@ -24,11 +24,20 @@ const ColumnEdit: React.FC<{
 
   if (!isEditing) return null;
 
+  const handleColor = (e: React.MouseEvent, color: string) => {
+    if (e.nativeEvent) {
+      e.nativeEvent.stopImmediatePropagation();
+    } else {
+      e.stopPropagation();
+    }
+    handleColorSelect(color);
+  };
+
   return (
     <>
-      <div>
+      <div ref={containerRef}>
         <div className="new-section">
-          <input ref={inputRef} type="text" placeholder={placeholderTxt} onKeyDown={handleInputKeyDown}/>
+          <input ref={inputRef} type="text" placeholder={placeholderTxt} onKeyDown={handleInputKeyDown} />
           <div className="create-confirm-button" onClick={handleConfirmClick}>확인</div>
         </div>
         {viewMode === ViewModes.STATUS && (
@@ -40,7 +49,7 @@ const ColumnEdit: React.FC<{
                   key={color}
                   className="new-section__color-swatch"
                   style={{ backgroundColor: color }}
-                  onClick={() => handleColorSelect(color)}
+                  onClick={(e) => handleColor(e, color)}
                 >
                   {selectedColor.toLowerCase() === color.toLowerCase() && <CheckIcon />}
                 </div>

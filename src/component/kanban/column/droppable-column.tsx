@@ -111,19 +111,19 @@ const DroppableColumn: React.FC<{
     };
 
 
-    const handleUpdate = (name: string, color?: string) => {
+    const handleUpdate = (name: string, color?: string): boolean => {
       let processedName = normalizeSpaces(name);
 
       if (!processedName) {
         showToast('상태/섹션 이름을 입력해주세요.');
-        return;
+        return false;
       }
 
       if (viewMode === ViewModes.STATUS && color) {
         const originalStatus = statusList.find(status => status.code === columnId);
         if (!originalStatus) {
           console.error("수정할 원본 상태를 찾을 수 없습니다. ID:", columnId);
-          return;
+          return false;
         }
 
         const normalizedOriginalStatusName = normalizeSpaces(originalStatus.name);
@@ -131,8 +131,7 @@ const DroppableColumn: React.FC<{
         // 시나리오 1: 이름과 색상 모두 변경되지 않은 경우
         if (processedName === normalizedOriginalStatusName && color === originalStatus.colorMain) {
           showToast('변경된 내용이 없습니다.');
-          setIsEditing(false);
-          return;
+          return true;
         }
 
         // 시나리오 2: 이름 또는 색상 중 하나라도 변경된 경우
@@ -143,7 +142,7 @@ const DroppableColumn: React.FC<{
           );
           if (isDuplicateNameWithOthers) {
             showToast('동일한 이름의 다른 상태가 이미 존재합니다.');
-            return;
+            return false;
           }
         }
 
@@ -170,20 +169,19 @@ const DroppableColumn: React.FC<{
           if (updatedTasks.length > 0) onTasksChange(updatedTasks);
         }
         showToast('상태 정보가 변경되었습니다.');
-
+        return true;
       } else if (viewMode === ViewModes.SECTION) {
         const originalSection = sections.find(sec => sec.sectionId === columnId);
         if (!originalSection) {
           console.error("수정할 원본 섹션을 찾을 수 없습니다. ID:", columnId);
-          return;
+          return false;
         }
 
         const normalizedOriginalSectionName = normalizeSpaces(originalSection.sectionName);
 
         if (processedName === normalizedOriginalSectionName) {
           showToast('변경된 내용이 없습니다.');
-          setIsEditing(false);
-          return;
+          return true;
         }
 
         const isDuplicateWithOthers = sections.some(
@@ -192,7 +190,7 @@ const DroppableColumn: React.FC<{
 
         if (isDuplicateWithOthers) {
           showToast('동일한 이름의 다른 섹션이 이미 존재합니다.');
-          return;
+          return false;
         }
 
         updateSection(columnId, { sectionName: processedName });
@@ -201,8 +199,9 @@ const DroppableColumn: React.FC<{
           onSectionsChange(updatedSections);
         }
         showToast('섹션명이 변경되었습니다.');
+        return true;
       }
-      setIsEditing(false);
+      return false;
     };
 
     const toggle = () => {

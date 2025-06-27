@@ -6,16 +6,20 @@ interface useColumnInputProps {
   viewMode: string,
   initialName?: string,
   initialColor?: string,
-  onSubmit: (name: string, color?: string) => void,
+  onSubmit: (name: string, color?: string) => boolean,
   onToggle: () => void,
 }
 
 const useColumnInput = ({
   isActive, viewMode, initialName = '', initialColor, onSubmit, onToggle
 }: useColumnInputProps) => {
-  const defaultInitialColor = viewMode === ViewModes.STATUS ? (initialColor || colors[0]) : '';
+  const defaultInitialColor = useMemo(() => {
+    return viewMode === ViewModes.STATUS ? (initialColor || colors[0]) : '';
+  }, [viewMode, initialColor]);
+
   const [selectedColor, setSelectedColor] = useState<string>(defaultInitialColor);
   const inputRef = useRef<HTMLInputElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const placeholderTxt = useMemo(() => viewMode === ViewModes.STATUS ? '상태명' : '섹션명', [viewMode]);
 
@@ -24,10 +28,11 @@ const useColumnInput = ({
       inputRef.current.value = initialName;
       inputRef.current.focus();
 
-      if (!initialName && viewMode === ViewModes.STATUS) {
-        setSelectedColor(colors[0]);
-      } else if (viewMode === ViewModes.STATUS && initialColor) {
-        setSelectedColor(initialColor);
+      if (viewMode === ViewModes.STATUS) {
+        const newColor = initialColor || colors[0];
+        if (selectedColor !== newColor) setSelectedColor(newColor);
+      } else {
+        if (selectedColor !== '') setSelectedColor('');
       }
     }
   }, [isActive, initialName, initialColor, viewMode]);
@@ -36,11 +41,17 @@ const useColumnInput = ({
     const name = inputRef.current?.value.trim();
     if (name) {
       const colorToSubmit = viewMode === ViewModes.STATUS ? selectedColor : undefined;
-      onSubmit(name, colorToSubmit);
+      const submissionSuccessful = onSubmit(name, colorToSubmit);
+      
+      if (submissionSuccessful) {
+        onToggle();
+      } else {
+        inputRef.current?.focus();
+      }
     } else {
       inputRef.current?.focus();
     }
-  }, [viewMode, selectedColor, onSubmit, initialName]);
+  }, [viewMode, selectedColor, onSubmit, onToggle]);
 
   const handleInputKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
@@ -56,8 +67,36 @@ const useColumnInput = ({
     setSelectedColor(color);
   }, []);
 
+  useEffect(() => {
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (!containerRef.current) return;
+
+      const path = e.composedPath();
+      const isClickInsideContainer = path.includes(containerRef.current);
+
+      if (isActive && !isClickInsideContainer) {
+        const name = inputRef.current?.value.trim();
+        if (name) {
+          const colorToSubmit = viewMode === ViewModes.STATUS ? selectedColor : undefined;
+          const submissionSuccessful = onSubmit(name, colorToSubmit);
+
+          if (submissionSuccessful) {
+            onToggle();
+          } else {
+            inputRef.current?.focus();
+          }
+        } else {
+          onToggle();
+        }
+      }
+    };
+
+    if (isActive) document.addEventListener('mousedown', handleOutsideClick);
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, [isActive, onSubmit, onToggle, viewMode, selectedColor]);
+
   return {
-    inputRef, selectedColor, placeholderTxt,
+    inputRef, selectedColor, placeholderTxt, containerRef,
     handleConfirmClick, handleInputKeyDown, handleColorSelect
   }
 

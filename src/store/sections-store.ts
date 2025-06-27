@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { Section } from "../types/type";
-import { generateUniqueId } from "../utils/text-function";
+import { generateUniqueId, getNextUntitledName } from "../utils/text-function";
 
 interface SectionsState {
   sections: Section[];
@@ -36,9 +36,10 @@ const useSectionsStore = create<SectionsState>((set, _get) => ({
       return {};
     }
 
+    const newSectionName = getNextUntitledName('제목 없는 섹션', sections);
     const newSection: Section = {
       sectionId: generateUniqueId('section'),
-      sectionName: '제목 없는 섹션',
+      sectionName: newSectionName,
       order: 0,
     };
 

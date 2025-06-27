@@ -9,7 +9,7 @@ import useSectionsStore from "../../../store/sections-store";
 import useStatusesStore from "../../../store/statuses-store";
 import ColumnCreate from "./column-create";
 import { useToast } from "../../../context/toast-context";
-import { generateUniqueId, normalizeSpaces } from "../../../utils/text-function";
+import { generateUniqueId, getNextUntitledName, normalizeSpaces } from "../../../utils/text-function";
 import useUserStore from "../../../store/user-store";
 import DetailModal from "../../detail-modal/detail-modal";
 import DeleteModal from "../delete-modal";
@@ -78,7 +78,7 @@ const ColumnList: React.FC<{
   }, [tasks]);
 
   const uniqueUserIds = useMemo(() => getAllUniqueUserIds(), [getAllUniqueUserIds]);
-  const isOwnerOrParticipant = useMemo(() => uniqueUserIds.some(uId => uId === currentUser!.id), [uniqueUserIds]);
+  const isOwnerOrParticipant = useMemo(() => currentUser ? uniqueUserIds.some(uId => uId === currentUser.id) : false, [uniqueUserIds, currentUser]);
 
   useEffect(() => {
     setIsAddingSection(false);
@@ -114,12 +114,12 @@ const ColumnList: React.FC<{
 
   const allColumnIds = useMemo(() => baseColumns.map(col => col.id), [baseColumns]);
 
-  const handleAddNewItem = (name: string, color?: string) => {
+  const handleAddNewItem = (name: string, color?: string): boolean => {
     let processedName = normalizeSpaces(name);
 
     if (!processedName) {
       showToast('상태/섹션 이름을 입력해주세요.');
-      return;
+      return false;
     }
 
     if (viewMode === ViewModes.STATUS && color) {
@@ -128,22 +128,24 @@ const ColumnList: React.FC<{
         addStatus({ name: processedName, colorMain: color, colorSub: lightenColor(color, 0.85) });
         handleAddStatus();
         showToast('상태가 등록 되었습니다.');
+        return true;
       } else {
         showToast('동일한 이름의 상태가 존재합니다.');
-        return;
+        return false;
       }
     } else if (viewMode === ViewModes.SECTION) {
       const isExistSectionName = sections.some(sec => normalizeSpaces(sec.sectionName) === processedName);
       if (!isExistSectionName) {
         addSection(processedName);
         handleAddSection();
-        showToast('섹션이 추가 되었습니다.')
+        showToast('섹션이 추가 되었습니다.');
+        return true;
       } else {
         showToast('동일한 이름의 섹션이 존재합니다.');
-        return;
+        return false;
       }
     }
-    setIsAddingSection(false);
+    return false;
   };
 
   const toggle = () => {
@@ -156,16 +158,19 @@ const ColumnList: React.FC<{
       handleAddSection();
     } else if (viewMode === ViewModes.STATUS) {
       const newColor = colors[0];
+      const newStatusName = getNextUntitledName('이름 없는 상태', statusList);
+
       const newStatusData: SelectOption = {
         code: generateUniqueId('status'),
-        name: normalizeSpaces('이름 없는 상태'),
+        name: newStatusName,
         colorMain: newColor,
         colorSub: lightenColor(newColor, 0.85),
       }
       insertStatus(targetColumnId, newStatusData, 'before');
       handleAddStatus();
+      showToast(`상태가 등록 되었습니다.`);
     }
-  }, [viewMode, insertSection, insertStatus]);
+  }, [viewMode, insertSection, insertStatus, showToast, statusList]);
 
   const handleAddAfter = useCallback((targetColumnId: string) => {
     if (viewMode === ViewModes.SECTION) {
@@ -173,16 +178,19 @@ const ColumnList: React.FC<{
       handleAddSection();
     } else if (viewMode === ViewModes.STATUS) {
       const newColor = colors[0];
+      const newStatusName = getNextUntitledName('이름 없는 상태', statusList);
+
       const newStatusData: SelectOption = {
         code: generateUniqueId('status'),
-        name: normalizeSpaces('이름 없는 상태'),
+        name: newStatusName,
         colorMain: newColor,
         colorSub: lightenColor(newColor, 0.85),
       }
       insertStatus(targetColumnId, newStatusData, 'after');
       handleAddStatus();
+      showToast(`상태가 등록 되었습니다.`);
     }
-  }, [viewMode, insertSection, insertStatus]);
+  }, [viewMode, insertSection, insertStatus, showToast, statusList]);
 
   const handleAddSection = () => {
     if (onSectionsChange) {
@@ -221,9 +229,15 @@ const ColumnList: React.FC<{
 
           {isOwnerOrParticipant && (
             <div className="add-section-button" onClick={() => setIsAddingSection(prev => !prev)}>
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#7d8998" className="bi bi-plus-lg" viewBox="0 0 16 16">
-                <path fillRule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2" />
-              </svg>
+              {!isAddingSection ? (
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#7d8998" className="bi bi-plus-lg" viewBox="0 0 16 16">
+                  <path fillRule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2" />
+                </svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="#7d8998" className="bi bi-x-lg" viewBox="0 0 16 16">
+                  <path fillRule="evenodd" d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z" />
+                </svg>
+              )}
             </div>
           )}
         </div>

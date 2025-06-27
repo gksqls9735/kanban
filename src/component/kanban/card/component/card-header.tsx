@@ -17,7 +17,8 @@ const CardHeader: React.FC<{
   sectionName: string;
   onClick: (e: React.MouseEvent) => void;
   onModalStateChange: (isOpen: boolean) => void;
-}> = ({ task, sectionName, onClick, onModalStateChange }) => {
+  isOwnerOrParticipant: boolean;
+}> = ({ task, sectionName, onClick, onModalStateChange, isOwnerOrParticipant }) => {
   const currentUser = useUserStore(state => state.currentUser);
 
   const { isOpen, setIsOpen, wrapperRef, dropdownRef, toggle } = useDropdown();
@@ -101,13 +102,6 @@ const CardHeader: React.FC<{
   const closeDeleteModal = () => {
     setIsDeleteModalOpen(false);
   }
-
-  // const isTaskOnwer = task.taskOwner.id === currentUser?.id;
-  // const isOwnerOrMainParticipant = isTaskOnwer ||
-  //   task.participants.some(p => p.id === currentUser?.id && p.isMain);
-
-  const isOwnerOrParticipant = task.taskOwner.id === currentUser?.id ||
-    task.participants.some(p => p.id === currentUser?.id);
 
   const handleToggle = (e: React.MouseEvent) => {
     e.stopPropagation();

@@ -74,7 +74,7 @@ const CardParticipants: React.FC<{
         <div className="participant-popover" ref={dropdownRef} style={{ top: popoverPosition.top, left: popoverPosition.left }}>
           <div className="participant-popover__header">
             <span className="participant-popover__title">담당자</span>
-            <svg onClick={handleClosePopover} xmlns="http://www.w3.org/2000/svg" viewBox="-0.5 -0.5 16 16" fill="#5F6B7A" stroke="#000000" strokeLinecap="round" strokeLinejoin="round" className="feather feather-x" id="X--Streamline-Feather" height="16" width="16">
+            <svg onClick={handleClosePopover} style={{ cursor: 'pointer' }} xmlns="http://www.w3.org/2000/svg" viewBox="-0.5 -0.5 16 16" fill="#5F6B7A" stroke="#000000" strokeLinecap="round" strokeLinejoin="round" className="feather feather-x" id="X--Streamline-Feather" height="16" width="16">
               <desc>X Streamline Icon: https://streamlinehq.com</desc>
               <path d="M11.25 3.75 3.75 11.25" strokeWidth="1"></path>
               <path d="m3.75 3.75 7.5 7.5" strokeWidth="1"></path>

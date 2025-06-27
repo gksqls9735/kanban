@@ -23,9 +23,7 @@ const DatePickerTrigger: React.FC<{
   };
 
   useEffect(() => {
-    if (onToggle) {
-      onToggle(isOpen);
-    }
+    if (onToggle) onToggle(isOpen);
   }, [isOpen, onToggle]);
 
   const calcDropdownPosition = useCallback(() => {

@@ -11,18 +11,27 @@ const ColumnCreate: React.FC<{
   viewMode: string;
   isAdd: boolean,
   toggle: () => void;
-  onAdd: (name: string, color?: string) => void;
+  onAdd: (name: string, color?: string) => boolean;
 }> = ({ viewMode, isAdd, toggle, onAdd }) => {
   const {
-    inputRef, selectedColor, placeholderTxt,
+    inputRef, selectedColor, placeholderTxt, containerRef,
     handleConfirmClick, handleInputKeyDown, handleColorSelect,
   } = useColumnInput({ isActive: isAdd, viewMode: viewMode, onSubmit: onAdd, onToggle: toggle, })
 
   if (!isAdd) return null;
 
+  const handleColor = (e: React.MouseEvent, color: string) => {
+    if (e.nativeEvent) {
+      e.nativeEvent.stopImmediatePropagation();
+    } else {
+      e.stopPropagation();
+    }
+    handleColorSelect(color);
+  };
+
   return (
     <>
-      <div>
+      <div ref={containerRef}>
         <div className="new-section">
           <input ref={inputRef} type="text" placeholder={placeholderTxt} onKeyDown={handleInputKeyDown} />
           <div className="create-confirm-button" onClick={handleConfirmClick}>확인</div>
@@ -36,7 +45,7 @@ const ColumnCreate: React.FC<{
                   key={color}
                   className="new-section__color-swatch"
                   style={{ backgroundColor: color }}
-                  onClick={() => handleColorSelect(color)}
+                  onClick={(e) => handleColor(e, color)}
                 >
                   {selectedColor === color && <CheckIcon />}
                 </div>

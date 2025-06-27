@@ -5,23 +5,17 @@ import TodoList from "../card-todo/todolist";
 import CardHeader from "./component/card-header";
 import CardMeta from "./component/card-meta";
 import CardParticipants from "./component/card-participants";
-import useUserStore from "../../../store/user-store";
 
 const CardContent: React.FC<{
   task: Task;
   sectionName: string;
   onClick: (e: React.MouseEvent) => void;
   onModalStateChange: (isOpen: boolean) => void;
-}> = ({ task, sectionName, onClick, onModalStateChange }) => {
-  const currentUser = useUserStore(state => state.currentUser);
-
-  const isOwnerOrParticipant =
-    task.taskOwner.id === currentUser?.id ||
-    task.participants.some(p => p.id === currentUser?.id);
-
+  isOwnerOrParticipant: boolean;
+}> = ({ task, sectionName, onClick, onModalStateChange, isOwnerOrParticipant }) => {
   return (
     <>
-      <CardHeader task={task} sectionName={sectionName} onClick={onClick} onModalStateChange={onModalStateChange} />
+      <CardHeader task={task} sectionName={sectionName} onClick={onClick} onModalStateChange={onModalStateChange} isOwnerOrParticipant={isOwnerOrParticipant}/>
       <div className="card-title">{task.taskName}</div>
       <div className="card-due-date">
         <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="#7d8998">

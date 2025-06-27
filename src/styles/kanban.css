@@ -1068,7 +1068,7 @@
 }
 
 /* 새로운 작업 카드 */
-/* 드롭 다운 섹션, 우선 순위, 상태태 */
+/* 드롭 다운 섹션, 우선 순위, 상태 */
 .kanban .select-dropdown-panel {
   position: absolute;
   top: calc(100% + 2px);

@@ -27,7 +27,8 @@ const UpdateCard: React.FC<{
 
   const allTasks = useTaskStore(state => state.allTasks);
 
-  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState<boolean>(false);
+  const [isSelectorOpen, setIsSelectorOpen] = useState<boolean>(false);
 
   const { showToast } = useToast();
   const { onTasksChange } = useKanbanActions();
@@ -131,7 +132,7 @@ const UpdateCard: React.FC<{
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (isOpenParticipantModal || isDatePickerOpen) return;
+      if (isOpenParticipantModal || isDatePickerOpen || isSelectorOpen) return;
       const path = e.composedPath();
       if (cardRef.current && !path.includes(cardRef.current)) {
         handleUpdateTask();
@@ -139,7 +140,7 @@ const UpdateCard: React.FC<{
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [handleUpdateTask, isOpenParticipantModal, isDatePickerOpen]);
+  }, [handleUpdateTask, isOpenParticipantModal, isDatePickerOpen, isSelectorOpen]);
 
   // 작업 값 변경
   const handleDateSelect = (start: Date | null, end: Date | null) => {
@@ -166,7 +167,7 @@ const UpdateCard: React.FC<{
   return (
     <div ref={cardRef} className="edit-task-content" style={{ display: 'contents' }} onClick={e => e.stopPropagation()}>
 
-      <SectionSelector selectedSection={selectedSection} onSectionSelect={handleSectionSelect} isOwnerOrParticipant={true} />
+      <SectionSelector selectedSection={selectedSection} onSectionSelect={handleSectionSelect} isOwnerOrParticipant={true} onToggle={setIsSelectorOpen}/>
 
       <input
         type="text"
@@ -180,8 +181,8 @@ const UpdateCard: React.FC<{
 
       <div className="card-meta">
         <div className="card-priority-status">
-          <OptionSelector options={prioritySelect} selectedOption={selectedPriority} onSelect={handlePrioritySelect} isOwnerOrParticipant={true} />
-          <OptionSelector options={statusList} selectedOption={selectedStatus} onSelect={handleStatusSelect} isOwnerOrParticipant={true} />
+          <OptionSelector options={prioritySelect} selectedOption={selectedPriority} onSelect={handlePrioritySelect} isOwnerOrParticipant={true} onToggle={setIsSelectorOpen} />
+          <OptionSelector options={statusList} selectedOption={selectedStatus} onSelect={handleStatusSelect} isOwnerOrParticipant={true} onToggle={setIsSelectorOpen} />
         </div>
       </div>
 
