@@ -4,6 +4,7 @@ import React from "react";
 import { ShadowRootContext } from "../context/shadowroot-context";
 import { StyleSheetManager } from "styled-components";
 import Kanban from "../main-page/kanban";
+import isEqual from 'lodash.isequal';
 
 import kanbanCssText from "../styles/kanban.css?raw";
 import DatePickerText from "../styles/datetimepicker.css?raw";
@@ -46,7 +47,9 @@ class KanbanWebComponent extends HTMLElement {
   }
 
   set currentUser(value: User | null) {
-    if (this._props.currentUser !== value) {
+    if (this._props.currentUser === null && value === null) return;
+
+    if (!isEqual(this._props.currentUser, value)) {
       this._props.currentUser = value;
       this._render();
     }
@@ -54,7 +57,7 @@ class KanbanWebComponent extends HTMLElement {
   get currentUser(): User | null { return this._props.currentUser; }
 
   set userlist(value: User[]) {
-    if (this._props.userlist !== value) {
+    if (!isEqual(this._props.userlist, value)) {
       this._props.userlist = value;
       this._render();
     }
@@ -62,7 +65,7 @@ class KanbanWebComponent extends HTMLElement {
   get userlist(): User[] { return this._props.userlist; }
 
   set tasks(value: Task[]) {
-    if (this._props.tasks !== value) {
+    if (!isEqual(this._props.tasks, value)) {
       this._props.tasks = value;
       this._render();
     }
@@ -70,7 +73,7 @@ class KanbanWebComponent extends HTMLElement {
   get tasks(): Task[] { return this._props.tasks; }
 
   set sections(value: Section[]) {
-    if (this._props.sections !== value) {
+    if (!isEqual(this._props.sections, value)) {
       this._props.sections = value;
       this._render();
     }
@@ -78,7 +81,7 @@ class KanbanWebComponent extends HTMLElement {
   get sections(): Section[] { return this._props.sections; }
 
   set statusList(value: SelectOption[]) {
-    if (this._props.statusList !== value) {
+    if (!isEqual(this._props.statusList, value)) {
       this._props.statusList = value;
       this._render();
     }
@@ -86,7 +89,7 @@ class KanbanWebComponent extends HTMLElement {
   get statusList(): SelectOption[] { return this._props.statusList; }
 
   set chatlist(value: Chat[]) {
-    if (this._props.chatlist !== value) {
+    if (!isEqual(this._props.chatlist, value)) {
       this._props.chatlist = value;
       this._render();
     }
