@@ -29,7 +29,7 @@ const TodoListEditor: React.FC<{
       todoOwner: currentUser.username, // 실제 사용자로 변경하기
       isCompleted: false,
       todoTxt: '',
-      todoDt: new Date(),
+      todoDt: null,
       participants: [],
       order: todos.length,
     };
