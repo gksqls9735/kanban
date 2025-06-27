@@ -7,6 +7,7 @@ import { arrayMove, SortableContext, verticalListSortingStrategy } from "@dnd-ki
 import { Todo } from "../../../../types/type";
 import useUserStore from "../../../../store/user-store";
 import { generateUniqueId, normalizeSpaces } from "../../../../utils/text-function";
+import isEqual from "lodash.isequal"; 
 
 export interface CombinedTodoItem { // 인터페이스 정의
   todoId: string;
@@ -36,15 +37,23 @@ const DetailTodoList: React.FC<{
       order: todo.order !== undefined ? todo.order : index,
     }));
 
-    const newItemsInProgress = combinedItems.filter(item => item.isNew);
+    const newItemsInProgress = combinedItems.filter(item =>
+      item.isNew && !existingTodosAsCombined.some(existing => existing.todoId === item.todoId)
+    );
 
     const allItems = [
       ...existingTodosAsCombined,
-      ...newItemsInProgress.filter(newItem => !existingTodosAsCombined.some(exItem => exItem.todoId === newItem.todoId))
+      ...newItemsInProgress
     ];
 
     allItems.sort((a, b) => a.order - b.order);
-    setCombinedItems(allItems);
+
+    if (!isEqual(combinedItems, allItems)) {
+      console.log("DetailTodoList: Updating combinedItems state.");
+      setCombinedItems(allItems);
+    } else {
+      console.log("DetailTodoList: combinedItems are content-equal, skipping update.");
+    }
   }, [initialTodoList, currentUser]);
 
   const sensors = useSensors(
@@ -58,17 +67,36 @@ const DetailTodoList: React.FC<{
     const { active, over } = e;
     if (!active || !over || active.id === over.id) return;
 
-    const oldList = initialTodoList;
-    const activeIdx = oldList.findIndex(todo => todo.todoId === active.id);
-    const overIdx = oldList.findIndex(todo => todo.todoId === over.id);
+    const sortableCombinedItems = combinedItems.filter(item => !item.isNew);
+    
+    const activeIdx = sortableCombinedItems.findIndex(item => item.todoId === active.id);
+    const overIdx = sortableCombinedItems.findIndex(item => item.todoId === over.id);
 
-    if (activeIdx === -1 || overIdx === -1) return;
+    if (activeIdx === -1 || overIdx === -1) {
+        console.warn("Drag end: Active or over item not found in sortableCombinedItems.");
+        return;
+    }
 
-    const updatedList = arrayMove(oldList, activeIdx, overIdx).map((todo, idx) => ({
-      ...todo, order: idx,
+    const reorderedCombinedItems = arrayMove(sortableCombinedItems, activeIdx, overIdx);
+
+    const updatedCombinedItemsWithOrder = reorderedCombinedItems.map((item, idx) => ({
+        ...item,
+        order: idx,
+    }));
+    
+    const updatedTodoItems: Todo[] = updatedCombinedItemsWithOrder.map(item => ({
+        taskId: taskId,
+        todoId: item.todoId,
+        todoOwner: currentUser ? currentUser.username : 'Unknown',
+        isCompleted: item.isCompleted,
+        todoTxt: item.todoTxt,
+        todoDt: item.todoDt,
+        participants: [],
+        order: item.order,
     }));
 
-    onTodoListUpdate(updatedList);
+    onTodoListUpdate(updatedTodoItems);
+    setCombinedItems(updatedCombinedItemsWithOrder);
   };
 
   const handleAddNewItemField = () => {
