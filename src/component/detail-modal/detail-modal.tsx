@@ -67,6 +67,7 @@ const DetailModal: React.FC<{
   const handleMouseDown = (e: React.MouseEvent) => {
     isResizing.current = true;
     document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
 
     const startX = e.clientX;
     const startWidth = modalWidth;
@@ -82,6 +83,7 @@ const DetailModal: React.FC<{
     const handleMouseUp = () => {
       isResizing.current = false;
       document.body.style.cursor = 'default';
+      document.body.style.userSelect = '';
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
     };
