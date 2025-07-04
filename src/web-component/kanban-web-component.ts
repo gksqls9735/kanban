@@ -23,7 +23,6 @@ class KanbanWebComponent extends HTMLElement {
     tasks: Task[];
     sections: Section[];
     statusList: SelectOption[];
-    isSideMenuOpen: "expanded" | "collapsed" | "hidden";
     chatlist: Chat[];
     detailModalTopPx: number;
   } = {
@@ -32,7 +31,6 @@ class KanbanWebComponent extends HTMLElement {
       statusList: [],
       currentUser: null,
       userlist: [],
-      isSideMenuOpen: "hidden",
       chatlist: [],
       detailModalTopPx: 0,
     };
@@ -43,7 +41,7 @@ class KanbanWebComponent extends HTMLElement {
   //https://cdn-minio.bizbee.co.kr/common/kanban/
 
   static get observedAttributes() {
-    return ['issidemenuopen', 'detailmodaltoppx'];
+    return ['detailmodaltoppx'];
   }
 
   set currentUser(value: User | null) {
@@ -132,11 +130,6 @@ class KanbanWebComponent extends HTMLElement {
   attributeChangedCallback(name: string, oldValue: string | null, newValue: string | null) {
     if (oldValue === newValue) return;
 
-    if (name === 'issidemenuopen') {
-      const sideMenu = newValue as "expanded" | "collapsed" | "hidden";
-      this._props.isSideMenuOpen = ["expanded", "collapsed", "hidden"].includes(sideMenu) ? sideMenu : "hidden";
-    }
-
     if (name === 'detailmodaltoppx') {
       const parsedValue = newValue ? parseInt(newValue, 10) : 0;
       this._props.detailModalTopPx = isNaN(parsedValue) ? 0 : parsedValue;
@@ -149,9 +142,6 @@ class KanbanWebComponent extends HTMLElement {
   }
 
   _updatePropsFromAttributes() {
-    const sideMenu = this.getAttribute("issidemenuopen") as any;
-    this._props.isSideMenuOpen = ["expanded", "collapsed", "hidden"].includes(sideMenu) ? sideMenu : "hidden";
-
     const topPx = this.getAttribute("detailmodaltoppx");
     const parsedTopPx = topPx ? parseInt(topPx, 10) : 0;
     this._props.detailModalTopPx = isNaN(parsedTopPx) ? 0 : parsedTopPx;

@@ -38,7 +38,6 @@ function App() {
     { icon: faChartBar, name: '대시보드' },
     { icon: faGear, name: '설정' },
   ];
-  // ... 나머지 App 컴포넌트 코드는 그대로 두시면 됩니다.
 
   const kanbanRef = useRef<KanbanWebComponentElement>(null);
 
