@@ -64,7 +64,6 @@
 
 .kanban .task-detail__detail-modal-wrapper {
   position: fixed;
-  top: 0;
   bottom: 0;
   right: 0;
   min-width: 720px;
@@ -75,6 +74,7 @@
   box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   transition: width 0.1s ease;
+  z-index: 1000;
 }
 
 .kanban .task-detail__detail-modal-resizer {
