@@ -487,8 +487,14 @@
   background-color: white;
   box-shadow: 2px 2px 6px 0px rgba(0, 0, 0, 0.04);
   position: relative;
+  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
 }
 
+.kanban .kanban-card.is-draggable:hover {
+  transform: translateY(-4px); /* 살짝 위로 이동 */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* 그림자 효과 */
+  cursor: grab; /* 잡을 수 있다는 커서 */
+}
 /* 작업 카드 상단 */
 .kanban .card-header {
   display: flex;

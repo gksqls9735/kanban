@@ -38,7 +38,7 @@ const CardWrapper: React.FC<{
     marginBottom: '8px',
     position: 'relative',
     backgroundColor: 'white',
-    cursor: isAnyModalOpen || !isOwnerOrParticipant? 'pointer' : (isOverlay ? 'grabbing' : 'grab'),
+    cursor: isAnyModalOpen || !isOwnerOrParticipant ? 'pointer' : (isOverlay ? 'grabbing' : 'grab'),
   };
 
   const handleModalStateChange = (isOpen: boolean) => {
@@ -74,10 +74,10 @@ const CardWrapper: React.FC<{
           style={style}
           {...listeners}
           {...attributes}
-          className="kanban-card"
+          className={`kanban-card ${isOwnerOrParticipant ? 'is-draggable' : ''}`}
           onClick={handleOpenDetailModal}
         >
-          <CardContent task={task} sectionName={sectionName} onClick={handleEditMode} onModalStateChange={handleModalStateChange} isOwnerOrParticipant={isOwnerOrParticipant}/>
+          <CardContent task={task} sectionName={sectionName} onClick={handleEditMode} onModalStateChange={handleModalStateChange} isOwnerOrParticipant={isOwnerOrParticipant} />
         </div>
       )}
     </>
