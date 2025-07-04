@@ -6,7 +6,6 @@ declare interface KanbanWebComponentElement extends HTMLElement {
   tasks: Task[];
   sections: Section[];
   statusList: SelectOption[];
-  isSideMenuOpen: "expanded" | "collapsed" | "hidden";
   chatlist: Chat[];
   detailModalTopPx: number;
 }
@@ -16,7 +15,6 @@ declare global {
     interface IntrinsicElements {
       "kanban-board": React.DetailedHTMLProps<
         React.HTMLAttributes<KanbanWebComponentElement> & {
-          isSideMenuOpen?: "expanded" | "collapsed" | "hidden";
           detailModalTopPx?: string | number;
         },
         KanbanWebComponentElement

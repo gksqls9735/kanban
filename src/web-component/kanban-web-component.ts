@@ -226,7 +226,6 @@ class KanbanWebComponent extends HTMLElement {
               tasks: sectionTasksWithDates,
               sections: this._props.sections,
               statusList: this._props.statusList,
-              isSideMenuOpen: this._props.isSideMenuOpen,
               chatlist: chatListWithDates,
               detailModalTopPx: this._props.detailModalTopPx,
             })

@@ -23,7 +23,6 @@ export interface KanbanProps {
   tasks: Task[];
   sections: Section[];
   statusList: SelectOption[];
-  isSideMenuOpen: "expanded" | "collapsed" | "hidden";
   chatlist: Chat[];
   detailModalTopPx?: number;
 }
@@ -34,7 +33,6 @@ const Kanban: React.FC<KanbanProps> = ({
   tasks: initialTasks,
   sections: initialSections,
   statusList: initialStatusList,
-  isSideMenuOpen,
   chatlist,
   detailModalTopPx = 0,
 }) => {
@@ -120,13 +118,15 @@ const Kanban: React.FC<KanbanProps> = ({
 
   return (
     <ToastProvider>
-      <div className="kanban-wrapper"
-        style={{
-          paddingLeft: `${isSideMenuOpen === 'hidden' ? '' : isSideMenuOpen === 'expanded' ? '260px' : '86px'}`,
-          width: `${isSideMenuOpen === 'hidden' ? '100%' : isSideMenuOpen === 'expanded' ? 'calc(100vw - 260px)' : 'calc(100vw - 86px)'}`,
-        }}
-      >
-        <div onClick={toggleViewMode} className="view-toggle">{viewMode === ViewModes.STATUS ? '섹션별로 보기' : '상태별로 보기'}</div>
+      <div className="kanban-wrapper">
+        <div className="kanban-header">
+          <h3 className="kanban-title">{viewMode === ViewModes.STATUS ? '상태별 보기' : '섹션별 보기'}</h3>
+          <div className="kanban-controls">
+            <div onClick={toggleViewMode} className="view-toggle">
+              {viewMode === ViewModes.STATUS ? '섹션별로 보기' : '상태별로 보기'}
+            </div>
+          </div>
+        </div>
         <DndContext
           sensors={sensors}
           collisionDetection={rectIntersection}
