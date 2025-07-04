@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import "./web-component/kanban-web-component";
-import { sections, sectionTasks } from './mocks/task-mock';
+import { sections, sectionTasks, productLaunchSections, productLaunchTasks, departmentSections, departmentTasks } from "./mocks/task-mock";
 import { statusSelect } from './mocks/select-option-mock';
 import { user1, userlist } from './mocks/user-mock';
 import { globalChatlist as initialGlobalChatlist } from './mocks/task-detail-mock';
@@ -34,9 +34,9 @@ function App() {
   };
 
   const menuItems = [
-    { icon: faHouse, name: '홈' },
-    { icon: faChartBar, name: '대시보드' },
-    { icon: faGear, name: '설정' },
+    { icon: faHouse, name: '홈', onClick: () => {setAppTasks(sectionTasks); setAppSections(sections); setActiveMenu('홈')} },
+    { icon: faChartBar, name: '대시보드', onClick: () => {setAppTasks(productLaunchTasks); setAppSections(productLaunchSections); setActiveMenu('대시보드')} },
+    { icon: faGear, name: '설정', onClick: () => {setAppTasks(departmentTasks); setAppSections(departmentSections); setActiveMenu('설정')} },
   ];
 
   const kanbanRef = useRef<KanbanWebComponentElement>(null);
@@ -195,7 +195,7 @@ function App() {
                 <li
                   key={item.name}
                   style={activeMenu === item.name ? { ...styles.menuItem, ...styles.menuItemActive } : styles.menuItem}
-                  onClick={() => setActiveMenu(item.name)}
+                  onClick={item.onClick}
                 >
                   <span style={styles.menuIcon}>
                     <FontAwesomeIcon icon={item.icon} />
