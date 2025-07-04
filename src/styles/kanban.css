@@ -63,7 +63,7 @@
 .kanban-wrapper {
   display: flex;
   flex-direction: column;
-  padding: 15px 32px;
+  padding: 16px 32px 32px 32px;
   height: 100%;
   box-sizing: border-box;
 }
@@ -121,6 +121,9 @@
 }
 
 .kanban {
+  width: 100%;
+  overflow-x: auto;
+  min-width: 0;
   box-sizing: border-box;
   flex: 1;
   min-height: 0;
