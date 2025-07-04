@@ -63,17 +63,54 @@
 .kanban-wrapper {
   display: flex;
   flex-direction: column;
-  padding: 15px 32px;
+  padding: 16px 32px;
   height: 100%;
   box-sizing: border-box;
 }
 
 .kanban-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-between; /* 좌측 header-group + 우측 global-actions */
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 32px;
   flex-shrink: 0;
+}
+
+.header-group {
+  display: flex;
+  align-items: center;
+  gap: 16px; /* 타이틀과 뷰탭 사이 간격 */
+}
+
+.view-tabs {
+  display: flex;
+  gap: 8px;
+  background-color: #f0f0f0;
+  padding: 4px;
+  border-radius: 8px;
+}
+
+.tab-button {
+  padding: 8px 16px;
+  border: none;
+  background-color: transparent;
+  color: #555;
+  font-size: 0.95rem;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.tab-button:hover {
+  color: #111;
+}
+
+.tab-button.active {
+  background-color: #ffffff;
+  color: #007bff;
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .kanban-title {
@@ -82,32 +119,6 @@
   font-weight: 600;
   color: #333;
 }
-
-.kanban-controls {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.kanban-wrapper .view-toggle {
-  width: fit-content;
-  cursor: pointer;
-  padding: 8px 15px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background-color: #fff;
-  color: #555;
-  font-weight: normal;
-  font-size: 0.9rem;
-  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-}
-
-.kanban-wrapper .view-toggle:hover {
-  background-color: #f5f5f5;
-  border-color: #aaa;
-  color: #333;
-}
-
 
 .kanban {
   box-sizing: border-box;

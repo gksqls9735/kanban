@@ -116,15 +116,25 @@ const Kanban: React.FC<KanbanProps> = ({
     setViewMode(viewMode === ViewModes.STATUS ? ViewModes.SECTION : ViewModes.STATUS);
   };
 
+
   return (
     <ToastProvider>
       <div className="kanban-wrapper">
         <div className="kanban-header">
           <h3 className="kanban-title">{viewMode === ViewModes.STATUS ? '상태별 보기' : '섹션별 보기'}</h3>
-          <div className="kanban-controls">
-            <div onClick={toggleViewMode} className="view-toggle">
-              {viewMode === ViewModes.STATUS ? '섹션별로 보기' : '상태별로 보기'}
-            </div>
+          <div className="view-tabs">
+            <button
+              className={`tab-button ${viewMode === ViewModes.STATUS ? 'active' : ''}`}
+              onClick={() => setViewMode(ViewModes.STATUS)} // 직접 상태를 설정하는 함수로 변경 필요
+            >
+              상태별 보기
+            </button>
+            <button
+              className={`tab-button ${viewMode === ViewModes.SECTION ? 'active' : ''}`}
+              onClick={() => setViewMode(ViewModes.SECTION)} // 직접 상태를 설정하는 함수로 변경 필요
+            >
+              섹션별 보기
+            </button>
           </div>
         </div>
         <DndContext
