@@ -3,6 +3,7 @@ import { Email, FileAttachment, SelectableOption, SelectOption, Task, Todo, UrlD
 import { statusWaiting } from "../mocks/select-option-mock";
 import { generateUniqueId } from "../utils/text-function";
 import { hasExistingDependencyPath, updateTaskAndSuccessors } from "../utils/gantt/dependencies-utlis";
+import useStatusesStore from "./statuses-store";
 
 // 간트 차트 전용 의존성 추가 관련
 export type AddDependencyResult =
@@ -105,6 +106,56 @@ const useTaskStore = create<TaskState>((set, get) => ({
           }
         }
         finalPayload.statusOrder = nextStatusOrder;
+
+        const newStatusName = updated.status.name;
+        const originalStatusName = originalTaskFromState.status.name;
+
+        if (newStatusName === '대기') {
+          finalPayload.progress = 0;
+        } else if (newStatusName === '완료') {
+          finalPayload.progress = 100;
+        } else if (newStatusName === '진행') {
+          if (originalStatusName === '대기') {
+            finalPayload.progress = 1;
+          } else if (originalStatusName === '완료') {
+            finalPayload.progress = 99;
+          }
+        }
+      }
+
+      if (typeof updated.progress === 'number' && updated.progress !== originalTaskFromState.progress) {
+        const newProgress = updated.progress;
+        const originalStatusName = originalTaskFromState.status.name;
+        let targetStatusName = null;
+
+        if (newProgress === 0) {
+          targetStatusName = '대기';
+        } else if (newProgress === 100) {
+          targetStatusName = '완료'
+        } else {
+          targetStatusName = '진행'
+        }
+
+        if (targetStatusName && targetStatusName != originalStatusName) {
+          const { statusList } = useStatusesStore.getState();
+          const newStatus = statusList.find(s => s.name === targetStatusName);
+
+          if (newStatus) {
+            finalPayload.status = newStatus;
+            const tasksInNewStatus = state.allTasks.filter(
+              t => t.status.code === newStatus.code && t.taskId !== taskId
+            );
+
+            let nextStatusOrder = 0;
+            if (tasksInNewStatus.length > 0) {
+              const existingOrders = tasksInNewStatus
+                .map(t => t.statusOrder)
+                .filter(order => typeof order === 'number' && isFinite(order)) as number[];
+              if (existingOrders.length > 0) nextStatusOrder = Math.max(...existingOrders) + 1;
+            }
+            finalPayload.statusOrder = nextStatusOrder;
+          }
+        }
       }
 
       const primarilyUpdatedTask = { ...targetTask, ...finalPayload };
@@ -213,6 +264,7 @@ const useTaskStore = create<TaskState>((set, get) => ({
 
     return allEffectivelyModifiedTasks;
   },
+
 
   deleteTask: (taskId: string) => set((state) => {
     const newList = state.allTasks.filter(t => t.taskId !== taskId);
