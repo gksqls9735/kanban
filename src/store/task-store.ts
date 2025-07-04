@@ -5,11 +5,15 @@ import { generateUniqueId } from "../utils/text-function";
 import { hasExistingDependencyPath, updateTaskAndSuccessors } from "../utils/gantt/dependencies-utlis";
 import useStatusesStore from "./statuses-store";
 import { createTaskMap, handleSectionChange, propagateDateChanges, syncStatusAndProgress } from "../utils/task-update-function";
+import isEqual from "lodash.isequal";
 
 // 간트 차트 전용 의존성 추가 관련
-export type AddDependencyResult =
-  | { success: true; message?: string } // 성공 시 선택적 메시지
-  | { success: false; reason: 'tasks_not_found' | 'self_dependency' | 'already_exists' | 'cycle_detected' | 'skip_level_dependency' | 'unknown_error'; message: string };
+type AddDependencyResult = {
+  success: boolean;
+  reason?: 'tasks_not_found' | 'self_dependency' | 'already_exists' | 'cycle_detected' | 'skip_level_dependency' | 'internal_error';
+  message: string;
+  updatedTasks?: Task[];
+};
 
 interface TaskState {
   allTasks: Task[];
@@ -21,7 +25,7 @@ interface TaskState {
   deleteTasksBySection: (sectionId: string) => void;
   updateTasksByStatus: (originalStatusCode: string) => Task[];
   updateTasksWithNewStatusDetails: (newStatus: SelectOption) => void;
-  addDependency: (endId: string, startId: string, isStartParent: boolean) => AddDependencyResult;
+  addDependency: (endId: string, startId: string, isStartParent: boolean) => Promise<AddDependencyResult>;
 }
 
 const useTaskStore = create<TaskState>((set, get) => ({
@@ -222,7 +226,7 @@ const useTaskStore = create<TaskState>((set, get) => ({
     return { allTasks: newTasks };
   }),
 
-  addDependency: (endId: string, startId: string, isStartParent: boolean): AddDependencyResult => {
+  addDependency: async (endId: string, startId: string, isStartParent: boolean): Promise<AddDependencyResult> => {
     const state = get(); // 현재 상태를 가져옵니다.
 
     const childTaskId = isStartParent ? endId : startId;
@@ -237,56 +241,56 @@ const useTaskStore = create<TaskState>((set, get) => ({
     if (childTaskId === newParentTaskId) {
       return { success: false, reason: 'self_dependency', message: "자기 자신에게 의존성을 추가할 수 없습니다." };
     }
-
-    const currentTaskMapForChecks = new Map<string, Task>(
-      state.allTasks.map(t => [t.taskId, {
-        ...t, start: new Date(t.start), end: new Date(t.end), dependencies: [...(t.dependencies || [])],
-      }])
-    );
-
     if ((childTaskFromState.dependencies ?? []).includes(newParentTaskId)) {
       return { success: false, reason: 'already_exists', message: "이미 존재하는 의존성입니다." };
     }
 
-    if (hasExistingDependencyPath(newParentTaskId, childTaskId, currentTaskMapForChecks)) {
+    const taskMapForChecks = new Map(state.allTasks.map(t => [t.taskId, { ...t, dependencies: [...(t.dependencies || [])] }]));
+
+    if (hasExistingDependencyPath(newParentTaskId, childTaskId, taskMapForChecks)) {
       return { success: false, reason: 'cycle_detected', message: "순환 의존성은 허용되지 않습니다." };
     }
-
-    const childsCurrentDeps = childTaskFromState.dependencies ?? [];
-    for (const existingParentId of childsCurrentDeps) {
-      if (hasExistingDependencyPath(existingParentId, newParentTaskId, currentTaskMapForChecks)) {
-        return { success: false, reason: 'skip_level_dependency', message: `상위 작업은 직접 연결할 수 없습니다.` };
+    for (const existingParentId of childTaskFromState.dependencies ?? []) {
+      if (hasExistingDependencyPath(existingParentId, newParentTaskId, taskMapForChecks)) {
+        return { success: false, reason: 'skip_level_dependency', message: "상위 작업은 직접 연결할 수 없습니다." };
       }
     }
 
-    // 모든 검사를 통과했으므로 상태를 업데이트합니다.
-    set(currentState => { // set 내부에서는 최신 상태인 currentState를 사용합니다.
-      const taskMapForModification = new Map<string, Task>(
-        currentState.allTasks.map(t => [t.taskId, {
-          ...t, start: new Date(t.start), end: new Date(t.end), dependencies: [...(t.dependencies || [])],
-        }])
-      );
+    return new Promise((resolve) => {
+      set(currentState => {
+        const originalTaskMap = new Map(currentState.allTasks.map(t => [t.taskId, { ...t, start: new Date(t.start), end: new Date(t.end), dependencies: [...(t.dependencies ?? [])] }]));
+        const taskMapForModification = new Map(currentState.allTasks.map(t => [t.taskId, { ...t, start: new Date(t.start), end: new Date(t.end), dependencies: [...(t.dependencies ?? [])] }]));
 
-      const childTaskToModify = taskMapForModification.get(childTaskId);
+        const childTaskToModify = taskMapForModification.get(childTaskId);
+        if (!childTaskToModify) {
+          console.error("addDependency 내부 오류: childTaskToModify 찾을 수 없음");
+          resolve({ success: false, reason: 'internal_error', message: "내부 오류가 발생했습니다." });
+          return {}; // 상태 변경 없음
+        }
 
-      if (!childTaskToModify) {
-        // 이 경우는 발생하기 어렵지만, 방어적으로 처리
-        console.error("addDependency 내부 오류: childTaskToModify 찾을 수 없음");
-        // set 내부에서는 외부 함수의 반환값에 직접 영향을 줄 수 없으므로, 여기서는 상태 변경 안 함을 의미하는 {} 반환
-        return {};
-      }
+        childTaskToModify.dependencies = [...(childTaskToModify.dependencies || []), newParentTaskId];
+        updateTaskAndSuccessors(childTaskId, taskMapForModification, currentState.allTasks);
 
-      if (!childTaskToModify.dependencies) childTaskToModify.dependencies = [];
-      childTaskToModify.dependencies.push(newParentTaskId);
+        const finalAllTasks = Array.from(taskMapForModification.values());
 
-      updateTaskAndSuccessors(childTaskId, taskMapForModification, currentState.allTasks);
-      const finalAllTasks = Array.from(taskMapForModification.values());
+        const updatedTasks = finalAllTasks.filter(updatedTask => {
+          const originalTask = originalTaskMap.get(updatedTask.taskId);
+          if (!originalTask) return true;
 
-      return { allTasks: finalAllTasks };
+          const depsChanged = isEqual(originalTask.dependencies, updatedTask.dependencies);
+          const startChanged = originalTask.start.getTime() !== updatedTask.start.getTime();
+          const endChanged = originalTask.end.getTime() !== updatedTask.end.getTime();
+
+          return depsChanged || startChanged || endChanged;
+        });
+
+        // Promise를 이행하여 기다리던 호출자에게 결과를 전달
+        resolve({ success: true, message: "의존성이 성공적으로 추가되었습니다.", updatedTasks });
+
+        // Zustand에 새로운 상태 반환
+        return { allTasks: finalAllTasks };
+      })
     });
-
-    // 상태 업데이트가 성공적으로 예약되었으므로 성공 결과 반환
-    return { success: true, message: "의존성이 성공적으로 추가되었습니다." };
   },
 }));
 
