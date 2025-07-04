@@ -11,9 +11,34 @@ import './styles/participant-selector.css';
 import './styles/kanban.css';
 import { Chat, Section, SelectOption, Task } from './types/type';
 import { KanbanWebComponentElement } from './global';
+import { faChartBar, faGear, faHouse } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 function App() {
-  const [isSideMenuOpen, setIsSideMenuOpen] = useState<"expanded" | "collapsed" | "hidden">("hidden");
+  const [sidebarState, setSidebarState] = useState<"expanded" | "collapsed">("expanded");
+  const [activeMenu, setActiveMenu] = useState('홈');
+
+  // 사이드바 토글 핸들러
+  const toggleSidebar = () => {
+    setSidebarState(prev => (prev === "expanded" ? "collapsed" : "expanded"));
+  };
+
+  // 상태에 따른 사이드바 스타일 동적 생성
+  const getSidebarStyle = (): React.CSSProperties => {
+    const style: React.CSSProperties = { ...styles.sidebar };
+
+    if (sidebarState === 'collapsed') {
+      style.width = '60px'; // 닫혔을 때 너비 (아이콘만 보일 정도)
+    }
+    return style;
+  };
+
+  const menuItems = [
+    { icon: faHouse, name: '홈' },
+    { icon: faChartBar, name: '대시보드' },
+    { icon: faGear, name: '설정' },
+  ];
+  // ... 나머지 App 컴포넌트 코드는 그대로 두시면 됩니다.
 
   const kanbanRef = useRef<KanbanWebComponentElement>(null);
 
@@ -50,9 +75,8 @@ function App() {
     kanbanElement.statusList = appStatusList;
     kanbanElement.chatlist = currentTaskChatList;
 
-    kanbanElement.setAttribute("issidemenuopen", isSideMenuOpen);
-    kanbanElement.setAttribute('detailmodaltoppx', '0');
-  }, [appTasks, appSections, appStatusList, currentTaskChatList, isSideMenuOpen, kanbanRef]);
+    kanbanElement.setAttribute('detailmodaltoppx', '80');
+  }, [appTasks, appSections, appStatusList, currentTaskChatList, kanbanRef]);
 
   // 작업 이벤트
   const onKanbanTaskAdded = useCallback((e: CustomEvent<{ task: Task }>) => {
@@ -152,24 +176,154 @@ function App() {
     onKanbanTaskChatsUpdated, onKanbanTaskSelected,
   ]);
 
+
   return (
     <>
-      <BrowserRouter>
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <kanban-board
-                ref={kanbanRef}
-                isSideMenuOpen={isSideMenuOpen}
-                detailModalTopPx={0}
+      <div style={styles.header}>
+        헤더 영역
+      </div>
+
+      <div style={styles.layoutContainer}>
+        {/* 동적으로 스타일이 변경되는 사이드바 */}
+        <div style={getSidebarStyle()}>
+
+          <div style={styles.sidebarContent}>
+            <h2 style={{ ...styles.sidebarTitle, opacity: sidebarState === 'expanded' ? 1 : 0 }}>
+              프로젝트
+            </h2>
+            <ul style={styles.sidebarMenu}>
+              {menuItems.map((item) => (
+                <li
+                  key={item.name}
+                  style={activeMenu === item.name ? { ...styles.menuItem, ...styles.menuItemActive } : styles.menuItem}
+                  onClick={() => setActiveMenu(item.name)}
+                >
+                  <span style={styles.menuIcon}>
+                    <FontAwesomeIcon icon={item.icon} />
+                  </span>
+                  <span style={{ ...styles.menuText, opacity: sidebarState === 'expanded' ? 1 : 0 }}>
+                    {item.name}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* 토글 버튼은 항상 사이드바 하단에 위치 */}
+          <button onClick={toggleSidebar} style={styles.toggleButton}>
+            {sidebarState === "expanded" ? '◀ 접기' : '▶'}
+          </button>
+        </div>
+
+        <div style={styles.contentArea}>
+          <BrowserRouter>
+            <Routes>
+              <Route
+                path="/"
+                element={
+                  <kanban-board
+                    ref={kanbanRef}
+                    detailModalTopPx={80}
+                  />
+                }
               />
-            }
-          />
-        </Routes>
-      </BrowserRouter>
+            </Routes>
+          </BrowserRouter>
+        </div>
+      </div>
     </>
   )
 }
 
-export default App
+// 스타일 객체
+const styles = {
+  header: {
+    height: 80,
+    backgroundColor: 'black',
+    color: 'white',
+    display: 'flex',
+    alignItems: 'center',
+    padding: '0 24px',
+    fontSize: '20px',
+    fontWeight: 'bold',
+    zIndex: 10,
+  },
+  layoutContainer: {
+    display: 'flex',
+    height: 'calc(100vh - 80px)',
+  },
+  sidebar: {
+    width: '240px',
+    backgroundColor: '#f8f9fa',
+    borderRight: '1px solid #dee2e6',
+    flexShrink: 0,
+    transition: 'width 0.3s ease',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    padding: '20px 12px', // 좌우 패딩을 살짝 줄여서 아이템과 맞춤
+  },
+  sidebarContent: {
+    // 메뉴 컨텐츠를 담는 역할
+  },
+  sidebarTitle: {
+    margin: '0 0 20px 18px', // 아이콘 위치와 맞추기 위해 왼쪽 마진 추가
+    fontSize: '18px',
+    fontWeight: 600,
+    transition: 'opacity 0.2s ease-in-out', // 부드러운 효과
+    whiteSpace: 'nowrap', // 텍스트가 줄바꿈되지 않도록 함
+  },
+  sidebarMenu: {
+    listStyle: 'none',
+    padding: 0,
+    margin: 0,
+  },
+  // 👇 메뉴 아이템 스타일 (가장 중요)
+  menuItem: {
+    display: 'flex',
+    alignItems: 'center',
+    padding: '10px 0',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    marginBottom: '8px',
+    transition: 'background-color 0.2s ease',
+    overflow: 'hidden', // 텍스트가 삐져나오지 않도록 함
+  },
+  // 👇 활성화된 메뉴 아이템 스타일
+  menuItemActive: {
+    backgroundColor: '#e9ecef', // 활성화 시 배경색
+    color: '#212529',
+    fontWeight: 'bold',
+  },
+  // 👇 메뉴 아이콘 스타일
+  menuIcon: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: '60px', // 아이콘 영역 너비 고정 (닫혔을 때와 동일하게)
+    fontSize: '20px',
+  },
+  // 👇 메뉴 텍스트 스타일
+  menuText: {
+    whiteSpace: 'nowrap', // 텍스트가 줄바꿈되지 않도록 함
+    transition: 'opacity 0.2s ease-in-out', // 부드러운 효과
+  },
+  toggleButton: {
+    background: '#e9ecef',
+    border: '1px solid #dee2e6',
+    color: '#495057',
+    width: '100%',
+    height: '40px',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    fontSize: '14px',
+    marginTop: '20px',
+    alignSelf: 'center',
+  },
+  contentArea: {
+    flex: 1,
+    overflowY: 'auto',
+  },
+} as const;
+
+export default App;
