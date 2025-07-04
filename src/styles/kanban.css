@@ -11,8 +11,6 @@
 /* 커서 */
 .kanban-card .card-current-section,
 .kanban .delete-modal,
-.kanban-card .card-title,
-.kanban-card .card-due-date,
 .kanban-card .card-priority,
 .kanban-card .card-status,
 .kanban-card .todo-item {
@@ -498,6 +496,10 @@
   position: relative;
 }
 
+.kanban .card-header>.card-current-section {
+  cursor: grab;
+}
+
 .kanban .card-current-section {
   width: fit-content;
   border: 1px solid rgba(205, 211, 221, 1);
@@ -544,6 +546,7 @@
   line-height: 130%;
   letter-spacing: 0%;
   color: rgba(15, 27, 42, 1);
+  width: fit-content
 }
 
 .kanban .card-due-date {

@@ -4,7 +4,6 @@ import useTaskStore from "../../../../store/task-store";
 import { Task } from "../../../../types/type";
 import { truncateText } from "../../../../utils/text-function";
 import DeleteModal from "../../delete-modal";
-import useUserStore from "../../../../store/user-store";
 import { useToast } from "../../../../context/toast-context";
 import { useKanbanActions } from "../../../../context/task-action-context";
 import ReactDOM from "react-dom";
@@ -19,7 +18,6 @@ const CardHeader: React.FC<{
   onModalStateChange: (isOpen: boolean) => void;
   isOwnerOrParticipant: boolean;
 }> = ({ task, sectionName, onClick, onModalStateChange, isOwnerOrParticipant }) => {
-  const currentUser = useUserStore(state => state.currentUser);
 
   const { isOpen, setIsOpen, wrapperRef, dropdownRef, toggle } = useDropdown();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
