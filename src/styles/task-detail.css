@@ -328,6 +328,12 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  cursor: pointer;
+}
+
+.kanban .task-detail__detail-modal-info-value--date--locked {
+  cursor: default;
+  opacity: 0.7;
 }
 
 .kanban .task-detail__detail-modal-info-icon {
