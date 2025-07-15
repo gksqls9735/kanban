@@ -41,7 +41,7 @@ class KanbanWebComponent extends HTMLElement {
   //https://cdn-minio.bizbee.co.kr/common/kanban/
 
   static get observedAttributes() {
-    return ['detailmodaltoppx'];
+    return ['detail-modal-top-px'];
   }
 
   set currentUser(value: User | null) {
@@ -178,7 +178,7 @@ class KanbanWebComponent extends HTMLElement {
     const sectionTasksWithDates = this._props.tasks.map((t: Task) => ({
       ...t,
       start: t.start instanceof Date ? t.start : new Date(t.start),
-      end: t.end instanceof Date ? t.end : new Date(t.end),
+      end: t.end instanceof Date ? t.end : (t.end ? new Date(t.end) : null),
     }));
 
     const chatListWithDates = this._props.chatlist.map((chat: Chat) => ({
@@ -203,6 +203,7 @@ class KanbanWebComponent extends HTMLElement {
       onStatusesChange: (data: SelectOption[]) => this.dispatchUpdateEvent("kanban-status-definitions-updated", { statusOptions: data }),
       onChatlistChange: (data: Chat[]) => this.dispatchUpdateEvent("kanban-task-chats-updated", { chats: data }), // taskId와 chats를 함께 전달
       onSelectTaskId: (data: string | null) => this.dispatchUpdateEvent("kanban-task-selected", { taskId: data }),
+      onFileStateChange: (ownerId: string, ownerType: 'chat' | 'task', addedFiles: File[], deletedIds: string[]) => this.dispatchUpdateEvent("kanban-files-changed", { ownerId, ownerType, addedFiles, deletedIds }),
     };
 
 

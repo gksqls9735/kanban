@@ -9,10 +9,34 @@ import './styles/datetimepicker.css';
 import './styles/task-detail.css';
 import './styles/participant-selector.css';
 import './styles/kanban.css';
-import { Chat, Section, SelectOption, Task } from './types/type';
+import { Chat, FileAttachment, Section, SelectOption, Task } from './types/type';
 import { KanbanWebComponentElement } from './global';
 import { faChartBar, faGear, faHouse } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
+const uploadFileAndGetUrl = async (file: File): Promise<FileAttachment> => {
+  // 파일을 담을 FormData 객체 생성
+  const formData = new FormData();
+  // 'attachment'는 서버의 upload.single('attachment')와 일치
+  formData.append('attachment', file);
+
+  try {
+    // Express 서버의 업로드 API에 POST 요청
+    const response = await fetch('http://localhost:3000/api/upload', {
+      method: 'POST', body: formData,
+    });
+
+    if (!response.ok) throw new Error(`서버 에러: ${response.statusText}`);
+
+    // 서버로부터 저장된 파일 정보를 JSON 형태로 받아서 반환
+    const savedFileAttachment: FileAttachment = await response.json();
+    console.log("업로드 성공, 서버로부터 받은 정보:", savedFileAttachment);
+    return savedFileAttachment;
+  } catch (error) {
+    console.error("파일 업로드 중 에러 발생:", error);
+    throw error;
+  }
+};
 
 function App() {
   const [sidebarState, setSidebarState] = useState<"expanded" | "collapsed">("expanded");
@@ -34,9 +58,9 @@ function App() {
   };
 
   const menuItems = [
-    { icon: faHouse, name: '홈', onClick: () => {setAppTasks(sectionTasks); setAppSections(sections); setActiveMenu('홈')} },
-    { icon: faChartBar, name: '대시보드', onClick: () => {setAppTasks(productLaunchTasks); setAppSections(productLaunchSections); setActiveMenu('대시보드')} },
-    { icon: faGear, name: '설정', onClick: () => {setAppTasks(departmentTasks); setAppSections(departmentSections); setActiveMenu('설정')} },
+    { icon: faHouse, name: '홈', onClick: () => { setAppTasks(sectionTasks); setAppSections(sections); setActiveMenu('홈') } },
+    { icon: faChartBar, name: '대시보드', onClick: () => { setAppTasks(productLaunchTasks); setAppSections(productLaunchSections); setActiveMenu('대시보드') } },
+    { icon: faGear, name: '설정', onClick: () => { setAppTasks(departmentTasks); setAppSections(departmentSections); setActiveMenu('설정') } },
   ];
 
   const kanbanRef = useRef<KanbanWebComponentElement>(null);
@@ -74,7 +98,6 @@ function App() {
     kanbanElement.statusList = appStatusList;
     kanbanElement.chatlist = currentTaskChatList;
 
-    kanbanElement.setAttribute('detailmodaltoppx', '80');
   }, [appTasks, appSections, appStatusList, currentTaskChatList, kanbanRef]);
 
   // 작업 이벤트
@@ -145,6 +168,82 @@ function App() {
     setSelectedTaskId(newSelectedTaskId);
   }, []);
 
+
+  const onKanbanFileStateChange = useCallback(async (e: Event) => {
+    // 📌 1. 타입을 일반 Event로 받되, 우리가 필요한 CustomEvent 타입으로 단언(assertion)해줍니다.
+    const customEvent = e as CustomEvent<{ ownerId: string, ownerType: 'chat' | 'task', addedFiles: File[], deletedIds: string[] }>;
+
+    // 📌 2. 이제 customEvent.detail에서 필요한 데이터들을 안전하게 추출할 수 있습니다.
+    const { ownerId, ownerType, addedFiles, deletedIds } = customEvent.detail;
+
+    console.log("파일 변경 이벤트 수신:", { ownerId, ownerType, addedFiles, deletedIds });
+
+    // --- 이하 내부 로직은 이전과 동일합니다 ---
+    const newAttachments = await Promise.all(
+      addedFiles.map(file => uploadFileAndGetUrl(file))
+    );
+    switch (ownerType) {
+      case 'chat':
+        setGlobalChatlist(prevChatlist => {
+          const targetChatIndex = prevChatlist.findIndex(chat => chat.chatId === ownerId);
+
+          if (targetChatIndex === -1) {
+            const tempChat = prevChatlist.find(chat => chat.chatId === ownerId);
+            if (!tempChat) return prevChatlist;
+            const updatedChat = { ...tempChat, attachments: newAttachments };
+            return prevChatlist.map(chat => chat.chatId === ownerId ? updatedChat : chat);
+          }
+
+          const originalChat = prevChatlist[targetChatIndex];
+          const remainingAttachments = (originalChat.attachments || []).filter(
+            att => !deletedIds.includes(att.fileId)
+          );
+          const finalAttachments = [...remainingAttachments, ...newAttachments];
+          const updatedChat = { ...originalChat, attachments: finalAttachments };
+
+          const newChatlist = [...prevChatlist];
+          newChatlist[targetChatIndex] = updatedChat;
+          return newChatlist;
+        });
+        break;
+      case 'task':
+        setAppTasks(prevTasks => {
+          // 1. ownerId(이 경우 taskId)를 사용해 업데이트할 태스크를 찾습니다.
+          const targetTaskIndex = prevTasks.findIndex(task => task.taskId === ownerId);
+
+          // 태스크를 찾지 못하면 원본 상태를 그대로 반환합니다.
+          if (targetTaskIndex === -1) {
+            console.warn(`Task with ID ${ownerId} not found.`);
+            return prevTasks;
+          }
+
+          const originalTask = prevTasks[targetTaskIndex];
+
+          // 2. 삭제된 파일을 기존 첨부파일 목록에서 제거합니다.
+          const remainingAttachments = (originalTask.taskAttachments || []).filter(
+            att => !deletedIds.includes(att.fileId)
+          );
+
+          // 3. 최종 첨부파일 목록 = (기존 파일 - 삭제된 파일) + 새로 업로드된 파일
+          const finalAttachments = [...remainingAttachments, ...newAttachments];
+
+          // 4. 태스크 객체를 업데이트합니다.
+          const updatedTask = {
+            ...originalTask,
+            taskAttachments: finalAttachments,
+          };
+
+          // 5. 전체 태스크 목록에서 해당 태스크만 교체하여 새로운 배열을 반환합니다.
+          const newTasks = [...prevTasks];
+          newTasks[targetTaskIndex] = updatedTask;
+          return newTasks;
+        });
+        break;
+      default:
+        break;
+    }
+  }, []);
+
   useEffect(() => {
     const kanbanElement = kanbanRef.current;
     if (!kanbanElement) return;
@@ -157,7 +256,7 @@ function App() {
     kanbanElement.addEventListener("kanban-status-definitions-updated", onKanbanStatusDefinitionsUpdated as EventListener);
     kanbanElement.addEventListener("kanban-task-chats-updated", onKanbanTaskChatsUpdated as EventListener);
     kanbanElement.addEventListener("kanban-task-selected", onKanbanTaskSelected as EventListener);
-
+    kanbanElement.addEventListener("kanban-files-changed", onKanbanFileStateChange as EventListener);
     return () => {
       kanbanElement.removeEventListener("kanban-task-added", onKanbanTaskAdded as EventListener);
       kanbanElement.removeEventListener("kanban-task-updated", onKanbanTaskUpdated as EventListener);
@@ -167,6 +266,7 @@ function App() {
       kanbanElement.removeEventListener("kanban-status-definitions-updated", onKanbanStatusDefinitionsUpdated as EventListener);
       kanbanElement.removeEventListener("kanban-task-chats-updated", onKanbanTaskChatsUpdated as EventListener);
       kanbanElement.removeEventListener("kanban-task-selected", onKanbanTaskSelected as EventListener);
+      kanbanElement.removeEventListener("kanban-files-changed", onKanbanFileStateChange as EventListener);
     };
 
   }, [
@@ -220,9 +320,8 @@ function App() {
               <Route
                 path="/"
                 element={
-                  <kanban-board
+                  <kanban-board detail-modal-top-px="80"
                     ref={kanbanRef}
-                    detailModalTopPx={80}
                   />
                 }
               />

@@ -11,6 +11,7 @@ export interface KanbanActionsContextType {
   onStatusesChange?: (statusList: SelectOption[]) => void;
   onChatlistChange?: (chats: Chat[]) => void;
   onSelectTaskId?: (taskId: string) => void; // 단일 taskId를 받는다고 가정
+  onFileStateChange?: (ownerId: string, ownerType: 'chat' | 'task', addedFiles: File[], deletedIds: string[]) => void;
 }
 
 // Context 생성 시 기본값 설정
@@ -39,7 +40,10 @@ const KanbanActionsContext = createContext<KanbanActionsContextType>({
   },
   onSelectTaskId: (taskId) => {
     console.warn('onSelectTaskId function was called without a KanbanActionsContext.Provider', taskId);
-  }
+  },
+  onFileStateChange: (ownerId: string, ownerType: 'chat' | 'task', addedFiles: File[], deletedIds: string[]) => {
+    console.warn('onFileStateChange function was called without a GanttActionsContext.Provider', ownerId, ownerType, addedFiles, deletedIds);
+  },
 });
 
 // Context를 쉽게 사용하기 위한 커스텀 훅 (선택 사항이지만 권장)
