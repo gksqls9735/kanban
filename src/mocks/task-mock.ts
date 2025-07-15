@@ -195,6 +195,56 @@ export const sectionTasks: Task[] = [
     emails: emails,
     prefix: 'IT',
   },
+    {
+    sectionId: 'SM202503191552000004',
+    taskId: 'SD202504101001000004',
+    taskName: 'end null-1',
+    taskOwner: user5,
+    start: new Date('2025-04-26T09:00:00'), // 선행(SD...02) 종료(04-25) 다음 날
+    end: null,   // 시작일 + 원래 기간(5일)
+    priority: priorityMedium,
+    status: statusWaiting,
+    importance: 2,
+    progress: 0,
+    todoList: [],
+    dependencies: [],
+    participants: [{ ...user5, isMain: true }, { ...user1, isMain: false }],
+    color: '#FFB6C1', // LightPink
+    sectionOrder: 3,
+    statusOrder: 7,
+    memo: 'end null-1 test',
+    taskAttachments: [],
+    urls: [],
+    multiSelection: options,
+    singleSelection: singleOptions,
+    emails: emails,
+    prefix: 'IT',
+  },
+  {
+    sectionId: 'SM202503191552000004',
+    taskId: 'SD202504101001000005',
+    taskName: 'end null-2',
+    taskOwner: user5,
+    start: new Date('2025-04-30T09:00:00'), // 선행(SD...02) 종료(04-25) 다음 날
+    end: null,   // 시작일 + 원래 기간(5일)
+    priority: priorityMedium,
+    status: statusWaiting,
+    importance: 2,
+    progress: 0,
+    todoList: [],
+    dependencies: [],
+    participants: [{ ...user5, isMain: true }, { ...user1, isMain: false }],
+    color: '#FFB6C1', // LightPink
+    sectionOrder: 4,
+    statusOrder: 8,
+    memo: 'end null-2 test',
+    taskAttachments: [],
+    urls: [],
+    multiSelection: options,
+    singleSelection: singleOptions,
+    emails: emails,
+    prefix: 'IT',
+  },
 
   // --- Section: 디자인 (SM202503191552000005) ---
   {

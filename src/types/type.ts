@@ -4,6 +4,8 @@ export type FileAttachment = {
   fileName: string;    // 원본 파일 이름
   fileUrl: string;     // 파일 접근/다운로드 URL
   fileType: string;
+  /** 파일 크기 */
+  size: number;
 }
 
 export type UrlData = {
@@ -142,7 +144,7 @@ export type Task = {
   /** 시작일 */
   start: Date
   /** 종료일 */
-  end: Date
+  end: Date | null
   /** 우선순위 */
   priority: SelectOption
   /** 작업 상태 */
