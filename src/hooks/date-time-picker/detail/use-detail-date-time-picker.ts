@@ -73,26 +73,14 @@ export const useDeatilDateTimePicker = ({
     if (minStart && isValid(minStart) && isBefore(clickedDateWithTime, minStart)) clickedDateWithTime = minStart;
 
     if (mode === "start") {
-      if (endDate && isAfter(clickedDateWithTime, endDate)) {
-        // 새로 시작한 시작일이 마감일보다 늦으면, 마감일을 초기화하고 새로운 범위 선택 시작
-        setStartDate(clickedDateWithTime);
-        setEndDate(null);
-        setMode('none');  // 모드를 다시 'none'로 변경하여 다음 클릭이 마감일이 되도록 유도
-      } else {
-        setStartDate(clickedDateWithTime);
-      }
+      setStartDate(clickedDateWithTime);
+      if (endDate && isAfter(clickedDateWithTime, endDate)) setEndDate(null);
     } else if (mode === "end") {
       if (startDate && isBefore(clickedDateWithTime, startDate)) {
-        // 시작일 이전 날짜를 클릭하면 아무 작업도 하지 않고 무시
-        if (startDate && isBefore(clickedDateWithTime, startDate)) {
-          console.warn("마감일은 시작일보다 이전일 수 없습니다.");
-          return;
-        }
-        // 유효한 날짜만 마감일로 설정합니다.
-        setEndDate(clickedDateWithTime);
-      } else {
-        setEndDate(clickedDateWithTime);
+        console.warn("마감일은 시작일보다 이전일 수 없습니다.");
+        return;
       }
+      setEndDate(clickedDateWithTime);
     } else {
       handleNoneModeDateClick(clickedDateWithTime);
     }
