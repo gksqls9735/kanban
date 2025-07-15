@@ -6,7 +6,7 @@ import {
 } from "date-fns";
 import { ko } from "date-fns/locale";
 import React from "react"; // Added React import
-import { DateTimePickerProps, useDateTimePicker } from "../../../../hooks/date-time-picker/detail/use-detail-date-time-picker";
+import { DateTimePickerProps, useDeatilDateTimePicker } from "../../../../hooks/date-time-picker/detail/use-detail-date-time-picker";
 import CustomTimeSelect from "../custom-time-select";
 import DateInput from "../date-input";
 import CalendarView from "../common/calendar-view";
@@ -25,7 +25,7 @@ const DetailDateTimePicker: React.FC<DateTimePickerProps> = (props) => {
     handleDeadlineToggle,
     prevMonth,
     nextMonth,
-  } = useDateTimePicker(props);
+  } = useDeatilDateTimePicker(props);
 
   // 시간 옵션 생성 (30분 단위)
   const generateTimeOptions = (intervalMinutes = 10) => {

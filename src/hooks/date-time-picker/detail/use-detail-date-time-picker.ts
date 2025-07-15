@@ -12,7 +12,7 @@ export interface DateTimePickerProps {
 }
 
 
-export const useDateTimePicker = ({
+export const useDeatilDateTimePicker = ({
   initialStartDate = null,
   initialEndDate = null,
   initialIncludeTime = false,
