@@ -130,7 +130,7 @@ const style = `
   border-radius: 4px;
   box-shadow: 0px 0px 16px 0px #00000014;
   background-color: #fff;
-  z-index: 10;
+  z-index: 1001;
   box-sizing: border-box;
   width: 80px;
 }
