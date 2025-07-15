@@ -4,7 +4,7 @@ import { Task } from "../../../../types/type";
 import { formatToKoreanDateTimeString } from "../../../../utils/date-function";
 import { createPortal } from "react-dom";
 import { DATE_PICKER_STYLE } from "../../../../constant/style-constant";
-import DatailDateTimePicker from "../../../kanban/date-picker/detail/detail-datetime-picker";
+import DetailDateTimePicker from "../../../kanban/date-picker/detail/detail-datetime-picker";
 
 const DROPDOWN_HEIGHT = 438;
 const DROPDOWN_WIDTH = 296;
@@ -101,6 +101,10 @@ const DateField: React.FC<{
 
   const renderDropdown = () => {
     if (!isOpen || !isReadyToRenderDropdown || !dropdownPosition) return null;
+    const startTimeExists = task.start && (new Date(task.start).getHours() !== 0 || new Date(task.start).getMinutes() !== 0);
+    const endTimeExists = task.end && (new Date(task.end).getHours() !== 0 || new Date(task.end).getMinutes() !== 0);
+    const initialIncludeTime = !!(startTimeExists || endTimeExists);
+    const initialShowDeadline = dateType === 'end' || !!task.end;
     return createPortal(
       <>
         <style>{DATE_PICKER_STYLE}</style>
@@ -109,11 +113,11 @@ const DateField: React.FC<{
           className="datepicker-dropdown-panel"
           style={{ position: 'absolute', top: `${dropdownPosition.top}px`, left: `${dropdownPosition.left}px` }}
         >
-          <DatailDateTimePicker
+          <DetailDateTimePicker
             initialStartDate={pendingUpdate?.start ?? null}
             initialEndDate={pendingUpdate?.end ?? null}
-            initialIncludeTime={!!(pendingUpdate?.start && (pendingUpdate.start.getHours() !== 0 || pendingUpdate.start.getMinutes() !== 0))}
-            initialShowDeadline={!!pendingUpdate?.end}
+            initialIncludeTime={initialIncludeTime}
+            initialShowDeadline={initialShowDeadline}
             onChange={handleDateTimePickerChange}
             minStart={minStart}
             dateType={dateType}

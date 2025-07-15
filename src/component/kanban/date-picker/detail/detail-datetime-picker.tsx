@@ -11,7 +11,7 @@ import CustomTimeSelect from "../custom-time-select";
 import DateInput from "../date-input";
 import CalendarView from "../common/calendar-view";
 
-const DatailDateTimePicker: React.FC<DateTimePickerProps> = (props) => {
+const DetailDateTimePicker: React.FC<DateTimePickerProps> = (props) => {
   const {
     startDate, setStartDate,
     endDate, setEndDate,
@@ -214,4 +214,4 @@ const DatailDateTimePicker: React.FC<DateTimePickerProps> = (props) => {
   );
 };
 
-export default DatailDateTimePicker;
+export default DetailDateTimePicker;
