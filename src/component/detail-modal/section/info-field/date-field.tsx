@@ -20,7 +20,7 @@ const DateField: React.FC<{
   const label = dateType === 'start' ? '시작일' : '마감일';
   const displayDate =
     dateType === 'start' ? formatToKoreanDateTimeString(task.start)
-      : (dateType === 'end' && task.end) ? formatToKoreanDateTimeString(task.end) : '-';
+      : (dateType === 'end' && task.end) ? formatToKoreanDateTimeString(task.end) : '종료일 미정';
 
   const { isOpen, wrapperRef, dropdownRef, toggle } = useDropdown();
   const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number } | null>(null);

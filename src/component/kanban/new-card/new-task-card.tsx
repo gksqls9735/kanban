@@ -83,7 +83,7 @@ const NewTaskCard: React.FC<{
       return;
     }
 
-    if (processedName && startDate && endDate && currentUser) {
+    if (processedName && startDate && currentUser) {
       const updatedTodos = todos.map(todo => ({
         ...todo, todoTxt: normalizeSpaces(todo.todoTxt),
       }));
