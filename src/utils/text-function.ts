@@ -82,3 +82,9 @@ export const getNextUntitledName = (baseName: string, list: Section[] | SelectOp
   }
 
 };
+
+export const extractUrl = (text: string) => {
+  const regex = /https?:\/\/[^\s]+/g;
+  const matches = text.match(regex);
+  return matches ? matches[0] : null;
+};

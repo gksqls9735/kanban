@@ -7,13 +7,18 @@ import useStatusesStore from "./statuses-store";
 import { createTaskMap, handleSectionChange, propagateDateChanges, syncStatusAndProgress } from "../utils/task-update-function";
 import isEqual from "lodash.isequal";
 
+
 // 간트 차트 전용 의존성 추가 관련
 type AddDependencyResult = {
   success: boolean;
-  reason?: 'tasks_not_found' | 'self_dependency' | 'already_exists' | 'cycle_detected' | 'skip_level_dependency' | 'internal_error';
+  reason?: 'tasks_not_found' | 'self_dependency' | 'already_exists' | 'cycle_detected' | 'skip_level_dependency' | 'internal_error' | 'dependency_with_temp_task';
   message: string;
   updatedTasks?: Task[];
 };
+
+export interface NewTaskUiState {
+  hasInteracted: boolean;
+}
 
 interface TaskState {
   allTasks: Task[];
@@ -26,6 +31,19 @@ interface TaskState {
   updateTasksByStatus: (originalStatusCode: string) => Task[];
   updateTasksWithNewStatusDetails: (newStatus: SelectOption) => void;
   addDependency: (endId: string, startId: string, isStartParent: boolean) => Promise<AddDependencyResult>;
+
+  tempNewTasks: Task[],
+  addTempTask: (newTask: Task) => void;
+  removeTempTask: (taskId: string) => void;
+  commitTempTask: (taskToCommit: Task) => void;
+  updateTempTask: (taskId: string, updates: Partial<Task>) => void;
+
+
+  newTaskUiStates: Map<string, NewTaskUiState>;
+  initNewTaskUiState: (taskId: string) => void;
+  updateNewTaskUiState: (taskId: string, updates: Partial<NewTaskUiState>) => void;
+  removeNewTaskUiState: (taskId: string) => void;
+  applyBatchUpdates: (updates: Map<string, Partial<Task>>) => Task[];
 }
 
 const useTaskStore = create<TaskState>((set, get) => ({
@@ -227,7 +245,7 @@ const useTaskStore = create<TaskState>((set, get) => ({
   }),
 
   addDependency: async (endId: string, startId: string, isStartParent: boolean): Promise<AddDependencyResult> => {
-    const state = get(); // 현재 상태를 가져옵니다.
+    const state = get();
 
     const childTaskId = isStartParent ? endId : startId;
     const newParentTaskId = isStartParent ? startId : endId;
@@ -236,6 +254,9 @@ const useTaskStore = create<TaskState>((set, get) => ({
     const newParentTaskFromState = state.allTasks.find(t => t.taskId === newParentTaskId);
 
     if (!childTaskFromState || !newParentTaskFromState) {
+      const isTemp =
+        state.tempNewTasks.some(t => t.taskId === childTaskId || t.taskId === newParentTaskId);
+      if (isTemp) return { success: false, reason: 'dependency_with_temp_task', message: "저장되지 않은 작업과는 의존성을 연결할 수 없습니다." };
       return { success: false, reason: 'tasks_not_found', message: "연결할 작업을 찾을 수 없습니다." };
     }
     if (childTaskId === newParentTaskId) {
@@ -258,14 +279,24 @@ const useTaskStore = create<TaskState>((set, get) => ({
 
     return new Promise((resolve) => {
       set(currentState => {
-        const originalTaskMap = new Map(currentState.allTasks.map(t => [t.taskId, { ...t, start: new Date(t.start), end: new Date(t.end), dependencies: [...(t.dependencies ?? [])] }]));
-        const taskMapForModification = new Map(currentState.allTasks.map(t => [t.taskId, { ...t, start: new Date(t.start), end: new Date(t.end), dependencies: [...(t.dependencies ?? [])] }]));
+        const originalTaskMap = new Map(currentState.allTasks.map(t => [t.taskId, {
+          ...t,
+          start: new Date(t.start),
+          end: t.end ? new Date(t.end) : null,
+          dependencies: [...(t.dependencies ?? [])]
+        }]));
+        const taskMapForModification = new Map(currentState.allTasks.map(t => [t.taskId, {
+          ...t,
+          start: new Date(t.start),
+          end: t.end ? new Date(t.end) : null,
+          dependencies: [...(t.dependencies ?? [])]
+        }]));
 
         const childTaskToModify = taskMapForModification.get(childTaskId);
         if (!childTaskToModify) {
           console.error("addDependency 내부 오류: childTaskToModify 찾을 수 없음");
           resolve({ success: false, reason: 'internal_error', message: "내부 오류가 발생했습니다." });
-          return {}; // 상태 변경 없음
+          return {};
         }
 
         childTaskToModify.dependencies = [...(childTaskToModify.dependencies || []), newParentTaskId];
@@ -277,21 +308,92 @@ const useTaskStore = create<TaskState>((set, get) => ({
           const originalTask = originalTaskMap.get(updatedTask.taskId);
           if (!originalTask) return true;
 
-          const depsChanged = isEqual(originalTask.dependencies, updatedTask.dependencies);
+          const depsChanged = !isEqual(originalTask.dependencies, updatedTask.dependencies);
           const startChanged = originalTask.start.getTime() !== updatedTask.start.getTime();
-          const endChanged = originalTask.end.getTime() !== updatedTask.end.getTime();
+          const endChanged = (originalTask.end?.getTime() ?? null) !== (updatedTask.end?.getTime() ?? null);
 
           return depsChanged || startChanged || endChanged;
         });
 
-        // Promise를 이행하여 기다리던 호출자에게 결과를 전달
         resolve({ success: true, message: "의존성이 성공적으로 추가되었습니다.", updatedTasks });
 
-        // Zustand에 새로운 상태 반환
         return { allTasks: finalAllTasks };
       })
     });
   },
+  tempNewTasks: [],
+  addTempTask: (newTask) => set(state => ({
+    tempNewTasks: [...state.tempNewTasks, newTask]
+  })),
+  removeTempTask: (taskId) => set(state => ({
+    tempNewTasks: state.tempNewTasks.filter(t => t.taskId !== taskId)
+  })),
+  commitTempTask: (taskToCommit: Task) => set(state => ({
+    tempNewTasks: state.tempNewTasks.filter(t => t.taskId !== taskToCommit.taskId),
+    allTasks: [...state.allTasks, { ...taskToCommit, isNew: false }]
+  })),
+  updateTempTask: (taskId, updates) => {
+    set(state => {
+      const originalTask = state.tempNewTasks.find(t => t.taskId === taskId);
+      if (!originalTask) return state;
+
+      const statusList = useStatusesStore.getState().statusList;
+      const allTasks = [...get().allTasks, ...get().tempNewTasks];
+
+      const derivedUpdates = syncStatusAndProgress(originalTask, updates, allTasks, statusList);
+
+      const finalPayload = { ...updates, ...derivedUpdates };
+      const updatedTempNewTasks = state.tempNewTasks.map(t => t.taskId === taskId ? { ...t, ...finalPayload } : t);
+      return { tempNewTasks: updatedTempNewTasks };
+    })
+  },
+
+
+  newTaskUiStates: new Map(),
+
+  initNewTaskUiState: (taskId) => {
+    set(state => {
+      const newUiStates = new Map(state.newTaskUiStates);
+      newUiStates.set(taskId, { hasInteracted: false });
+      return { newTaskUiStates: newUiStates };
+    });
+  },
+
+  updateNewTaskUiState: (taskId, updates) => {
+    set(state => {
+      const newUiStates = new Map(state.newTaskUiStates);
+      const currentState = newUiStates.get(taskId) || { hasInteracted: false };
+      newUiStates.set(taskId, { ...currentState, ...updates });
+      return { newTaskUiStates: newUiStates };
+    })
+  },
+
+  removeNewTaskUiState: (taskId) => {
+    set(state => {
+      const newUiStates = new Map(state.newTaskUiStates);
+      newUiStates.delete(taskId);
+      return { newTaskUiStates: newUiStates };
+    })
+  },
+
+  applyBatchUpdates: (updates: Map<string, Partial<Task>>) => {
+    let allEffectivelyModifiedTasks: Task[] = [];
+    set((state) => {
+      const taskMap = createTaskMap(state.allTasks);
+      updates.forEach((value, taskId) => {
+        const existingTask = taskMap.get(taskId);
+        if (existingTask) {
+          const updatedTask = { ...existingTask, ...value };
+          taskMap.set(taskId, updatedTask);
+        }
+      });
+      const newAllTasks = Array.from(taskMap.values());
+      allEffectivelyModifiedTasks = Array.from(updates.keys()).map(id => taskMap.get(id)!);
+      return { allTasks: newAllTasks };
+    });
+    return allEffectivelyModifiedTasks;
+  },
 }));
 
 export default useTaskStore;
+

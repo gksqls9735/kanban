@@ -1,6 +1,12 @@
-import { format } from "date-fns";
+import { addDays, format, isBefore } from "date-fns";
 import { ko } from "date-fns/locale";
 import { Task } from "../types/type";
+
+export const getEffectiveEndDate = (taskInfo: { start: Date; end: Date | null }): Date => {
+  if (taskInfo.end) return taskInfo.end;
+  const today = new Date();
+  return isBefore(taskInfo.start, today) ? today : addDays(taskInfo.start, 1);
+};
 
 export const formatKoreanDateSimple = (date: Date): string => {
   const y = date.getFullYear().toString().slice(-2);
@@ -94,7 +100,7 @@ export const calcMinStart = (task: Task, dependencies: Task[]) => {
   let minStart: Date | null = null;
   if (task && task.dependencies && task.dependencies.length > 0) {
     const dependencyEndTimes = dependencies.map(d => {
-      const depEndDate = new Date(d.end);
+      const depEndDate = new Date(d.end || new Date());
       return isNaN(depEndDate.getTime()) ? -Infinity : depEndDate.getTime();
     }).filter(time => time !== -Infinity);
 

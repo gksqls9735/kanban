@@ -7,49 +7,57 @@ export const exampleAttachments: FileAttachment[] = [
     fileId: '01',
     fileName: 'favicon.ico', // URL에서 추출
     fileUrl: '/files/favicon.ico',
-    fileType: 'image/x-icon' // 확장자 기반 유추 (또는 image/vnd.microsoft.icon)
+    fileType: 'image/x-icon',
+    size: 10
   },
   {
     fileId: '02',
     fileName: 'logo192.png', // URL에서 추출
     fileUrl: '/files/logo192.png',
-    fileType: 'image/png' // 확장자 기반 유추
+    fileType: 'image/png',
+    size: 10
   },
   {
     fileId: '03',
     fileName: 'logo512.png', // URL에서 추출
     fileUrl: '/files/logo512.png',
-    fileType: 'image/png' // 확장자 기반 유추
+    fileType: 'image/png',
+    size: 10
   },
   {
     fileId: '04',
     fileName: '241030_Works_프로젝트_기획_v0.8.pptx', // URL에서 추출
     fileUrl: '/files/241030_Works_프로젝트_기획_v0.8.pptx',
-    fileType: 'application/vnd.openxmlformats-officedocument.presentationml.presentation' // .pptx MIME 타입
+    fileType: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    size: 10
   },
   {
     fileId: '05',
     fileName: 'robots.txt', // URL에서 추출
     fileUrl: '/files/robots.txt',
-    fileType: 'text/plain' // .txt MIME 타입
+    fileType: 'text/plain',
+    size: 10
   },
   {
     fileId: '06',
     fileName: '고정 IP 설정 가이드.pdf', // URL에서 추출
     fileUrl: '/files/고정 IP 설정 가이드.pdf',
-    fileType: 'application/pdf' // .pdf MIME 타입
+    fileType: 'application/pdf',
+    size: 10
   },
   {
     fileId: '07',
     fileName: 'truncateText.ts', // URL에서 추출
     fileUrl: '/files/truncateText.ts',
-    fileType: 'text/typescript' // .ts MIME 타입 (또는 application/typescript)
+    fileType: 'text/typescript',
+    size: 10
   },
   {
     fileId: '08',
     fileName: '이벤트.docx', // URL에서 추출
     fileUrl: '/files/이벤트.docx',
-    fileType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' // .docx MIME 타입
+    fileType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    size: 10
   }
 ];
 

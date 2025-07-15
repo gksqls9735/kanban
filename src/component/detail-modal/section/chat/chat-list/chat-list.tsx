@@ -13,8 +13,6 @@ const ChatList: React.FC<{
   onUpdate: (chatId: string, update: Partial<Chat>) => void;
   onDelete: (chatId: string) => void;
 }> = ({ currentUser, taskId, handleReplyId, onStartEditComment, onClick, scrollToElement, onUpdate, onDelete }) => {
-  const isLikedByCurrentUser = (chatLikeList: string[]) => chatLikeList.includes(currentUser.id);
-
   const allChats = useChatStore(state => state.allChats);
 
   const chats = useMemo(() => {
@@ -23,7 +21,7 @@ const ChatList: React.FC<{
   }, [allChats, taskId]);
 
   const handleUpdateChat = onUpdate;
-  const handleDeleteChat = onDelete;
+  const handleDeleteChat = onDelete
 
   return (
     <>
@@ -34,7 +32,6 @@ const ChatList: React.FC<{
               <ChatItem
                 key={chat.chatId}
                 chat={chat}
-                isLikedByCurrentUser={isLikedByCurrentUser(chat.likedUserIds || [])}
                 onUpdate={handleUpdateChat}
                 onDelete={handleDeleteChat}
                 currentUserId={currentUser.id}

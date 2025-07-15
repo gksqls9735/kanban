@@ -6,10 +6,14 @@ import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import FieldLabel from "./field-common/field-label";
 import { FileAttachment, Task } from "../../../../types/type";
 import useClickOutside from "../../../../hooks/use-click-outside";
+import { useKanbanActions } from "../../../../context/task-action-context";
 
 const AttachmentField: React.FC<{
-  attachments?: FileAttachment[], isOwnerOrParticipant: boolean, handleChangeAndNotify: (updates: Partial<Task>) => void
-}> = ({ attachments = [], isOwnerOrParticipant, handleChangeAndNotify }) => {
+  taskId: string,
+  attachments?: FileAttachment[],
+  isOwnerOrParticipant: boolean,
+}> = ({ taskId, attachments = [], isOwnerOrParticipant }) => {
+  const { onFileStateChange } = useKanbanActions();
 
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
 
@@ -43,30 +47,14 @@ const AttachmentField: React.FC<{
   useClickOutside(editContainerRef, handleCancel, isInEditMode);
 
   const handleDeleteFile = (fileId: string) => {
-    const updatedFiles = attachments.filter(file => file.fileId !== fileId);
-    handleChangeAndNotify({ taskAttachments: updatedFiles });
+    if (onFileStateChange) onFileStateChange(taskId, 'task', [], [fileId])
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
-    if (!files || files.length === 0) {
-      return;
-    }
-
-    const newAttachments: FileAttachment[] = Array.from(files).map(file => ({
-      fileId: crypto.randomUUID(), // Generate a unique temporary ID
-      fileName: file.name,
-      fileUrl: URL.createObjectURL(file), // Create a temporary URL for the file
-      fileType: file.type,
-    }));
-
-    const updatedAttachments = [...attachments, ...newAttachments];
-    handleChangeAndNotify({ taskAttachments: updatedAttachments });
-
-    // Clear the file input value to allow selecting the same file again
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
+    if (!files || files.length === 0) return;
+    if (onFileStateChange) onFileStateChange(taskId, 'task', Array.from(files), []);
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   return (
