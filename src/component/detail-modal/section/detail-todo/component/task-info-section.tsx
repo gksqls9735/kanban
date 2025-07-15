@@ -8,6 +8,8 @@ import DateField from "../../info-field/date-field";
 import OptionSelector from "../../../../common/selector/option-selector";
 import ImportanceField from "../../info-field/importance-field";
 import ParticipantSelector from "../../../../participant-select/participant-selector";
+import useTaskStore from "../../../../../store/task-store";
+import { calcMinStart } from "../../../../../utils/date-function";
 
 const TaskInfoSection: React.FC<{
   task: Task;
@@ -36,6 +38,16 @@ const TaskInfoSection: React.FC<{
   const handleStatusChange = (status: SelectOption) => onUpdate({ status: status });
   const handleImportanceValueChange = (newImportance: number) => onUpdate({ importance: newImportance });
 
+  const allTasks = useTaskStore(state => state.allTasks);
+
+  const minStart = useMemo(() => {
+    if (!task.dependencies?.length) return null;
+    const resolvedDependencies: Task[] = task.dependencies
+      .map(depId => allTasks.find(t => t.taskId === depId))
+      .filter((dep): dep is Task => !!dep);
+    return resolvedDependencies.length > 0 ? calcMinStart(task, resolvedDependencies) : null;
+  }, [task, allTasks]);
+
   return (
     <>
       <div className="task-detail__detail-modal-section">
@@ -49,8 +61,8 @@ const TaskInfoSection: React.FC<{
           onClick={onOpenProfile}
         />
 
-        <DateField label="시작일" date={task.start} />
-        <DateField label="마감일" date={task.end} />
+        <DateField task={task} dateType="start" isOwnerOrParticipant={isOwnerOrParticipant} onDateChange={onUpdate} minStart={minStart}/>
+        <DateField task={task} dateType="end" isOwnerOrParticipant={isOwnerOrParticipant} onDateChange={onUpdate} minStart={minStart}/>
 
         <div className="task-detail__detail-modal-info-row">
           <div className="task-detail__detail-modal-info-value--select-option">우선순위</div>
