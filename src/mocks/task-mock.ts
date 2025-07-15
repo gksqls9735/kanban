@@ -118,7 +118,7 @@ export const sectionTasks: Task[] = [
     todoList: [
       { taskId: 'SD202504101001000001', todoId: 'ST202504101002000001', todoOwner: 'test05', isCompleted: true, todoTxt: '경쟁사 기능 리스트업', todoDt: new Date('2025-04-16'), participants: [{ ...user5, isMain: true }], order: 1 },
       { taskId: 'SD202504101001000001', todoId: 'ST202504101002000002', todoOwner: 'test05', isCompleted: false, todoTxt: '타겟 사용자 설문 조사 초안 작성', todoDt: new Date('2025-04-18'), participants: [{ ...user5, isMain: true }], order: 2 },
-      { taskId: 'SD202504101001000001', todoId: 'ST202504101002000003', todoOwner: 'test05', isCompleted: false, todoTxt: '설문 조사', todoDt: new Date('2025-05-18'), participants: [{ ...user5, isMain: true }], order: 3 },
+      { taskId: 'SD202504101001000001', todoId: 'ST202504101002000003', todoOwner: 'test05', isCompleted: false, todoTxt: '설문 조사', todoDt: new Date('2025-04-19'), participants: [{ ...user5, isMain: true }], order: 3 },
     ],
     dependencies: [],
     participants: [{ ...user5, isMain: true }, { ...user3, isMain: false }],
@@ -195,7 +195,7 @@ export const sectionTasks: Task[] = [
     emails: emails,
     prefix: 'IT',
   },
-    {
+  {
     sectionId: 'SM202503191552000004',
     taskId: 'SD202504101001000004',
     taskName: 'end null-1',
@@ -315,7 +315,7 @@ export const sectionTasks: Task[] = [
     progress: 0,
     todoList: [
       { taskId: 'SD202504101005000003', todoId: 'ST202504101008000001', todoOwner: 'test06', isCompleted: false, todoTxt: '주요 화면 UI 디자인', todoDt: new Date('2025-05-10'), participants: [{ ...user6, isMain: true }], order: 1 },
-      { taskId: 'SD202504101005000003', todoId: 'ST202504101008000002', todoOwner: 'test06', isCompleted: false, todoTxt: '인터랙션 정의 및 프로토타이핑', todoDt: new Date('2025-05-14'), participants: [{ ...user6, isMain: true }], order: 2 },
+      { taskId: 'SD202504101005000003', todoId: 'ST202504101008000002', todoOwner: 'test06', isCompleted: false, todoTxt: '인터랙션 정의 및 프로토타이핑', todoDt: new Date('2025-05-12'), participants: [{ ...user6, isMain: true }], order: 2 },
     ],
     dependencies: ['SD202504101005000002'],
     participants: [{ ...user6, isMain: true }, { ...user7, isMain: false }, { ...user8, isMain: false }],
@@ -381,7 +381,7 @@ export const sectionTasks: Task[] = [
     todoList: [
       { taskId: 'SD202504101010000004', todoId: 'ST202504101013000001', todoOwner: 'test07', isCompleted: true, todoTxt: '버튼 컴포넌트 구현', todoDt: new Date('2025-05-07'), participants: [{ ...user7, isMain: true }], order: 1 },
       { taskId: 'SD202504101010000004', todoId: 'ST202504101013000002', todoOwner: 'test07', isCompleted: true, todoTxt: '모달 컴포넌트 구현', todoDt: new Date('2025-05-09'), participants: [{ ...user7, isMain: true }], order: 2 },
-      { taskId: 'SD202504101010000004', todoId: 'ST202504101013000003', todoOwner: 'test07', isCompleted: true, todoTxt: 'Storybook 연동', todoDt: new Date('2025-05-11'), participants: [{ ...user7, isMain: true }], order: 3 },
+      { taskId: 'SD202504101010000004', todoId: 'ST202504101013000003', todoOwner: 'test07', isCompleted: true, todoTxt: 'Storybook 연동', todoDt: new Date('2025-05-08'), participants: [{ ...user7, isMain: true }], order: 3 },
     ],
     dependencies: ['SD202504101010000001'],
     participants: [{ ...user7, isMain: true }, { ...user4, isMain: false }],
@@ -410,7 +410,7 @@ export const sectionTasks: Task[] = [
     todoList: [
       { taskId: 'SD202504101010000002', todoId: 'ST202504101012000001', todoOwner: 'test07', isCompleted: true, todoTxt: '로그인 화면 퍼블리싱', todoDt: new Date('2025-05-18'), participants: [{ ...user7, isMain: true }], order: 1 },
       { taskId: 'SD202504101010000002', todoId: 'ST202504101012000002', todoOwner: 'test07', isCompleted: false, todoTxt: '회원가입 폼 구현', todoDt: new Date('2025-05-20'), participants: [{ ...user7, isMain: true }], order: 2 },
-      { taskId: 'SD202504101010000002', todoId: 'ST202504101012000003', todoOwner: 'test07', isCompleted: false, todoTxt: 'API 연동 (로그인)', todoDt: new Date('2025-05-21'), participants: [{ ...user7, isMain: true }], order: 3 },
+      { taskId: 'SD202504101010000002', todoId: 'ST202504101012000003', todoOwner: 'test07', isCompleted: false, todoTxt: 'API 연동 (로그인)', todoDt: new Date('2025-05-17'), participants: [{ ...user7, isMain: true }], order: 3 },
     ],
     dependencies: ['SD202504101005000003', 'SD202504101015000002'],
     participants: [{ ...user7, isMain: true }],
@@ -464,8 +464,8 @@ export const sectionTasks: Task[] = [
     importance: 1,
     progress: 100,
     todoList: [
-      { taskId: 'SD202503191553000001', todoId: 'ST202503271341000002', todoOwner: 'test01', isCompleted: true, todoTxt: 'DB 스키마 분석', todoDt: new Date('2025-04-19'), participants: [{ ...user8, isMain: true }], order: 1 },
-      { taskId: 'SD202503191553000001', todoId: 'ST202503271341000003', todoOwner: 'test01', isCompleted: true, todoTxt: '테스트 데이터 생성 스크립트 작성', todoDt: new Date('2025-04-21'), participants: [{ ...user8, isMain: true }, { ...user2, isMain: false }], order: 2 }
+      { taskId: 'SD202503191553000001', todoId: 'ST202503271341000002', todoOwner: 'test01', isCompleted: true, todoTxt: 'DB 스키마 분석', todoDt: new Date('2025-04-27'), participants: [{ ...user8, isMain: true }], order: 1 },
+      { taskId: 'SD202503191553000001', todoId: 'ST202503271341000003', todoOwner: 'test01', isCompleted: true, todoTxt: '테스트 데이터 생성 스크립트 작성', todoDt: new Date('2025-04-29'), participants: [{ ...user8, isMain: true }, { ...user2, isMain: false }], order: 2 }
     ],
     dependencies: ['SD202504101001000002'],
     participants: [{ ...user8, isMain: true }, { ...user2, isMain: false }, { ...user1, isMain: false }],
@@ -486,15 +486,15 @@ export const sectionTasks: Task[] = [
     taskName: 'API 서버 환경 설정',
     taskOwner: user8,
     start: new Date('2025-05-01T09:00:00'), // 선행(SD...01 DB) 종료(04-30) 다음 날
-    end: new Date('2025-05-03T18:00:00'),   // 시작일 + 원래 기간(3일)
+    end: new Date('2025-05-20T18:00:00'),   // 시작일 + 원래 기간(3일)
     priority: priorityHigh,
     status: statusInProgress,
     importance: 1,
     progress: 70,
     todoList: [
-      { taskId: 'SD202504101015000001', todoId: 'ST202504101016000001', todoOwner: 'test08', isCompleted: true, todoTxt: 'Node.js + Express 프로젝트 초기화', todoDt: new Date('2025-04-23'), participants: [{ ...user8, isMain: true }], order: 1 },
-      { taskId: 'SD202504101015000001', todoId: 'ST202504101016000002', todoOwner: 'test08', isCompleted: false, todoTxt: '데이터베이스 연결 설정', todoDt: new Date('2025-04-24'), participants: [{ ...user8, isMain: true }], order: 2 },
-      { taskId: 'SD202504101015000001', todoId: 'ST202504101016000003', todoOwner: 'test08', isCompleted: false, todoTxt: 'ORM (TypeORM) 설정', todoDt: new Date('2025-04-25'), participants: [{ ...user8, isMain: true }], order: 3 },
+      { taskId: 'SD202504101015000001', todoId: 'ST202504101016000001', todoOwner: 'test08', isCompleted: true, todoTxt: 'Node.js + Express 프로젝트 초기화', todoDt: new Date('2025-05-11'), participants: [{ ...user8, isMain: true }], order: 1 },
+      { taskId: 'SD202504101015000001', todoId: 'ST202504101016000002', todoOwner: 'test08', isCompleted: false, todoTxt: '데이터베이스 연결 설정', todoDt: new Date('2025-05-06'), participants: [{ ...user8, isMain: true }], order: 2 },
+      { taskId: 'SD202504101015000001', todoId: 'ST202504101016000003', todoOwner: 'test08', isCompleted: false, todoTxt: 'ORM (TypeORM) 설정', todoDt: new Date('2025-05-15'), participants: [{ ...user8, isMain: true }], order: 3 },
     ],
     dependencies: ['SD202503191553000001'],
     participants: [{ ...user8, isMain: true }],
@@ -520,7 +520,7 @@ export const sectionTasks: Task[] = [
     importance: 1.5,
     progress: 30,
     todoList: [
-      { taskId: 'SD202504101015000002', todoId: 'ST202504101017000001', todoOwner: 'test08', isCompleted: true, todoTxt: '회원가입 API 엔드포인트 구현', todoDt: new Date('2025-05-01'), participants: [{ ...user8, isMain: true }], order: 1 },
+      { taskId: 'SD202504101015000002', todoId: 'ST202504101017000001', todoOwner: 'test08', isCompleted: true, todoTxt: '회원가입 API 엔드포인트 구현', todoDt: new Date('2025-05-12'), participants: [{ ...user8, isMain: true }], order: 1 },
       { taskId: 'SD202504101015000002', todoId: 'ST202504101017000002', todoOwner: 'test08', isCompleted: false, todoTxt: '로그인 API 및 JWT 발급 구현', todoDt: new Date('2025-05-05'), participants: [{ ...user8, isMain: true }], order: 2 },
       { taskId: 'SD202504101015000002', todoId: 'ST202504101017000003', todoOwner: 'test08', isCompleted: false, todoTxt: '비밀번호 암호화 적용', todoDt: new Date('2025-05-07'), participants: [{ ...user8, isMain: true }], order: 3 },
     ],
