@@ -1,6 +1,6 @@
 import { faChevronLeft, faChevronRight } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { addMonths, eachDayOfInterval, endOfMonth, endOfWeek, format, isBefore, isSameDay, isSameMonth, isValid, startOfDay, startOfMonth, startOfWeek, subMonths } from "date-fns";
+import { addMonths, eachDayOfInterval, endOfMonth, endOfWeek, format, isAfter, isBefore, isSameDay, isSameMonth, isValid, startOfDay, startOfMonth, startOfWeek, subMonths } from "date-fns";
 import { useEffect, useRef, useState } from "react";
 import DateInput from "./date-input";
 import { ko } from "date-fns/locale";
@@ -9,12 +9,14 @@ const SingleDatePicker: React.FC<{
   initialDate?: Date | null;
   onUnmount: (selectedDate: Date | null) => void;
   minDate?: Date | null;
+  maxDate?: Date | null;
 }> = ({
   initialDate = null,
   onUnmount,
-  minDate
+  minDate,
+  maxDate,
 }) => {
-    const [currentMonth, setCurrentMonth] = useState<Date>(initialDate ? startOfMonth(initialDate) : new Date());
+    const [currentMonth, setCurrentMonth] = useState<Date>(initialDate ? startOfMonth(initialDate) : minDate ? minDate : new Date());
     const [selectedDate, setSelectedDate] = useState<Date | null>(initialDate);
     const latestStateRef = useRef<Date | null>(selectedDate);
 
@@ -33,6 +35,7 @@ const SingleDatePicker: React.FC<{
     const handleDateClick = (day: Date) => {
       let newClickedDate = startOfDay(day);
       if (minDate && isValid(minDate) && isSameDay(newClickedDate, minDate) && isBefore(newClickedDate, minDate)) newClickedDate = minDate;
+      if (!isSameMonth(newClickedDate, currentMonth)) setCurrentMonth(startOfMonth(newClickedDate));
       setSelectedDate(newClickedDate);
     };
 
@@ -71,7 +74,6 @@ const SingleDatePicker: React.FC<{
       const monthEnd = endOfMonth(currentMonth);
       const calendarStart = startOfWeek(monthStart);
       const calendarEnd = endOfWeek(monthEnd);
-
       const daysInCalendar = eachDayOfInterval({ start: calendarStart, end: calendarEnd });
 
       const rows: React.ReactElement[] = [];
@@ -80,14 +82,23 @@ const SingleDatePicker: React.FC<{
       daysInCalendar.forEach((day, i) => {
         const isCurrentMonthDay = isSameMonth(day, monthStart);
         const dayIsSelectedDate = selectedDate && isSameDay(day, selectedDate);
+
         const isDisabledByMindate = minDate && isValid(minDate) && isBefore(startOfDay(day), startOfDay(minDate));
+        const isDisabledByMaxDate = maxDate && isValid(maxDate) && isAfter(day, startOfDay(maxDate));
+
+        const isDisabled = isDisabledByMindate || isDisabledByMaxDate;
 
         let cellClass = 'calendar-cell';
-        if (!isCurrentMonthDay || isDisabledByMindate) cellClass += ' disabled';
+        if (isDisabled) {
+          cellClass += ' disabled';
+        } else if (!isCurrentMonthDay) {
+          cellClass += ' other-month';
+        }
+
         if (dayIsSelectedDate) cellClass += ' selected-date single-date';
 
         cells.push(
-          <div key={day.toString()} className={cellClass} onClick={() => !isDisabledByMindate && handleDateClick(day)}>
+          <div key={day.toString()} className={cellClass} onClick={() => !isDisabled && handleDateClick(day)}>
             <span>{format(day, 'd')}</span>
           </div>
         );

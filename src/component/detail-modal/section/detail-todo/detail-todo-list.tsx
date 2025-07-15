@@ -4,7 +4,7 @@ import DetailTodoAdd from "./detail-todo-item/detail-todo-add";
 import { closestCenter, DndContext, DragEndEvent, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { restrictToFirstScrollableAncestor, restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { arrayMove, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { Todo } from "../../../../types/type";
+import { Task, Todo } from "../../../../types/type";
 import useUserStore from "../../../../store/user-store";
 import { generateUniqueId, normalizeSpaces } from "../../../../utils/text-function";
 import isEqual from "lodash.isequal"; 
@@ -20,9 +20,9 @@ export interface CombinedTodoItem { // 인터페이스 정의
 const DetailTodoList: React.FC<{
   initialTodoList: Todo[];
   onTodoListUpdate: (list: Todo[]) => void;
-  taskId: string;
+  task: Task;
   isOwnerOrParticipant: boolean;
-}> = ({ initialTodoList, onTodoListUpdate, taskId, isOwnerOrParticipant }) => {
+}> = ({ initialTodoList, onTodoListUpdate, task, isOwnerOrParticipant }) => {
   const currentUser = useUserStore(state => state.currentUser);
   const [combinedItems, setCombinedItems] = useState<CombinedTodoItem[]>([]);
 
@@ -85,7 +85,7 @@ const DetailTodoList: React.FC<{
     }));
     
     const updatedTodoItems: Todo[] = updatedCombinedItemsWithOrder.map(item => ({
-        taskId: taskId,
+        taskId: task.taskId,
         todoId: item.todoId,
         todoOwner: currentUser ? currentUser.username : 'Unknown',
         isCompleted: item.isCompleted,
@@ -124,7 +124,7 @@ const DetailTodoList: React.FC<{
     const newOrder = initialTodoList.length > 0 ? Math.max(...initialTodoList.map(item => item.order)) + 1 : 0;
 
     const newTodo: Todo = {
-      taskId: taskId,
+      taskId: task.taskId,
       todoId: newActualTodoId,
       todoOwner: currentUser.username,
       isCompleted: isCompleted,
@@ -211,6 +211,8 @@ const DetailTodoList: React.FC<{
                   isOwnerOrParticipant={isOwnerOrParticipant}
                   onUpdateTodoTxt={handleUpdateExistingTodoTxt}
                   onUpdateTodoDt={handleUpdateExistingTodoDt}
+                  taskStartDate={task.start}
+                  taskEndDate={task.end}
                 />
               ) : (
                 <DetailTodoAdd key={item.todoId} item={item} onSave={handleSaveNewItem} onCancel={handleCancelNewItem} />

@@ -60,7 +60,7 @@ const DetailModal: React.FC<{
           {/** 작업 필드 */}
           <TaskFieldsSection task={task} isOwnerOrParticipant={isOwnerOrParticipant} onUpdate={updateTaskField} onOpenProfile={handleOpenProfile} />
           {/** 작업 할 일 목록 */}
-          <DetailTodoList initialTodoList={task.todoList || []} onTodoListUpdate={handleTodoListUpdate} taskId={task.taskId} isOwnerOrParticipant={isOwnerOrParticipant} />
+          <DetailTodoList initialTodoList={task.todoList || []} onTodoListUpdate={handleTodoListUpdate} task={task} isOwnerOrParticipant={isOwnerOrParticipant} />
           {/** 채팅 */}
           <ChatList
             currentUser={currentUser}
