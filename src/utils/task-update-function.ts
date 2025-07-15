@@ -1,3 +1,4 @@
+import { isAfter, isBefore } from "date-fns";
 import { SelectOption, Task } from "../types/type";
 import { getEffectiveEndDate } from "./date-function";
 
@@ -154,7 +155,7 @@ export const propagateDateChanges = (
 
       // ✅ 후행 작업의 end가 원래 null이었다면, 전파 후에도 null을 유지
       const newEndDate = originalSuccessor.end ? new Date(maxPotentialStart.getTime() + duration) : null;
-      
+
       const updatedSuccessor = { ...succ, start: maxPotentialStart, end: newEndDate };
 
       // 변경 여부 확인 후 업데이트
@@ -166,4 +167,21 @@ export const propagateDateChanges = (
     }
   }
   return modifiedTasksCollector;
+};
+
+export const adjustTodosInTask = (task: Task): Task => {
+  if (!task.todoList || task.todoList.length === 0) return task;
+  const taskStart = new Date(task.start);
+  const taskEnd = task.end ? new Date(task.end) : null;
+
+  const adjustedTodoList = task.todoList.map(todo => {
+    if (!todo.todoDt) return todo;
+    const todoDate = new Date(todo.todoDt);
+    let newTodoDate = todoDate;
+    if (isBefore(todoDate, taskStart)) newTodoDate = taskStart;
+    if (taskEnd && isAfter(todoDate, taskEnd)) newTodoDate = taskEnd;
+    if (newTodoDate.getTime() !== todoDate.getTime()) return { ...todo, todoDt: newTodoDate };
+    return todo;
+  });
+  return { ...task, todoList: adjustedTodoList };
 };

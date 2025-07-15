@@ -4,7 +4,7 @@ import { statusWaiting } from "../mocks/select-option-mock";
 import { generateUniqueId } from "../utils/text-function";
 import { hasExistingDependencyPath, updateTaskAndSuccessors } from "../utils/gantt/dependencies-utlis";
 import useStatusesStore from "./statuses-store";
-import { createTaskMap, handleSectionChange, propagateDateChanges, syncStatusAndProgress } from "../utils/task-update-function";
+import { adjustTodosInTask, createTaskMap, handleSectionChange, propagateDateChanges, syncStatusAndProgress } from "../utils/task-update-function";
 import isEqual from "lodash.isequal";
 
 
@@ -86,12 +86,19 @@ const useTaskStore = create<TaskState>((set, get) => ({
       finalPayload = { ...finalPayload, ...statusProgressUpdates };
 
       // Task 업데이트 적용
-      const primarilyUpdatedTask = { ...targetTask, ...finalPayload };
+      let primarilyUpdatedTask = { ...targetTask, ...finalPayload };
+      if ('start' in updated || 'end' in updated) primarilyUpdatedTask = adjustTodosInTask(primarilyUpdatedTask);
+
       taskMap.set(taskId, primarilyUpdatedTask);
       modifiedTasksCollector.set(taskId, primarilyUpdatedTask);
 
       // 날짜 변경 전파
       const propagatedChanges = propagateDateChanges(taskMap, originalTask, primarilyUpdatedTask, state.allTasks);
+      propagatedChanges.forEach((successorTask, successorId) => {
+        const adjustedSuccessor = adjustTodosInTask(successorTask);
+        propagatedChanges.set(successorId, adjustedSuccessor);
+      });
+
       propagatedChanges.forEach((t, id) => modifiedTasksCollector.set(id, t));
 
       // 최종 상태 업데이트
@@ -383,7 +390,8 @@ const useTaskStore = create<TaskState>((set, get) => ({
       updates.forEach((value, taskId) => {
         const existingTask = taskMap.get(taskId);
         if (existingTask) {
-          const updatedTask = { ...existingTask, ...value };
+          let updatedTask = { ...existingTask, ...value };
+          if ('start' in value || 'end' in value) updatedTask = adjustTodosInTask(updatedTask);
           taskMap.set(taskId, updatedTask);
         }
       });
