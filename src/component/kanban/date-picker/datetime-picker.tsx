@@ -1,15 +1,14 @@
-import { faChevronDown, faChevronLeft, faChevronRight } from "@fortawesome/free-solid-svg-icons";
+import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  addMonths,
-  eachDayOfInterval, endOfMonth, endOfWeek, format, getHours, getMinutes, isAfter,
-  isBefore, isSameDay, isSameMonth, isValid, setHours, setMinutes, startOfDay, startOfMonth, startOfWeek,
-  subMonths
+  addMonths, format, getHours, getMinutes, isAfter, isBefore, isSameDay,
+  isValid, setHours, setMinutes, startOfDay, startOfMonth, subMonths
 } from "date-fns";
 import { ko } from "date-fns/locale";
 import { useEffect, useRef, useState } from "react";
 import DateInput from "./date-input";
 import CustomTimeSelect from "./custom-time-select";
+import CalendarView from "./common/calendar-view";
 
 interface DateTimePickerProps {
   initialStartDate?: Date | null;
@@ -58,108 +57,10 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
         if (finalStartDate) finalStartDate = startOfDay(finalStartDate);
         if (finalEndDate) finalEndDate = startOfDay(finalEndDate);
       }
-      
+
       onUnmount(finalStartDate, showDeadline ? finalEndDate : null);
     };
   }, []);
-
-  // 달력 생성 
-  // 달 토글
-  const renderHeader = () => {
-    return (
-      <div className="calendar-header">
-        <button onClick={prevMonth} className="nav-button">
-          <FontAwesomeIcon icon={faChevronLeft} style={{ width: 6.43, height: 10, color: '#9E9FA3' }} />
-        </button>
-        <span>{format(tempCurrentMonth, 'yyyy.MM')}</span>
-        <button onClick={nextMonth} className="nav-button">
-          <FontAwesomeIcon icon={faChevronRight} style={{ width: 6.43, height: 10, color: '#9E9FA3' }} />
-        </button>
-      </div>
-    )
-  }
-
-  // 요일 생성
-  const renderDays = () => {
-    const days = ['일', '월', '화', '수', '목', '금', '토'];
-    return (
-      <div className="calendar-days-header">
-        {days.map(day => (
-          <div key={day} className="day-label">
-            {day}
-          </div>
-        ))}
-      </div>
-    );
-  };
-
-  // 일 생성
-  const renderCells = () => {
-    const monthStart = startOfMonth(tempCurrentMonth);
-    const monthEnd = endOfMonth(tempCurrentMonth);
-    const calendarStart = startOfWeek(monthStart);
-    const calendarEnd = endOfWeek(monthEnd);
-
-    const daysInCalendar = eachDayOfInterval({ start: calendarStart, end: calendarEnd });
-
-    const rows: React.ReactElement[] = [];
-    let cells: React.ReactElement[] = [];
-
-    daysInCalendar.forEach((day, i) => {
-      const isCurrentMonthDay = isSameMonth(day, monthStart);
-      const dayIsStartDate = tempStartDate && isSameDay(day, tempStartDate);
-      const dayIsEndDate = tempShowDeadline && tempEndDate && isSameDay(day, tempEndDate);
-      const hasBothDatesAndDifferent = tempStartDate && tempEndDate && !isSameDay(tempStartDate, tempEndDate);
-      const isInRange =
-        tempShowDeadline && tempStartDate && tempEndDate &&
-        isAfter(day, startOfDay(tempStartDate)) &&
-        isBefore(day, startOfDay(tempEndDate));
-
-      const isDisabledByMinStart = minStart && isValid(minStart) && isBefore(startOfDay(day), startOfDay(minStart));
-
-
-      let cellClass = 'calendar-cell';
-      if (!isCurrentMonthDay || isDisabledByMinStart) {
-        cellClass += ' disabled';
-      }
-      if (dayIsStartDate && dayIsEndDate) {
-        // 시작일과 종료일이 같은 경우 (하루 선택)
-        cellClass += ' start-date end-date single-date';
-      } else if (dayIsStartDate && hasBothDatesAndDifferent) {
-        // 시작일이고, 종료일도 선택된 상태 (다른 날짜)
-        cellClass += ' start-date-in-range';
-      } else if (dayIsEndDate) {
-        // 종료일인 경우 (시작일과 같거나, 시작일이 없거나, 시작일과 다른 경우 모두 포함)
-        cellClass += ' end-date';
-      } else if (dayIsStartDate) {
-        // 시작일만 선택된 경우 (종료일 없음)
-        cellClass += ' start-date';
-      } else if (isInRange) {
-        // 시작일과 종료일 사이의 날짜인 경우
-        cellClass += ' in-range';
-      }
-
-      cells.push(
-        <div
-          key={day.toString()}
-          className={cellClass}
-          onClick={() => !isDisabledByMinStart && handleDateClick(day)}
-        >
-          <span>{format(day, 'd')}</span>
-        </div>
-      );
-
-      if ((i + 1) % 7 === 0) {
-        rows.push(
-          <div className="calendar-row" key={`row-${day.toString()}`}>
-            {cells}
-          </div>
-        );
-        cells = [];
-      }
-    });
-    return <div className="calendar-body">{rows}</div>;
-  };
 
   // 날짜 클릭
   const handleDateClick = (day: Date) => {
@@ -390,12 +291,15 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
           )}
         </div>
 
-        {/** 달력 */}
-        <div className="calendar-container">
-          {renderHeader()}
-          {renderDays()}
-          {renderCells()}
-        </div>
+        <CalendarView
+          currentMonth={tempCurrentMonth}
+          startDate={tempStartDate}
+          endDate={tempEndDate}
+          minStart={minStart}
+          onDateClick={handleDateClick}
+          onPrevMonth={prevMonth}
+          onNextMonth={nextMonth}
+        />
 
         {/** 하단 토글 */}
         <div className="toggle-section">
