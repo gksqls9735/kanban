@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { colors, ViewModes } from "../constants";
+import { colors, ViewModes } from "../constant/constants";
 
 interface useColumnInputProps {
   isActive: boolean,

@@ -3,7 +3,7 @@ import useStatusesStore from "../../../store/statuses-store";
 import useSectionsStore from "../../../store/sections-store";
 import { useEffect, useRef, useState } from "react";
 import useViewModeStore from "../../../store/viewmode-store";
-import { ViewModes } from "../../../constants";
+import { ViewModes } from "../../../constant/constants";
 import { Participant, Section, SelectOption, Task, Todo } from "../../../types/type";
 import useTaskStore from "../../../store/task-store";
 import TodoListEditor from "./todolist-editor";

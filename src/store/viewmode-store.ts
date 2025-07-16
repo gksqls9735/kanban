@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { ViewModes } from "../constants";
+import { ViewModes } from "../constant/constants";
 
 interface ViewModeState {
   viewMode: string;

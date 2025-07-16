@@ -3,7 +3,7 @@ import useTaskStore from "../../store/task-store";
 import useViewModeStore from "../../store/viewmode-store";
 import { DragEndEvent, DragOverEvent, DragStartEvent, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
-import { ViewModes } from "../../constants";
+import { ViewModes } from "../../constant/constants";
 import { lightenColor } from "../../utils/color-function";
 import useSectionsStore from "../../store/sections-store";
 import useStatusesStore from "../../store/statuses-store";

@@ -1,4 +1,4 @@
-import { colors, ViewModes } from "../../../constants";
+import { colors, ViewModes } from "../../../constant/constants";
 import useColumnInput from "../../../hooks/use-column-input";
 
 const CheckIcon = () => (

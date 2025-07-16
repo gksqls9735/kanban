@@ -1,5 +1,5 @@
 import useViewModeStore from "../../store/viewmode-store";
-import { ViewModes } from "../../constants";
+import { ViewModes } from "../../constant/constants";
 import useDropdown from "../../hooks/use-dropdown";
 
 

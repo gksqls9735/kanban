@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState, useRef } from "react";
-import { ViewModes } from "../../../constants";
+import { ViewModes } from "../../../constant/constants";
 import useDropdown from "../../../hooks/use-dropdown";
 import useViewModeStore from "../../../store/viewmode-store";
 import ReactDOM from "react-dom";

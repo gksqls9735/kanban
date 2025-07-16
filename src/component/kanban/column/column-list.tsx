@@ -1,7 +1,7 @@
 import { SelectOption, Task } from "../../../types/type";
 import useViewModeStore from "../../../store/viewmode-store";
 import useTaskStore from "../../../store/task-store";
-import { colors, ViewModes } from "../../../constants";
+import { colors, ViewModes } from "../../../constant/constants";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { lightenColor } from "../../../utils/color-function";
 import { horizontalListSortingStrategy, SortableContext } from "@dnd-kit/sortable";

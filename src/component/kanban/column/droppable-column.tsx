@@ -7,7 +7,7 @@ import NewTaskCard from "../new-card/new-task-card";
 import CardWrapper from "../card/card-wrapper";
 import DeleteModal from "../delete-modal";
 import useViewModeStore from "../../../store/viewmode-store";
-import { ViewModes } from "../../../constants";
+import { ViewModes } from "../../../constant/constants";
 import useTaskStore from "../../../store/task-store";
 import useStatusesStore from "../../../store/statuses-store";
 import useSectionsStore from "../../../store/sections-store";
