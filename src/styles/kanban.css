@@ -7,10 +7,85 @@
 /* :host {
   font-family: 'Pretendard', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif, 'Helvetica Neue', 'Segoe UI', Arial;
 } */
+
 .strikethrough-input {
   position: relative;
   background: linear-gradient(to right, currentColor 50%, transparent 0) 0 50% / 100% 1px no-repeat;
 }
+
+.progress-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.circle {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  box-sizing: border-box;
+  transition: all 0.3s ease;
+}
+
+.line {
+  width: 30px;
+  height: 1px;
+  background-color: #E0E7FF;
+  transition: all 0.3s ease;
+}
+
+.circle.pending {
+  background-color: #EEF1F6;
+  border: 2px solid #CDD3DD;
+}
+
+.line.pending {
+  background-color: #CDD3DD;
+}
+
+.circle.active {
+  background-color: #FFFFFF;
+  border: 2px solid #16B364;
+}
+
+.circle.active::after {
+  content: '';
+  width: 15px;
+  height: 15px;
+  background-color: #16B364;
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.line.active {
+  background-color: #16B364;
+}
+
+.circle.completed {
+  background-color: #16B364;
+  border: none;
+}
+
+.circle.completed::after {
+  content: '';
+  box-sizing: border-box;
+  width: 6px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -60%) rotate(45deg);
+}
+
 
 /* 커서 */
 .kanban-card .card-current-section,
@@ -67,7 +142,7 @@
 .kanban-wrapper {
   display: flex;
   flex-direction: column;
-  padding: 16px 32px 32px 32px;
+  padding: 24px 30px;
   height: 100%;
   box-sizing: border-box;
 }

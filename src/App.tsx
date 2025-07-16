@@ -39,7 +39,7 @@ const uploadFileAndGetUrl = async (file: File): Promise<FileAttachment> => {
 };
 
 function App() {
-  const [sidebarState, setSidebarState] = useState<"expanded" | "collapsed">("expanded");
+  const [sidebarState, setSidebarState] = useState<"expanded" | "collapsed">("collapsed");
   const [activeMenu, setActiveMenu] = useState('홈');
 
   // 사이드바 토글 핸들러

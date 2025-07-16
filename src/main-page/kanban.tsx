@@ -2,8 +2,6 @@ import { useEffect, useRef } from "react";
 import ColumnList from "../component/kanban/column/column-list";
 import { Chat, Section, SelectOption, Task, User } from "../types/type";
 import { DndContext, DragOverlay, rectIntersection } from "@dnd-kit/core";
-import useViewModeStore from "../store/viewmode-store";
-import { ViewModes } from "../constants";
 import useTaskStore from "../store/task-store";
 import { useKanbanDnd } from "../hooks/dnd/use-task-dnd";
 import DroppableColumn from "../component/kanban/column/droppable-column";
@@ -16,6 +14,7 @@ import useChatStore from "../store/chat-store";
 import { useKanbanActions } from "../context/task-action-context";
 import { statusSelect } from "../mocks/select-option-mock";
 import isEqual from "lodash.isequal";
+import ViewModeToggle from "../component/common/view-mode-toggle";
 
 export interface KanbanProps {
   currentUser: User | null;
@@ -36,13 +35,10 @@ const Kanban: React.FC<KanbanProps> = ({
   chatlist,
   detailModalTopPx = 0,
 }) => {
-  const { viewMode, setViewMode } = useViewModeStore();
   const setTasks = useTaskStore(state => state.setTasks);
   const sections = useSectionsStore(state => state.sections);
   const setSections = useSectionsStore(state => state.setSections);
   const setStatusList = useStatusesStore(state => state.setStatusList);
-  // const sectionsLoaded = useSectionsStore(state => state.sections.length > 0);
-  // const statusesLoaded = useStatusesStore(state => state.statusList.length > 0);
 
   const setCurrentUser = useUserStore(state => state.setCurrentUser);
   const setUserlist = useUserStore(state => state.setUserlist);
@@ -112,31 +108,9 @@ const Kanban: React.FC<KanbanProps> = ({
     return sections.find(sec => sec.sectionId === sectionId)?.sectionName || '';
   };
 
-  const toggleViewMode = () => {
-    setViewMode(viewMode === ViewModes.STATUS ? ViewModes.SECTION : ViewModes.STATUS);
-  };
-
-
   return (
     <ToastProvider>
       <div className="kanban-wrapper">
-        <div className="kanban-header">
-          <h3 className="kanban-title">{viewMode === ViewModes.STATUS ? '상태별 보기' : '섹션별 보기'}</h3>
-          <div className="view-tabs">
-            <button
-              className={`tab-button ${viewMode === ViewModes.STATUS ? 'active' : ''}`}
-              onClick={() => setViewMode(ViewModes.STATUS)} // 직접 상태를 설정하는 함수로 변경 필요
-            >
-              상태별 보기
-            </button>
-            <button
-              className={`tab-button ${viewMode === ViewModes.SECTION ? 'active' : ''}`}
-              onClick={() => setViewMode(ViewModes.SECTION)} // 직접 상태를 설정하는 함수로 변경 필요
-            >
-              섹션별 보기
-            </button>
-          </div>
-        </div>
         <DndContext
           sensors={sensors}
           collisionDetection={rectIntersection}
@@ -165,6 +139,7 @@ const Kanban: React.FC<KanbanProps> = ({
             </DragOverlay>
           </div>
         </DndContext>
+        <ViewModeToggle/>
       </div>
     </ToastProvider>
   );
