@@ -2,18 +2,18 @@ import { priorityMedium, prioritySelect } from "../../../mocks/select-option-moc
 import useStatusesStore from "../../../store/statuses-store";
 import useSectionsStore from "../../../store/sections-store";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Participant, Section, SelectOption, Task, Todo } from "../../../types/type";
+import { Participant, Section, SelectOption, Task } from "../../../types/type";
 import useTaskStore from "../../../store/task-store";
 import SectionSelector from "../../common/selector/section-selector";
 import DatePickerTrigger from "../new-card/datepicker-trigger";
 import OptionSelector from "../../common/selector/option-selector";
-import TodoListEditor from "../new-card/todolist-editor";
 import AvatarItem from "../../common/avatar/avatar";
-import { generateUniqueId, getInitial, normalizeSpaces } from "../../../utils/text-function";
+import { getInitial, normalizeSpaces } from "../../../utils/text-function";
 import ParticipantSelector from "../../participant-select/participant-selector";
 import { calcMinStart } from "../../../utils/date-function";
 import { useKanbanActions } from "../../../context/task-action-context";
 import { useToast } from "../../../context/toast-context";
+import TodoList from "../card-todo/todolist";
 
 const UpdateCard: React.FC<{
   onClose: () => void;
@@ -68,7 +68,6 @@ const UpdateCard: React.FC<{
   });
   const [startDate, setStartDate] = useState<Date | null>(currentTask.start || null);
   const [endDate, setEndDate] = useState<Date | null>(currentTask.end || null);
-  const [todos, setTodos] = useState<Todo[]>(currentTask.todoList || []);
   const [participants, setParticipants] = useState<Participant[]>(currentTask.participants || []);
 
   const sortedParticipants = useMemo(() => {
@@ -80,7 +79,6 @@ const UpdateCard: React.FC<{
     });
   }, [participants]);
 
-  const newTaskId = useRef<string>(generateUniqueId('task')).current;
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -102,12 +100,6 @@ const UpdateCard: React.FC<{
     processedName = normalizeSpaces(processedName);
 
     if (processedName && startDate && endDate) {
-      const updatedTodos = todos.map(todo => ({
-        ...todo, todoTxt: normalizeSpaces(todo.todoTxt),
-      }));
-
-      const filteredTodos = updatedTodos.filter(todo => todo.todoTxt !== '');
-
       const updatedTasks = updateTask(currentTask.taskId, {
         sectionId: selectedSection.sectionId,
         taskName: processedName,
@@ -115,7 +107,6 @@ const UpdateCard: React.FC<{
         end: endDate,
         priority: selectedPriority,
         status: selectedStatus,
-        todoList: filteredTodos,
         participants: participants,
       });
       if (onTasksChange && updatedTasks.length > 0) {
@@ -151,7 +142,6 @@ const UpdateCard: React.FC<{
   const handleSectionSelect = (section: Section) => setSelectedSection(section);
   const handlePrioritySelect = (priority: SelectOption) => setSelectedPriority(priority);
   const handleStatusSelect = (status: SelectOption) => setSelectedStatus(status);
-  const handleTodosChange = (updatedTodos: Todo[]) => setTodos(updatedTodos);
 
   const handleInputSubmit = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
@@ -212,7 +202,7 @@ const UpdateCard: React.FC<{
 
       <div className="seperation-line" />
 
-      <TodoListEditor initialTodos={todos} onTodosChange={handleTodosChange} newTaskId={newTaskId} />
+      <TodoList taskId={currentTask.taskId} todoList={currentTask.todoList} isOwnerOrParticipant={true} />
       {isOpenParticipantModal && (
         <ParticipantSelector
           initialParticipants={participants} onClose={() => setIsOpenParticipantModal(false)} onConfirm={handleParticipants}
