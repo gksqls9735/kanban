@@ -99,11 +99,11 @@ const UpdateCard: React.FC<{
     let processedName = inputRef.current?.value;
     processedName = normalizeSpaces(processedName);
 
-    if (processedName && startDate && endDate) {
+    if (processedName) {
       const updatedTasks = updateTask(currentTask.taskId, {
         sectionId: selectedSection.sectionId,
         taskName: processedName,
-        start: startDate,
+        start: startDate ? startDate : currentTask.start,
         end: endDate,
         priority: selectedPriority,
         status: selectedStatus,
