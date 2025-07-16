@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Participant, Section, SelectOption, Task } from "../../../types/type";
 import useTaskStore from "../../../store/task-store";
 import SectionSelector from "../../common/selector/section-selector";
-import DatePickerTrigger from "../new-card/datepicker-trigger";
+import DatePickerTrigger from "../date-picker/datepicker-trigger";
 import OptionSelector from "../../common/selector/option-selector";
 import AvatarItem from "../../common/avatar/avatar";
 import { getInitial, normalizeSpaces } from "../../../utils/text-function";

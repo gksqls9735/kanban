@@ -8,7 +8,7 @@ import { Participant, Section, SelectOption, Task, Todo } from "../../../types/t
 import useTaskStore from "../../../store/task-store";
 import TodoListEditor from "./todolist-editor";
 import OptionSelector from "../../common/selector/option-selector";
-import DatePickerTrigger from "./datepicker-trigger";
+import DatePickerTrigger from "../date-picker/datepicker-trigger";
 import SectionSelector from "../../common/selector/section-selector";
 import AvatarItem from "../../common/avatar/avatar";
 import { generateUniqueId, getInitial, normalizeSpaces } from "../../../utils/text-function";
