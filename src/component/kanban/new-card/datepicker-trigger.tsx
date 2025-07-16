@@ -1,6 +1,6 @@
 import useDropdown from "../../../hooks/use-dropdown";
 import DateTimePicker from "../date-picker/datetime-picker";
-import { formatDateToYyyyMmDd } from "../../../utils/date-function";
+import { formatDateToYyMmDd } from "../../../utils/date-function";
 import { useCallback, useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 
@@ -108,8 +108,8 @@ const DatePickerTrigger: React.FC<{
           </svg>
         </div>
         <span className="card-datepicker-text">
-          {startDate && `${formatDateToYyyyMmDd(startDate)} `}
-          {endDate && `- ${formatDateToYyyyMmDd(endDate)}`}
+          {startDate && `${formatDateToYyMmDd(startDate)} `}
+          {endDate && `- ${formatDateToYyMmDd(endDate)}`}
         </span>
       </div>
       {renderDropdownPanel()}

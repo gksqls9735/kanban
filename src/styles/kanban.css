@@ -7,6 +7,10 @@
 /* :host {
   font-family: 'Pretendard', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif, 'Helvetica Neue', 'Segoe UI', Arial;
 } */
+.strikethrough-input {
+  position: relative;
+  background: linear-gradient(to right, currentColor 50%, transparent 0) 0 50% / 100% 1px no-repeat;
+}
 
 /* 커서 */
 .kanban-card .card-current-section,
@@ -70,7 +74,8 @@
 
 .kanban-header {
   display: flex;
-  justify-content: space-between; /* 좌측 header-group + 우측 global-actions */
+  justify-content: space-between;
+  /* 좌측 header-group + 우측 global-actions */
   align-items: center;
   margin-bottom: 16px;
   flex-shrink: 0;
@@ -79,7 +84,8 @@
 .header-group {
   display: flex;
   align-items: center;
-  gap: 16px; /* 타이틀과 뷰탭 사이 간격 */
+  gap: 16px;
+  /* 타이틀과 뷰탭 사이 간격 */
 }
 
 .view-tabs {
@@ -599,7 +605,8 @@
   color: rgba(125, 137, 152, 1);
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
+  width: fit-content;
 }
 
 .kanban .card-meta {
@@ -1178,15 +1185,16 @@
 .kanban .card-datepicker-trigger {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
+  border: 1px solid #E4E8EE;
+  border-radius: 4px;
+  padding: 2px;
+  width: fit-content;
 }
 
 .kanban .card-datepicker-icon-wrapper {
   display: flex;
   align-items: center;
-  border: 1px solid #E4E8EE;
-  border-radius: 4px;
-  padding: 4px;
 }
 
 .kanban .card-datepicker-text {

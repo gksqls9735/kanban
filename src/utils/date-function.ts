@@ -59,6 +59,39 @@ export const formatDateToYyyyMmDd = (dateInput: Date | null) => {
 
 };
 
+export const formatDateToYyMmDd = (dateInput: Date | null) => {
+  if (!dateInput) return '';
+  const date = new Date(dateInput);
+
+  if (isNaN(date.getTime())) {
+    console.error("Invalid date input:", dateInput);
+    return '유효하지 않은 날짜';
+  }
+
+  const year = String(date.getFullYear()).slice(-2);
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+
+  const formattedMonth = String(month).padStart(2, "0");
+  const formattedDay = String(day).padStart(2, "0");
+
+  const dateStr = `${year}.${formattedMonth}.${formattedDay}`;
+
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+
+  const isMidNight = hours === 0 && minutes === 0;
+
+  if (isMidNight) {
+    return dateStr;
+  } else {
+    const formattedHours = String(hours).padStart(2, '0');
+    const formattedMinutes = String(minutes).padStart(2, '0');
+    return `${dateStr}, ${formattedHours}:${formattedMinutes}`;
+  }
+
+};
+
 export const formatToKoreanDateTimeString = (date: Date) => {
   return format(date, 'yyyy.MM.dd, aaaa hh:mm', { locale: ko })
 }
