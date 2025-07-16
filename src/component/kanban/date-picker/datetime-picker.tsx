@@ -189,7 +189,7 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
         setTempStartDate(newDate);
         // 시작 시간이 마감 시간보다 늦어지면 마감 시간도 시작 시간으로 조정
         if (tempEndDate && isValid(tempEndDate) && isAfter(newDate, tempEndDate)) {
-          (newDate);
+          setTempEndDate(newDate);
         }
       } else { // type === 'end'
         // 마감 시간이 시작 시간보다 이전일 수 없음
@@ -197,7 +197,7 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
           console.warn("마감 시간은 시작 시간보다 이전일 수 없습니다.");
           return; // 변경을 막고 경고
         }
-        (newDate);
+        setTempEndDate(newDate);
       }
     };
     return (
