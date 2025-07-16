@@ -28,3 +28,4 @@ dist-wc
 .env
 src/test
 /public/files
+copy
