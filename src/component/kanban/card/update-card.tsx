@@ -14,6 +14,7 @@ import { calcMinStart } from "../../../utils/date-function";
 import { useKanbanActions } from "../../../context/task-action-context";
 import { useToast } from "../../../context/toast-context";
 import TodoList from "../card-todo/todolist";
+import { isAfter } from "date-fns";
 
 const UpdateCard: React.FC<{
   onClose: () => void;
@@ -99,26 +100,33 @@ const UpdateCard: React.FC<{
     let processedName = inputRef.current?.value;
     processedName = normalizeSpaces(processedName);
 
-    if (processedName) {
-      const updatedTasks = updateTask(currentTask.taskId, {
-        sectionId: selectedSection.sectionId,
-        taskName: processedName,
-        start: startDate ? startDate : currentTask.start,
-        end: endDate,
-        priority: selectedPriority,
-        status: selectedStatus,
-        participants: participants,
-      });
-      if (onTasksChange && updatedTasks.length > 0) {
-        if (updatedTasks) onTasksChange(updatedTasks);
-      }
-      onClose();
-    } else {
-      if (!processedName) {
-        showToast('작업명을 입력해주세요.');
-        inputRef.current?.focus();
-      }
+    if (!processedName) {
+      showToast('작업명을 입력해주세요.');
+      inputRef.current?.focus();
+      return;
     }
+
+    const finalStartDate = startDate ? startDate : currentTask.start;
+    const finalEndDate = endDate;
+
+    if (finalStartDate && finalEndDate && isAfter(finalStartDate, finalEndDate)) {
+      showToast('시작일은 마감일보다 이전 날짜여야 합니다.');
+      return;
+    }
+
+    const updatedTasks = updateTask(currentTask.taskId, {
+      sectionId: selectedSection.sectionId,
+      taskName: processedName,
+      start: finalStartDate,
+      end: finalEndDate,
+      priority: selectedPriority,
+      status: selectedStatus,
+      participants: participants,
+    });
+    if (onTasksChange && updatedTasks.length > 0) {
+      if (updatedTasks) onTasksChange(updatedTasks);
+    }
+    onClose();
   };
 
   useEffect(() => {
@@ -135,7 +143,14 @@ const UpdateCard: React.FC<{
 
   // 작업 값 변경
   const handleDateSelect = (start: Date | null, end: Date | null) => {
-    setStartDate(start);
+    const finalStartDate = start ? start : currentTask.start;
+    const finalEndDate = end;
+
+    if (finalStartDate && finalEndDate && isAfter(finalStartDate, finalEndDate)) {
+      showToast('시작일은 마감일보다 이전 날짜여야 합니다.');
+      return;
+    }
+    setStartDate(finalStartDate);
     setEndDate(end);
   };
 
@@ -157,7 +172,7 @@ const UpdateCard: React.FC<{
   return (
     <div ref={cardRef} className="edit-task-content" style={{ display: 'contents' }} onClick={e => e.stopPropagation()}>
 
-      <SectionSelector selectedSection={selectedSection} onSectionSelect={handleSectionSelect} isOwnerOrParticipant={true} onToggle={setIsSelectorOpen}/>
+      <SectionSelector selectedSection={selectedSection} onSectionSelect={handleSectionSelect} isOwnerOrParticipant={true} onToggle={setIsSelectorOpen} />
 
       <input
         type="text"
