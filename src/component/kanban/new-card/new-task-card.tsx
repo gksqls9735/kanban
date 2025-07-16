@@ -79,11 +79,17 @@ const NewTaskCard: React.FC<{
     processedName = normalizeSpaces(processedName);
 
     if (!processedName) {
-      // showToast('작업명을 입력해주세요.');
+      showToast('작업명을 입력해주세요.');
+      inputRef.current.focus();
       return;
     }
 
-    if (processedName && startDate && currentUser) {
+    if (!startDate) {
+      showToast('시작일을 선택해주세요.');
+      return;
+    }
+
+    if (currentUser) {
       const updatedTodos = todos.map(todo => ({
         ...todo, todoTxt: normalizeSpaces(todo.todoTxt),
       }));
