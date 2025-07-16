@@ -1373,6 +1373,10 @@
   width: fit-content;
 }
 
+.kanban .card-datepicker-trigger:has(.card-datepicker-text:empty) {
+  gap: 0;
+}
+
 .kanban .card-datepicker-icon-wrapper {
   display: flex;
   align-items: center;
