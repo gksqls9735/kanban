@@ -55,10 +55,11 @@ const DraggableTodo: React.FC<{
             type="checkbox"
             checked={todo.isCompleted}
             className="todo-item__checkbox--native"
+            style={{ cursor: `${isOwnerOrParticipant ? 'pointer' : 'default'}` }}
             id={`todo-${todo.todoId}`}
             onChange={() => { }}
           />
-          <label onClick={() => onCompleteChange(todo.todoId)} htmlFor={`todo-${todo.todoId}`} className="todo-item__checkbox--visual"></label>
+          <label onClick={() => onCompleteChange(todo.todoId)} htmlFor={`todo-${todo.todoId}`} className="todo-item__checkbox--visual" style={{ cursor: `${isOwnerOrParticipant ? 'pointer' : 'default'}` }}/>
         </div>
 
         {isEditing ? (
@@ -74,7 +75,7 @@ const DraggableTodo: React.FC<{
             onClick={e => e.stopPropagation()}
           />
         ) : (
-          <div className={`todo-item__text ${todo.isCompleted ? 'line-through' : ''} truncate`} onClick={() => onStartEdit(todo.todoId)}>
+          <div className={`todo-item__text ${todo.isCompleted ? 'line-through' : ''} truncate`} style={{ cursor: `${isOwnerOrParticipant ? 'pointer' : 'default'}` }} onClick={() => onStartEdit(todo.todoId)}>
             {todo.todoTxt}
           </div>
         )}
