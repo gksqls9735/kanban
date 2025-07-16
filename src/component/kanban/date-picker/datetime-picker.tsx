@@ -8,7 +8,7 @@ import { ko } from "date-fns/locale";
 import DateInput from "./date-input";
 import CustomTimeSelect from "./custom-time-select";
 import CalendarView from "./common/calendar-view";
-import { useDateTimePicker } from "../../../hooks/date-time-picker/detail/use-date-time-picker";
+import { useDateTimePicker } from "../../../hooks/date-time-picker/card/use-date-time-picker";
 
 interface DateTimePickerProps {
   initialStartDate?: Date | null;
