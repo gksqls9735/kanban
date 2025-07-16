@@ -1,7 +1,7 @@
 import { addMonths, getHours, getMinutes, isAfter, isBefore, isValid, setHours, setMinutes, startOfDay, startOfMonth, subMonths } from "date-fns";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-export interface DateTimePickerProps {
+export interface DetailDateTimePickerProps {
   initialStartDate?: Date | null;
   initialEndDate?: Date | null; // Kept for setting a range
   initialIncludeTime?: boolean;
@@ -20,7 +20,7 @@ export const useDeatilDateTimePicker = ({
   onChange,
   minStart,
   dateType = 'none',
-}: DateTimePickerProps) => {
+}: DetailDateTimePickerProps) => {
   const [startDate, setStartDate] = useState<Date | null>(initialStartDate);
   const [endDate, setEndDate] = useState<Date | null>(initialEndDate); // endDate state is kept
   const [includeTime, setIncludeTime] = useState<boolean>(initialIncludeTime);

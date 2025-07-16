@@ -6,12 +6,12 @@ import {
 } from "date-fns";
 import { ko } from "date-fns/locale";
 import React from "react"; // Added React import
-import { DateTimePickerProps, useDeatilDateTimePicker } from "../../../../hooks/date-time-picker/detail/use-detail-date-time-picker";
+import { DetailDateTimePickerProps, useDeatilDateTimePicker } from "../../../../hooks/date-time-picker/detail/use-detail-date-time-picker";
 import CustomTimeSelect from "../custom-time-select";
 import DateInput from "../date-input";
 import CalendarView from "../common/calendar-view";
 
-const DetailDateTimePicker: React.FC<DateTimePickerProps> = (props) => {
+const DetailDateTimePicker: React.FC<DetailDateTimePickerProps> = (props) => {
   const {
     startDate, setStartDate,
     endDate, setEndDate,

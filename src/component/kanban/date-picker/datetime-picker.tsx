@@ -1,14 +1,14 @@
 import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  addMonths, format, getHours, getMinutes, isAfter, isBefore, isSameDay,
-  isValid, setHours, setMinutes, startOfDay, startOfMonth, subMonths
+  format, isAfter, isBefore, isSameDay,
+  isValid, setHours, setMinutes, startOfDay,
 } from "date-fns";
 import { ko } from "date-fns/locale";
-import { useEffect, useRef, useState } from "react";
 import DateInput from "./date-input";
 import CustomTimeSelect from "./custom-time-select";
 import CalendarView from "./common/calendar-view";
+import { useDateTimePicker } from "../../../hooks/date-time-picker/detail/use-date-time-picker";
 
 interface DateTimePickerProps {
   initialStartDate?: Date | null;
@@ -20,119 +20,12 @@ interface DateTimePickerProps {
 }
 
 
-const DateTimePicker: React.FC<DateTimePickerProps> = ({
-  initialStartDate = null,
-  initialEndDate = null,
-  initialIncludeTime = false,
-  initialShowDeadline = false,
-  onUnmount,
-  minStart
-}) => {
-  const [tempCurrentMonth, setTempCurrentMonth] = useState<Date>(initialStartDate ? startOfMonth(initialStartDate) : new Date());
-  const [tempStartDate, setTempStartDate] = useState<Date | null>(initialStartDate);
-  const [tempEndDate, setTempEndDate] = useState<Date | null>(initialShowDeadline ? initialEndDate : null); // 마감일 표시 여부에 따라 초기화
-  const [tempShowDeadline, setTempShowDeadline] = useState<boolean>(initialShowDeadline);
-  const [tempIncludeTime, setTempIncludeTime] = useState<boolean>(initialIncludeTime);
-
-  const latestStateRef = useRef({
-    startDate: tempStartDate,
-    endDate: tempEndDate,
-    showDeadline: tempShowDeadline,
-    includeTime: tempIncludeTime,
-  });
-
-  useEffect(() => {
-    latestStateRef.current = {
-      startDate: tempStartDate, endDate: tempEndDate, showDeadline: tempShowDeadline, includeTime: tempIncludeTime,
-    };
-  }, [tempStartDate, tempEndDate, tempShowDeadline, tempIncludeTime]);
-
-  useEffect(() => {
-    return () => {
-      const { startDate, endDate, showDeadline, includeTime } = latestStateRef.current;
-      let finalStartDate = startDate;
-      let finalEndDate = endDate;
-
-      if (!includeTime) {
-        if (finalStartDate) finalStartDate = startOfDay(finalStartDate);
-        if (finalEndDate) finalEndDate = startOfDay(finalEndDate);
-      }
-
-      onUnmount(finalStartDate, showDeadline ? finalEndDate : null);
-    };
-  }, []);
-
-  // 날짜 클릭
-  const handleDateClick = (day: Date) => {
-    let newClickedDateWithTime = tempIncludeTime
-      ? setMinutes(setHours(day, tempStartDate ? getHours(tempStartDate) : 0), tempStartDate ? getMinutes(tempStartDate) : 0)
-      : startOfDay(day);
-
-    // minStart와 같은 날짜를 선택했고, 시간이 minStart보다 이전이면 minStart 시간으로 조정
-    if (minStart && isValid(minStart) && isSameDay(newClickedDateWithTime, minStart) && isBefore(newClickedDateWithTime, minStart)) {
-      newClickedDateWithTime = minStart;
-    }
-
-    // --- 여기에 showDeadline 로직 추가 ---
-    if (!tempShowDeadline) { // 마감일 기능을 사용하지 않는 경우 (단일 날짜 선택)
-      setTempStartDate(newClickedDateWithTime);
-      setTempEndDate(null);
-      return; // 단일 날짜 선택 모드에서는 여기서 로직 종료
-    }
-    // --- showDeadline 로직 끝 ---
-
-    // 마감일 기능 사용 시 (아래는 두 번째 로직의 범위 선택 부분)
-    if (tempStartDate && tempEndDate) {
-      if (isBefore(newClickedDateWithTime, tempEndDate)) {
-        setTempStartDate(newClickedDateWithTime);
-      } else {
-        setTempStartDate(newClickedDateWithTime);
-        setTempEndDate(null);
-      }
-    } else if (tempStartDate && !tempEndDate) {
-      const startDateWithoutTime = startOfDay(tempStartDate);
-      const clickedDayWithoutTime = startOfDay(day);
-
-      if (isBefore(clickedDayWithoutTime, startDateWithoutTime)) {
-        setTempStartDate(newClickedDateWithTime);
-      } else {
-        let endDateWithTime = tempIncludeTime
-          ? setMinutes(setHours(day, tempEndDate ? getHours(tempEndDate) : (tempIncludeTime && tempStartDate ? getHours(tempStartDate) : 0)), tempEndDate ? getMinutes(tempEndDate) : (tempIncludeTime && tempStartDate ? getMinutes(tempStartDate) : 0))
-          : startOfDay(day);
-
-        if (tempStartDate && isValid(tempStartDate) && isBefore(endDateWithTime, tempStartDate)) {
-          console.warn("마감 시간은 시작 시간보다 이전일 수 없습니다. 시작 시간으로 조정합니다.");
-          endDateWithTime = tempStartDate;
-        }
-        setTempEndDate(endDateWithTime);
-      }
-    } else {
-      setTempStartDate(newClickedDateWithTime);
-      setTempEndDate(null);
-    }
-  };
-
-  // 월 이동
-  // 이전 달 이동
-  const prevMonth = () => setTempCurrentMonth(subMonths(tempCurrentMonth, 1));
-  const nextMonth = () => setTempCurrentMonth(addMonths(tempCurrentMonth, 1));
-
-  // 토글 핸들러
-  // 마감일
-  const handleDeadlineToggle = () => {
-    const newState = !tempShowDeadline;
-    setTempShowDeadline(newState);
-    if (!newState) {
-      setTempEndDate(null);
-    }
-  };
-
-  // 시간 포함 토글 핸들러
-  const handleTimeToggle = () => {
-    const newState = !tempIncludeTime;
-    setTempIncludeTime(newState);
-  };
-
+const DateTimePicker: React.FC<DateTimePickerProps> = (props) => {
+  const {
+    tempCurrentMonth, tempStartDate, tempEndDate, tempShowDeadline, tempIncludeTime, calcMinStart: minStart,
+    setTempStartDate, setTempEndDate,
+    handleDateClick, prevMonth, nextMonth, handleDeadlineToggle, handleTimeToggle,
+  } = useDateTimePicker(props)
   const generateTimeOptions = (intervalMinutes = 10) => {
     const options = [];
     for (let h = 0; h < 24; h++) {
@@ -218,6 +111,7 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
       <div className="datetime-picker-container">
         {/** 상단 날짜/시간 표시 및 선택 */}
         <div className="selected-info">
+          {/* Case 1: 시간을 포함하지 않는 경우 */}
           {!tempIncludeTime && (
             <div className={`date-time-row ${tempShowDeadline ? 'separate' : ''}`}>
               <DateInput
@@ -226,6 +120,7 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
                 label="시작일"
                 locale={ko}
               />
+              {/* 마감일은 tempShowDeadline에 따라서만 결정 */}
               {tempShowDeadline && (
                 <DateInput
                   date={tempEndDate}
@@ -237,41 +132,10 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
             </div>
           )}
 
+          {/* Case 2: 시간을 포함하는 경우 */}
           {tempIncludeTime && (
-            tempShowDeadline ? (
-              <>
-                <div className="date-time-row separate">
-                  <DateInput
-                    date={tempStartDate}
-                    setDate={setTempStartDate}
-                    label="시작일"
-                    locale={ko}
-                  />
-                  {tempStartDate && isValid(tempStartDate)
-                    ? renderSingleTimeSelect('start')
-                    : <div className="time-placeholder">
-                      <span>시작 시간</span>
-                      <FontAwesomeIcon icon={faChevronDown} style={{ width: 9, height: 9, color: '#0F1B2A' }} />
-                    </div>
-                  }
-                </div>
-                <div className="date-time-row separate">
-                  <DateInput
-                    date={tempEndDate}
-                    setDate={setTempEndDate}
-                    label="마감일"
-                    locale={ko}
-                  />
-                  {tempEndDate && isValid(tempEndDate)
-                    ? renderSingleTimeSelect('end')
-                    : <div className="time-placeholder">
-                      <span>마감 시간</span>
-                      <FontAwesomeIcon icon={faChevronDown} style={{ width: 9, height: 9, color: '#0F1B2A' }} />
-                    </div>
-                  }
-                </div>
-              </>
-            ) : (
+            <>
+              {/* 시작일/시간 행은 항상 렌더링 */}
               <div className="date-time-row separate">
                 <DateInput
                   date={tempStartDate}
@@ -281,13 +145,36 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
                 />
                 {tempStartDate && isValid(tempStartDate)
                   ? renderSingleTimeSelect('start')
-                  : <div className="time-placeholder">
-                    <span>시작 시간</span>
-                    <FontAwesomeIcon icon={faChevronDown} style={{ width: 9, height: 9, color: '#0F1B2A' }} />
-                  </div>
+                  : (
+                    <div className="time-placeholder">
+                      <span>시작 시간</span>
+                      <FontAwesomeIcon icon={faChevronDown} style={{ width: 9, height: 9, color: '#0F1B2A' }} />
+                    </div>
+                  )
                 }
               </div>
-            )
+
+              {/* 마감일/시간 행은 tempShowDeadline에 따라서만 결정 */}
+              {tempShowDeadline && (
+                <div className="date-time-row separate">
+                  <DateInput
+                    date={tempEndDate}
+                    setDate={setTempEndDate}
+                    label="마감일"
+                    locale={ko}
+                  />
+                  {tempEndDate && isValid(tempEndDate)
+                    ? renderSingleTimeSelect('end')
+                    : (
+                      <div className="time-placeholder">
+                        <span>마감 시간</span>
+                        <FontAwesomeIcon icon={faChevronDown} style={{ width: 9, height: 9, color: '#0F1B2A' }} />
+                      </div>
+                    )
+                  }
+                </div>
+              )}
+            </>
           )}
         </div>
 
