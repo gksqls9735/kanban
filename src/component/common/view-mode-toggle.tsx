@@ -6,26 +6,11 @@ import useDropdown from "../../hooks/use-dropdown";
 const ViewModeToggle: React.FC<{}> = ({ }) => {
   const { viewMode, setViewMode } = useViewModeStore();
   const { isOpen, wrapperRef, dropdownRef, toggle } = useDropdown();
-
   const isViewModeStatus = viewMode === ViewModes.STATUS;
 
-  viewMode
   return (
     <>
-      <div ref={wrapperRef} style={{
-        position: 'fixed',
-        width: 48,
-        height: 48,
-        bottom: 30,
-        right: 30,
-        backgroundColor: `${isOpen ? '#EEF1F6' : 'white'}`,
-        border: '1px solid #EEF1F6',
-        borderRadius: 30,
-        display: 'flex', justifyContent: 'center', alignItems: 'center',
-        boxSizing: 'border-box',
-        boxShadow: '0px 2px 8px 0px #0000001F',
-        cursor: 'pointer'
-      }}
+      <div ref={wrapperRef} className={`view-mode-toggle__button ${isOpen ? 'view-mode-toggle__button--open' : ''}`}
         onClick={toggle}>
         <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" id="Setting--Streamline-Unicons" height="20" width="20">
           <desc>
@@ -35,50 +20,26 @@ const ViewModeToggle: React.FC<{}> = ({ }) => {
         </svg>
       </div>
       {isOpen && (
-        <div ref={dropdownRef}
-          style={{
-            position: 'fixed', width: 400, height: 227, bottom: 100, right: 30, borderRadius: 8,
-            boxShadow: '0px 4px 16px 0px #00000014', backgroundColor: 'white', boxSizing: 'border-box'
-          }}
-        >
-          <div style={{
-            width: '100%', height: '100%', padding: 24, display: 'flex', flexDirection: 'column', gap: 16,
-            boxSizing: 'border-box'
-          }}>
-            <div style={{
-              fontWeight: 600, fontSize: 16, lineHeight: '100%', color: '#34343D',
-            }}>보기 방식 선택</div>
-            <div style={{ display: 'flex', gap: 9 }}>
-              <div style={{ display: 'flex', gap: 10, flexDirection: 'column', cursor: 'pointer' }} onClick={() => setViewMode(ViewModes.STATUS)}>
-                <div style={{
-                  width: 171.5, height: 120,
-                  padding: '8px 12px',
-                  border: `1px solid ${isViewModeStatus ? '#16B364' : '#E4E8EE'}`,
-                  borderRadius: 6, boxSizing: 'border-box', display: 'flex', alignItems: 'center', justifyContent: 'center'
-                }}>
-                  <div className="progress-container">
-
-                    <div className="circle pending" />
-                    <div className="line pending" />
-
-                    <div className="circle active" />
-                    <div className="line active" />
-
-                    <div className="circle completed" />
-
+        <div ref={dropdownRef} className="view-mode-toggle__dropdown">
+          <div className="view-mode-toggle__content">
+            <div className="view-mode-toggle__title">보기 방식 선택</div>
+            <div className="view-mode-toggle__options">
+              <div className="view-mode-toggle__option" onClick={() => setViewMode(ViewModes.STATUS)}>
+                <div className={`view-mode-toggle__preview ${isViewModeStatus ? 'view-mode-toggle__preview--active' : 'view-mode-toggle__preview'}`}>
+                  <div className="view-mode-toggle__progress">
+                    <div className="view-mode-toggle__circle pending" />
+                    <div className="view-mode-toggle__line pending" />
+                    <div className="view-mode-toggle__circle active" />
+                    <div className="view-mode-toggle__line active" />
+                    <div className="view-mode-toggle__circle completed" />
                   </div>
                 </div>
-                <div style={{ fontWeight: 400, fontSize: 13, lineHeight: '130%', textAlign: 'center' }}>상태별</div>
+                <div className="view-mode-toggle__label">상태별</div>
               </div>
-              <div style={{ display: 'flex', gap: 10, flexDirection: 'column', cursor: 'pointer' }} onClick={() => setViewMode(ViewModes.SECTION)}>
-                <div style={{
-                  width: 171.5, height: 120,
-                  padding: '8px 12px',
-                  border: `1px solid ${!isViewModeStatus ? '#16B364' : '#E4E8EE'}`,
-                  borderRadius: 6, boxSizing: 'border-box'
-                }}>
-                  <div style={{ display: 'flex', gap: 8, flexDirection: 'column', padding: '8px 12px', width: '100%', height: '100%', boxSizing: 'border-box', alignItems: 'center', justifyContent: 'center' }}>
-                    <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
+              <div className="view-mode-toggle__option" onClick={() => setViewMode(ViewModes.SECTION)}>
+                <div className={`view-mode-toggle__preview ${!isViewModeStatus ? 'view-mode-toggle__preview--active' : 'view-mode-toggle__preview'}`}>
+                  <div className="view-mode-toggle__folder-layout">
+                    <div className="view-mode-toggle__folder-row">
                       <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 20 20" fill="none">
                         <path d="M16.667 4.9987H9.16699L7.50033 3.33203H3.33366C2.41699 3.33203 1.66699 4.08203 1.66699 4.9987V8.33203H18.3337V6.66536C18.3337 5.7487 17.5837 4.9987 16.667 4.9987Z" fill="#16B364" />
                         <path d="M16.667 5H3.33366C2.41699 5 1.66699 5.75 1.66699 6.66667V15C1.66699 15.9167 2.41699 16.6667 3.33366 16.6667H16.667C17.5837 16.6667 18.3337 15.9167 18.3337 15V6.66667C18.3337 5.75 17.5837 5 16.667 5Z" fill="#32D583" />
@@ -88,7 +49,7 @@ const ViewModeToggle: React.FC<{}> = ({ }) => {
                         <path d="M16.667 5H3.33366C2.41699 5 1.66699 5.75 1.66699 6.66667V15C1.66699 15.9167 2.41699 16.6667 3.33366 16.6667H16.667C17.5837 16.6667 18.3337 15.9167 18.3337 15V6.66667C18.3337 5.75 17.5837 5 16.667 5Z" fill="#A8B1BD" />
                       </svg>
                     </div>
-                    <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
+                    <div className="view-mode-toggle__folder-row">
                       <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 20 20" fill="none">
                         <path d="M16.667 4.9987H9.16699L7.50033 3.33203H3.33366C2.41699 3.33203 1.66699 4.08203 1.66699 4.9987V8.33203H18.3337V6.66536C18.3337 5.7487 17.5837 4.9987 16.667 4.9987Z" fill="#7D8998" />
                         <path d="M16.667 5H3.33366C2.41699 5 1.66699 5.75 1.66699 6.66667V15C1.66699 15.9167 2.41699 16.6667 3.33366 16.6667H16.667C17.5837 16.6667 18.3337 15.9167 18.3337 15V6.66667C18.3337 5.75 17.5837 5 16.667 5Z" fill="#A8B1BD" />
@@ -100,7 +61,7 @@ const ViewModeToggle: React.FC<{}> = ({ }) => {
                     </div>
                   </div>
                 </div>
-                <div style={{ fontWeight: 400, fontSize: 13, lineHeight: '130%', textAlign: 'center' }}>섹션별</div>
+                <div className="view-mode-toggle__label">섹션별</div>
               </div>
             </div>
           </div>
