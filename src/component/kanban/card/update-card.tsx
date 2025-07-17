@@ -1,174 +1,19 @@
-import { priorityMedium, prioritySelect } from "../../../mocks/select-option-mock";
-import useStatusesStore from "../../../store/statuses-store";
-import useSectionsStore from "../../../store/sections-store";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Participant, Section, SelectOption, Task } from "../../../types/type";
-import useTaskStore from "../../../store/task-store";
+import { prioritySelect } from "../../../mocks/select-option-mock";
 import SectionSelector from "../../common/selector/section-selector";
 import DatePickerTrigger from "../date-picker/datepicker-trigger";
 import OptionSelector from "../../common/selector/option-selector";
 import AvatarItem from "../../common/avatar/avatar";
-import { getInitial, normalizeSpaces } from "../../../utils/text-function";
+import { getInitial } from "../../../utils/text-function";
 import ParticipantSelector from "../../participant-select/participant-selector";
-import { calcMinStart } from "../../../utils/date-function";
-import { useKanbanActions } from "../../../context/task-action-context";
-import { useToast } from "../../../context/toast-context";
 import TodoList from "../card-todo/todolist";
-import { isAfter } from "date-fns";
+import { useUpdateCard, UseUpdateCard } from "../../../hooks/task/use-update-card";
 
-const UpdateCard: React.FC<{
-  onClose: () => void;
-  currentTask: Task;
-}> = ({ onClose, currentTask }) => {
-  const cardRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const updateTask = useTaskStore(state => state.updateTask);
-  const statusList = useStatusesStore(state => state.statusList);
-  const sections = useSectionsStore(state => state.sections);
-
-  const allTasks = useTaskStore(state => state.allTasks);
-
-  const [isDatePickerOpen, setIsDatePickerOpen] = useState<boolean>(false);
-  const [isSelectorOpen, setIsSelectorOpen] = useState<boolean>(false);
-
-  const { showToast } = useToast();
-  const { onTasksChange } = useKanbanActions();
-
-  const getMinStartDateForTask = (task: Task): Date | null => {
-    // 대상 작업이나 작업의 의존성 ID 목록이 없으면 계산할 필요가 없습니다.
-    if (!task || !task.dependencies || task.dependencies.length === 0) {
-      return null;
-    }
-
-    // task.dependencies는 ID 문자열의 배열입니다.
-    // allTasks 배열에서 해당 ID를 가진 실제 Task 객체들을 찾습니다.
-    const resolvedDependencies: Task[] = task.dependencies
-      .map(depId => allTasks.find(t => t.taskId === depId)) // ID로 Task 객체 검색
-      .filter((dep): dep is Task => dep !== undefined); // undefined 제거 및 타입 가드
-
-    // 유효한 실제 의존성 작업 객체가 하나도 없다면 minStart를 계산할 수 없습니다.
-    if (resolvedDependencies.length === 0) {
-      return null;
-    }
-
-    // 찾은 실제 의존성 Task 객체들을 사용하여 calcMinStart 호출
-    return calcMinStart(task, resolvedDependencies);
-  };
-
-  const minStart = getMinStartDateForTask(currentTask);
-
-  const [isOpenParticipantModal, setIsOpenParticipantModal] = useState<boolean>(false);
-
-  const [selectedSection, setSelectedSection] = useState<Section>(() => {
-    return sections.find(sec => sec.sectionId === currentTask.sectionId) || sections[0];
-  });
-  const [selectedPriority, setSelectedPriority] = useState<SelectOption>(currentTask.priority || priorityMedium);
-  const [selectedStatus, setSelectedStatus] = useState(() => {
-    return statusList.find(status => status.code === currentTask.status.code) || statusList[0];
-
-  });
-  const [startDate, setStartDate] = useState<Date | null>(currentTask.start || null);
-  const [endDate, setEndDate] = useState<Date | null>(currentTask.end || null);
-  const [participants, setParticipants] = useState<Participant[]>(currentTask.participants || []);
-
-  const sortedParticipants = useMemo(() => {
-    if (!participants || participants.length === 0) return [];
-    return [...participants].sort((a, b) => {
-      if (a.isMain && !b.isMain) return -1;
-      if (!a.isMain && b.isMain) return 1;
-      return 0;
-    });
-  }, [participants]);
-
-
-  useEffect(() => {
-    inputRef.current?.focus();
-  }, [inputRef.current]);
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.value = currentTask.taskName;
-    }
-
-    inputRef.current?.focus();
-
-  }, [currentTask.taskName]);
-
-  const handleUpdateTask = () => {
-    if (!inputRef.current) return;
-
-    let processedName = inputRef.current?.value;
-    processedName = normalizeSpaces(processedName);
-
-    if (!processedName) {
-      showToast('작업명을 입력해주세요.');
-      inputRef.current?.focus();
-      return;
-    }
-
-    const finalStartDate = startDate ? startDate : currentTask.start;
-    const finalEndDate = endDate;
-
-    if (finalStartDate && finalEndDate && isAfter(finalStartDate, finalEndDate)) {
-      showToast('시작일은 마감일보다 이전 날짜여야 합니다.');
-      return;
-    }
-
-    const updatedTasks = updateTask(currentTask.taskId, {
-      sectionId: selectedSection.sectionId,
-      taskName: processedName,
-      start: finalStartDate,
-      end: finalEndDate,
-      priority: selectedPriority,
-      status: selectedStatus,
-      participants: participants,
-    });
-    if (onTasksChange && updatedTasks.length > 0) {
-      if (updatedTasks) onTasksChange(updatedTasks);
-    }
-    onClose();
-  };
-
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (isOpenParticipantModal || isDatePickerOpen || isSelectorOpen) return;
-      const path = e.composedPath();
-      if (cardRef.current && !path.includes(cardRef.current)) {
-        handleUpdateTask();
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [handleUpdateTask, isOpenParticipantModal, isDatePickerOpen, isSelectorOpen]);
-
-  // 작업 값 변경
-  const handleDateSelect = (start: Date | null, end: Date | null) => {
-    const finalStartDate = start ? start : currentTask.start;
-    const finalEndDate = end;
-
-    if (finalStartDate && finalEndDate && isAfter(finalStartDate, finalEndDate)) {
-      showToast('시작일은 마감일보다 이전 날짜여야 합니다.');
-      return;
-    }
-    setStartDate(finalStartDate);
-    setEndDate(end);
-  };
-
-  const handleSectionSelect = (section: Section) => setSelectedSection(section);
-  const handlePrioritySelect = (priority: SelectOption) => setSelectedPriority(priority);
-  const handleStatusSelect = (status: SelectOption) => setSelectedStatus(status);
-
-  const handleInputSubmit = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      handleUpdateTask();
-    }
-  };
-
-  const handleParticipants = (participants: Participant[]) => {
-    setParticipants(participants);
-  }
-
+const UpdateCard: React.FC<UseUpdateCard> = ({ onClose, currentTask }) => {
+  const {
+    cardRef, inputRef, statusList, isOpenParticipantModal, setIsOpenParticipantModal, setIsDatePickerOpen, setIsSelectorOpen,
+    selectedSection, selectedPriority, selectedStatus, startDate, endDate, participants, sortedParticipants, minStart,
+    handleDateSelect, handleSectionSelect, handlePrioritySelect, handleStatusSelect, handleParticipants, handleInputSubmit,
+  } = useUpdateCard({ onClose, currentTask })
   return (
     <div ref={cardRef} className="edit-task-content" style={{ display: 'contents' }} onClick={e => e.stopPropagation()}>
 
