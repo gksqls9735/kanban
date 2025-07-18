@@ -7,7 +7,10 @@ import { getInitial } from "../../../utils/text-function";
 import ParticipantSelector from "../../participant-select/participant-selector";
 import { useNewTaskCard } from "../../../hooks/task/use-new-task-card";
 import TodoListEditor from "./todolist-editor";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import { SPEECH_BUBBLE_TOOLTIP_STYLE } from "../../../constant/style-constant";
+import SpeechBubbleTooltip from "../../common/speech-bubble-tooltip";
 
 const NewTaskCard: React.FC<{
   columnId: string;
@@ -24,7 +27,21 @@ const NewTaskCard: React.FC<{
     isOpenParticipantModal, setIsOpenParticipantModal,
     handleDateSelect, handleSectionSelect, handlePrioritySelect, handleStatusSelect, handleTodosChange, handleParticipants,
     handleInputSubmit
-  } = useNewTaskCard({ columnId, onClose, newCardId, isDropdownOpen })
+  } = useNewTaskCard({ columnId, onClose, newCardId, isDropdownOpen });
+
+  const [isHovered, setIsHovered] = useState<boolean>(false);
+  const triggerRef = useRef<HTMLDivElement>(null);
+  const [tooltipPosition, setTooltipPosition] = useState<{ top: number, left: number }>({ top: 0, left: 0 });
+
+  const handleMouseEnter = () => {
+    if (triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect();
+      const top = rect.bottom + window.scrollY + 5;
+      const left = rect.left + window.scrollX + (rect.width / 2) + 17;
+      setTooltipPosition({ top, left });
+    }
+    setIsHovered(true);
+  };
 
   return (
     <>
@@ -49,7 +66,7 @@ const NewTaskCard: React.FC<{
           onKeyDown={handleInputSubmit}
         />
 
-        <DatePickerTrigger startDate={startDate} endDate={endDate} onDateSelect={handleDateSelect} onToggle={setIsDropdownOpen}/>
+        <DatePickerTrigger startDate={startDate} endDate={endDate} onDateSelect={handleDateSelect} onToggle={setIsDropdownOpen} />
 
         <div className="card-meta">
           <div className="card-priority-status">
@@ -68,7 +85,7 @@ const NewTaskCard: React.FC<{
               {getInitial(user.username)}
             </AvatarItem>
           ))}
-          <div onClick={() => setIsOpenParticipantModal(true)}>
+          <div ref={triggerRef} onClick={() => setIsOpenParticipantModal(true)} style={{ position: 'relative' }} onMouseEnter={handleMouseEnter} onMouseLeave={() => setIsHovered(false)}>
             <AvatarItem
               key="add"
               isOverflow={true}
@@ -79,6 +96,19 @@ const NewTaskCard: React.FC<{
                 <path fillRule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2" />
               </svg>
             </AvatarItem>
+            {isHovered && createPortal(
+              <div
+                style={{
+                  position: 'absolute',
+                  top: `${tooltipPosition.top}px`,
+                  left: `${tooltipPosition.left}px`,
+                  transform: 'translateX(-50%)',
+                  zIndex: 9999,
+                }}>
+                <style>{SPEECH_BUBBLE_TOOLTIP_STYLE}</style>
+                <SpeechBubbleTooltip placement="top" arrowOffset="20px" maxWidth={100}>담당자 지정</SpeechBubbleTooltip>
+              </div>, document.body
+            )}
           </div>
         </div>
 
