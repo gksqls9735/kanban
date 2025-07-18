@@ -2,6 +2,7 @@
 import { defineConfig, loadEnv } from 'vite'; // loadEnv 임포트
 import react from '@vitejs/plugin-react';
 import path from 'path';
+import svgr from 'vite-plugin-svgr';
 
 // defineConfig의 콜백 함수를 사용하여 'mode' (development, production 등)에 접근합니다.
 export default defineConfig(({ mode }) => {
@@ -11,7 +12,7 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
 
   return {
-    plugins: [react()],
+    plugins: [react(), svgr()],
     define: {
       // 1. 'process.env.NODE_ENV' 정의:
       // 많은 라이브러리들이 이 값을 참조하여 개발 모드와 프로덕션 모드를 구분합니다.
