@@ -3,10 +3,10 @@ import { User } from "../../../../types/type";
 import AvatarItem from "../../../common/avatar/avatar";
 import { getInitial } from "../../../../utils/text-function";
 
-// 아이콘 URL 정의
-const ICON_ARROW_DOWN = "https://works.bizbee.co.kr/assets/doc-arrow-down.8bd3b059.svg";
-const ICON_ARROW_RIGHT = "https://works.bizbee.co.kr/assets/doc-arrow-right.a8f55779.svg";
-const ICON_FOLDER = "https://works.bizbee.co.kr/assets/doc-folder-grey.0c6e4658.svg";
+import FolderIcon from "../../../../assets/folder.svg?react";
+import ArrowDownIcon from "../../../../assets/arrow-down.svg?react";
+import ArrowRightIcon from "../../../../assets/arrow-right.svg?react";
+import SearchIcon from "../../../../assets/participant-search.svg?react";
 
 const TreePanel: React.FC<{
   users: User[];
@@ -99,16 +99,12 @@ const TreePanel: React.FC<{
               onClick={() => toggleNodeExpansion(node.id)}
             >
               {node.children && node.children.length > 0 && (
-                <img
-                  src={isExpanded ? ICON_ARROW_DOWN : ICON_ARROW_RIGHT}
-                  className="participant-modal__group-toggle-icon"
-                  alt={isExpanded ? "축소" : "확장"}
-                />
+                isExpanded ? <ArrowDownIcon width={16} height={16} /> : <ArrowRightIcon width={16} height={16} />
               )}
               {!(node.children && node.children.length > 0) && ( /* 자식이 없으면 빈 공간 차지 */
                 <div className="participant-modal__group-toggle-icon"></div>
               )}
-              <img src={ICON_FOLDER} className="participant-modal__group-folder-icon" alt="폴더" />
+              <FolderIcon width="21" height="21" />
               <span>{node.name} ({node.childrenCount})</span>
             </div>
             {isExpanded && node.children.map(childNode => renderTreeNode(childNode))}
@@ -143,10 +139,7 @@ const TreePanel: React.FC<{
               onChange={e => setSearchTerm(e.target.value)}
               value={searchTerm}
             />
-            <svg className="participant-modal__search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="-0.5 -0.5 16 16" fill="none" stroke="#000000" strokeLinecap="round" strokeLinejoin="round" id="Search--Streamline-Lucide" height="16" width="16">
-              <desc>Search Streamline Icon: https://streamlinehq.com</desc>
-              <path d="M1.875 6.875a5 5 0 1 0 10 0 5 5 0 1 0 -10 0" strokeWidth="1"></path><path d="m13.125 13.125 -2.6875 -2.6875" strokeWidth="1"></path>
-            </svg>
+            <SearchIcon width="16" height="16" />
           </div>
         </div>
         <div className="participant-modal__user-list kanban-scrollbar-y">

@@ -2,6 +2,8 @@ import { useMemo, useState } from "react";
 import UserItem from "./user-item";
 import { User } from "../../../../types/type";
 
+import SearchIcon from "../../../../assets/participant-search.svg?react";
+
 
 const UserListPanel: React.FC<{
   users: User[];
@@ -36,10 +38,7 @@ const UserListPanel: React.FC<{
             type="text"
             onChange={e => setSearchTerm(e.target.value)}
           />
-          <svg className="participant-modal__search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="-0.5 -0.5 16 16" fill="none" stroke="#000000" strokeLinecap="round" strokeLinejoin="round" id="Search--Streamline-Lucide" height="16" width="16">
-            <desc>Search Streamline Icon: https://streamlinehq.com</desc>
-            <path d="M1.875 6.875a5 5 0 1 0 10 0 5 5 0 1 0 -10 0" strokeWidth="1"></path><path d="m13.125 13.125 -2.6875 -2.6875" strokeWidth="1"></path>
-          </svg>
+          <SearchIcon width="16" height="16" />
         </div>
       </div>
       <div className="participant-modal__user-list kanban-scrollbar-y">

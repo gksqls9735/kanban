@@ -128,12 +128,6 @@ const ParticipantSelector: React.FC<{
     return () => { document.removeEventListener('mousedown', handleClickOutside) };
   }, [openDropdownId, handleCloseDropdown]);
 
-
-  /**
-   *                   <img src="https://works.bizbee.co.kr/assets/doc-arrow-down.8bd3b059.svg" style={{ width: 16, height: 16 }} />
-                  <img src="https://works.bizbee.co.kr/assets/doc-arrow-right.a8f55779.svg" style={{ width: 16, height: 16 }} />
-   */
-
   return (
     <div className="participant-modal__overlay" onClick={onClose}>
       <div className="participant-modal__container" onClick={e => e.stopPropagation()}>

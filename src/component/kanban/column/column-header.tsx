@@ -1,8 +1,13 @@
-import { useCallback, useEffect, useState, useRef } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ViewModes } from "../../../constant/constants";
 import useDropdown from "../../../hooks/use-dropdown";
 import useViewModeStore from "../../../store/viewmode-store";
 import ReactDOM from "react-dom";
+
+import EditIcon from "../../../assets/edit.svg?react";
+import TrashIcon from "../../../assets/trash-bold.svg?react";
+import ColumnInsertLeft from "../../../assets/column-insert-left.svg?react";
+import ColumnInsertRight from "../../../assets/column-insert-right.svg?react";
 
 // 드롭다운 메뉴의 대략적인 크기 (폴백용)
 const DROPDOWN_MENU_WIDTH_COL_HEADER_FALLBACK = 180;
@@ -29,20 +34,20 @@ const ColumnHeader: React.FC<{
   const isReadOnly = isWatingStatus || columnTitle === '진행' || columnTitle === '완료';
 
   // dropdownPosition을 {top:0, left:0}으로 초기화하여 렌더링을 보장하고, '날아오는 느낌'을 최소화합니다.
-  const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 }); 
+  const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
 
   // 드롭다운 메뉴 위치 계산 함수 (Portal용: 뷰포트 기준 절대 위치 계산)
   const calcDropdownPosition = useCallback(() => {
     // Ref가 모두 유효할 때만 계산을 시도합니다.
     // useEffect에서 setTimeout을 통해 이 가정이 충족되도록 합니다.
-    if (!wrapperRef.current || !dropdownRef.current) { 
+    if (!wrapperRef.current || !dropdownRef.current) {
       // console.warn("ColumnHeader: Ref is null during calcDropdownPosition."); // 디버깅용
       setDropdownPosition({ top: 0, left: 0 }); // 계산 불가 시 기본 위치 유지 (점프 방지)
-      return; 
+      return;
     }
 
     const triggerRect = wrapperRef.current.getBoundingClientRect(); // 트리거의 뷰포트 기준 위치와 크기
-    
+
     // 실제 렌더링된 드롭다운의 크기를 측정합니다. (폴백 값 사용)
     const actualDropdownHeight = dropdownRef.current.offsetHeight || DROPDOWN_MENU_HEIGHT_COL_HEADER_FALLBACK;
     const actualDropdownWidth = dropdownRef.current.offsetWidth || DROPDOWN_MENU_WIDTH_COL_HEADER_FALLBACK;
@@ -59,7 +64,7 @@ const ColumnHeader: React.FC<{
       // 오른쪽에 공간이 부족하면 트리거의 왼쪽으로 옮깁니다.
       // 드롭다운의 오른쪽 끝을 트리거의 왼쪽 끝에 맞춥니다.
       newLeft = triggerRect.left + window.scrollX - actualDropdownWidth - DROPDOWN_HORIZONTAL_GAP;
-      
+
       // 왼쪽으로 옮겼을 때, 화면의 왼쪽 경계를 벗어나는지 확인
       if (newLeft < window.scrollX + SCREEN_EDGE_PADDING) {
         newLeft = window.scrollX + SCREEN_EDGE_PADDING; // 화면 왼쪽 경계에 맞춤
@@ -82,7 +87,7 @@ const ColumnHeader: React.FC<{
         newTop = window.scrollY + SCREEN_EDGE_PADDING; // 화면 위쪽 경계에 맞춤
       }
     }
-    
+
     setDropdownPosition({ top: newTop, left: newLeft });
 
   }, [wrapperRef, dropdownRef]); // dropdownRef를 의존성 배열에 추가 (offsetHeight 사용)
@@ -95,7 +100,7 @@ const ColumnHeader: React.FC<{
       // 이렇게 해야 dropdownRef.current가 유효해지고 offsetHeight/offsetWidth를 정확히 측정할 수 있습니다.
       const timer = setTimeout(() => {
         // setTimeout 콜백 내부에서 dropdownRef.current가 존재하는지 다시 확인
-        if (dropdownRef.current) { 
+        if (dropdownRef.current) {
           calcDropdownPosition();
         } else {
           // Ref가 아직 null이면 (첫 렌더링 시), setDropdownPosition을 호출하지 않고,
@@ -104,7 +109,7 @@ const ColumnHeader: React.FC<{
           console.warn("ColumnHeader: dropdownRef.current is null after setTimeout(0). Waiting for next render tick.");
         }
       }, 0);
-      
+
       window.addEventListener('resize', calcDropdownPosition);
 
       return () => {
@@ -137,15 +142,10 @@ const ColumnHeader: React.FC<{
     setIsOpen(false); // 드롭다운 메뉴 닫기
   };
 
-  const handleToggle = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    toggle();
-  };
-
   // Portal로 렌더링될 드롭다운 메뉴
   const renderDropdownMenu = () => {
     // isOpen이 true이고 dropdownPosition이 유효해야 렌더링 (단, 초기 0,0은 유효로 간주)
-    if (!isOpen || !dropdownPosition) return null; 
+    if (!isOpen || !dropdownPosition) return null;
 
     return ReactDOM.createPortal(
       <>
@@ -163,26 +163,17 @@ const ColumnHeader: React.FC<{
         >
           {!isWatingStatus && (
             <div className="section-header-dropdown-item" onClick={handleAddBefore}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="-0.5 -0.5 16 16" fill="none" stroke="#000000" strokeLinecap="round" strokeLinejoin="round" id="Column-Insert-Left--Streamline-Tabler" height="16" width="16">
-                <desc>Column Insert Left Streamline Icon: https://streamlinehq.com</desc>
-                <path d="M8.75 2.5h2.5a0.625 0.625 0 0 1 0.625 0.625v8.75a0.625 0.625 0 0 1 -0.625 0.625h-2.5a0.625 0.625 0 0 1 -0.625 -0.625V3.125a0.625 0.625 0 0 1 0.625 -0.625z" strokeWidth="1"></path>
-                <path d="m3.125 7.5 2.5 0" strokeWidth="1"></path><path d="m4.375 6.25 0 2.5" strokeWidth="1"></path>
-              </svg>
+              <ColumnInsertLeft width="16" height="16" />
               {`왼쪽에 ${viewMode === ViewModes.STATUS ? '상태' : '섹션'}추가`}
             </div>
           )}
           <div className="section-header-dropdown-item" onClick={handleAddAfter}>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="-0.5 -0.5 16 16" fill="none" stroke="#000000" strokeLinecap="round" strokeLinejoin="round" id="Column-Insert-Right--Streamline-Tabler" height="16" width="16"><desc>Column Insert Right Streamline Icon: https://streamlinehq.com</desc>
-              <path d="M3.75 2.5h2.5a0.625 0.625 0 0 1 0.625 0.625v8.75a0.625 0.625 0 0 1 -0.625 0.625H3.75a0.625 0.625 0 0 1 -0.625 -0.625V3.125a0.625 0.625 0 0 1 0.625 -0.625z" strokeWidth="1"></path>
-              <path d="m9.375 7.5 2.5 0" strokeWidth="1"></path><path d="m10.625 6.25 0 2.5" strokeWidth="1"></path>
-            </svg>
+            <ColumnInsertRight width="16" height="16" />
             {`오른쪽에 ${viewMode === ViewModes.STATUS ? '상태' : '섹션'}추가`}
           </div>
           {!isReadOnly && (
             <div className="section-header-dropdown-item" onClick={handleDelete}> {/* onDelete 대신 handleDelete 호출 */}
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" className="bi bi-trash3" viewBox="0 0 16 16">
-                <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47M8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5" />
-              </svg>
+              <TrashIcon width="16" height="16" />
               {deleteActionLabel}
             </div>
           )}
@@ -198,9 +189,7 @@ const ColumnHeader: React.FC<{
         <div className="section-header__actions">
           {!isReadOnly && (
             <div className="section-header__action" onClick={handleEditClick}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="#8D99A8" style={{ padding: 5 }}>
-                <path d="M200-200h57l391-391-57-57-391 391v57Zm-80 80v-170l528-527q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L290-120H120Zm640-584-56-56 56 56Zm-141 85-28-29 57 57-29-28Z" />
-              </svg>
+              <EditIcon width="14" height="14" />
             </div>
           )}
           <div ref={wrapperRef} className="section-header__action" onClick={toggle}>

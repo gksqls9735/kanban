@@ -6,6 +6,9 @@ import { createPortal } from "react-dom";
 import { DATE_PICKER_STYLE } from "../../../../constant/style-constant";
 import DetailDateTimePicker from "../../../kanban/date-picker/detail/detail-datetime-picker";
 
+import CalendarIcon from "../../../../assets/tabler-icon-calendar-event.svg?react";
+
+
 const DROPDOWN_HEIGHT = 438;
 const DROPDOWN_WIDTH = 296;
 const SCREEN_EDGE_PADDING = 10;
@@ -137,9 +140,7 @@ const DateField: React.FC<{
       <div className="task-detail__detail-modal-info-label">{label}</div>
       <div className={valueClassName} onClick={handleToggle} ref={wrapperRef}>
         <div className="task-detail__detail-modal-info-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="#7d8998">
-            <path d="M360-300q-42 0-71-29t-29-71q0-42 29-71t71-29q42 0 71 29t29 71q0 42-29 71t-71 29ZM200-80q-33 0-56.5-23.5T120-160v-560q0-33 23.5-56.5T200-800h40v-80h80v80h320v-80h80v80h40q33 0 56.5 23.5T840-720v560q0 33-23.5 56.5T760-80H200Zm0-80h560v-400H200v400Zm0-480h560v-80H200v80Zm0 0v-80 80Z" />
-          </svg>
+          <CalendarIcon width="16" height="16" />
         </div>
         <div className="task-detail__detail-modal-info-date">{displayDate}</div>
       </div>

@@ -1,10 +1,11 @@
-import { faPaperclip } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Chat, FileAttachment, Participant, User } from "../../../../types/type";
 import { getInitial } from "../../../../utils/text-function";
 import AvatarItem from "../../../common/avatar/avatar";
 import { useChatInput } from "../../../../hooks/detail/use-chat-input";
 import InputFileItem from "./input-file-item";
+
+import ClipIcon from "../../../../assets/clip.svg?react";
+
 
 const ChatInput: React.FC<{
   taskId: string;
@@ -71,13 +72,15 @@ const ChatInput: React.FC<{
                 multiple
                 onChange={handleFileChange}
               />
-              <FontAwesomeIcon icon={faPaperclip} className="task-detail__detail-modal-chat-input-attach-icon" onClick={handleIconClick} />
+              <div className="task-detail__detail-modal-chat-input-attach-icon" onClick={handleIconClick}>
+                <ClipIcon width="20" height="20" />
+              </div>
             </div>
           </div>
           {attachmentsForDisplay.length > 0 && (
             <ul className="task-detail__detail-modal-field-content-list" style={{ padding: '12px 20px' }}>
               {attachmentsForDisplay.map((file, idx) => (
-                <InputFileItem key={`${file.fileName}-${file.size}-${idx}`} file={file} onDelete={handleDeleteFile}/>
+                <InputFileItem key={`${file.fileName}-${file.size}-${idx}`} file={file} onDelete={handleDeleteFile} />
               ))}
             </ul>
           )}

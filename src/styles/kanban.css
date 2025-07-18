@@ -31,6 +31,10 @@
   cursor: pointer;
 }
 
+.kanban-wrapper .view-mode-toggle__button:hover {
+  background-color: #EEF1F6;
+}
+
 .kanban-wrapper .view-mode-toggle__button--open {
   background-color: #EEF1F6;
 }
